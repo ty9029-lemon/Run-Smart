@@ -35,7 +35,7 @@ Swoosh는 한밤중의 아레나 콘솔처럼 작동합니다. 거의 완전한 
 - **웨이트:** 400, 500, 700
 - **크기:** 14, 16, 20, 24, 64, 110
 - **줄 간격:** 한글 헤드라인(디스플레이, heading-lg, heading-sm)은 모두 1.4. 한글은 글자 높이가 커서 0.85에서 글자가 겹치므로 영문 스케일을 그대로 쓰지 않습니다. 서브헤딩 이하와 본문은 영문과 같은 스케일
-- **자간:** 한글 헤드라인 +0.02em, 본문·서브헤딩·작은 텍스트 +0.01em. 영문은 기존 자간 유지
+- **자간:** 한글 display −0.01em, heading-lg·heading-sm +0.02em, subheading −0.01em, body 0, body-sm·버튼 +0.01em. 영문은 기존 자간 유지 (Figma에서 조정한 값이 기준)
 - **역할:** 한글 전용 기본 서체. Plus Jakarta Sans 뒤에 폴백으로 배치해, 별도 언어 분기 없이 한글 글리프에만 적용되도록 합니다.
 
 ### ui-sans-serif — 커스텀 폰트 로딩이 필요 없는 일반 UI 요소(보조 링크, 인라인 라벨, 작은 도움말 문구)를 위한 시스템 폴백. 두 기본 서체와 같은 웨이트 범위를 사용해 자연스럽게 대체되도록 합니다. · `--font-ui-sans-serif`
@@ -56,7 +56,15 @@ Swoosh는 한밤중의 아레나 콘솔처럼 작동합니다. 거의 완전한 
 | heading-lg | — | — | 64px | 1 | — | `--text-heading-lg` |
 | display | — | — | 110px | 0.85 | — | `--text-display` |
 
-위 표는 영문 기준입니다. **한글**은 display·heading-lg·heading-sm의 줄 간격을 1.4로, 자간을 헤드라인 +0.02em / 그 외 +0.01em으로 적용합니다(`--leading-heading-ko`, `--tracking-ko-heading`, `--tracking-ko-body`).
+위 표는 영문 기준입니다. **한글**은 display·heading-lg·heading-sm의 줄 간격을 1.4로 적용합니다(`--leading-heading-ko`). 자간은 역할별로 다릅니다.
+
+| 역할 | 한글 자간 | 토큰 |
+|------|-----------|-------|
+| display | −0.01em | `--tracking-ko-display` |
+| heading-lg, heading-sm | +0.02em | `--tracking-ko-heading` |
+| subheading | −0.01em | `--tracking-ko-subheading` |
+| body | 0 | `--tracking-ko-body` |
+| body-sm, 버튼 | +0.01em | `--tracking-ko-small` |
 
 ### 폰트 로딩
 
@@ -282,8 +290,11 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
   --text-display: 110px;
   --leading-display: 0.85;
   --leading-heading-ko: 1.4;
+  --tracking-ko-display: -0.01em;
   --tracking-ko-heading: 0.02em;
-  --tracking-ko-body: 0.01em;
+  --tracking-ko-subheading: -0.01em;
+  --tracking-ko-body: 0;
+  --tracking-ko-small: 0.01em;
 
   /* Typography — Weights */
   --font-weight-regular: 400;
@@ -364,8 +375,11 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
   --text-display: 110px;
   --leading-display: 0.85;
   --leading-heading-ko: 1.4;
+  --tracking-ko-display: -0.01em;
   --tracking-ko-heading: 0.02em;
-  --tracking-ko-body: 0.01em;
+  --tracking-ko-subheading: -0.01em;
+  --tracking-ko-body: 0;
+  --tracking-ko-small: 0.01em;
 
   /* Spacing */
   --spacing-4: 4px;
