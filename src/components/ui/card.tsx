@@ -1,9 +1,9 @@
 import * as React from "react"
 import { cn } from "cn"
 
-/** 흰색 플로팅 카드: 어두운 사진 위에 놓는 반전 컨테이너 (테두리 없음) */
+/** 흰색 플로팅 카드: 어두운 사진 위에 놓는 반전 컨테이너 (테두리 없음, 패딩 24 — DESIGN.md) */
 const INVERTED_CARD =
-  "border-transparent bg-pure-white text-carbon-black [&_[data-slot=card-description]]:text-carbon-black/70"
+  "border-transparent bg-pure-white text-carbon-black [--card-spacing:--spacing(6)] [&_[data-slot=card-description]]:text-carbon-black/70"
 
 function Card({
   className,
