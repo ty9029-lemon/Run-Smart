@@ -1,6 +1,7 @@
 import { TooltipProvider } from '@/components/ui/tooltip';
 import BadgeChipSection from './design-system/BadgeChipSection';
 import ButtonSection from './design-system/ButtonSection';
+import ChartSection from './design-system/ChartSection';
 import CardSection from './design-system/CardSection';
 import ControlSection from './design-system/ControlSection';
 import FormSection from './design-system/FormSection';
@@ -22,6 +23,7 @@ export default function DesignSystem() {
         <FormSection />
         <ControlSection />
         <CardSection />
+        <ChartSection />
         <OverlaySection />
       </main>
     </TooltipProvider>
