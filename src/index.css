@@ -1,4 +1,9 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+/* 다크 단일 테마: :root 값이 이미 다크이므로 dark: 변형은 쓰지 않는다 (OS 설정에 따라 켜지지 않게 고정) */
+@custom-variant dark (&:is(.dark *));
 
 /* DESIGN.md 토큰: 검정 캔버스 + 라임 1색 */
 @theme {
@@ -20,14 +25,69 @@
   --shadow-sm: rgba(17, 17, 17, 0.125) 0px 2px 6px 0px;
 }
 
-body {
-  margin: 0;
-  background: var(--color-midnight-canvas);
-  color: var(--color-pure-white);
-  font-family: var(--font-sans);
-  line-height: 1.5;
+/* shadcn 시맨틱 색 → DESIGN.md 토큰 (--radius-md는 기존 6px 유지) */
+@theme inline {
+  --font-heading: var(--font-sans);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
 }
 
-button {
-  cursor: pointer;
+/* 다크 단일 테마: 라임은 primary(액션)와 ring(포커스)에만 사용 */
+:root {
+  --background: #111111;
+  --foreground: #ffffff;
+  --card: #1f1f21;
+  --card-foreground: #ffffff;
+  --popover: #1f1f21;
+  --popover-foreground: #ffffff;
+  --primary: #b7ff2c;
+  --primary-foreground: #000000;
+  --secondary: #1f1f21;
+  --secondary-foreground: #ffffff;
+  --muted: #1f1f21;
+  --muted-foreground: #707072;
+  --accent: #28282a;
+  --accent-foreground: #ffffff;
+  /* 두 번째 유채색 금지: destructive도 모노크롬 */
+  --destructive: #ffffff;
+  --border: #28282a;
+  --input: #707072;
+  --ring: #b7ff2c;
+  --radius: 20px;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    margin: 0;
+    line-height: 1.5;
+  }
+  html {
+    @apply font-sans;
+  }
+  button {
+    cursor: pointer;
+  }
 }

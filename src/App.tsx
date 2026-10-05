@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import DesignSystem from './pages/DesignSystem';
 import History from './pages/History';
 import Home from './pages/Home';
 import Onboarding from './pages/Onboarding';
@@ -22,6 +23,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/design-system" element={<DesignSystem />} />
         <Route path="/onboarding" element={<OnboardingOnly />} />
         <Route element={<RequireOnboarding />}>
           <Route path="/" element={<Home />} />
