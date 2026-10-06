@@ -6,6 +6,7 @@ import {
   GUIDE_MODEL,
   GUIDE_REQUEST_TIMEOUT_MS,
   SYSTEM_PROMPT,
+  findGuideProblem,
   buildUserPrompt,
   parseGuideRequest,
   parseGuideResponse,
@@ -42,8 +43,10 @@ async function askClaude(client: Anthropic, req: GuideRequest): Promise<string> 
 /** 형식이 올바른 가이드를 받을 때까지 정해진 횟수만큼 요청한다. */
 async function generateGuide(client: Anthropic, req: GuideRequest): Promise<AiGuide | null> {
   for (let attempt = 0; attempt <= GUIDE_FORMAT_RETRIES; attempt += 1) {
-    const guide = parseGuideResponse(await askClaude(client, req), req.level);
+    const text = await askClaude(client, req);
+    const guide = parseGuideResponse(text, req.level);
     if (guide) return guide;
+    logServerError(`모델 응답 검사 실패 (${attempt + 1}번째): ${findGuideProblem(text)}`);
   }
   return null;
 }

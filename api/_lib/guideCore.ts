@@ -90,6 +90,34 @@ export function buildUserPrompt(req: GuideRequest): string {
   });
 }
 
+/** 검증 결과: 문제가 있으면 problem, 통과하면 json */
+type GuideCheck = { problem: string } | { json: Record<string, unknown> };
+
+/** 모델 응답 텍스트를 검사한다. 문제 이유는 필드 이름만 담는다. (응답 내용은 담지 않는다) */
+function checkGuide(text: string): GuideCheck {
+  const json = extractJsonObject(text);
+  if (!json) return { problem: 'not_json' };
+  const { guideMessage, activityTips, goOrNotEmoji, detailedReason } = json;
+  if (!isBounded(guideMessage, GUIDE_MESSAGE_MAX)) return { problem: 'guideMessage' };
+  if (!isBounded(detailedReason, GUIDE_REASON_MAX)) return { problem: 'detailedReason' };
+  if (!isBounded(goOrNotEmoji, GUIDE_EMOJI_MAX)) return { problem: 'goOrNotEmoji' };
+  if (!Array.isArray(activityTips) || !activityTips.length) return { problem: 'tips_empty' };
+  if (activityTips.length > GUIDE_TIPS_MAX_COUNT) return { problem: 'tips_count' };
+  if (!activityTips.every((t) => isBounded(t, GUIDE_TIP_MAX))) return { problem: 'tip_length' };
+  const all = [guideMessage, detailedReason, ...activityTips].join(' ');
+  const banned = BANNED_PHRASES.find((p) => all.includes(p));
+  return banned ? { problem: 'banned_phrase' } : { json };
+}
+
+/**
+ * 모델 응답이 검사를 통과하지 못한 이유를 돌려준다. 통과하면 null.
+ * @param text 모델 응답 텍스트
+ */
+export function findGuideProblem(text: string): string | null {
+  const checked = checkGuide(text);
+  return 'problem' in checked ? checked.problem : null;
+}
+
 /**
  * 모델 응답 텍스트를 AiGuide로 검증·변환한다.
  * 경고 단계는 앱이 계산한 값을 그대로 쓴다. (점수 표시와 어긋나지 않게)
@@ -98,17 +126,9 @@ export function buildUserPrompt(req: GuideRequest): string {
  * @returns 올바르면 AiGuide, 형식이 어긋나면 null
  */
 export function parseGuideResponse(text: string, level: WarningLevel): AiGuide | null {
-  const json = extractJsonObject(text);
-  if (!json) return null;
-  const { guideMessage, activityTips, goOrNotEmoji, detailedReason } = json;
-  if (!isBounded(guideMessage, GUIDE_MESSAGE_MAX)) return null;
-  if (!isBounded(detailedReason, GUIDE_REASON_MAX)) return null;
-  if (!isBounded(goOrNotEmoji, GUIDE_EMOJI_MAX)) return null;
-  if (!Array.isArray(activityTips) || !activityTips.length) return null;
-  if (activityTips.length > GUIDE_TIPS_MAX_COUNT) return null;
-  if (!activityTips.every((t) => isBounded(t, GUIDE_TIP_MAX))) return null;
-  const all = [guideMessage, detailedReason, ...activityTips].join(' ');
-  if (BANNED_PHRASES.some((p) => all.includes(p))) return null;
+  const checked = checkGuide(text);
+  if ('problem' in checked) return null;
+  const { guideMessage, activityTips, goOrNotEmoji, detailedReason } = checked.json;
   return {
     guideMessage: (guideMessage as string).trim(),
     activityTips: (activityTips as string[]).map((t) => t.trim()),
