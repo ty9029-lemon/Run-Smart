@@ -47,6 +47,12 @@ export interface AiGuide {
   detailedReason: string;
 }
 
+/** 홈에서 AI 가이드 칸이 보여줄 상태 */
+export type GuideState =
+  | { state: 'loading' }
+  | { state: 'failed' }
+  | { state: 'ready'; data: AiGuide };
+
 /** AI 가이드 요청 본문 (PRD 6장 입력 형식 + 앱이 계산한 체감온도·점수) */
 export interface GuideRequest {
   activityLabel: string;

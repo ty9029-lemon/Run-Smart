@@ -1,6 +1,7 @@
 import { CONSTRAINTS, getActivityMeta } from '../constants/activities';
 import { GUIDE_API_PATH, GUIDE_RETRY_COUNT, GUIDE_TIMEOUT_MS } from '../constants/api';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
+import { readGuideCache, writeGuideCache } from '../lib/guideCache';
 import { calcRunScore, scoreToLevel } from '../lib/runScore';
 import type { Activity, AiGuide, Constraint, GuideRequest, Weather } from '../types';
 
@@ -45,16 +46,19 @@ async function requestGuide(body: GuideRequest): Promise<AiGuide> {
 }
 
 /**
- * AI 가이드를 조회한다. 실패하면 정해진 횟수만큼 다시 시도하고,
- * 그래도 실패하면 마지막 에러를 던진다.
- * @param input 활동·보정값·제약사항·날씨·위치
+ * AI 가이드를 조회한다. 1시간 이내 같은 요청의 캐시가 있으면 그대로 쓴다.
+ * 실패하면 정해진 횟수만큼 다시 시도하고, 그래도 실패하면 마지막 에러를 던진다.
+ * @param body 가이드 요청 (buildGuideRequest로 만든다)
  */
-export async function fetchGuide(input: GuideInput): Promise<AiGuide> {
-  const body = buildGuideRequest(input);
+export async function fetchGuide(body: GuideRequest): Promise<AiGuide> {
+  const cached = readGuideCache(body);
+  if (cached) return cached;
   let lastError: unknown;
   for (let attempt = 0; attempt <= GUIDE_RETRY_COUNT; attempt += 1) {
     try {
-      return await requestGuide(body);
+      const guide = await requestGuide(body);
+      writeGuideCache(body, guide);
+      return guide;
     } catch (e) {
       lastError = e;
     }

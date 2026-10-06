@@ -67,7 +67,7 @@ function HistoryItem({ entry }: { entry: HistoryEntry }) {
       </button>
       {open && (
         <GuideBox
-          guide={entry.guide}
+          guide={{ state: 'ready', data: entry.guide }}
           rawWeather={entry.weatherSummary}
           showLocationNotice={false}
         />

@@ -65,12 +65,12 @@ export default function Home() {
       )}
       {activity && data.status === 'loading' && <Notice>불러오는 중이에요…</Notice>}
       {activity && data.status === 'error' && <Notice>{MESSAGES.weatherFailed}</Notice>}
-      {activity && (data.status === 'ready' || data.status === 'guideFailed') && (
+      {activity && data.status === 'ready' && (
         <HomeReady
           activity={activity}
           profile={profile}
           weather={data.weather}
-          guide={data.status === 'ready' ? data.guide : null}
+          guide={data.guide}
           showLocationNotice={locationStatus !== 'granted'}
         />
       )}

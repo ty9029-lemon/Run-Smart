@@ -14,14 +14,14 @@ import { calcRunScore, scoreToLevel } from '../lib/runScore';
 import { useHistoryStore } from '../store/historyStore';
 import { useProfileStore } from '../store/profileStore';
 import type { WeatherResult } from '../services/weatherService';
-import type { Activity, AiGuide, Decision, Profile } from '../types';
+import type { Activity, Decision, GuideState, Profile } from '../types';
 
 interface HomeReadyProps {
   activity: Activity;
   profile: Profile;
   weather: WeatherResult;
-  /** AI 가이드 (받지 못했으면 null → 원시 날씨 문구로 대체) */
-  guide: AiGuide | null;
+  /** AI 가이드 상태 (불러오는 중, 실패, 완료) */
+  guide: GuideState;
   /** 위치 권한이 없어 서울 기준일 때 가이드 칸에 안내를 보여줄지 */
   showLocationNotice: boolean;
 }
@@ -82,7 +82,10 @@ export default function HomeReady({
       decision: next,
       weatherSummary: `${current.temp}°C, ${current.condition}, 바람 ${current.windSpeed}m/s`,
       // AI 가이드가 없으면 앱 내 계산 기반 가이드를 기록으로 남긴다.
-      guide: guide ?? buildDummyGuide(activity, current, offset, profile.constraints),
+      guide:
+        guide.state === 'ready'
+          ? guide.data
+          : buildDummyGuide(activity, current, offset, profile.constraints),
     });
   };
 

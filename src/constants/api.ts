@@ -14,8 +14,14 @@ export const GUIDE_TIMEOUT_MS = 20000;
 /** AI 가이드 클라이언트 재시도 횟수 (PRD 6장: 재시도 후 실패하면 원시 데이터) */
 export const GUIDE_RETRY_COUNT = 1;
 
+/** 1시간(ms) */
+const ONE_HOUR_MS = 60 * 60 * 1000;
 /** 날씨 캐시 유효 시간(PRD 8장: 1시간) */
-export const WEATHER_CACHE_TTL_MS = 60 * 60 * 1000;
+export const WEATHER_CACHE_TTL_MS = ONE_HOUR_MS;
+/** AI 가이드 캐시 유효 시간. 날씨 캐시와 같게 둔다 */
+export const GUIDE_CACHE_TTL_MS = ONE_HOUR_MS;
+/** AI 가이드 캐시 LocalStorage 키 접두어 */
+export const GUIDE_CACHE_PREFIX = 'runsmart:guide:';
 /** 날씨 캐시 LocalStorage 키 접두어 */
 export const WEATHER_CACHE_PREFIX = 'runsmart:weather:';
 /** 캐시 키에 쓰는 좌표 소수점 자릿수 (약 1km) */
