@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   GUIDE_MESSAGE_MAX,
+  GUIDE_TIP_MAX,
   GUIDE_TIPS_MAX_COUNT,
   buildUserPrompt,
   parseGuideRequest,
@@ -31,7 +32,6 @@ const VALID_REQUEST = {
 const VALID_OUTPUT = {
   guideMessage: '오늘 기온 12°C는 당신 기준 8°C처럼 느껴질 거예요.',
   activityTips: ['긴팔 상의 권장', '수분 준비'],
-  goOrNotEmoji: '✅',
   detailedReason: '바람이 있지만 비는 없어요.',
 };
 
@@ -73,6 +73,7 @@ describe('parseGuideResponse', () => {
   it('올바른 JSON은 변환하고 경고 단계는 앱 계산값을 쓴다', () => {
     const guide = parseGuideResponse(JSON.stringify(VALID_OUTPUT), 'caution');
     expect(guide?.warningLevel).toBe('caution');
+    expect(guide?.goOrNotEmoji).toBe('⚠️');
     expect(guide?.activityTips).toEqual(['긴팔 상의 권장', '수분 준비']);
   });
 
@@ -91,6 +92,13 @@ describe('parseGuideResponse', () => {
   it('메시지가 지나치게 길면 이상 응답으로 본다', () => {
     const long = { ...VALID_OUTPUT, guideMessage: '가'.repeat(GUIDE_MESSAGE_MAX + 1) };
     expect(parseGuideResponse(JSON.stringify(long), 'good')).toBeNull();
+  });
+
+  it('팁이 한도 안에서 길어도 통과한다', () => {
+    const longTip = { ...VALID_OUTPUT, activityTips: ['가'.repeat(GUIDE_TIP_MAX)] };
+    expect(parseGuideResponse(JSON.stringify(longTip), 'good')).not.toBeNull();
+    const tooLong = { ...VALID_OUTPUT, activityTips: ['가'.repeat(GUIDE_TIP_MAX + 1)] };
+    expect(parseGuideResponse(JSON.stringify(tooLong), 'good')).toBeNull();
   });
 
   it('팁이 너무 많거나 비어 있으면 null', () => {

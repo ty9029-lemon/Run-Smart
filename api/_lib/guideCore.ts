@@ -12,9 +12,8 @@ export const GUIDE_FORMAT_RETRIES = 1;
 /** 응답 필드 길이 한도 (PRD 6장: 과도히 길면 이상 응답) */
 export const GUIDE_MESSAGE_MAX = 300;
 export const GUIDE_REASON_MAX = 300;
-export const GUIDE_TIP_MAX = 40;
+export const GUIDE_TIP_MAX = 60;
 export const GUIDE_TIPS_MAX_COUNT = 6;
-export const GUIDE_EMOJI_MAX = 8;
 
 /** 요청 필드 길이·범위 한도 (키 남용 방지) */
 const REQUEST_TEXT_MAX = 40;
@@ -22,6 +21,13 @@ const REQUEST_CONSTRAINTS_MAX = 8;
 const TEMP_RANGE = 80;
 const OFFSET_RANGE = 5;
 const SCORE_MAX = 100;
+
+/** 경고 단계별 이모지. 점수 표시와 어긋나지 않도록 모델이 아니라 서버가 정한다 */
+const LEVEL_EMOJI: Record<WarningLevel, string> = {
+  good: '✅',
+  caution: '⚠️',
+  careful: '🔔',
+};
 
 /** 단정적 금지 표현 (PRD 6장). 포함되면 이상 응답으로 본다 */
 const BANNED_PHRASES = ['가면 안', '가지 마', '가지 말', '절대 금지'];
@@ -35,11 +41,11 @@ export const SYSTEM_PROMPT = `당신은 사용자의 활동 능력과 기후 민
 - 체감온도와 활동 지수는 입력값을 그대로 쓰고 다시 계산하지 않습니다.
 - 의학적 진단이나 단정적 금지령을 쓰지 않습니다. "가면 안 됩니다" 대신 "위험 신호가 있으니 신중히 검토하세요"처럼 씁니다.
 - 활동과 제약사항에 맞는 구체적인 팁을 2~4개 줍니다. 복장 제안을 포함합니다.
+- 각 팁은 25자 안팎의 짧은 한 문장으로 쓰고, 괄호 설명을 덧붙이지 않습니다.
 - 한국어로 답합니다.
 
 반드시 아래 JSON 객체 하나만 출력하고, 다른 글자는 쓰지 않습니다.
-{"guideMessage": string, "activityTips": string[], "goOrNotEmoji": string, "detailedReason": string}
-- goOrNotEmoji: 이모지 1개 (좋음 ✅, 주의 ⚠️, 신중 🔔)
+{"guideMessage": string, "activityTips": string[], "detailedReason": string}
 - detailedReason: 판단 근거를 1~2문장으로`;
 
 /**
@@ -97,10 +103,9 @@ type GuideCheck = { problem: string } | { json: Record<string, unknown> };
 function checkGuide(text: string): GuideCheck {
   const json = extractJsonObject(text);
   if (!json) return { problem: 'not_json' };
-  const { guideMessage, activityTips, goOrNotEmoji, detailedReason } = json;
+  const { guideMessage, activityTips, detailedReason } = json;
   if (!isBounded(guideMessage, GUIDE_MESSAGE_MAX)) return { problem: 'guideMessage' };
   if (!isBounded(detailedReason, GUIDE_REASON_MAX)) return { problem: 'detailedReason' };
-  if (!isBounded(goOrNotEmoji, GUIDE_EMOJI_MAX)) return { problem: 'goOrNotEmoji' };
   if (!Array.isArray(activityTips) || !activityTips.length) return { problem: 'tips_empty' };
   if (activityTips.length > GUIDE_TIPS_MAX_COUNT) return { problem: 'tips_count' };
   if (!activityTips.every((t) => isBounded(t, GUIDE_TIP_MAX))) return { problem: 'tip_length' };
@@ -128,12 +133,12 @@ export function findGuideProblem(text: string): string | null {
 export function parseGuideResponse(text: string, level: WarningLevel): AiGuide | null {
   const checked = checkGuide(text);
   if ('problem' in checked) return null;
-  const { guideMessage, activityTips, goOrNotEmoji, detailedReason } = checked.json;
+  const { guideMessage, activityTips, detailedReason } = checked.json;
   return {
     guideMessage: (guideMessage as string).trim(),
     activityTips: (activityTips as string[]).map((t) => t.trim()),
     warningLevel: level,
-    goOrNotEmoji: (goOrNotEmoji as string).trim(),
+    goOrNotEmoji: LEVEL_EMOJI[level],
     detailedReason: (detailedReason as string).trim(),
   };
 }
