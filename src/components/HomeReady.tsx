@@ -5,6 +5,7 @@ import HomeSummary from './HomeSummary';
 import HourlyForecast from './HourlyForecast';
 import WeatherCard from './WeatherCard';
 import { buildDummyGuide } from '../data/dummyGuide';
+import { useNow } from '../hooks/useNow';
 import { formatRawWeather } from '../constants/messages';
 import { findBestHour, scoreHours } from '../lib/bestHour';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
@@ -52,6 +53,8 @@ export default function HomeReady({
   const score = calcRunScore(current, offset, profile.constraints);
   const feelsLike = calcPersonalFeelsLike(current, offset);
   const scores = scoreHours(hourly, offset, profile.constraints);
+  const nowHour = useNow().getHours();
+  const best = findBestHour(scores, nowHour);
   const rawWeather = formatRawWeather(current.temp, current.condition, current.windSpeed);
 
   // 활동이나 점수가 바뀌어 새 결과가 보일 때마다 전송
@@ -101,7 +104,7 @@ export default function HomeReady({
       />
       <WeatherCard weather={current} feelsLike={feelsLike} />
       <GuideBox guide={guide} rawWeather={rawWeather} showLocationNotice={showLocationNotice} />
-      <HourlyForecast hourly={hourly} scores={scores} best={findBestHour(scores)} />
+      <HourlyForecast hourly={hourly} scores={scores} best={best} />
       <DecisionButtons decision={decision} onDecide={handleDecide} />
     </div>
   );
