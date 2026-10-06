@@ -65,7 +65,13 @@ function HistoryItem({ entry }: { entry: HistoryEntry }) {
         </p>
         <p className="text-sm text-steel-border">{entry.weatherSummary}</p>
       </button>
-      {open && <GuideBox guide={entry.guide} />}
+      {open && (
+        <GuideBox
+          guide={entry.guide}
+          rawWeather={entry.weatherSummary}
+          showLocationNotice={false}
+        />
+      )}
     </li>
   );
 }

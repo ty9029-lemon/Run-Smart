@@ -47,6 +47,18 @@ export interface AiGuide {
   detailedReason: string;
 }
 
+/** AI 가이드 요청 본문 (PRD 6장 입력 형식 + 앱이 계산한 체감온도·점수) */
+export interface GuideRequest {
+  activityLabel: string;
+  offset: number;
+  constraintLabels: string[];
+  weather: Weather;
+  feltTemp: number;
+  score: number;
+  level: WarningLevel;
+  location: string;
+}
+
 /** 복장 추천 항목 */
 export interface OutfitItem {
   emoji: string;

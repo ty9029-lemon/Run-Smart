@@ -2,7 +2,9 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import HomeHeader from '../components/HomeHeader';
 import HomeReady from '../components/HomeReady';
+import { CURRENT_LOCATION_LABEL } from '../constants/api';
 import { DEFAULT_LOCATION, MESSAGES } from '../constants/messages';
+import { useCoords } from '../hooks/useCoords';
 import { useHomeData } from '../hooks/useHomeData';
 import { useLocationPermission } from '../hooks/useLocationPermission';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
@@ -31,7 +33,15 @@ export default function Home() {
   const locationStatus = useLocationPermission();
   const activity = resolveActivity(profile);
   const offset = activity ? profile.offsets[activity] : 0;
-  const data = useHomeData(activity, offset, profile.constraints);
+  const location = useCoords(locationStatus);
+  const locationLabel = location?.isCurrent ? CURRENT_LOCATION_LABEL : DEFAULT_LOCATION;
+  const data = useHomeData({
+    activity,
+    offset,
+    constraints: profile.constraints,
+    location,
+    locationLabel,
+  });
 
   // 위치 권한이 거부된 상태로 홈을 보면 한 번 기록
   useEffect(() => {
@@ -44,8 +54,7 @@ export default function Home() {
 
   return (
     <main className="mx-auto max-w-md space-y-6 px-4 py-6">
-      <HomeHeader location={DEFAULT_LOCATION} />
-      {locationStatus !== 'granted' && <Notice>{MESSAGES.locationDenied}</Notice>}
+      <HomeHeader location={locationLabel} />
       {!activity && (
         <Notice>
           {MESSAGES.noActivity}{' '}
@@ -56,12 +65,13 @@ export default function Home() {
       )}
       {activity && data.status === 'loading' && <Notice>불러오는 중이에요…</Notice>}
       {activity && data.status === 'error' && <Notice>{MESSAGES.weatherFailed}</Notice>}
-      {activity && data.status === 'ready' && (
+      {activity && (data.status === 'ready' || data.status === 'guideFailed') && (
         <HomeReady
           activity={activity}
           profile={profile}
           weather={data.weather}
-          guide={data.guide}
+          guide={data.status === 'ready' ? data.guide : null}
+          showLocationNotice={locationStatus !== 'granted'}
         />
       )}
     </main>

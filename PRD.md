@@ -105,8 +105,9 @@ Frontend:      React 18 + TypeScript + Tailwind CSS (모바일 반응형)
 Backend:       Node.js (v18+) + Express.js
                또는 Python + FastAPI
 
-Business API:  - OpenWeatherMap API (무료 티어)
-               - Claude API (Anthropic) 또는 OpenAI GPT-4o-mini
+Business API:  - Open-Meteo API (무료, 키 불필요. 현재·시간별 날씨, 자외선, PM10)
+                 ※ OpenWeatherMap 무료 티어에는 자외선·1시간 단위 날씨가 없어 변경
+               - Claude API (Haiku 4.5), Vercel 서버리스 함수(/api/guide)로 키 보호
 
 배포:          Vercel
                - 자동 HTTPS, 전역 CDN, 환경변수 관리

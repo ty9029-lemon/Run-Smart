@@ -4,6 +4,8 @@ import GuideBox from './GuideBox';
 import HomeSummary from './HomeSummary';
 import HourlyForecast from './HourlyForecast';
 import WeatherCard from './WeatherCard';
+import { buildDummyGuide } from '../data/dummyGuide';
+import { formatRawWeather } from '../constants/messages';
 import { findBestHour, scoreHours } from '../lib/bestHour';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
@@ -18,7 +20,10 @@ interface HomeReadyProps {
   activity: Activity;
   profile: Profile;
   weather: WeatherResult;
-  guide: AiGuide;
+  /** AI 가이드 (받지 못했으면 null → 원시 날씨 문구로 대체) */
+  guide: AiGuide | null;
+  /** 위치 권한이 없어 서울 기준일 때 가이드 칸에 안내를 보여줄지 */
+  showLocationNotice: boolean;
 }
 
 /** 오늘 이 활동에 대한 기록된 결정을 찾는다. */
@@ -32,7 +37,13 @@ function useTodayDecision(activity: Activity): Decision | null {
 }
 
 /** 날씨·가이드가 준비됐을 때의 홈 본문 */
-export default function HomeReady({ activity, profile, weather, guide }: HomeReadyProps) {
+export default function HomeReady({
+  activity,
+  profile,
+  weather,
+  guide,
+  showLocationNotice,
+}: HomeReadyProps) {
   const setLastActivity = useProfileStore((s) => s.setLastActivity);
   const addEntry = useHistoryStore((s) => s.addEntry);
   const decision = useTodayDecision(activity);
@@ -41,6 +52,7 @@ export default function HomeReady({ activity, profile, weather, guide }: HomeRea
   const score = calcRunScore(current, offset, profile.constraints);
   const feelsLike = calcPersonalFeelsLike(current, offset);
   const scores = scoreHours(hourly, offset, profile.constraints);
+  const rawWeather = formatRawWeather(current.temp, current.condition, current.windSpeed);
 
   // 활동이나 점수가 바뀌어 새 결과가 보일 때마다 전송
   useEffect(() => {
@@ -69,7 +81,8 @@ export default function HomeReady({ activity, profile, weather, guide }: HomeRea
       activity,
       decision: next,
       weatherSummary: `${current.temp}°C, ${current.condition}, 바람 ${current.windSpeed}m/s`,
-      guide,
+      // AI 가이드가 없으면 앱 내 계산 기반 가이드를 기록으로 남긴다.
+      guide: guide ?? buildDummyGuide(activity, current, offset, profile.constraints),
     });
   };
 
@@ -84,7 +97,7 @@ export default function HomeReady({ activity, profile, weather, guide }: HomeRea
         onSelectActivity={handleSelectActivity}
       />
       <WeatherCard weather={current} feelsLike={feelsLike} />
-      <GuideBox guide={guide} />
+      <GuideBox guide={guide} rawWeather={rawWeather} showLocationNotice={showLocationNotice} />
       <HourlyForecast hourly={hourly} scores={scores} best={findBestHour(scores)} />
       <DecisionButtons decision={decision} onDecide={handleDecide} />
     </div>
