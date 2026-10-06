@@ -1,3 +1,5 @@
+import { useEffect, useRef, type UIEvent } from 'react';
+import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import type { HourScore } from '../lib/bestHour';
 import type { HourlyWeather } from '../types';
 
@@ -12,8 +14,37 @@ function hourLabel(hour: number): string {
   return `${hour}시`;
 }
 
+/** 스크롤이 멈췄다고 보는 대기 시간(ms) */
+const SCROLL_IDLE_MS = 800;
+
+/** 가로 목록에서 화면에 보이는 마지막 항목의 인덱스 */
+function lastVisibleIndex(list: HTMLUListElement): number {
+  const items = Array.from(list.children) as HTMLElement[];
+  const right = list.scrollLeft + list.clientWidth;
+  const hiddenCount = items.filter((item) => item.offsetLeft - items[0].offsetLeft >= right).length;
+  return Math.max(items.length - hiddenCount - 1, 0);
+}
+
 /** 시간대별 날씨(24시간)와 최적 시간대 제안 */
 export default function HourlyForecast({ hourly, scores, best }: HourlyForecastProps) {
+  const timerRef = useRef<number>();
+  const hasSentRef = useRef(false);
+
+  useEffect(() => () => window.clearTimeout(timerRef.current), []);
+
+  /** 스크롤이 멈추면 도달한 시간대와 함께 화면 진입당 1회만 전송한다. */
+  const handleScroll = (e: UIEvent<HTMLUListElement>) => {
+    if (hasSentRef.current) return;
+    const list = e.currentTarget;
+    window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => {
+      hasSentRef.current = true;
+      trackEvent(ANALYTICS_EVENTS.hourlyForecastScrolled, {
+        maxHour: hourly[lastVisibleIndex(list)]?.hour ?? 0,
+      });
+    }, SCROLL_IDLE_MS);
+  };
+
   return (
     <section className="rounded-panel border border-card-border-ink bg-card-charcoal p-6">
       <h2 className="mb-1 text-base font-bold">시간대별 날씨</h2>
@@ -22,7 +53,10 @@ export default function HourlyForecast({ hourly, scores, best }: HourlyForecastP
           추천 시간대는 {hourLabel(best.hour)} ({best.score}점)이에요.
         </p>
       )}
-      <ul className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-2">
+      <ul
+        onScroll={handleScroll}
+        className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-2"
+      >
         {hourly.map((h, i) => {
           const isBest = best?.hour === h.hour;
           return (

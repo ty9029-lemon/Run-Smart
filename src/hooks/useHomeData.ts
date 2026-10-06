@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { fetchGuide } from '../services/guideService';
 import { fetchWeather, type WeatherResult } from '../services/weatherService';
+import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { logger } from '../lib/logger';
 import type { Activity, AiGuide, Constraint } from '../types';
 
@@ -26,8 +27,11 @@ export function useHomeData(
     if (!activity) return;
     let cancelled = false;
     (async () => {
+      // 실패 시 어느 단계인지 구분하기 위한 표시
+      let stage: 'weather' | 'guide' = 'weather';
       try {
         const weather = await fetchWeather();
+        stage = 'guide';
         const guide = await fetchGuide({
           activity,
           offset,
@@ -37,7 +41,9 @@ export function useHomeData(
         if (!cancelled) setData({ status: 'ready', weather, guide });
       } catch (e) {
         logger.error('홈 데이터 조회 실패', e);
-        if (!cancelled) setData({ status: 'error' });
+        if (cancelled) return;
+        trackEvent(ANALYTICS_EVENTS.dataLoadFailed, { reason: stage });
+        setData({ status: 'error' });
       }
     })();
     return () => {

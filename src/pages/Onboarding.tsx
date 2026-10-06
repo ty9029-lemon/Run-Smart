@@ -4,6 +4,7 @@ import OnboardingStep from '../components/OnboardingStep';
 import StepIndicator from '../components/StepIndicator';
 import { ONBOARDING_STEPS } from '../constants/onboarding';
 import { useProfileDraft } from '../hooks/useProfileDraft';
+import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { DEFAULT_PROFILE } from '../store/profileStore';
 import type { Profile } from '../types';
 
@@ -23,7 +24,13 @@ export default function Onboarding() {
   const [stepIndex, setStepIndex] = useState(0);
   const { draft, error, onChange, validate, submit } = useProfileDraft(
     ONBOARDING_INITIAL,
-    () => navigate('/', { replace: true }),
+    (saved) => {
+      trackEvent(ANALYTICS_EVENTS.onboardingCompleted, {
+        activityCount: saved.selectedActivities.length,
+        constraintCount: saved.constraints.length,
+      });
+      navigate('/', { replace: true });
+    },
   );
   const step = ONBOARDING_STEPS[stepIndex];
   const isLast = stepIndex === LAST_STEP;

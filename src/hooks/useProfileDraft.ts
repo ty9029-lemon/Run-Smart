@@ -18,9 +18,12 @@ interface ProfileDraft {
  * 설정/온보딩 공용 프로필 초안 상태.
  * 활동이 하나도 없으면 저장하지 않고 안내 문구를 보여준다.
  * @param initial 초안의 시작값
- * @param onSaved 저장 성공 후 실행할 동작
+ * @param onSaved 저장 성공 후 실행할 동작 (저장된 프로필을 받는다)
  */
-export function useProfileDraft(initial: Profile, onSaved: () => void): ProfileDraft {
+export function useProfileDraft(
+  initial: Profile,
+  onSaved: (saved: Profile) => void,
+): ProfileDraft {
   const saveProfile = useProfileStore((s) => s.saveProfile);
   const [draft, setDraft] = useState(initial);
   const [error, setError] = useState('');
@@ -38,8 +41,9 @@ export function useProfileDraft(initial: Profile, onSaved: () => void): ProfileD
 
   const submit = () => {
     if (!validate()) return;
-    saveProfile(normalizeLastActivity(draft));
-    onSaved();
+    const saved = normalizeLastActivity(draft);
+    saveProfile(saved);
+    onSaved(saved);
   };
 
   return { draft, error, onChange, validate, submit };

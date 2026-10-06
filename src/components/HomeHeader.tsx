@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useNow } from '../hooks/useNow';
+import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 
 interface HomeHeaderProps {
   location: string;
@@ -22,6 +23,7 @@ export default function HomeHeader({ location }: HomeHeaderProps) {
       <nav className="flex items-center gap-2">
         <Link
           to="/history"
+          onClick={() => trackEvent(ANALYTICS_EVENTS.historyOpened)}
           className="rounded-full border border-lime-pulse px-3 py-2 text-sm font-medium text-lime-pulse"
         >
           기록

@@ -1,9 +1,11 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import HomeHeader from '../components/HomeHeader';
 import HomeReady from '../components/HomeReady';
 import { DEFAULT_LOCATION, MESSAGES } from '../constants/messages';
 import { useHomeData } from '../hooks/useHomeData';
 import { useLocationPermission } from '../hooks/useLocationPermission';
+import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { useProfileStore } from '../store/profileStore';
 import type { Activity, Profile } from '../types';
 
@@ -30,6 +32,15 @@ export default function Home() {
   const activity = resolveActivity(profile);
   const offset = activity ? profile.offsets[activity] : 0;
   const data = useHomeData(activity, offset, profile.constraints);
+
+  // 위치 권한이 거부된 상태로 홈을 보면 한 번 기록
+  useEffect(() => {
+    if (locationStatus !== 'denied') return;
+    trackEvent(ANALYTICS_EVENTS.dataLoadFailed, {
+      reason: 'location',
+      locationStatus,
+    });
+  }, [locationStatus]);
 
   return (
     <main className="mx-auto max-w-md space-y-6 px-4 py-6">

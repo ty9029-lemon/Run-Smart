@@ -1,9 +1,11 @@
+import { useEffect } from 'react';
 import DecisionButtons from './DecisionButtons';
 import GuideBox from './GuideBox';
 import HomeSummary from './HomeSummary';
 import HourlyForecast from './HourlyForecast';
 import WeatherCard from './WeatherCard';
 import { findBestHour, scoreHours } from '../lib/bestHour';
+import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
 import { recommendOutfit } from '../lib/outfit';
 import { calcRunScore, scoreToLevel } from '../lib/runScore';
@@ -40,8 +42,27 @@ export default function HomeReady({ activity, profile, weather, guide }: HomeRea
   const feelsLike = calcPersonalFeelsLike(current, offset);
   const scores = scoreHours(hourly, offset, profile.constraints);
 
+  // 활동이나 점수가 바뀌어 새 결과가 보일 때마다 전송
+  useEffect(() => {
+    trackEvent(ANALYTICS_EVENTS.runScoreViewed, {
+      activity,
+      score,
+      warningLevel: scoreToLevel(score),
+      condition: current.condition,
+    });
+  }, [activity, score, current.condition]);
+
+  /** 활동 칩이 바뀌면 이벤트를 보내고 마지막 활동을 저장한다. */
+  const handleSelectActivity = (next: Activity) => {
+    if (next !== activity) {
+      trackEvent(ANALYTICS_EVENTS.activityChanged, { from: activity, to: next });
+    }
+    setLastActivity(next);
+  };
+
   /** 결정을 히스토리에 기록한다. */
   const handleDecide = (next: Decision) => {
+    trackEvent(ANALYTICS_EVENTS.decisionMade, { decision: next, activity, score });
     addEntry({
       id: `${Date.now()}`,
       date: new Date().toISOString(),
@@ -60,7 +81,7 @@ export default function HomeReady({ activity, profile, weather, guide }: HomeRea
         score={score}
         level={scoreToLevel(score)}
         outfit={recommendOutfit(feelsLike, current.precipitation)}
-        onSelectActivity={setLastActivity}
+        onSelectActivity={handleSelectActivity}
       />
       <WeatherCard weather={current} feelsLike={feelsLike} />
       <GuideBox guide={guide} />
