@@ -6,7 +6,10 @@ import { CURRENT_LOCATION_LABEL } from '../constants/api';
 import { DEFAULT_LOCATION, MESSAGES } from '../constants/messages';
 import { useCoords } from '../hooks/useCoords';
 import { useHomeData } from '../hooks/useHomeData';
-import { useLocationPermission } from '../hooks/useLocationPermission';
+import {
+  requestLocationPermission,
+  useLocationPermission,
+} from '../hooks/useLocationPermission';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { useProfileStore } from '../store/profileStore';
 import type { Activity, Profile } from '../types';
@@ -71,7 +74,11 @@ export default function Home() {
           profile={profile}
           weather={data.weather}
           guide={data.guide}
-          showLocationNotice={locationStatus !== 'granted'}
+          location={
+            locationStatus === 'granted'
+              ? undefined
+              : { status: locationStatus, onRequest: requestLocationPermission }
+          }
         />
       )}
     </main>

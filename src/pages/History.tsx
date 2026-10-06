@@ -69,7 +69,6 @@ function HistoryItem({ entry }: { entry: HistoryEntry }) {
         <GuideBox
           guide={{ state: 'ready', data: entry.guide }}
           rawWeather={entry.weatherSummary}
-          showLocationNotice={false}
         />
       )}
     </li>

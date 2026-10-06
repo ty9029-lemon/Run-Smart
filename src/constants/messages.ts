@@ -7,6 +7,10 @@ export const MESSAGES = {
     '위치 정보가 있어야 가장 정확한 날씨 정보를 제공해 드릴 수 있어요. 설정에서 위치 권한을 허용해 주세요.',
   weatherFailed: '날씨 정보를 가져오지 못했어요. 잠시 후 다시 시도해 주세요.',
   guideLoading: 'AI 가이드를 준비하고 있어요…',
+  useCurrentLocation: '현재 위치로 사용',
+  // 브라우저는 설정 화면을 직접 열 수 없어 안내 문구로 대신한다.
+  locationSettingsGuide:
+    '브라우저 주소창 왼쪽의 자물쇠(사이트 설정)에서 위치 권한을 허용해 주세요.',
 } as const;
 
 /**

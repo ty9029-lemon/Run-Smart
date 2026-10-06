@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import DecisionButtons from './DecisionButtons';
-import GuideBox from './GuideBox';
+import GuideBox, { type LocationNoticeProps } from './GuideBox';
 import HomeSummary from './HomeSummary';
 import HourlyForecast from './HourlyForecast';
 import WeatherCard from './WeatherCard';
@@ -23,8 +23,8 @@ interface HomeReadyProps {
   weather: WeatherResult;
   /** AI 가이드 상태 (불러오는 중, 실패, 완료) */
   guide: GuideState;
-  /** 위치 권한이 없어 서울 기준일 때 가이드 칸에 안내를 보여줄지 */
-  showLocationNotice: boolean;
+  /** 위치 권한이 없어 서울 기준일 때만 전달한다 (가이드 칸에 안내와 버튼을 보여준다) */
+  location?: LocationNoticeProps;
 }
 
 /** 오늘 이 활동에 대한 기록된 결정을 찾는다. */
@@ -43,7 +43,7 @@ export default function HomeReady({
   profile,
   weather,
   guide,
-  showLocationNotice,
+  location,
 }: HomeReadyProps) {
   const setLastActivity = useProfileStore((s) => s.setLastActivity);
   const addEntry = useHistoryStore((s) => s.addEntry);
@@ -103,7 +103,7 @@ export default function HomeReady({
         onSelectActivity={handleSelectActivity}
       />
       <WeatherCard weather={current} feelsLike={feelsLike} />
-      <GuideBox guide={guide} rawWeather={rawWeather} showLocationNotice={showLocationNotice} />
+      <GuideBox guide={guide} rawWeather={rawWeather} location={location} />
       <HourlyForecast hourly={hourly} scores={scores} best={best} />
       <DecisionButtons decision={decision} onDecide={handleDecide} />
     </div>
