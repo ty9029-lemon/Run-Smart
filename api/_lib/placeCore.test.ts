@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatRegionLabel, parsePlaceCoords } from './placeCore.js';
+import { formatRegionLabel, isNoRegionStatus, parsePlaceCoords } from './placeCore.js';
 
 /** 쿼리 문자열에서 좌표를 검증한다. */
 function parse(query: string) {
@@ -80,5 +80,17 @@ describe('formatRegionLabel', () => {
   it('동 이름이 없거나 결과가 비어 있으면 null', () => {
     expect(formatRegionLabel([])).toBeNull();
     expect(formatRegionLabel([{ region_type: 'H', region_1depth_name: '서울특별시' }])).toBeNull();
+  });
+});
+
+describe('isNoRegionStatus', () => {
+  it('400(행정구역 없음)만 주소 없음으로 본다', () => {
+    expect(isNoRegionStatus(400)).toBe(true);
+  });
+
+  it('키 오류, 한도 초과, 서버 오류는 장애로 남기기 위해 주소 없음으로 보지 않는다', () => {
+    [200, 401, 403, 429, 500, 502].forEach((status) => {
+      expect(isNoRegionStatus(status)).toBe(false);
+    });
   });
 });

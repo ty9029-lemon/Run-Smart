@@ -2,6 +2,7 @@ import {
   KAKAO_REGION_URL,
   KAKAO_TIMEOUT_MS,
   formatRegionLabel,
+  isNoRegionStatus,
   parsePlaceCoords,
   type KakaoRegionDoc,
 } from './_lib/placeCore.js';
@@ -27,6 +28,8 @@ async function fetchRegions(apiKey: string, lat: number, lon: number): Promise<K
     headers: { Authorization: `KakaoAK ${apiKey}` },
     signal: AbortSignal.timeout(KAKAO_TIMEOUT_MS),
   });
+  // 한국 밖 좌표처럼 행정구역이 없는 경우는 오류가 아니라 "주소 없음"으로 처리한다.
+  if (isNoRegionStatus(res.status)) return [];
   if (!res.ok) throw new Error(`카카오 응답 오류: ${res.status}`);
   const body = (await res.json()) as { documents?: KakaoRegionDoc[] };
   return body.documents ?? [];

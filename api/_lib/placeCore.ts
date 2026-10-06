@@ -10,6 +10,18 @@ const LON_LIMIT = 180;
 /** 행정동 구분 코드 (법정동은 B) */
 const REGION_TYPE_ADMIN = 'H';
 
+/** 카카오가 "이 좌표의 행정구역이 없다"는 뜻으로 돌려주는 상태 코드 (예: 한국 밖 좌표) */
+const STATUS_NO_REGION = 400;
+
+/**
+ * 카카오의 비정상 응답이 "주소 없음"인지 판단한다.
+ * 키 오류(401/403), 한도 초과(429), 서버 오류(5xx)는 장애를 놓치지 않도록 false로 둔다.
+ * @param status 카카오 응답의 HTTP 상태 코드
+ */
+export function isNoRegionStatus(status: number): boolean {
+  return status === STATUS_NO_REGION;
+}
+
 /** 카카오 응답 문서 중 사용하는 필드 */
 export interface KakaoRegionDoc {
   region_type?: string;
