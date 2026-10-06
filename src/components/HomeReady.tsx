@@ -50,9 +50,9 @@ export default function HomeReady({
   const decision = useTodayDecision(activity);
   const { current, hourly } = weather;
   const offset = profile.offsets[activity];
-  const score = calcRunScore(current, offset, profile.constraints);
+  const score = calcRunScore(current, offset, profile.constraints, activity);
   const feelsLike = calcPersonalFeelsLike(current, offset);
-  const scores = scoreHours(hourly, offset, profile.constraints);
+  const scores = scoreHours(hourly, offset, profile.constraints, activity);
   const nowHour = useNow().getHours();
   const best = findBestHour(scores, nowHour);
   const rawWeather = formatRawWeather(current.temp, current.condition, current.windSpeed);

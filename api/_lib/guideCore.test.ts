@@ -21,6 +21,7 @@ const VALID_REQUEST = {
     condition: '흐림',
     pm10: 45,
     uvIndex: 2,
+    isDay: true,
   },
   feltTemp: 8,
   score: 72,
@@ -52,6 +53,14 @@ describe('parseGuideRequest', () => {
     expect(parseGuideRequest({ ...VALID_REQUEST, score: 101 })).toBeNull();
   });
 
+  it('isDay가 없으면(기존 클라이언트) 통과하고, boolean이 아니면 거부한다', () => {
+    const { isDay, ...rest } = VALID_REQUEST.weather;
+    expect(isDay).toBe(true);
+    expect(parseGuideRequest({ ...VALID_REQUEST, weather: rest })).not.toBeNull();
+    const bad = { ...VALID_REQUEST, weather: { ...VALID_REQUEST.weather, isDay: 'yes' } };
+    expect(parseGuideRequest(bad)).toBeNull();
+  });
+
   it('알 수 없는 경고 단계와 지나치게 긴 문자열은 거부한다', () => {
     expect(parseGuideRequest({ ...VALID_REQUEST, level: 'danger' })).toBeNull();
     const longLabel = { ...VALID_REQUEST, activityLabel: '가'.repeat(500) };
@@ -66,6 +75,13 @@ describe('buildUserPrompt', () => {
     expect(parsed.user_temp_offset).toBe(-2);
     expect(parsed.current_weather.wind_speed).toBe(8);
     expect(parsed.personal_feels_like).toBe(8);
+  });
+
+  it('낮/밤 정보를 담고, 밤이면 false다', () => {
+    const night = { ...VALID_REQUEST, weather: { ...VALID_REQUEST.weather, isDay: false } };
+    const parsed = JSON.parse(buildUserPrompt(parseGuideRequest(night)!));
+    expect(parsed.current_weather.is_day).toBe(false);
+    expect(JSON.parse(buildUserPrompt(parseGuideRequest(VALID_REQUEST)!)).current_weather.is_day).toBe(true);
   });
 });
 

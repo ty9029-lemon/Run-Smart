@@ -1,4 +1,4 @@
-import type { Constraint, HourlyWeather } from '../types';
+import type { Activity, Constraint, HourlyWeather } from '../types';
 import { calcRunScore } from './runScore';
 
 /** 시간대별 점수 */
@@ -12,15 +12,17 @@ export interface HourScore {
  * @param hourly 시간대별 날씨
  * @param offset 체감 온도 보정값
  * @param constraints 제약사항
+ * @param activity 활동
  */
 export function scoreHours(
   hourly: HourlyWeather[],
   offset: number,
   constraints: Constraint[],
+  activity: Activity,
 ): HourScore[] {
   return hourly.map((h) => ({
     hour: h.hour,
-    score: calcRunScore(h, offset, constraints),
+    score: calcRunScore(h, offset, constraints, activity),
   }));
 }
 

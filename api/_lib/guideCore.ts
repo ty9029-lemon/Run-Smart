@@ -66,6 +66,7 @@ export function parseGuideRequest(body: unknown): GuideRequest | null {
   if (!labels.every(isText)) return null;
   if (!isInRange(body.offset, OFFSET_RANGE)) return null;
   if (!isInRange(body.feltTemp, TEMP_RANGE) || !isInRange(w.temp, TEMP_RANGE)) return null;
+  if (w.isDay !== undefined && typeof w.isDay !== 'boolean') return null;
   if (!isFiniteNumber(body.score) || body.score < 0 || body.score > SCORE_MAX) return null;
   if (!isLevel(body.level)) return null;
   return body as unknown as GuideRequest;
@@ -89,6 +90,7 @@ export function buildUserPrompt(req: GuideRequest): string {
       condition: w.condition,
       pm10: w.pm10,
       uv_index: w.uvIndex,
+      is_day: w.isDay !== false,
     },
     location: req.location,
     personal_feels_like: req.feltTemp,

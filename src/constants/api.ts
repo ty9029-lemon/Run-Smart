@@ -23,7 +23,7 @@ export const GUIDE_CACHE_TTL_MS = ONE_HOUR_MS;
 /** AI 가이드 캐시 LocalStorage 키 접두어 */
 export const GUIDE_CACHE_PREFIX = 'runsmart:guide:';
 /** 날씨 캐시 LocalStorage 키 접두어 */
-export const WEATHER_CACHE_PREFIX = 'runsmart:weather:';
+export const WEATHER_CACHE_PREFIX = 'runsmart:weather:v2:';
 /** 캐시 키에 쓰는 좌표 소수점 자릿수 (약 1km) */
 export const COORD_CACHE_DIGITS = 2;
 

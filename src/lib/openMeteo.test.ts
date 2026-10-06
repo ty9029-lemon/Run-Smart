@@ -73,6 +73,7 @@ describe('parseWeather', () => {
       condition: '흐림',
       pm10: 28,
       uvIndex: 14,
+      isDay: true,
     });
   });
 
@@ -92,6 +93,21 @@ describe('parseWeather', () => {
   it('PM10 값이 null인 시간은 0으로 둔다', () => {
     const air: AirResponse = { hourly: { time: TIMES, pm10: TIMES.map(() => null) } };
     expect(parseWeather(makeForecast('2026-10-06T09:00'), air).current.pm10).toBe(0);
+  });
+
+  it('is_day를 낮/밤 boolean으로 변환하고, 값이 없으면 낮으로 본다', () => {
+    const forecast = makeForecast('2026-10-06T22:00');
+    forecast.current.is_day = 0;
+    forecast.hourly.is_day = TIMES.map((_, h) => (h >= 6 && h < 20 ? 1 : 0));
+    const { current, hourly } = parseWeather(forecast, AIR);
+    expect(current.isDay).toBe(false);
+    expect(hourly[3].isDay).toBe(false);
+    expect(hourly[12].isDay).toBe(true);
+    expect(parseWeather(makeForecast('2026-10-06T22:00'), AIR).current.isDay).toBe(true);
+  });
+
+  it('예보 요청에 is_day를 포함한다', () => {
+    expect(buildForecastQuery({ lat: 37.5, lon: 127 })).toContain('is_day');
   });
 
   it('예보 응답 형식이 올바르지 않으면 에러를 던진다', () => {

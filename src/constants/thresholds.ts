@@ -24,26 +24,6 @@ export const HUMIDITY_CHILL_PER_10 = 0.3;
 /** 습도 보정 단위(%p) */
 export const HUMIDITY_UNIT = 10;
 
-/** 활동하기 쾌적한 체감온도 범위(°C) */
-export const COMFORT_TEMP_MIN = 10;
-export const COMFORT_TEMP_MAX = 20;
-/** 쾌적 범위를 1°C 벗어날 때마다 깎는 점수 */
-export const TEMP_PENALTY_PER_DEGREE = 4;
-/** 풍속 감점 기준(m/s)과 m/s 당 감점 */
-export const WIND_PENALTY_START = 4;
-export const WIND_PENALTY_PER_MS = 2;
-/** 강수 감점(mm 당) */
-export const RAIN_PENALTY_PER_MM = 15;
-/** 미세먼지(PM10) 감점 기준(㎍/㎥)과 10 당 감점 */
-export const PM10_PENALTY_START = 50;
-export const PM10_PENALTY_PER_10 = 2;
-export const PM10_UNIT = 10;
-/** 자외선 감점 기준과 단계 당 감점 */
-export const UV_PENALTY_START = 6;
-export const UV_PENALTY_PER_LEVEL = 3;
-/** 민감 제약이 있을 때 추가 감점 배수 */
-export const SENSITIVE_PENALTY_MULTIPLIER = 2;
-
 /** 점수 범위 */
 export const SCORE_MAX = 100;
 export const SCORE_MIN = 0;

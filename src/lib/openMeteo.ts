@@ -17,6 +17,7 @@ export interface ForecastResponse {
     wind_speed_10m: number;
     precipitation: number;
     weather_code: number;
+    is_day?: number;
   };
   hourly: {
     time: string[];
@@ -26,6 +27,7 @@ export interface ForecastResponse {
     precipitation: number[];
     weather_code: number[];
     uv_index: number[];
+    is_day?: number[];
   };
 }
 
@@ -70,6 +72,7 @@ export function buildForecastQuery(coords: Coords): string {
     'precipitation',
     'weather_code',
     'uv_index',
+    'is_day',
   ].join(',');
   const current = [
     'temperature_2m',
@@ -77,6 +80,7 @@ export function buildForecastQuery(coords: Coords): string {
     'wind_speed_10m',
     'precipitation',
     'weather_code',
+    'is_day',
   ].join(',');
   return new URLSearchParams({
     latitude: String(coords.lat),
@@ -108,6 +112,11 @@ function hourOf(isoLocal: string): number {
   return Number(isoLocal.slice(11, 13));
 }
 
+/** Open-Meteo의 is_day(1=낮, 0=밤)를 boolean으로 바꾼다. 값이 없으면 낮으로 본다. */
+function toIsDay(value: number | undefined): boolean {
+  return value !== 0;
+}
+
 /** 소수 첫째 자리로 반올림 */
 function round1(value: number): number {
   return Math.round(value * 10) / 10;
@@ -136,6 +145,7 @@ function toHourly(h: ForecastResponse['hourly'], pm10ByHour: Map<number, number>
       condition: weatherCodeToCondition(h.weather_code[i]),
       pm10: Math.round(pm10ByHour.get(hour) ?? 0),
       uvIndex: round1(h.uv_index[i]),
+      isDay: toIsDay(h.is_day?.[i]),
     };
   });
 }
@@ -160,6 +170,7 @@ export function parseWeather(forecast: ForecastResponse, air: AirResponse): Weat
     condition: weatherCodeToCondition(c.weather_code),
     pm10: slot?.pm10 ?? 0,
     uvIndex: slot?.uvIndex ?? 0,
+    isDay: toIsDay(c.is_day),
   };
   return { current, hourly };
 }

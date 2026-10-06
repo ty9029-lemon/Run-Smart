@@ -31,6 +31,8 @@ export interface Weather {
   condition: string;
   pm10: number;
   uvIndex: number;
+  /** 낮이면 true, 밤이면 false */
+  isDay: boolean;
 }
 
 /** 시간대별 날씨 (1시간 단위) */

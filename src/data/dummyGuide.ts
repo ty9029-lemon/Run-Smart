@@ -54,7 +54,7 @@ export function buildDummyGuide(
   offset: number,
   constraints: Constraint[],
 ): AiGuide {
-  const score = calcRunScore(weather, offset, constraints);
+  const score = calcRunScore(weather, offset, constraints, activity);
   const level = scoreToLevel(score);
   const felt = calcPersonalFeelsLike(weather, offset);
   const constraintTips = constraints

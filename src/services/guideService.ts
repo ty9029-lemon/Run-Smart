@@ -18,7 +18,7 @@ export interface GuideInput {
 /** 앱 입력을 서버 요청 본문으로 바꾼다. 체감온도·점수는 앱 계산값을 함께 보낸다. */
 export function buildGuideRequest(input: GuideInput): GuideRequest {
   const { activity, offset, constraints, weather, location } = input;
-  const score = calcRunScore(weather, offset, constraints);
+  const score = calcRunScore(weather, offset, constraints, activity);
   return {
     activityLabel: getActivityMeta(activity).label,
     offset,

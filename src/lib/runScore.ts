@@ -1,50 +1,54 @@
+import { ACTIVITY_COMFORT, SCORE_WEIGHTS } from '../constants/scoring';
 import {
-  COMFORT_TEMP_MAX,
-  COMFORT_TEMP_MIN,
-  PM10_PENALTY_PER_10,
-  PM10_PENALTY_START,
-  PM10_UNIT,
-  RAIN_PENALTY_PER_MM,
   SCORE_CAUTION,
   SCORE_GOOD,
   SCORE_MAX,
   SCORE_MIN,
-  SENSITIVE_PENALTY_MULTIPLIER,
-  TEMP_PENALTY_PER_DEGREE,
-  UV_PENALTY_PER_LEVEL,
-  UV_PENALTY_START,
-  WIND_PENALTY_PER_MS,
-  WIND_PENALTY_START,
 } from '../constants/thresholds';
-import type { Constraint, Weather, WarningLevel } from '../types';
+import type { Activity, Constraint, Weather, WarningLevel } from '../types';
 import { calcPersonalFeelsLike } from './feelsLike';
+import {
+  applySensitivity,
+  daylightQuality,
+  dustQuality,
+  feelsLikeQuality,
+  humidityQuality,
+  rainQuality,
+  tempQuality,
+  uvQuality,
+  windQuality,
+} from './scoreFactors';
 
-/** 쾌적 범위를 벗어난 정도에 따른 감점 */
-function tempPenalty(feelsLike: number): number {
-  if (feelsLike < COMFORT_TEMP_MIN) {
-    return (COMFORT_TEMP_MIN - feelsLike) * TEMP_PENALTY_PER_DEGREE;
-  }
-  if (feelsLike > COMFORT_TEMP_MAX) {
-    return (feelsLike - COMFORT_TEMP_MAX) * TEMP_PENALTY_PER_DEGREE;
-  }
-  return 0;
-}
+/** 항목별 점수. 각 값은 0 ~ 해당 항목 배점이고 합이 총점이다. */
+export type ScoreBreakdown = { [K in keyof typeof SCORE_WEIGHTS]: number };
 
-/** 미세먼지 감점 (민감 제약이 있으면 가중) */
-function dustPenalty(pm10: number, constraints: Constraint[]): number {
-  const excess = Math.max(0, pm10 - PM10_PENALTY_START);
-  const base = (excess / PM10_UNIT) * PM10_PENALTY_PER_10;
-  const sensitive =
+/**
+ * 항목별 점수를 계산한다. (배점 × 품질)
+ * @param weather 날씨 정보
+ * @param offset 체감 온도 보정값
+ * @param constraints 제약사항
+ * @param activity 활동 (체감온도 적정 구간이 다르다)
+ */
+export function calcScoreBreakdown(
+  weather: Weather,
+  offset: number,
+  constraints: Constraint[],
+  activity: Activity,
+): ScoreBreakdown {
+  const felt = calcPersonalFeelsLike(weather, offset);
+  const dustSensitive =
     constraints.includes('dustSensitive') || constraints.includes('asthma');
-  return sensitive ? base * SENSITIVE_PENALTY_MULTIPLIER : base;
-}
-
-/** 자외선 감점 (민감 제약이 있으면 가중) */
-function uvPenalty(uvIndex: number, constraints: Constraint[]): number {
-  const base = Math.max(0, uvIndex - UV_PENALTY_START) * UV_PENALTY_PER_LEVEL;
-  return constraints.includes('uvSensitive')
-    ? base * SENSITIVE_PENALTY_MULTIPLIER
-    : base;
+  const w = SCORE_WEIGHTS;
+  return {
+    feelsLike: w.feelsLike * feelsLikeQuality(felt, ACTIVITY_COMFORT[activity]),
+    temp: w.temp * tempQuality(weather.temp),
+    precipitation: w.precipitation * rainQuality(weather.precipitation),
+    wind: w.wind * windQuality(weather.windSpeed),
+    humidity: w.humidity * humidityQuality(weather.humidity),
+    dust: w.dust * applySensitivity(dustQuality(weather.pm10), dustSensitive),
+    daylight: w.daylight * daylightQuality(weather.isDay),
+    uv: w.uv * applySensitivity(uvQuality(weather.uvIndex), constraints.includes('uvSensitive')),
+  };
 }
 
 /**
@@ -52,22 +56,17 @@ function uvPenalty(uvIndex: number, constraints: Constraint[]): number {
  * @param weather 날씨 정보
  * @param offset 체감 온도 보정값
  * @param constraints 제약사항
+ * @param activity 활동
  */
 export function calcRunScore(
   weather: Weather,
   offset: number,
   constraints: Constraint[],
+  activity: Activity,
 ): number {
-  const feelsLike = calcPersonalFeelsLike(weather, offset);
-  const windPenalty =
-    Math.max(0, weather.windSpeed - WIND_PENALTY_START) * WIND_PENALTY_PER_MS;
-  const total =
-    tempPenalty(feelsLike) +
-    windPenalty +
-    weather.precipitation * RAIN_PENALTY_PER_MM +
-    dustPenalty(weather.pm10, constraints) +
-    uvPenalty(weather.uvIndex, constraints);
-  return Math.round(Math.min(SCORE_MAX, Math.max(SCORE_MIN, SCORE_MAX - total)));
+  const breakdown = calcScoreBreakdown(weather, offset, constraints, activity);
+  const total = Object.values(breakdown).reduce((sum, points) => sum + points, 0);
+  return Math.round(Math.min(SCORE_MAX, Math.max(SCORE_MIN, total)));
 }
 
 /** 점수를 경고 단계로 변환 */

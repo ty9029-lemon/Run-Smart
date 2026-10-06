@@ -9,7 +9,12 @@ export const DUMMY_CURRENT_WEATHER: Weather = {
   condition: '흐림',
   pm10: 45,
   uvIndex: 2,
+  isDay: true,
 };
+
+/** 더미에서 낮으로 보는 시간 범위 (해당 시 이상 ~ 미만) */
+const DUMMY_DAY_START_HOUR = 6;
+const DUMMY_DAY_END_HOUR = 20;
 
 /** [기온, 습도, 풍속, 강수, 미세먼지, 자외선, 날씨] 형태의 24시간 더미 */
 type HourRow = [number, number, number, number, number, number, string];
@@ -52,5 +57,6 @@ export const DUMMY_HOURLY: HourlyWeather[] = HOUR_ROWS.map(
     pm10,
     uvIndex,
     condition,
+    isDay: hour >= DUMMY_DAY_START_HOUR && hour < DUMMY_DAY_END_HOUR,
   }),
 );
