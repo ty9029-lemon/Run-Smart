@@ -7,6 +7,13 @@ export const OPEN_METEO_AIR_URL =
 /** AI 가이드 서버리스 함수 경로 */
 export const GUIDE_API_PATH = '/api/guide';
 
+/** 현재 위치의 행정동 이름 서버리스 함수 경로 */
+export const PLACE_API_PATH = '/api/place';
+/** 주소 요청 제한 시간(ms) */
+export const PLACE_TIMEOUT_MS = 5000;
+/** 주소 요청에 보내는 좌표 소수점 자릿수 (약 100m, 필요 이상으로 정밀한 위치를 보내지 않는다) */
+export const PLACE_COORD_DIGITS = 3;
+
 /** 날씨 요청 제한 시간(ms) */
 export const WEATHER_TIMEOUT_MS = 8000;
 /** AI 가이드 요청 제한 시간(ms) */

@@ -10,6 +10,7 @@ import {
   requestLocationPermission,
   useLocationPermission,
 } from '../hooks/useLocationPermission';
+import { usePlaceLabel } from '../hooks/usePlaceLabel';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { useProfileStore } from '../store/profileStore';
 import type { Activity, Profile } from '../types';
@@ -38,6 +39,10 @@ export default function Home() {
   const offset = activity ? profile.offsets[activity] : 0;
   const location = useCoords(locationStatus);
   const locationLabel = location?.isCurrent ? CURRENT_LOCATION_LABEL : DEFAULT_LOCATION;
+  // 헤더에만 주소를 붙인다. AI 가이드 요청에는 locationLabel을 그대로 보내
+  // 주소가 도착해도 가이드를 다시 받지 않는다.
+  const place = usePlaceLabel(location?.isCurrent ? location.coords : null);
+  const headerLabel = place ? `${locationLabel} (${place})` : locationLabel;
   const data = useHomeData({
     activity,
     offset,
@@ -57,7 +62,7 @@ export default function Home() {
 
   return (
     <main className="mx-auto max-w-md space-y-6 px-4 py-6">
-      <HomeHeader location={locationLabel} />
+      <HomeHeader location={headerLabel} />
       {!activity && (
         <Notice>
           {MESSAGES.noActivity}{' '}

@@ -7,5 +7,5 @@
 export function logServerError(message: string, error?: unknown): void {
   const detail = error instanceof Error ? error.message : '';
   // eslint-disable-next-line no-console
-  console.error(`[RunSmart][guide] ${message}`, detail);
+  console.error(`[RunSmart][api] ${message}`, detail);
 }
