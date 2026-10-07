@@ -46,23 +46,34 @@ async function readPosition(): Promise<Coords | null> {
 
 /**
  * 날씨 조회에 쓸 좌표를 정한다.
- * 권한 상태는 힌트로만 쓴다. 거부(denied)가 아니면 직접 위치를 읽어 본다.
- * (모바일 브라우저는 Permissions API가 없거나 변경 이벤트가 오지 않을 수 있다.)
- * 실패하면 서울 기준. (PRD 6장)
- * @param status 위치 권한 상태
+ * 권한 상태는 신뢰하지 않고 항상 직접 위치를 읽어 본다.
+ * (모바일 브라우저는 Permissions API가 없거나, 사이트 설정을 바꿔도 이전 상태
+ * (denied 등)가 남아 있을 수 있다. 거부된 상태면 읽기가 곧바로 실패할 뿐이다.)
+ * 서울 기준으로 떨어진 경우, 설정 앱 등에서 돌아오면 다시 시도한다. (PRD 6장)
+ * @param status 위치 권한 상태. 바뀔 때마다 다시 읽는다.
  */
 export function useCoords(status: LocationStatus): ResolvedCoords | null {
   const [resolved, setResolved] = useState<ResolvedCoords | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const needsRetry = resolved !== null && !resolved.isCurrent;
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const position = status === 'denied' ? null : await readPosition();
+      const position = await readPosition();
       if (cancelled) return;
       setResolved(position ? { coords: position, isCurrent: true } : SEOUL_FALLBACK);
     })();
     return () => {
       cancelled = true;
     };
-  }, [status]);
+  }, [status, retryCount]);
+  useEffect(() => {
+    if (!needsRetry) return;
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') setRetryCount((n) => n + 1);
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [needsRetry]);
   return resolved;
 }

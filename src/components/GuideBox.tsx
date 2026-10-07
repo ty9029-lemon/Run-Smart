@@ -7,7 +7,7 @@ import type { AiGuide, GuideState } from '../types';
 export interface LocationNoticeProps {
   status: LocationStatus;
   /** 브라우저 위치 권한 요청 */
-  onRequest: () => void;
+  onRequest: () => Promise<boolean>;
 }
 
 interface GuideBoxProps {
@@ -21,13 +21,14 @@ interface GuideBoxProps {
 
 /**
  * 위치 권한 안내와 [현재 위치로 사용] 버튼.
- * 차단(denied) 상태에서는 브라우저가 다시 묻지 않으므로 설정 안내를 펼친다.
+ * 차단(denied)으로 보여도 일단 읽어 보고, 실패하면 설정 안내를 펼친다.
+ * (사이트 설정을 바꿨는데 앱이 이전 상태를 들고 있을 수 있다.)
  */
-function LocationNotice({ status, onRequest }: LocationNoticeProps) {
+function LocationNotice({ onRequest }: LocationNoticeProps) {
   const [showGuide, setShowGuide] = useState(false);
-  const handleClick = () => {
-    if (status === 'denied') setShowGuide(true);
-    else onRequest();
+  const handleClick = async () => {
+    const succeeded = await onRequest();
+    if (!succeeded) setShowGuide(true);
   };
   return (
     <div className="space-y-3">
