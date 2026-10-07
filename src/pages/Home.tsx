@@ -37,11 +37,13 @@ export default function Home() {
   const locationStatus = useLocationPermission();
   const activity = resolveActivity(profile);
   const offset = activity ? profile.offsets[activity] : 0;
-  const location = useCoords(locationStatus);
+  const location = useCoords();
   const locationLabel = location?.isCurrent ? CURRENT_LOCATION_LABEL : DEFAULT_LOCATION;
   // 헤더에만 주소를 붙인다. AI 가이드 요청에는 locationLabel을 그대로 보내
   // 주소가 도착해도 가이드를 다시 받지 않는다.
   const place = usePlaceLabel(location?.isCurrent ? location.coords : null);
+  // 권한이 허용돼도 기기 설정 때문에 위치를 못 읽어 서울 기준이면 안내를 보여준다.
+  const showLocationNotice = locationStatus !== 'granted' || location?.isCurrent === false;
   const headerLabel = place ? `${locationLabel} (${place})` : locationLabel;
   const data = useHomeData({
     activity,
@@ -80,9 +82,13 @@ export default function Home() {
           weather={data.weather}
           guide={data.guide}
           location={
-            locationStatus === 'granted'
-              ? undefined
-              : { status: locationStatus, onRequest: requestLocationPermission }
+            showLocationNotice
+              ? {
+                  status: locationStatus,
+                  error: location?.error,
+                  onRequest: requestLocationPermission,
+                }
+              : undefined
           }
         />
       )}

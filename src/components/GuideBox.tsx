@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { MESSAGES } from '../constants/messages';
+import type { CoordsError } from '../hooks/useCoords';
 import type { LocationStatus } from '../hooks/useLocationPermission';
 import type { AiGuide, GuideState } from '../types';
 
 /** 위치 권한이 없을 때 보여주는 안내와 [현재 위치로 사용] 버튼에 필요한 값 */
 export interface LocationNoticeProps {
   status: LocationStatus;
+  /** 위치를 읽지 못한 이유 (읽기에 실패했을 때만) */
+  error?: CoordsError;
   /** 브라우저 위치 권한 요청 */
-  onRequest: () => void;
+  onRequest: () => Promise<boolean>;
 }
 
 interface GuideBoxProps {
@@ -19,15 +22,19 @@ interface GuideBoxProps {
   location?: LocationNoticeProps;
 }
 
+/** 위치 거부(1)나 확인 불가(2)는 기기 설정 때문일 수 있어 기기 설정 안내를 함께 보여준다. */
+const DEVICE_GUIDE_ERROR_CODES: readonly number[] = [1, 2];
+
 /**
  * 위치 권한 안내와 [현재 위치로 사용] 버튼.
- * 차단(denied) 상태에서는 브라우저가 다시 묻지 않으므로 설정 안내를 펼친다.
+ * 차단(denied)으로 보여도 일단 읽어 보고, 실패하면 설정 안내를 펼친다.
+ * (사이트 설정을 바꿨는데 앱이 이전 상태를 들고 있을 수 있다.)
  */
-function LocationNotice({ status, onRequest }: LocationNoticeProps) {
+function LocationNotice({ error, onRequest }: LocationNoticeProps) {
   const [showGuide, setShowGuide] = useState(false);
-  const handleClick = () => {
-    if (status === 'denied') setShowGuide(true);
-    else onRequest();
+  const handleClick = async () => {
+    const succeeded = await onRequest();
+    if (!succeeded) setShowGuide(true);
   };
   return (
     <div className="space-y-3">
@@ -41,6 +48,9 @@ function LocationNotice({ status, onRequest }: LocationNoticeProps) {
       </button>
       {showGuide && (
         <p className="text-sm text-steel-border">{MESSAGES.locationSettingsGuide}</p>
+      )}
+      {error && DEVICE_GUIDE_ERROR_CODES.includes(error.code) && (
+        <p className="text-sm text-steel-border">{MESSAGES.locationSystemGuide}</p>
       )}
     </div>
   );
