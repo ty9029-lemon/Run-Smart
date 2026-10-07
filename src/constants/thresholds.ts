@@ -10,6 +10,8 @@ export const MAX_ACTIVITIES = 3;
 
 /** 시간대별 날씨 표시 개수(24시간) */
 export const HOURS_IN_DAY = 24;
+/** 예보를 요청하는 일수 (현재 시각부터 24시간을 내일까지 이어 보여주기 위해 2일치) */
+export const FORECAST_DAYS = 2;
 /** 히스토리 보관 일수 */
 export const HISTORY_DAYS = 7;
 /** 하루의 밀리초 */

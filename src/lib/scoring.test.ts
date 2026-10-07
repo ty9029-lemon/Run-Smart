@@ -3,7 +3,7 @@ import { SCORE_WEIGHTS } from '../constants/scoring';
 import { SCORE_MAX } from '../constants/thresholds';
 import { DUMMY_CURRENT_WEATHER, DUMMY_HOURLY } from '../data/dummyWeather';
 import type { HourlyWeather, Weather } from '../types';
-import { findBestHour, scoreHours } from './bestHour';
+import { findBestHour, findBestHourToday, scoreHours, sliceFromHour } from './bestHour';
 import { calcPersonalFeelsLike } from './feelsLike';
 import { calcRunScore, calcScoreBreakdown, scoreToLevel } from './runScore';
 
@@ -177,5 +177,50 @@ describe('findBestHour', () => {
 
   it('남은 시간대가 없으면 null', () => {
     expect(findBestHour([{ hour: 3, score: 90 }], 4)).toBeNull();
+  });
+});
+
+describe('sliceFromHour', () => {
+  /** 오늘 0~23시 + 내일 0~23시 */
+  const TWO_DAYS = [...DUMMY_HOURLY, ...DUMMY_HOURLY];
+
+  it('현재 시각부터 24시간을 내일까지 이어서 돌려준다', () => {
+    const sliced = sliceFromHour(TWO_DAYS, 14);
+    expect(sliced).toHaveLength(24);
+    expect(sliced[0].hour).toBe(14);
+    expect(sliced[9].hour).toBe(23);
+    expect(sliced[10].hour).toBe(0);
+    expect(sliced[23].hour).toBe(13);
+  });
+
+  it('하루치만 있으면 현재 시각 이후만 남긴다', () => {
+    expect(sliceFromHour(DUMMY_HOURLY, 20).map((h) => h.hour)).toEqual([20, 21, 22, 23]);
+  });
+
+  it('현재 시각이 목록에 없으면 앞에서부터 쓴다', () => {
+    expect(sliceFromHour(DUMMY_HOURLY, 99)[0].hour).toBe(0);
+  });
+});
+
+describe('findBestHourToday', () => {
+  /** 14시부터 24칸: 오늘 14~23시(10칸) + 내일 0~13시 */
+  const scores = Array.from({ length: 24 }, (_, i) => ({
+    hour: (14 + i) % 24,
+    score: i === 15 ? 100 : 50,
+  }));
+
+  it('내일 칸에 최고점이 있어도 오늘 칸에서만 고른다', () => {
+    expect(findBestHourToday(scores, 14)).toEqual({ hour: 14, score: 50 });
+  });
+
+  it('오늘 칸이 하나뿐이어도 고른다', () => {
+    expect(findBestHourToday([{ hour: 23, score: 70 }, { hour: 0, score: 90 }], 23)).toEqual({
+      hour: 23,
+      score: 70,
+    });
+  });
+
+  it('빈 목록이면 null', () => {
+    expect(findBestHourToday([], 10)).toBeNull();
   });
 });

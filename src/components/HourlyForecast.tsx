@@ -7,11 +7,18 @@ interface HourlyForecastProps {
   hourly: HourlyWeather[];
   scores: HourScore[];
   best: HourScore | null;
+  /** 선택한 활동 이름 (예: 러닝) */
+  activityLabel: string;
 }
 
 /** 시간 표기 (예: 7시) */
 function hourLabel(hour: number): string {
   return `${hour}시`;
+}
+
+/** 목록 첫 시각보다 시(hour)가 작아지면 자정을 넘긴 내일로 본다. */
+function isTomorrow(hour: number, firstHour: number): boolean {
+  return hour < firstHour;
 }
 
 /** 스크롤이 멈췄다고 보는 대기 시간(ms) */
@@ -25,10 +32,11 @@ function lastVisibleIndex(list: HTMLUListElement): number {
   return Math.max(items.length - hiddenCount - 1, 0);
 }
 
-/** 시간대별 날씨(24시간)와 최적 시간대 제안 */
-export default function HourlyForecast({ hourly, scores, best }: HourlyForecastProps) {
+/** 시간대별 날씨(현재 시각부터 24시간)와 최적 시간대 제안 */
+export default function HourlyForecast({ hourly, scores, best, activityLabel }: HourlyForecastProps) {
   const timerRef = useRef<number>();
   const hasSentRef = useRef(false);
+  const firstHour = hourly[0]?.hour ?? 0;
 
   useEffect(() => () => window.clearTimeout(timerRef.current), []);
 
@@ -50,7 +58,7 @@ export default function HourlyForecast({ hourly, scores, best }: HourlyForecastP
       <h2 className="mb-1 text-base font-bold">시간대별 날씨</h2>
       {best && (
         <p className="mb-3 text-sm text-steel-border">
-          추천 시간대는 {hourLabel(best.hour)} ({best.score}점)이에요.
+          오늘의 {activityLabel} 추천 시간대는 {hourLabel(best.hour)}({best.score}점)이에요.
         </p>
       )}
       <ul
@@ -66,6 +74,9 @@ export default function HourlyForecast({ hourly, scores, best }: HourlyForecastP
                 isBest ? 'border-lime-pulse' : 'border-card-border-ink'
               }`}
             >
+              <span className="text-[10px] text-steel-border">
+                {isTomorrow(h.hour, firstHour) ? '내일' : '오늘'}
+              </span>
               <span className="font-medium">{hourLabel(h.hour)}</span>
               <span className="text-base font-bold">{h.temp}°</span>
               <span>{scores[i]?.score}점</span>

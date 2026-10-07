@@ -1,4 +1,4 @@
-import { HOURS_IN_DAY } from '../constants/thresholds';
+import { FORECAST_DAYS, HOURS_IN_DAY } from '../constants/thresholds';
 import type { Coords } from '../constants/api';
 import type { HourlyWeather, Weather } from '../types';
 
@@ -61,7 +61,7 @@ export function weatherCodeToCondition(code: number): string {
 }
 
 /**
- * 예보 요청 URL 쿼리를 만든다. (오늘 0~23시, m/s, 현지 시간대)
+ * 예보 요청 URL 쿼리를 만든다. (오늘·내일 48시간, m/s, 현지 시간대)
  * @param coords 좌표
  */
 export function buildForecastQuery(coords: Coords): string {
@@ -89,7 +89,7 @@ export function buildForecastQuery(coords: Coords): string {
     hourly,
     wind_speed_unit: 'ms',
     timezone: 'auto',
-    forecast_days: '1',
+    forecast_days: String(FORECAST_DAYS),
   }).toString();
 }
 
@@ -103,7 +103,7 @@ export function buildAirQuery(coords: Coords): string {
     longitude: String(coords.lon),
     hourly: 'pm10',
     timezone: 'auto',
-    forecast_days: '1',
+    forecast_days: String(FORECAST_DAYS),
   }).toString();
 }
 
@@ -122,19 +122,19 @@ function round1(value: number): number {
   return Math.round(value * 10) / 10;
 }
 
-/** 대기질 응답에서 시간대별 PM10 맵을 만든다. (값이 없는 시간은 제외) */
-function buildPm10Map(air: AirResponse): Map<number, number> {
-  const map = new Map<number, number>();
+/** 대기질 응답에서 시각("2026-10-06T14:00")별 PM10 맵을 만든다. (값이 없는 시간은 제외) */
+function buildPm10Map(air: AirResponse): Map<string, number> {
+  const map = new Map<string, number>();
   air.hourly?.time?.forEach((t, i) => {
     const value = air.hourly.pm10[i];
-    if (value !== null && value !== undefined) map.set(hourOf(t), value);
+    if (value !== null && value !== undefined) map.set(t, value);
   });
   return map;
 }
 
 /** 예보 응답의 시간대별 배열을 앱의 시간대별 날씨로 변환한다. */
-function toHourly(h: ForecastResponse['hourly'], pm10ByHour: Map<number, number>) {
-  return h.time.slice(0, HOURS_IN_DAY).map((t, i): HourlyWeather => {
+function toHourly(h: ForecastResponse['hourly'], pm10ByTime: Map<string, number>) {
+  return h.time.slice(0, HOURS_IN_DAY * FORECAST_DAYS).map((t, i): HourlyWeather => {
     const hour = hourOf(t);
     return {
       hour,
@@ -143,7 +143,7 @@ function toHourly(h: ForecastResponse['hourly'], pm10ByHour: Map<number, number>
       windSpeed: round1(h.wind_speed_10m[i]),
       precipitation: round1(h.precipitation[i]),
       condition: weatherCodeToCondition(h.weather_code[i]),
-      pm10: Math.round(pm10ByHour.get(hour) ?? 0),
+      pm10: Math.round(pm10ByTime.get(t) ?? 0),
       uvIndex: round1(h.uv_index[i]),
       isDay: toIsDay(h.is_day?.[i]),
     };
