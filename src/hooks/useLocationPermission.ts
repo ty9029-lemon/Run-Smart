@@ -6,7 +6,7 @@ import { logger } from '../lib/logger';
 export type LocationStatus = 'granted' | 'denied' | 'prompt' | 'unknown';
 
 /** 위치 권한 요청이 성공했음을 알리는 이벤트 이름 */
-const LOCATION_GRANTED_EVENT = 'runsmart:location-granted';
+export const LOCATION_GRANTED_EVENT = 'runsmart:location-granted';
 
 /**
  * 브라우저에 위치 권한을 요청한다. (좌표는 사용하지 않고 권한 팝업만 띄움)
