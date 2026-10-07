@@ -7,11 +7,11 @@ import {
   type ForecastResponse,
 } from './openMeteo';
 
-/** 하루 24시간 시각 배열 (현지 시간) */
-const TIMES = Array.from(
-  { length: 24 },
-  (_, h) => `2026-10-06T${String(h).padStart(2, '0')}:00`,
-);
+/** 오늘·내일 48시간 시각 배열 (현지 시간) */
+const TIMES = Array.from({ length: 48 }, (_, i) => {
+  const day = i < 24 ? '06' : '07';
+  return `2026-10-${day}T${String(i % 24).padStart(2, '0')}:00`;
+});
 
 /** 모든 시간이 같은 값인 예보 응답을 만든다. */
 function makeForecast(nowTime: string): ForecastResponse {
@@ -32,13 +32,13 @@ function makeForecast(nowTime: string): ForecastResponse {
       wind_speed_10m: fill(3),
       precipitation: fill(0),
       weather_code: fill(0),
-      uv_index: TIMES.map((_, h) => h),
+      uv_index: TIMES.map((_, i) => i % 24),
     },
   };
 }
 
 /** 시간대 번호가 곧 PM10 값인 대기질 응답 */
-const AIR: AirResponse = { hourly: { time: TIMES, pm10: TIMES.map((_, h) => h * 2) } };
+const AIR: AirResponse = { hourly: { time: TIMES, pm10: TIMES.map((_, i) => i * 2) } };
 
 describe('weatherCodeToCondition', () => {
   it('WMO 코드를 한글 날씨로 바꾼다', () => {
@@ -54,10 +54,10 @@ describe('weatherCodeToCondition', () => {
 });
 
 describe('buildForecastQuery', () => {
-  it('풍속은 m/s, 하루치 예보를 요청한다', () => {
+  it('풍속은 m/s, 오늘·내일 2일치 예보를 요청한다', () => {
     const query = buildForecastQuery({ lat: 37.5, lon: 127 });
     expect(query).toContain('wind_speed_unit=ms');
-    expect(query).toContain('forecast_days=1');
+    expect(query).toContain('forecast_days=2');
     expect(query).toContain('uv_index');
   });
 });
@@ -77,10 +77,11 @@ describe('parseWeather', () => {
     });
   });
 
-  it('시간대별 날씨는 0~23시 24개로 변환한다', () => {
+  it('시간대별 날씨는 오늘·내일 48개로 변환하고 PM10을 날짜별로 구분한다', () => {
     const { hourly } = parseWeather(makeForecast('2026-10-06T00:00'), AIR);
-    expect(hourly).toHaveLength(24);
+    expect(hourly).toHaveLength(48);
     expect(hourly[5]).toMatchObject({ hour: 5, pm10: 10, condition: '맑음' });
+    expect(hourly[29]).toMatchObject({ hour: 5, pm10: 58 });
   });
 
   it('대기질 응답이 비어 있어도 날씨는 변환하고 PM10은 0으로 둔다', () => {
@@ -98,7 +99,7 @@ describe('parseWeather', () => {
   it('is_day를 낮/밤 boolean으로 변환하고, 값이 없으면 낮으로 본다', () => {
     const forecast = makeForecast('2026-10-06T22:00');
     forecast.current.is_day = 0;
-    forecast.hourly.is_day = TIMES.map((_, h) => (h >= 6 && h < 20 ? 1 : 0));
+    forecast.hourly.is_day = TIMES.map((_, i) => (i % 24 >= 6 && i % 24 < 20 ? 1 : 0));
     const { current, hourly } = parseWeather(forecast, AIR);
     expect(current.isDay).toBe(false);
     expect(hourly[3].isDay).toBe(false);
