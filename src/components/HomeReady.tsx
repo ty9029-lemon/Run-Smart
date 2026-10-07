@@ -101,7 +101,7 @@ export default function HomeReady({
         activity={activity}
         score={score}
         level={scoreToLevel(score)}
-        outfit={recommendOutfit(feelsLike, current.precipitation)}
+        outfit={recommendOutfit(feelsLike, current.precipitation, activity)}
         onSelectActivity={handleSelectActivity}
       />
       <WeatherCard weather={current} feelsLike={feelsLike} />
