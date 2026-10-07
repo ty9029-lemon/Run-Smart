@@ -36,6 +36,10 @@ export const COORD_CACHE_DIGITS = 2;
 
 /** 위치 조회 제한 시간(ms) */
 export const GEOLOCATION_TIMEOUT_MS = 8000;
+/** 캐시된 위치를 허용하는 최대 시간(ms). 모바일의 느린 위치 확보를 줄인다 */
+export const GEOLOCATION_MAX_AGE_MS = 5 * 60 * 1000;
+/** 위치 조회 실패(시간 초과/위치 확인 불가) 시 재시도 횟수 */
+export const GEOLOCATION_RETRY_COUNT = 1;
 
 /** 좌표 */
 export interface Coords {
