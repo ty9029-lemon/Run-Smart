@@ -17,8 +17,10 @@ export const HOURS_IN_DAY = 24;
 export const FORECAST_DAYS = 2;
 /** 일몰 몇 시간 전까지만 낮으로 보는지 (등산·자전거: 해 지기 전에 돌아와야 한다) */
 export const DAYLIGHT_BUFFER_HOURS = 3;
-/** 히스토리 보관 일수 */
-export const HISTORY_DAYS = 7;
+/** 히스토리 보관 일수 (1년) */
+export const HISTORY_DAYS = 365;
+/** 한 주의 일수 (달력 열 개수) */
+export const DAYS_PER_WEEK = 7;
 /** 1시간의 분 */
 export const MINUTES_PER_HOUR = 60;
 /** 1분의 밀리초 */
