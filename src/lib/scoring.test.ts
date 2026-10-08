@@ -226,17 +226,9 @@ describe('findBestHourToday', () => {
 });
 
 describe('findBestHour 동점 처리', () => {
-  const base = { score: 80, isDay: true, pm10: 30, comfortGap: 0 };
+  const base = { score: 80, pm10: 30, uvIndex: 3, comfortGap: 0 };
 
-  it('동점이면 낮 시간을 먼저 고른다', () => {
-    const scores = [
-      { hour: 4, ...base, isDay: false },
-      { hour: 9, ...base },
-    ];
-    expect(findBestHour(scores)?.hour).toBe(9);
-  });
-
-  it('낮/밤도 같으면 미세먼지가 낮은 시간을 고른다', () => {
+  it('동점이면 미세먼지가 낮은 시간을 먼저 고른다', () => {
     const scores = [
       { hour: 8, ...base, pm10: 40 },
       { hour: 10, ...base, pm10: 20 },
@@ -244,7 +236,23 @@ describe('findBestHour 동점 처리', () => {
     expect(findBestHour(scores)?.hour).toBe(10);
   });
 
-  it('미세먼지도 같으면 체감 쾌적 구간에 가까운 시간을 고른다', () => {
+  it('미세먼지가 같으면 자외선 지수가 낮은 시간을 고른다', () => {
+    const scores = [
+      { hour: 8, ...base, uvIndex: 7 },
+      { hour: 10, ...base, uvIndex: 2 },
+    ];
+    expect(findBestHour(scores)?.hour).toBe(10);
+  });
+
+  it('미세먼지가 자외선보다 우선한다', () => {
+    const scores = [
+      { hour: 8, ...base, pm10: 20, uvIndex: 9 },
+      { hour: 10, ...base, pm10: 40, uvIndex: 1 },
+    ];
+    expect(findBestHour(scores)?.hour).toBe(8);
+  });
+
+  it('자외선도 같으면 체감 쾌적 구간에 가까운 시간을 고른다', () => {
     const scores = [
       { hour: 8, ...base, comfortGap: 3 },
       { hour: 10, ...base, comfortGap: 1 },
@@ -258,15 +266,15 @@ describe('findBestHour 동점 처리', () => {
 
   it('점수가 다르면 동점 기준보다 점수가 우선이다', () => {
     const scores = [
-      { hour: 8, ...base, score: 90, isDay: false, pm10: 99, comfortGap: 9 },
+      { hour: 8, ...base, score: 90, pm10: 99, uvIndex: 11, comfortGap: 9 },
       { hour: 10, ...base },
     ];
     expect(findBestHour(scores)?.hour).toBe(8);
   });
 
   it('scoreHours가 동점 기준 값을 함께 담는다', () => {
-    const [first] = scoreHours([{ ...IDEAL, hour: 7, pm10: 12, isDay: false }], 0, [], 'running');
-    expect(first).toMatchObject({ hour: 7, pm10: 12, isDay: false });
+    const [first] = scoreHours([{ ...IDEAL, hour: 7, pm10: 12, uvIndex: 4 }], 0, [], 'running');
+    expect(first).toMatchObject({ hour: 7, pm10: 12, uvIndex: 4 });
     expect(first.comfortGap).toBeGreaterThanOrEqual(0);
   });
 });
