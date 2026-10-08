@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import DecisionButtons from './DecisionButtons';
+import FeedbackCard from './FeedbackCard';
 import GuideBox, { type LocationNoticeProps } from './GuideBox';
 import HomeSummary from './HomeSummary';
 import HourlyForecast from './HourlyForecast';
@@ -56,8 +57,11 @@ export default function HomeReady({
   const addEntry = useHistoryStore((s) => s.addEntry);
   const decision = useTodayDecision(activity);
   const { current, hourly } = weather;
-  const { coldLevel, heatLevel } = profile;
-  const sensitivity = useMemo(() => ({ coldLevel, heatLevel }), [coldLevel, heatLevel]);
+  const { coldLevel, heatLevel, feedbackOffset } = profile;
+  const sensitivity = useMemo(
+    () => ({ coldLevel, heatLevel, feedbackOffset }),
+    [coldLevel, heatLevel, feedbackOffset],
+  );
   const score = calcRunScore(current, sensitivity, profile.constraints, activity);
   const feelsLike = calcPersonalFeelsLike(current, sensitivity);
   const nowHour = useNow().getHours();
@@ -88,12 +92,14 @@ export default function HomeReady({
   /** 결정을 히스토리에 기록한다. */
   const handleDecide = (next: Decision) => {
     trackEvent(ANALYTICS_EVENTS.decisionMade, { decision: next, activity, score });
+    const decidedAt = new Date();
     addEntry({
-      id: `${Date.now()}`,
-      date: new Date().toISOString(),
+      id: `${decidedAt.getTime()}`,
+      date: decidedAt.toISOString(),
       activity,
       decision: next,
       weatherSummary: `${current.temp}°C, ${current.condition}, 바람 ${current.windSpeed}m/s`,
+      feelsLike,
       // AI 가이드가 없으면 앱 내 계산 기반 가이드를 기록으로 남긴다.
       guide:
         guide.state === 'ready'
@@ -104,6 +110,7 @@ export default function HomeReady({
 
   return (
     <div className="space-y-6">
+      <FeedbackCard />
       <HomeSummary
         activities={profile.selectedActivities}
         activity={activity}

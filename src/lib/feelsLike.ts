@@ -48,13 +48,14 @@ export function calcSensitivityAdjust(feelsLike: number, sensitivity: Sensitivit
 }
 
 /**
- * 추위·더위 민감도까지 반영한 개인 체감온도를 계산한다.
+ * 추위·더위 민감도와 피드백 보정까지 반영한 개인 체감온도를 계산한다.
  * @param weather 날씨 정보
- * @param sensitivity 추위·더위 민감도
+ * @param sensitivity 추위·더위 민감도 (피드백 보정 포함)
  */
 export function calcPersonalFeelsLike(weather: Weather, sensitivity: Sensitivity): number {
   const feelsLike = calcFeelsLike(weather);
-  return Math.round(feelsLike + calcSensitivityAdjust(feelsLike, sensitivity));
+  const adjust = calcSensitivityAdjust(feelsLike, sensitivity);
+  return Math.round(feelsLike + adjust + (sensitivity.feedbackOffset ?? 0));
 }
 
 /**

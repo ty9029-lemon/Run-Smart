@@ -1,5 +1,6 @@
 import ActivityPicker from './ActivityPicker';
 import ConstraintList from './ConstraintList';
+import FeedbackOffsetSection from './FeedbackOffsetSection';
 import SensitivityList from './SensitivityList';
 import { toggleActivity, toggleConstraint } from '../lib/profileDraft';
 import type { Profile } from '../types';
@@ -27,6 +28,7 @@ export default function ProfileForm({ draft, error, onChange }: ProfileFormProps
         <h2 className="text-base font-bold">추위·더위 민감도</h2>
         <SensitivityList draft={draft} onChange={onChange} />
       </section>
+      <FeedbackOffsetSection className={SECTION} />
       <section className={SECTION}>
         <h2 className="mb-3 text-base font-bold">제약사항</h2>
         <ConstraintList

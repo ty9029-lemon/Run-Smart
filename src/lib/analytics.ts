@@ -14,6 +14,7 @@ export const ANALYTICS_EVENTS = {
   hourlyForecastScrolled: 'hourly_forecast_scrolled',
   historyOpened: 'history_opened',
   historyEntryViewed: 'history_entry_viewed',
+  feedbackSubmitted: 'feedback_submitted',
 } as const;
 
 export type AnalyticsEventName = (typeof ANALYTICS_EVENTS)[keyof typeof ANALYTICS_EVENTS];

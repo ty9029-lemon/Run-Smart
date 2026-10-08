@@ -40,6 +40,7 @@ describe('migrateProfileState', () => {
       constraints: [],
       coldLevel: 5,
       heatLevel: 3,
+      feedbackOffset: 0,
     });
     expect(migrated.hasOnboarded).toBe(true);
   });
@@ -52,5 +53,17 @@ describe('migrateProfileState', () => {
     const migrated = migrateProfileState(onlyOuting, 0) as typeof legacy;
     expect(migrated.hasOnboarded).toBe(false);
     expect(migrated.profile.lastActivity).toBeNull();
+  });
+});
+
+describe('v2 → v3', () => {
+  it('피드백 보정값을 0으로 채운다', () => {
+    const v2 = {
+      hasOnboarded: true,
+      profile: { selectedActivities: ['running'], lastActivity: 'running', coldLevel: 4, heatLevel: 3, constraints: [] },
+    };
+    const result = migrateProfileState(v2, 2) as { profile: { feedbackOffset: number; coldLevel: number } };
+    expect(result.profile.feedbackOffset).toBe(0);
+    expect(result.profile.coldLevel).toBe(4);
   });
 });

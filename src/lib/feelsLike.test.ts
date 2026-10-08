@@ -85,3 +85,11 @@ describe('calcAppliedOffset', () => {
     expect(calcAppliedOffset(weatherAt(HOT_TEMP), NEUTRAL_SENSITIVITY)).toBe(0);
   });
 });
+
+describe('피드백 보정', () => {
+  it('feedbackOffset만큼 개인 체감온도가 달라진다', () => {
+    const base = calcPersonalFeelsLike(weatherAt(10), NEUTRAL_SENSITIVITY);
+    const colder = calcPersonalFeelsLike(weatherAt(10), { ...NEUTRAL_SENSITIVITY, feedbackOffset: -2 });
+    expect(colder).toBe(base - 2);
+  });
+});
