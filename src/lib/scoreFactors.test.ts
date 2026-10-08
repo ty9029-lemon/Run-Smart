@@ -3,6 +3,7 @@ import { ACTIVITY_COMFORT, COMFORT_EDGE_QUALITY } from '../constants/scoring';
 import {
   applySensitivity,
   daylightQuality,
+  getSunsetStatus,
   dustQuality,
   feelsLikeQuality,
   humidityQuality,
@@ -100,6 +101,48 @@ describe('항목별 품질', () => {
     expect(daylightQuality(true)).toBe(1);
     expect(daylightQuality(false)).toBe(0);
     expect(daylightQuality(undefined)).toBe(1);
+  });
+
+  it('일몰까지 남은 시간이 여유 시간보다 짧으면 낮이어도 0이다', () => {
+    expect(daylightQuality(true, 3, 3)).toBe(1);
+    expect(daylightQuality(true, 2.9, 3)).toBe(0);
+    expect(daylightQuality(true, 5, 3)).toBe(1);
+  });
+
+  it('밤이면 일몰 정보와 상관없이 0이고, 일몰 정보가 없으면 낮/밤만 본다', () => {
+    expect(daylightQuality(false, 10, 3)).toBe(0);
+    expect(daylightQuality(true, undefined, 3)).toBe(1);
+  });
+
+  it('여유 시간이 0이면 해가 떠 있는 동안 낮이다', () => {
+    expect(daylightQuality(true, 0.2)).toBe(1);
+  });
+});
+
+describe('getSunsetStatus', () => {
+  it('일몰까지 여유 시간보다 적게 남으면 approaching이다', () => {
+    expect(getSunsetStatus(2.9, 3)).toBe('approaching');
+    expect(getSunsetStatus(0, 3)).toBe('approaching');
+    expect(getSunsetStatus(3, 3)).toBeNull();
+    expect(getSunsetStatus(5, 3)).toBeNull();
+  });
+
+  it('일몰이 지났으면(음수) passed다', () => {
+    expect(getSunsetStatus(-0.1, 3)).toBe('passed');
+    expect(getSunsetStatus(-5, 3)).toBe('passed');
+  });
+
+  it('일몰 정보가 없으면 null이다', () => {
+    expect(getSunsetStatus(undefined, 3)).toBeNull();
+  });
+
+  it('여유 시간이 0이면(러닝·산책) 항상 null이다', () => {
+    expect(getSunsetStatus(0.5, 0)).toBeNull();
+    expect(getSunsetStatus(-2, 0)).toBeNull();
+  });
+
+  it('해뜨기 전 새벽처럼 일몰까지 많이 남았으면 null이다', () => {
+    expect(getSunsetStatus(13, 3)).toBeNull();
   });
 });
 

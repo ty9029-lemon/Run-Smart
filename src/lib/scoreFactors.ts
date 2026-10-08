@@ -103,9 +103,39 @@ export function uvQuality(uvIndex: number): number {
   return interpolate([[UV_IDEAL_MAX, 1], [UV_ZERO, 0]], uvIndex);
 }
 
-/** 낮이면 1, 밤이면 0. 정보가 없으면 낮으로 본다. */
-export function daylightQuality(isDay: boolean | undefined): number {
-  return isDay === false ? 0 : 1;
+/**
+ * 낮이면 1, 밤이면 0. 정보가 없으면 낮으로 본다.
+ * 일몰까지 남은 시간이 bufferHours보다 짧으면 해가 떠 있어도 낮으로 보지 않는다.
+ * @param isDay 해가 떠 있는지
+ * @param hoursUntilSunset 일몰까지 남은 시간(h). 없으면 isDay만 본다.
+ * @param bufferHours 일몰 몇 시간 전까지 낮으로 볼지 (기본 0)
+ */
+export function daylightQuality(
+  isDay: boolean | undefined,
+  hoursUntilSunset?: number,
+  bufferHours = 0,
+): number {
+  if (isDay === false) return 0;
+  if (hoursUntilSunset !== undefined && hoursUntilSunset < bufferHours) return 0;
+  return 1;
+}
+
+/** 일몰 상태: 여유 시간 안으로 다가옴 / 이미 지남 / 해당 없음 */
+export type SunsetStatus = 'approaching' | 'passed' | null;
+
+/**
+ * 일몰이 다가오는지, 이미 지났는지 판단한다.
+ * 해뜨기 전 새벽은 일몰까지 남은 시간이 양수라 '지남'으로 보지 않는다.
+ * @param hoursUntilSunset 일몰까지 남은 시간(h). 없으면 null
+ * @param bufferHours 일몰 몇 시간 전부터 임박으로 볼지. 0이면 항상 null (러닝·산책)
+ */
+export function getSunsetStatus(
+  hoursUntilSunset: number | undefined,
+  bufferHours: number,
+): SunsetStatus {
+  if (bufferHours <= 0 || hoursUntilSunset === undefined) return null;
+  if (hoursUntilSunset < 0) return 'passed';
+  return hoursUntilSunset < bufferHours ? 'approaching' : null;
 }
 
 /**

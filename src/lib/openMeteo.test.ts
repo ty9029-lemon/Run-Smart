@@ -107,6 +107,26 @@ describe('parseWeather', () => {
     expect(parseWeather(makeForecast('2026-10-06T22:00'), AIR).current.isDay).toBe(true);
   });
 
+  it('daily.sunset으로 시간대별·현재의 일몰까지 남은 시간을 계산한다', () => {
+    const forecast = makeForecast('2026-10-06T16:30');
+    forecast.daily = { time: ['2026-10-06', '2026-10-07'], sunset: ['2026-10-06T18:12', '2026-10-07T18:10'] };
+    const { current, hourly } = parseWeather(forecast, AIR);
+    expect(current.hoursUntilSunset).toBeCloseTo(1.7);
+    expect(hourly[15].hoursUntilSunset).toBeCloseTo(3.2);
+    expect(hourly[19].hoursUntilSunset).toBeCloseTo(-0.8);
+    expect(hourly[39].hoursUntilSunset).toBeCloseTo(3.17, 1);
+  });
+
+  it('daily가 없으면 일몰까지 남은 시간은 undefined다', () => {
+    const { current, hourly } = parseWeather(makeForecast('2026-10-06T16:30'), AIR);
+    expect(current.hoursUntilSunset).toBeUndefined();
+    expect(hourly[15].hoursUntilSunset).toBeUndefined();
+  });
+
+  it('예보 요청에 daily=sunset을 포함한다', () => {
+    expect(buildForecastQuery({ lat: 37.5, lon: 127 })).toContain('daily=sunset');
+  });
+
   it('예보 요청에 is_day를 포함한다', () => {
     expect(buildForecastQuery({ lat: 37.5, lon: 127 })).toContain('is_day');
   });

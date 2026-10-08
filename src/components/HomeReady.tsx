@@ -9,6 +9,7 @@ import { buildDummyGuide } from '../data/dummyGuide';
 import { getActivityMeta } from '../constants/activities';
 import { useNow } from '../hooks/useNow';
 import { formatRawWeather } from '../constants/messages';
+import { ACTIVITY_DAYLIGHT_BUFFER_HOURS } from '../constants/scoring';
 import {
   findBestHourToday,
   findGoodRange,
@@ -20,6 +21,7 @@ import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
 import { recommendOutfit } from '../lib/outfit';
 import { calcRunScore, scoreToLevel } from '../lib/runScore';
+import { getSunsetStatus } from '../lib/scoreFactors';
 import { useHistoryStore } from '../store/historyStore';
 import { useProfileStore } from '../store/profileStore';
 import type { WeatherResult } from '../services/weatherService';
@@ -127,6 +129,10 @@ export default function HomeReady({
         best={best}
         range={range}
         activityLabel={getActivityMeta(activity).label}
+        sunsetStatus={getSunsetStatus(
+          current.hoursUntilSunset,
+          ACTIVITY_DAYLIGHT_BUFFER_HOURS[activity],
+        )}
       />
       <DecisionButtons decision={decision} onDecide={handleDecide} />
     </div>

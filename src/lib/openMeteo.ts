@@ -1,4 +1,9 @@
-import { FORECAST_DAYS, HOURS_IN_DAY } from '../constants/thresholds';
+import {
+  FORECAST_DAYS,
+  HOURS_IN_DAY,
+  MINUTES_PER_HOUR,
+  MS_PER_MINUTE,
+} from '../constants/thresholds';
 import type { Coords } from '../constants/api';
 import type { HourlyWeather, Weather } from '../types';
 
@@ -29,6 +34,8 @@ export interface ForecastResponse {
     uv_index: number[];
     is_day?: number[];
   };
+  /** 날짜별 일몰 시각 ("2026-10-06T18:12", 현지 시간) */
+  daily?: { time: string[]; sunset: string[] };
 }
 
 /** Open-Meteo 대기질 응답 중 사용하는 부분 */
@@ -49,6 +56,8 @@ const CONDITION_RANGES: { max: number; label: string }[] = [
   { max: 86, label: '눈 소나기' },
   { max: 99, label: '뇌우' },
 ];
+/** "2026-10-06T14:00"에서 날짜 부분("2026-10-06")의 길이 */
+const ISO_DATE_LENGTH = 10;
 /** 알 수 없는 날씨 코드일 때 표기 */
 const UNKNOWN_CONDITION = '알 수 없음';
 
@@ -88,6 +97,7 @@ export function buildForecastQuery(coords: Coords): string {
     current,
     hourly,
     wind_speed_unit: 'ms',
+    daily: 'sunset',
     timezone: 'auto',
     forecast_days: String(FORECAST_DAYS),
   }).toString();
@@ -112,6 +122,26 @@ function hourOf(isoLocal: string): number {
   return Number(isoLocal.slice(11, 13));
 }
 
+/** 현지 시각 문자열("2026-10-06T14:15")을 분 단위 숫자로 바꾼다. (같은 시간대끼리만 비교한다) */
+function toMinutes(isoLocal: string): number {
+  return Date.parse(`${isoLocal}:00Z`) / MS_PER_MINUTE;
+}
+
+/**
+ * 해당 시각부터 그날 일몰까지 남은 시간(h)을 구한다. 일몰이 지났으면 음수.
+ * @param isoLocal 현지 시각 ("2026-10-06T14:15")
+ * @param daily 날짜별 일몰 시각. 없으면 undefined를 돌려준다.
+ */
+function hoursUntilSunset(
+  isoLocal: string,
+  daily: ForecastResponse['daily'],
+): number | undefined {
+  const index = daily?.time?.indexOf(isoLocal.slice(0, ISO_DATE_LENGTH)) ?? -1;
+  const sunset = index >= 0 ? daily?.sunset?.[index] : undefined;
+  if (!sunset) return undefined;
+  return (toMinutes(sunset) - toMinutes(isoLocal)) / MINUTES_PER_HOUR;
+}
+
 /** Open-Meteo의 is_day(1=낮, 0=밤)를 boolean으로 바꾼다. 값이 없으면 낮으로 본다. */
 function toIsDay(value: number | undefined): boolean {
   return value !== 0;
@@ -133,7 +163,11 @@ function buildPm10Map(air: AirResponse): Map<string, number> {
 }
 
 /** 예보 응답의 시간대별 배열을 앱의 시간대별 날씨로 변환한다. */
-function toHourly(h: ForecastResponse['hourly'], pm10ByTime: Map<string, number>) {
+function toHourly(
+  h: ForecastResponse['hourly'],
+  pm10ByTime: Map<string, number>,
+  daily: ForecastResponse['daily'],
+) {
   return h.time.slice(0, HOURS_IN_DAY * FORECAST_DAYS).map((t, i): HourlyWeather => {
     const hour = hourOf(t);
     return {
@@ -146,6 +180,7 @@ function toHourly(h: ForecastResponse['hourly'], pm10ByTime: Map<string, number>
       pm10: Math.round(pm10ByTime.get(t) ?? 0),
       uvIndex: round1(h.uv_index[i]),
       isDay: toIsDay(h.is_day?.[i]),
+      hoursUntilSunset: hoursUntilSunset(t, daily),
     };
   });
 }
@@ -158,9 +193,9 @@ function toHourly(h: ForecastResponse['hourly'], pm10ByTime: Map<string, number>
  * @throws 응답 형식이 맞지 않으면 에러
  */
 export function parseWeather(forecast: ForecastResponse, air: AirResponse): WeatherResult {
-  const { hourly: h, current: c } = forecast;
+  const { hourly: h, current: c, daily } = forecast;
   if (!h?.time?.length || !c) throw new Error('예보 응답 형식이 올바르지 않아요.');
-  const hourly = toHourly(h, buildPm10Map(air));
+  const hourly = toHourly(h, buildPm10Map(air), daily);
   const slot = hourly.find((x) => x.hour === hourOf(c.time));
   const current: Weather = {
     temp: round1(c.temperature_2m),
@@ -171,6 +206,7 @@ export function parseWeather(forecast: ForecastResponse, air: AirResponse): Weat
     pm10: slot?.pm10 ?? 0,
     uvIndex: slot?.uvIndex ?? 0,
     isDay: toIsDay(c.is_day),
+    hoursUntilSunset: hoursUntilSunset(c.time, daily),
   };
   return { current, hourly };
 }

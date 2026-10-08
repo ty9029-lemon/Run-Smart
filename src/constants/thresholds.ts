@@ -15,8 +15,14 @@ export const SENSITIVITY_DEGREE_PER_LEVEL = 2.5;
 export const HOURS_IN_DAY = 24;
 /** 예보를 요청하는 일수 (현재 시각부터 24시간을 내일까지 이어 보여주기 위해 2일치) */
 export const FORECAST_DAYS = 2;
+/** 일몰 몇 시간 전까지만 낮으로 보는지 (등산·자전거: 해 지기 전에 돌아와야 한다) */
+export const DAYLIGHT_BUFFER_HOURS = 3;
 /** 히스토리 보관 일수 */
 export const HISTORY_DAYS = 7;
+/** 1시간의 분 */
+export const MINUTES_PER_HOUR = 60;
+/** 1분의 밀리초 */
+export const MS_PER_MINUTE = 60 * 1000;
 /** 하루의 밀리초 */
 export const MS_PER_DAY = 24 * 60 * 60 * 1000;
 

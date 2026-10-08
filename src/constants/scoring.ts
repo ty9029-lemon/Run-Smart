@@ -1,7 +1,7 @@
 import type { Activity } from '../types';
-import { PM10_GOOD, PM10_NORMAL } from './thresholds';
+import { DAYLIGHT_BUFFER_HOURS, PM10_GOOD, PM10_NORMAL } from './thresholds';
 
-/** 항목별 배점. 합계가 100점이다. */
+/** 항목별 배점(러닝·산책 기본표). 합계가 100점이다. */
 export const SCORE_WEIGHTS = {
   feelsLike: 26,
   temp: 8,
@@ -12,6 +12,40 @@ export const SCORE_WEIGHTS = {
   daylight: 5,
   uv: 11,
 } as const;
+
+/** 항목별 배점표의 형태 */
+export type ScoreWeights = { [K in keyof typeof SCORE_WEIGHTS]: number };
+
+/**
+ * 낮시간을 최우선으로 보는 배점표(등산·자전거). 합계가 100점이다.
+ * 낮/밤 배점이 가장 커서 밤 최고점이 65점이 되고, 경고 단계 '좋음'(70점)과 구간 추천(80점)에 닿지 못한다.
+ */
+export const DAYLIGHT_FIRST_WEIGHTS: ScoreWeights = {
+  feelsLike: 18,
+  temp: 5,
+  precipitation: 11,
+  wind: 8,
+  humidity: 5,
+  dust: 10,
+  daylight: 35,
+  uv: 8,
+};
+
+/** 활동별로 일몰 몇 시간 전까지 낮으로 보는지. 0이면 해가 떠 있는 동안 모두 낮이다. */
+export const ACTIVITY_DAYLIGHT_BUFFER_HOURS: Record<Activity, number> = {
+  running: 0,
+  walking: 0,
+  hiking: DAYLIGHT_BUFFER_HOURS,
+  cycling: DAYLIGHT_BUFFER_HOURS,
+};
+
+/** 활동별 배점표 */
+export const ACTIVITY_SCORE_WEIGHTS: Record<Activity, ScoreWeights> = {
+  running: SCORE_WEIGHTS,
+  walking: SCORE_WEIGHTS,
+  hiking: DAYLIGHT_FIRST_WEIGHTS,
+  cycling: DAYLIGHT_FIRST_WEIGHTS,
+};
 
 /** 활동별 체감온도 구간(°C). core 안은 만점, comfort 안은 감점이 작다. */
 export interface ComfortRange {
