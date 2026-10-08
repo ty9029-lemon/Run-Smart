@@ -1,12 +1,15 @@
 import { useEffect, useRef, type UIEvent } from 'react';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
-import type { HourScore } from '../lib/bestHour';
+import type { HourRange, HourScore } from '../lib/bestHour';
+import { RECOMMEND_MIN_SCORE } from '../constants/thresholds';
 import type { HourlyWeather } from '../types';
 
 interface HourlyForecastProps {
   hourly: HourlyWeather[];
   scores: HourScore[];
   best: HourScore | null;
+  /** 대표 시간대와 함께 좋은 연속 구간 (없으면 null) */
+  range: HourRange | null;
   /** 선택한 활동 이름 (예: 러닝) */
   activityLabel: string;
 }
@@ -14,6 +17,24 @@ interface HourlyForecastProps {
 /** 시간 표기 (예: 7시) */
 function hourLabel(hour: number): string {
   return `${hour}시`;
+}
+
+/** 최고점이 추천 기준에 못 미치는 날의 안내 문구 */
+const CAUTION_NOTICE = '오늘은 전반적으로 조심하세요.';
+
+/**
+ * 추천 시간대 안내 문구를 만든다.
+ * @param best 대표 시간대
+ * @param range 함께 좋은 연속 구간
+ * @param activityLabel 활동 이름
+ */
+function buildRecommendText(best: HourScore, range: HourRange | null, activityLabel: string): string {
+  if (range) {
+    const span = `${range.startHour}~${hourLabel(range.endHour)}`;
+    return `오늘의 ${activityLabel} 추천 시간대는 ${span}예요. (최고 ${hourLabel(best.hour)} ${best.score}점)`;
+  }
+  const base = `오늘의 ${activityLabel} 추천 시간대는 ${hourLabel(best.hour)}(${best.score}점)이에요.`;
+  return best.score < RECOMMEND_MIN_SCORE ? `${base} ${CAUTION_NOTICE}` : base;
 }
 
 /** 목록 첫 시각보다 시(hour)가 작아지면 자정을 넘긴 내일로 본다. */
@@ -33,7 +54,13 @@ function lastVisibleIndex(list: HTMLUListElement): number {
 }
 
 /** 시간대별 날씨(현재 시각부터 24시간)와 최적 시간대 제안 */
-export default function HourlyForecast({ hourly, scores, best, activityLabel }: HourlyForecastProps) {
+export default function HourlyForecast({
+  hourly,
+  scores,
+  best,
+  range,
+  activityLabel,
+}: HourlyForecastProps) {
   const timerRef = useRef<number>();
   const hasSentRef = useRef(false);
   const firstHour = hourly[0]?.hour ?? 0;
@@ -58,7 +85,7 @@ export default function HourlyForecast({ hourly, scores, best, activityLabel }: 
       <h2 className="mb-1 text-base font-bold">시간대별 날씨</h2>
       {best && (
         <p className="mb-3 text-sm text-steel-border">
-          오늘의 {activityLabel} 추천 시간대는 {hourLabel(best.hour)}({best.score}점)이에요.
+          {buildRecommendText(best, range, activityLabel)}
         </p>
       )}
       <ul

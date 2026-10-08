@@ -1,5 +1,9 @@
 import { ACTIVITY_COMFORT } from '../constants/scoring';
-import { HOURS_IN_DAY } from '../constants/thresholds';
+import {
+  HOURS_IN_DAY,
+  RECOMMEND_MIN_SCORE,
+  RECOMMEND_SCORE_MARGIN,
+} from '../constants/thresholds';
 import type { Activity, Constraint, HourlyWeather } from '../types';
 import { calcPersonalFeelsLike } from './feelsLike';
 import { calcRunScore } from './runScore';
@@ -99,10 +103,44 @@ export function findBestHour(
 }
 
 /**
+ * 현재 시각부터 시작하는 점수 목록에서 오늘 남은 시간대만 잘라 돌려준다.
+ * @param scores 현재 시각부터 시작하는 시간대별 점수
+ * @param nowHour 현재 시(0~23). 목록 앞의 (24 - nowHour)개가 오늘이다.
+ */
+export function sliceToday(scores: HourScore[], nowHour: number): HourScore[] {
+  return scores.slice(0, HOURS_IN_DAY - nowHour);
+}
+
+/**
  * 오늘 남은 시간대 중에서만 가장 점수가 높은 시간대를 찾는다. (내일 칸은 추천하지 않는다)
  * @param scores 현재 시각부터 시작하는 시간대별 점수
  * @param nowHour 현재 시(0~23). 목록 앞의 (24 - nowHour)개가 오늘이다.
  */
 export function findBestHourToday(scores: HourScore[], nowHour: number): HourScore | null {
-  return findBestHour(scores.slice(0, HOURS_IN_DAY - nowHour));
+  return findBestHour(sliceToday(scores, nowHour));
+}
+
+/** 함께 추천하는 연속 시간대 구간 (양 끝 시각 포함) */
+export interface HourRange {
+  startHour: number;
+  endHour: number;
+}
+
+/**
+ * 대표 시간대를 포함하면서 함께 좋은(최고점과 5점 이내, 80점 이상) 연속 구간을 찾는다.
+ * 대표 시간대 하나뿐이거나 최고점이 80점 미만이면 null이다.
+ * @param todayScores 오늘 남은 시간대별 점수 (연속된 시각 순)
+ * @param best 대표 시간대
+ */
+export function findGoodRange(todayScores: HourScore[], best: HourScore | null): HourRange | null {
+  if (!best || best.score < RECOMMEND_MIN_SCORE) return null;
+  const minScore = Math.max(best.score - RECOMMEND_SCORE_MARGIN, RECOMMEND_MIN_SCORE);
+  const bestIndex = todayScores.findIndex((s) => s.hour === best.hour);
+  const isGood = (i: number) => todayScores[i]?.score >= minScore;
+  let start = bestIndex;
+  let end = bestIndex;
+  while (isGood(start - 1)) start -= 1;
+  while (isGood(end + 1)) end += 1;
+  if (start === end) return null;
+  return { startHour: todayScores[start].hour, endHour: todayScores[end].hour };
 }

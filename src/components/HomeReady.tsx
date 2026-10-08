@@ -8,7 +8,13 @@ import { buildDummyGuide } from '../data/dummyGuide';
 import { getActivityMeta } from '../constants/activities';
 import { useNow } from '../hooks/useNow';
 import { formatRawWeather } from '../constants/messages';
-import { findBestHourToday, scoreHours, sliceFromHour } from '../lib/bestHour';
+import {
+  findBestHourToday,
+  findGoodRange,
+  scoreHours,
+  sliceFromHour,
+  sliceToday,
+} from '../lib/bestHour';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
 import { recommendOutfit } from '../lib/outfit';
@@ -57,6 +63,7 @@ export default function HomeReady({
   const upcomingHourly = sliceFromHour(hourly, nowHour);
   const scores = scoreHours(upcomingHourly, offset, profile.constraints, activity);
   const best = findBestHourToday(scores, nowHour);
+  const range = findGoodRange(sliceToday(scores, nowHour), best);
   const rawWeather = formatRawWeather(current.temp, current.condition, current.windSpeed);
 
   // 활동이나 점수가 바뀌어 새 결과가 보일 때마다 전송
@@ -110,6 +117,7 @@ export default function HomeReady({
         hourly={upcomingHourly}
         scores={scores}
         best={best}
+        range={range}
         activityLabel={getActivityMeta(activity).label}
       />
       <DecisionButtons decision={decision} onDecide={handleDecide} />
