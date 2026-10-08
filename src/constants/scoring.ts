@@ -3,14 +3,14 @@ import { PM10_GOOD, PM10_NORMAL } from './thresholds';
 
 /** 항목별 배점. 합계가 100점이다. */
 export const SCORE_WEIGHTS = {
-  feelsLike: 28,
+  feelsLike: 25,
   temp: 8,
   precipitation: 15,
   wind: 10,
   humidity: 8,
   dust: 14,
   daylight: 10,
-  uv: 7,
+  uv: 10,
 } as const;
 
 /** 활동별 체감온도 구간(°C). core 안은 만점, comfort 안은 감점이 작다. */

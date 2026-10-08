@@ -3,7 +3,13 @@ import { SCORE_WEIGHTS } from '../constants/scoring';
 import { SCORE_MAX } from '../constants/thresholds';
 import { DUMMY_CURRENT_WEATHER, DUMMY_HOURLY } from '../data/dummyWeather';
 import type { HourlyWeather, Weather } from '../types';
-import { findBestHour, findBestHourToday, scoreHours, sliceFromHour } from './bestHour';
+import {
+  findBestHour,
+  findBestHourToday,
+  findGoodRange,
+  scoreHours,
+  sliceFromHour,
+} from './bestHour';
 import { calcPersonalFeelsLike } from './feelsLike';
 import { calcRunScore, calcScoreBreakdown, scoreToLevel } from './runScore';
 
@@ -226,17 +232,9 @@ describe('findBestHourToday', () => {
 });
 
 describe('findBestHour 동점 처리', () => {
-  const base = { score: 80, isDay: true, pm10: 30, comfortGap: 0 };
+  const base = { score: 80, pm10: 30, uvIndex: 3, comfortGap: 0 };
 
-  it('동점이면 낮 시간을 먼저 고른다', () => {
-    const scores = [
-      { hour: 4, ...base, isDay: false },
-      { hour: 9, ...base },
-    ];
-    expect(findBestHour(scores)?.hour).toBe(9);
-  });
-
-  it('낮/밤도 같으면 미세먼지가 낮은 시간을 고른다', () => {
+  it('동점이면 미세먼지가 낮은 시간을 먼저 고른다', () => {
     const scores = [
       { hour: 8, ...base, pm10: 40 },
       { hour: 10, ...base, pm10: 20 },
@@ -244,7 +242,23 @@ describe('findBestHour 동점 처리', () => {
     expect(findBestHour(scores)?.hour).toBe(10);
   });
 
-  it('미세먼지도 같으면 체감 쾌적 구간에 가까운 시간을 고른다', () => {
+  it('미세먼지가 같으면 자외선 지수가 낮은 시간을 고른다', () => {
+    const scores = [
+      { hour: 8, ...base, uvIndex: 7 },
+      { hour: 10, ...base, uvIndex: 2 },
+    ];
+    expect(findBestHour(scores)?.hour).toBe(10);
+  });
+
+  it('미세먼지가 자외선보다 우선한다', () => {
+    const scores = [
+      { hour: 8, ...base, pm10: 20, uvIndex: 9 },
+      { hour: 10, ...base, pm10: 40, uvIndex: 1 },
+    ];
+    expect(findBestHour(scores)?.hour).toBe(8);
+  });
+
+  it('자외선도 같으면 체감 쾌적 구간에 가까운 시간을 고른다', () => {
     const scores = [
       { hour: 8, ...base, comfortGap: 3 },
       { hour: 10, ...base, comfortGap: 1 },
@@ -258,15 +272,60 @@ describe('findBestHour 동점 처리', () => {
 
   it('점수가 다르면 동점 기준보다 점수가 우선이다', () => {
     const scores = [
-      { hour: 8, ...base, score: 90, isDay: false, pm10: 99, comfortGap: 9 },
+      { hour: 8, ...base, score: 90, pm10: 99, uvIndex: 11, comfortGap: 9 },
       { hour: 10, ...base },
     ];
     expect(findBestHour(scores)?.hour).toBe(8);
   });
 
   it('scoreHours가 동점 기준 값을 함께 담는다', () => {
-    const [first] = scoreHours([{ ...IDEAL, hour: 7, pm10: 12, isDay: false }], 0, [], 'running');
-    expect(first).toMatchObject({ hour: 7, pm10: 12, isDay: false });
+    const [first] = scoreHours([{ ...IDEAL, hour: 7, pm10: 12, uvIndex: 4 }], 0, [], 'running');
+    expect(first).toMatchObject({ hour: 7, pm10: 12, uvIndex: 4 });
     expect(first.comfortGap).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe('findGoodRange', () => {
+  /** 7시부터 연속된 시각에 주어진 점수를 붙인다. */
+  const toScores = (points: number[]) =>
+    points.map((score, i) => ({ hour: 7 + i, score }));
+
+  it('최고점과 5점 이내이고 80점 이상인 연속 시간대를 묶는다', () => {
+    const scores = toScores([82, 81, 78, 60]);
+    expect(findGoodRange(scores, scores[0])).toEqual({ startHour: 7, endHour: 8 });
+  });
+
+  it('최고점과 5점을 넘게 차이 나면 포함하지 않는다', () => {
+    const scores = toScores([95, 90, 89, 85]);
+    expect(findGoodRange(scores, scores[0])).toEqual({ startHour: 7, endHour: 8 });
+  });
+
+  it('중간에 끊기면 대표 시간대를 포함한 쪽만 묶는다', () => {
+    const scores = toScores([84, 70, 85, 84, 83]);
+    expect(findGoodRange(scores, scores[2])).toEqual({ startHour: 9, endHour: 11 });
+  });
+
+  it('대표 시간대 앞쪽으로도 확장한다', () => {
+    const scores = toScores([79, 82, 84]);
+    expect(findGoodRange(scores, scores[2])).toEqual({ startHour: 8, endHour: 9 });
+  });
+
+  it('최고점 - 5점이 80보다 낮아도 80점 미만은 포함하지 않는다', () => {
+    const scores = toScores([79, 80, 84]);
+    expect(findGoodRange(scores, scores[2])).toEqual({ startHour: 8, endHour: 9 });
+  });
+
+  it('최고점이 80점 미만이면 null이다', () => {
+    const scores = toScores([79, 78, 77]);
+    expect(findGoodRange(scores, scores[0])).toBeNull();
+  });
+
+  it('대표 시간대 하나뿐이면 null이다', () => {
+    const scores = toScores([90, 70, 60]);
+    expect(findGoodRange(scores, scores[0])).toBeNull();
+  });
+
+  it('대표 시간대가 없으면 null이다', () => {
+    expect(findGoodRange([], null)).toBeNull();
   });
 });
