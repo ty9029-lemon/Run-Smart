@@ -80,8 +80,12 @@ export interface GuideRequest {
   location: string;
 }
 
+/** 복장 추천 항목 분류 (화면에서 그룹 소제목으로 쓴다) */
+export type OutfitCategory = 'top' | 'bottom' | 'outer' | 'shoes' | 'gear';
+
 /** 복장 추천 항목 */
 export interface OutfitItem {
+  category: OutfitCategory;
   emoji: string;
   label: string;
 }
