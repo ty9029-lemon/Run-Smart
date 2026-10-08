@@ -290,13 +290,13 @@ describe('findGoodRange', () => {
   const toScores = (points: number[]) =>
     points.map((score, i) => ({ hour: 7 + i, score }));
 
-  it('최고점과 5점 이내이고 80점 이상인 연속 시간대를 묶는다', () => {
+  it('최고점과 3점 이내이고 80점 이상인 연속 시간대를 묶는다', () => {
     const scores = toScores([82, 81, 78, 60]);
     expect(findGoodRange(scores, scores[0])).toEqual({ startHour: 7, endHour: 8 });
   });
 
-  it('최고점과 5점을 넘게 차이 나면 포함하지 않는다', () => {
-    const scores = toScores([95, 90, 89, 85]);
+  it('최고점과 3점을 넘게 차이 나면 포함하지 않는다', () => {
+    const scores = toScores([95, 92, 91, 85]);
     expect(findGoodRange(scores, scores[0])).toEqual({ startHour: 7, endHour: 8 });
   });
 
@@ -310,8 +310,8 @@ describe('findGoodRange', () => {
     expect(findGoodRange(scores, scores[2])).toEqual({ startHour: 8, endHour: 9 });
   });
 
-  it('최고점 - 5점이 80보다 낮아도 80점 미만은 포함하지 않는다', () => {
-    const scores = toScores([79, 80, 84]);
+  it('최고점 - 3점이 80보다 낮아도 80점 미만은 포함하지 않는다', () => {
+    const scores = toScores([79, 80, 82]);
     expect(findGoodRange(scores, scores[2])).toEqual({ startHour: 8, endHour: 9 });
   });
 

@@ -35,7 +35,7 @@ export const SCORE_CAUTION = 45;
 /** 추천 시간대를 구간으로 묶을 때의 최소 점수 */
 export const RECOMMEND_MIN_SCORE = 80;
 /** 최고점과 이 점수 이내로 차이 나는 시간대를 함께 추천한다 */
-export const RECOMMEND_SCORE_MARGIN = 5;
+export const RECOMMEND_SCORE_MARGIN = 3;
 
 /** 미세먼지 등급 기준(㎍/㎥) */
 export const PM10_GOOD = 30;
