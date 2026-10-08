@@ -14,7 +14,7 @@ const SEED: [number, Activity, Decision, number][] = [
 ];
 
 /**
- * 최근 7일 더미 히스토리를 만든다.
+ * 최근 일주일 더미 히스토리를 만든다.
  * @param now 기준 시각(ms)
  */
 export function createDummyHistory(now: number): HistoryEntry[] {

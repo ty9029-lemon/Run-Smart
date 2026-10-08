@@ -24,7 +24,7 @@ function isSameDay(a: string, b: string): boolean {
   return new Date(a).toDateString() === new Date(b).toDateString();
 }
 
-/** 최근 7일 이내 기록만 남기고 최신순 정렬 */
+/** 보관 기간(HISTORY_DAYS) 이내 기록만 남기고 최신순 정렬 */
 function keepRecent(entries: HistoryEntry[], now: number): HistoryEntry[] {
   const limit = now - HISTORY_DAYS * MS_PER_DAY;
   return entries
