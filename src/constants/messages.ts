@@ -11,6 +11,9 @@ export const MESSAGES = {
   // 브라우저는 설정 화면을 직접 열 수 없어 안내 문구로 대신한다.
   locationSettingsGuide:
     '브라우저 주소창 왼쪽의 자물쇠(사이트 설정)에서 위치 권한을 허용해 주세요.',
+  decisionGo: '가기로 기록했어요.',
+  decisionSkip: '안 가기로 기록했어요.',
+  decisionCancel: '취소하기',
   // 사이트 설정이 허용이어도 기기(시스템) 설정이 꺼져 있으면 위치를 읽을 수 없다.
   locationSystemGuide:
     '기기의 위치 서비스도 확인해 주세요. iPhone은 설정 → 개인정보 보호 및 보안 → 위치 서비스 → Safari 웹사이트에서 "앱을 사용하는 동안"으로, Android는 설정의 위치 기능과 브라우저 앱의 위치 권한을 확인해 주세요.',

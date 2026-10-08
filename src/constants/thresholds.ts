@@ -50,6 +50,8 @@ export const RECOMMEND_SCORE_MARGIN = 3;
 export const PM10_GOOD = 30;
 export const PM10_NORMAL = 80;
 
+/** 결정을 기록한 뒤 이 시간(ms) 동안은 버튼 대신 피드백과 '취소하기'만 보여준다 (1시간) */
+export const DECISION_LOCK_MS = 60 * 60 * 1000;
 /** '가기' 기록 후 이 시간(ms)이 지나면 체감 피드백을 묻는다 (1시간) */
 export const FEEDBACK_ASK_DELAY_MS = 60 * 60 * 1000;
 /** '가기' 기록 후 이 시간(ms)이 지나면 피드백을 묻지 않는다 (24시간) */
