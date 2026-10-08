@@ -7,6 +7,8 @@ import type { Feedback, HistoryEntry } from '../types';
 interface HistoryState {
   entries: HistoryEntry[];
   addEntry: (entry: HistoryEntry) => void;
+  /** 기록을 삭제한다 (결정 취소) */
+  removeEntry: (id: string) => void;
   /** 기록에 체감 피드백을 남긴다 */
   setFeedback: (id: string, feedback: Feedback) => void;
 }
@@ -42,6 +44,8 @@ export const useHistoryStore = create<HistoryState>()(
           );
           return { entries: keepRecent([entry, ...others], Date.now()) };
         }),
+      removeEntry: (id) =>
+        set((state) => ({ entries: state.entries.filter((e) => e.id !== id) })),
       setFeedback: (id, feedback) =>
         set((state) => ({
           entries: state.entries.map((e) =>

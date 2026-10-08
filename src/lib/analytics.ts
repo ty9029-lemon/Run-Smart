@@ -9,6 +9,7 @@ export const ANALYTICS_EVENTS = {
   onboardingCompleted: 'onboarding_completed',
   runScoreViewed: 'run_score_viewed',
   decisionMade: 'decision_made',
+  decisionCancelled: 'decision_cancelled',
   activityChanged: 'activity_changed',
   dataLoadFailed: 'data_load_failed',
   hourlyForecastScrolled: 'hourly_forecast_scrolled',

@@ -18,6 +18,7 @@ import {
   sliceToday,
 } from '../lib/bestHour';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
+import { isDecisionLocked } from '../lib/decision';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
 import { recommendOutfit } from '../lib/outfit';
 import { calcRunScore, scoreToLevel } from '../lib/runScore';
@@ -25,7 +26,7 @@ import { getSunsetStatus } from '../lib/scoreFactors';
 import { useHistoryStore } from '../store/historyStore';
 import { useProfileStore } from '../store/profileStore';
 import type { WeatherResult } from '../services/weatherService';
-import type { Activity, Decision, GuideState, Profile } from '../types';
+import type { Activity, Decision, GuideState, HistoryEntry, Profile } from '../types';
 
 interface HomeReadyProps {
   activity: Activity;
@@ -37,14 +38,15 @@ interface HomeReadyProps {
   location?: LocationNoticeProps;
 }
 
-/** 오늘 이 활동에 대한 기록된 결정을 찾는다. */
-function useTodayDecision(activity: Activity): Decision | null {
+/** 오늘 이 활동에 대한 기록된 결정 항목을 찾는다. */
+function useTodayEntry(activity: Activity): HistoryEntry | null {
   const entries = useHistoryStore((s) => s.entries);
   const today = new Date().toDateString();
-  const found = entries.find(
-    (e) => e.activity === activity && new Date(e.date).toDateString() === today,
+  return (
+    entries.find(
+      (e) => e.activity === activity && new Date(e.date).toDateString() === today,
+    ) ?? null
   );
-  return found?.decision ?? null;
 }
 
 /** 날씨·가이드가 준비됐을 때의 홈 본문 */
@@ -57,7 +59,10 @@ export default function HomeReady({
 }: HomeReadyProps) {
   const setLastActivity = useProfileStore((s) => s.setLastActivity);
   const addEntry = useHistoryStore((s) => s.addEntry);
-  const decision = useTodayDecision(activity);
+  const removeEntry = useHistoryStore((s) => s.removeEntry);
+  const todayEntry = useTodayEntry(activity);
+  const now = useNow();
+  const decisionLocked = todayEntry ? isDecisionLocked(todayEntry.date, now.getTime()) : false;
   const { current, hourly } = weather;
   const { coldLevel, heatLevel, feedbackOffset } = profile;
   const sensitivity = useMemo(
@@ -66,7 +71,7 @@ export default function HomeReady({
   );
   const score = calcRunScore(current, sensitivity, profile.constraints, activity);
   const feelsLike = calcPersonalFeelsLike(current, sensitivity);
-  const nowHour = useNow().getHours();
+  const nowHour = now.getHours();
   const upcomingHourly = sliceFromHour(hourly, nowHour);
   const scores = scoreHours(upcomingHourly, sensitivity, profile.constraints, activity);
   const best = findBestHourToday(scores, nowHour);
@@ -110,6 +115,13 @@ export default function HomeReady({
     });
   };
 
+  /** 오늘 기록한 결정을 취소(삭제)한다. */
+  const handleCancel = () => {
+    if (!todayEntry) return;
+    trackEvent(ANALYTICS_EVENTS.decisionCancelled, { decision: todayEntry.decision, activity });
+    removeEntry(todayEntry.id);
+  };
+
   return (
     <div className="space-y-6">
       <FeedbackCard />
@@ -134,7 +146,12 @@ export default function HomeReady({
           ACTIVITY_DAYLIGHT_BUFFER_HOURS[activity],
         )}
       />
-      <DecisionButtons decision={decision} onDecide={handleDecide} />
+      <DecisionButtons
+        decision={todayEntry?.decision ?? null}
+        locked={decisionLocked}
+        onDecide={handleDecide}
+        onCancel={handleCancel}
+      />
     </div>
   );
 }
