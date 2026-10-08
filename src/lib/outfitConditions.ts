@@ -66,6 +66,7 @@ const ICE_GEAR = outfitItem('gear', '⛓️', '아이젠');
 const CONSTRAINT_GEAR: Partial<Record<Constraint, OutfitItem>> = {
   kneeIssue: outfitItem('gear', '🦿', '무릎보호대'),
   asthma: outfitItem('gear', '😷', '마스크'),
+  dustSensitive: outfitItem('gear', '😷', '마스크'),
 };
 
 /**
