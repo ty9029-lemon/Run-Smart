@@ -15,6 +15,9 @@ const CIRCLE_SIZE_CLASS: Record<number, string> = {
   5: 'size-12',
 };
 
+/** 원을 감싸는 박스 높이. 가장 큰 원(size-12)과 같아 모든 원의 중심선이 일치한다. */
+const CIRCLE_BOX_CLASS = 'h-12';
+
 /** 단계별 아래 라벨. 없는 단계는 비워 둔다. */
 const LEVEL_LABEL: Record<number, string> = { 1: '아니오', 3: '보통', 5: '네' };
 
@@ -33,16 +36,18 @@ export default function SensitivityScale({ question, value, onChange }: Sensitiv
           const on = value === level;
           return (
             <div key={level} className="flex w-12 flex-col items-center gap-2">
-              <button
-                type="button"
-                role="radio"
-                aria-checked={on}
-                aria-label={LEVEL_LABEL[level] ?? `${level}단계`}
-                onClick={() => onChange(level)}
-                className={`rounded-full border-2 ${CIRCLE_SIZE_CLASS[level]} ${
-                  on ? 'border-lime-pulse bg-lime-pulse' : 'border-steel-border'
-                }`}
-              />
+              <div className={`flex items-center justify-center ${CIRCLE_BOX_CLASS}`}>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={on}
+                  aria-label={LEVEL_LABEL[level] ?? `${level}단계`}
+                  onClick={() => onChange(level)}
+                  className={`shrink-0 rounded-full border-2 ${CIRCLE_SIZE_CLASS[level]} ${
+                    on ? 'border-lime-pulse bg-lime-pulse' : 'border-steel-border'
+                  }`}
+                />
+              </div>
               <span className="h-4 whitespace-nowrap text-xs text-steel-border">
                 {LEVEL_LABEL[level] ?? ''}
               </span>
