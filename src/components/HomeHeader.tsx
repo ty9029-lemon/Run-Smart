@@ -1,4 +1,6 @@
+import { Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import { useNow } from '../hooks/useNow';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 
@@ -21,20 +23,16 @@ export default function HomeHeader({ location }: HomeHeaderProps) {
         <p className="text-sm text-steel-border">📍 {location}</p>
       </div>
       <nav className="flex items-center gap-2">
-        <Link
-          to="/history"
-          onClick={() => trackEvent(ANALYTICS_EVENTS.historyOpened)}
-          className="rounded-full border border-lime-pulse px-3 py-2 text-sm font-medium text-lime-pulse"
-        >
-          기록
-        </Link>
-        <Link
-          to="/settings"
-          aria-label="설정"
-          className="rounded-full border border-lime-pulse px-3 py-2 text-lime-pulse"
-        >
-          ⚙️
-        </Link>
+        <Button asChild variant="secondary" size="sm">
+          <Link to="/history" onClick={() => trackEvent(ANALYTICS_EVENTS.historyOpened)}>
+            기록
+          </Link>
+        </Button>
+        <Button asChild variant="secondary" size="icon-sm">
+          <Link to="/settings" aria-label="설정">
+            <Settings />
+          </Link>
+        </Button>
       </nav>
     </header>
   );

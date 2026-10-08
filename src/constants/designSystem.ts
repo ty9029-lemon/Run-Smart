@@ -11,6 +11,10 @@ export const BUTTON_VARIANTS = [
 
 export const BUTTON_SIZES = ['default', 'sm'] as const;
 
+export const ICON_BUTTON_SIZES = ['icon-lg', 'icon', 'icon-sm', 'icon-xs'] as const;
+
+export const ICON_BUTTON_VARIANTS = ['default', 'secondary', 'ghost'] as const;
+
 export const BADGE_VARIANTS = [
   'default',
   'active',

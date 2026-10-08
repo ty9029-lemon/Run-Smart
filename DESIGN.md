@@ -130,15 +130,29 @@ Swoosh는 한밤중의 아레나 콘솔처럼 작동합니다. 거의 완전한 
 
 Lime Pulse(#b7ff2c) 배경, Carbon Black(#000000) 텍스트, 9999px border radius(pill), 세로 16px / 가로 20px 패딩, Plus Jakarta Sans / Pretendard 500 16px, 줄 간격 1.20. 채움색과 같은 1px solid #b7ff2c 테두리. 어느 페이지에서든 가장 채도가 높은 단 하나의 요소이며, 전기가 켜진 듯한 느낌이어야 합니다.
 
-### Ghost Navigation Button
-**역할:** 내비게이션의 외곽선 액션
+### Secondary Navigation Button
+**역할:** 내비게이션의 보조 액션 (예: 기록, 설정)
 
-1px Lime Pulse 테두리, #b7ff2c 텍스트, 9999px radius(pill), 세로 8px / 가로 20px의 컴팩트한 패딩, Plus Jakarta Sans / Pretendard 500 14px. SIGN IN에 사용합니다. 테두리만 있는 처리 덕분에 같은 내비게이션 안의 채워진 CTA와 경쟁하지 않고 공존할 수 있습니다.
+Card Charcoal(#1f1f21) 배경, Pure White(#ffffff) 텍스트, 테두리 없음, 9999px radius(pill), 세로 8px / 가로 20px의 컴팩트한 패딩, Plus Jakarta Sans / Pretendard 500 14px. 구현은 `Button`의 `variant="secondary" size="sm"`입니다. 라임을 쓰지 않으므로 같은 내비게이션 안의 채워진 CTA와 경쟁하지 않고 공존할 수 있습니다.
+
+### Icon Button
+**역할:** 텍스트 없이 아이콘만으로 동작하는 정사각형 액션 (예: 설정)
+
+정사각형 + 9999px radius(pill). 아이콘은 Lucide만 사용하며 이모지는 쓰지 않습니다. 텍스트가 없으므로 `aria-label`이 필수이고, 아이콘은 `currentColor`를 따릅니다. 내비게이션에서는 Secondary Navigation Button과 같은 secondary 처리를 사용합니다.
+
+| size | 버튼 | 아이콘 | 용도 |
+|------|------|--------|------|
+| icon-lg | 48px | 20px | 터치 강조·단독 액션 |
+| icon | 40px | 16px | 기본 아이콘 버튼 |
+| icon-sm | 32px | 16px | 내비게이션 바 (Secondary Navigation Button과 같은 높이) |
+| icon-xs | 24px | 12px | 칩·인라인 보조 액션 |
+
+허용 variant는 secondary(내비게이션), ghost(보조), default(주요 단독 액션)입니다.
 
 ### Navigation Bar
 **역할:** 최상위 사이트 내비게이션
 
-전체 너비의 Midnight Canvas(#111111) 바, 20px 컨테이너 radius, 6px/24px 패딩. Swoosh 로고 마크, Pure White(16px Plus Jakarta Sans / Pretendard 500)의 텍스트 내비게이션 링크, 오른쪽의 Ghost Navigation Button을 포함합니다. 은은한 0px 2px 6px rgba(17,17,17,0.125) 그림자가 딱딱한 구분선 없이 바를 고정해 줍니다.
+전체 너비의 Midnight Canvas(#111111) 바, 20px 컨테이너 radius, 6px/24px 패딩. Swoosh 로고 마크, Pure White(16px Plus Jakarta Sans / Pretendard 500)의 텍스트 내비게이션 링크, 오른쪽의 Secondary Navigation Button을 포함합니다. 은은한 0px 2px 6px rgba(17,17,17,0.125) 그림자가 딱딱한 구분선 없이 바를 고정해 줍니다.
 
 ### Hero Headline
 **역할:** 화면을 가득 채우는 오프닝 디스플레이
@@ -183,7 +197,7 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
 ## Do와 Don't
 
 ### Do
-- #b7ff2c는 채워진 CTA 버튼, 고스트 액션 테두리, 활성/체크 상태에만 사용할 것 — 본문 텍스트, 장식용 배경, 넓은 면에는 절대 사용 금지
+- #b7ff2c는 채워진 CTA 버튼, 활성/체크 상태에만 사용할 것 — 본문 텍스트, 장식용 배경, 넓은 면에는 절대 사용 금지
 - 카드, 내비게이션, 모달, 이미지 등 모든 컨테이너에 20px border radius를 적용하고, 버튼은 pill(9999px)로 통일해 일관된 형태를 유지할 것
 - 디스플레이 헤드라인은 110px Plus Jakarta Sans / Pretendard 700, 줄 간격 0.85로 설정할 것(영문 기준). 1.0 미만의 행간이 시그니처 압축이다. 한글 헤드라인은 글자가 겹치므로 줄 간격 1.4로 설정할 것
 - #111111을 기본 페이지 배경으로, #1f1f21을 카드와 모달의 한 단계 높은 표면으로 사용할 것
@@ -218,7 +232,7 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
 
 ## 레이아웃
 
-지속적인 최대 너비 컨테이너가 없는 전체 폭 다크 레이아웃으로, 섹션은 1440px 뷰포트 기준으로 좌우 끝까지 펼쳐집니다. 히어로는 화면을 가득 채우는 사진 이미지로 시작하고, 왼쪽 정렬된 디스플레이 헤드라인이 왼쪽 하단에 오버레이되며 그 아래에 라임 CTA가 놓입니다. 내비게이션은 왼쪽 로고, 가운데 텍스트 링크, 오른쪽 고스트 CTA로 구성된 고정 상단 바입니다. 페이지 리듬은 전체 폭 다크 이미지 섹션, 가운데 정렬된 마키 텍스트 섹션(순수한 검정 위의 거대한 헤드라인), 어두운 사진 위에 White Floating Card가 놓이는 분할 레이아웃이 번갈아 나타납니다. 디스플레이 타입이 숨 쉴 수 있도록 섹션 간격은 넉넉합니다(48-64px). 콘텐츠는 대체로 가운데 또는 왼쪽 정렬이며, 비대칭이거나 그리드 중심의 구성은 없습니다. 모달(쿠키 설정)은 오른쪽 상단에 고정되며 전체 폭이 아닌 유일한 오버레이입니다.
+지속적인 최대 너비 컨테이너가 없는 전체 폭 다크 레이아웃으로, 섹션은 1440px 뷰포트 기준으로 좌우 끝까지 펼쳐집니다. 히어로는 화면을 가득 채우는 사진 이미지로 시작하고, 왼쪽 정렬된 디스플레이 헤드라인이 왼쪽 하단에 오버레이되며 그 아래에 라임 CTA가 놓입니다. 내비게이션은 왼쪽 로고, 가운데 텍스트 링크, 오른쪽 보조 버튼로 구성된 고정 상단 바입니다. 페이지 리듬은 전체 폭 다크 이미지 섹션, 가운데 정렬된 마키 텍스트 섹션(순수한 검정 위의 거대한 헤드라인), 어두운 사진 위에 White Floating Card가 놓이는 분할 레이아웃이 번갈아 나타납니다. 디스플레이 타입이 숨 쉴 수 있도록 섹션 간격은 넉넉합니다(48-64px). 콘텐츠는 대체로 가운데 또는 왼쪽 정렬이며, 비대칭이거나 그리드 중심의 구성은 없습니다. 모달(쿠키 설정)은 오른쪽 상단에 고정되며 전체 폭이 아닌 유일한 오버레이입니다.
 
 ## 에이전트 프롬프트 가이드
 
@@ -240,7 +254,7 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
 
 4. *마키 디스플레이 섹션*: 배경 #111111, 가운데 정렬 헤드라인 Plus Jakarta Sans / Pretendard 700 110px, 줄 간격 0.85(한글은 1.4), 색상 #ffffff. 버튼도 이미지도 없이 타입만 뷰포트 높이를 채웁니다.
 
-5. *내비게이션 바*: 전체 너비 배경 #111111, 20px 컨테이너 radius, 16px/24px 패딩, 은은한 0px 2px 6px rgba(17,17,17,0.125) 그림자. 왼쪽에 Swoosh 로고, Plus Jakarta Sans / Pretendard 500 16px 색상 #ffffff의 내비게이션 링크, 오른쪽에 고스트 SIGN IN 버튼(1px #b7ff2c 테두리, #b7ff2c 텍스트, 9999px radius(pill), 8px/20px 패딩).
+5. *내비게이션 바*: 전체 너비 배경 #111111, 20px 컨테이너 radius, 16px/24px 패딩, 은은한 0px 2px 6px rgba(17,17,17,0.125) 그림자. 왼쪽에 Swoosh 로고, Plus Jakarta Sans / Pretendard 500 16px 색상 #ffffff의 내비게이션 링크, 오른쪽에 secondary SIGN IN 버튼(#1f1f21 배경, #ffffff 텍스트, 테두리 없음, 9999px radius(pill), 8px/20px 패딩).
 
 ## 그라디언트 시스템
 
