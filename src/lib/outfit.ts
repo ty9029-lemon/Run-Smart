@@ -1,6 +1,6 @@
 import { OUTFIT_CATEGORY_ORDER } from '../constants/outfitCategories';
-import type { Activity, OutfitCategory, OutfitItem, Weather } from '../types';
-import { applyOutfitConditions } from './outfitConditions';
+import type { Activity, Constraint, OutfitCategory, OutfitItem, Weather } from '../types';
+import { applyConstraintGear, applyOutfitConditions } from './outfitConditions';
 import { BASE_ITEMS_BY_ACTIVITY, TIERS_BY_ACTIVITY } from './outfitTiers';
 
 /** 운동 중 체온 상승을 반영해 더하는 체감온도 보정(°C) */
@@ -15,17 +15,20 @@ const WARMUP_ACTIVITIES: Activity[] = ['running', 'cycling'];
  * @param feelsLike 개인 체감온도
  * @param weather 현재 날씨
  * @param activity 활동
+ * @param constraints 사용자가 체크한 제약사항 (예: 무릎 문제 → 무릎보호대)
  */
 export function recommendOutfit(
   feelsLike: number,
   weather: Weather,
   activity: Activity,
+  constraints: Constraint[] = [],
 ): OutfitItem[] {
   const warmup = WARMUP_ACTIVITIES.includes(activity) ? EXERCISE_WARMUP_OFFSET : 0;
   const tiers = TIERS_BY_ACTIVITY[activity];
   const tier = tiers.find((t) => feelsLike + warmup <= t.max) ?? tiers[0];
   const items = [...tier.items, ...BASE_ITEMS_BY_ACTIVITY[activity]];
-  return applyOutfitConditions(items, weather, activity, feelsLike);
+  const withConditions = applyOutfitConditions(items, weather, activity, feelsLike);
+  return applyConstraintGear(withConditions, constraints);
 }
 
 /**

@@ -190,6 +190,47 @@ describe('recommendOutfit - 공통', () => {
   });
 });
 
+describe('recommendOutfit - 제약사항', () => {
+  const activities: Activity[] = ['walking', 'running', 'cycling', 'hiking'];
+
+  it('무릎 문제를 체크하면 모든 활동에 무릎보호대를 추천한다', () => {
+    activities.forEach((activity) => {
+      const result = recommendOutfit(20, weatherWith(), activity, ['kneeIssue']).map((i) => i.label);
+      expect(result).toContain('무릎보호대');
+    });
+  });
+
+  it('천식을 체크하면 모든 활동에 마스크를 추천한다', () => {
+    activities.forEach((activity) => {
+      const result = recommendOutfit(20, weatherWith(), activity, ['asthma']).map((i) => i.label);
+      expect(result).toContain('마스크');
+    });
+  });
+
+  it('미세먼지 민감을 체크해도 마스크를 추천하고, 천식과 함께여도 한 번만 나온다', () => {
+    const dust = recommendOutfit(20, weatherWith(), 'cycling', ['dustSensitive']);
+    expect(dust.map((i) => i.label)).toContain('마스크');
+    const both = recommendOutfit(20, weatherWith(), 'cycling', ['asthma', 'dustSensitive']);
+    expect(both.filter((i) => i.label === '마스크')).toHaveLength(1);
+  });
+
+  it('체크하지 않았거나 다른 제약사항만 있으면 해당 장비를 추천하지 않는다', () => {
+    expect(labels(20, 'running')).not.toContain('무릎보호대');
+    expect(labels(20, 'running')).not.toContain('마스크');
+    const asthma = recommendOutfit(20, weatherWith(), 'running', ['asthma']).map((i) => i.label);
+    expect(asthma).not.toContain('무릎보호대');
+    const knee = recommendOutfit(20, weatherWith(), 'running', ['kneeIssue']).map((i) => i.label);
+    expect(knee).not.toContain('마스크');
+  });
+
+  it('여러 제약사항을 함께 체크하면 장비를 모두 추천한다', () => {
+    const result = recommendOutfit(20, weatherWith(), 'hiking', ['kneeIssue', 'asthma']).map(
+      (i) => i.label,
+    );
+    expect(result).toEqual(expect.arrayContaining(['무릎보호대', '마스크']));
+  });
+});
+
 describe('groupOutfitByCategory', () => {
   it('상의·겉옷·하의·신발·장비 순서로 묶고 빈 분류는 뺀다', () => {
     const items = recommendOutfit(8, weatherWith(), 'hiking');

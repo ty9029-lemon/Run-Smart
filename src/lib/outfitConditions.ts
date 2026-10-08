@@ -5,7 +5,7 @@ import {
   OUTFIT_STRONG_WIND_MIN,
   OUTFIT_UV_HIGH_MIN,
 } from '../constants/thresholds';
-import type { Activity, OutfitItem, Weather } from '../types';
+import type { Activity, Constraint, OutfitItem, Weather } from '../types';
 import { outfitItem } from './outfitTiers';
 
 /** 날씨 조건 때문에 더하고(add) 뺄(remove, 라벨 기준) 항목 */
@@ -61,6 +61,23 @@ const UV_GEAR: Partial<Record<Activity, OutfitItem[]>> = {
 
 /** 빙판 대비: 등산 한파 시 챙길 장비 */
 const ICE_GEAR = outfitItem('gear', '⛓️', '아이젠');
+
+/** 제약사항별로 활동과 상관없이 더하는 장비 */
+const CONSTRAINT_GEAR: Partial<Record<Constraint, OutfitItem>> = {
+  kneeIssue: outfitItem('gear', '🦿', '무릎보호대'),
+  asthma: outfitItem('gear', '😷', '마스크'),
+  dustSensitive: outfitItem('gear', '😷', '마스크'),
+};
+
+/**
+ * 설정한 제약사항(예: 무릎 문제)에 맞는 보호 장비를 더한다.
+ * @param items 복장 항목
+ * @param constraints 사용자가 체크한 제약사항
+ */
+export function applyConstraintGear(items: OutfitItem[], constraints: Constraint[]): OutfitItem[] {
+  const gear = constraints.flatMap((constraint) => CONSTRAINT_GEAR[constraint] ?? []);
+  return dedupeByLabel([...items, ...gear]);
+}
 
 /** 일몰이 임박했거나 이미 어두운지 */
 function isDarkSoon(weather: Weather): boolean {
