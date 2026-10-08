@@ -1,4 +1,9 @@
-import { ACTIVITY_COMFORT, SCORE_WEIGHTS } from '../constants/scoring';
+import {
+  ACTIVITY_COMFORT,
+  ACTIVITY_DAYLIGHT_BUFFER_HOURS,
+  ACTIVITY_SCORE_WEIGHTS,
+  type SCORE_WEIGHTS,
+} from '../constants/scoring';
 import {
   SCORE_CAUTION,
   SCORE_GOOD,
@@ -27,7 +32,7 @@ export type ScoreBreakdown = { [K in keyof typeof SCORE_WEIGHTS]: number };
  * @param weather 날씨 정보
  * @param sensitivity 추위·더위 민감도
  * @param constraints 제약사항
- * @param activity 활동 (체감온도 적정 구간이 다르다)
+ * @param activity 활동 (체감온도 적정 구간과 배점표가 다르다)
  */
 export function calcScoreBreakdown(
   weather: Weather,
@@ -38,7 +43,7 @@ export function calcScoreBreakdown(
   const felt = calcPersonalFeelsLike(weather, sensitivity);
   const dustSensitive =
     constraints.includes('dustSensitive') || constraints.includes('asthma');
-  const w = SCORE_WEIGHTS;
+  const w = ACTIVITY_SCORE_WEIGHTS[activity];
   return {
     feelsLike: w.feelsLike * feelsLikeQuality(felt, ACTIVITY_COMFORT[activity]),
     temp: w.temp * tempQuality(weather.temp),
@@ -46,7 +51,13 @@ export function calcScoreBreakdown(
     wind: w.wind * windQuality(weather.windSpeed),
     humidity: w.humidity * humidityQuality(weather.humidity),
     dust: w.dust * applySensitivity(dustQuality(weather.pm10), dustSensitive),
-    daylight: w.daylight * daylightQuality(weather.isDay),
+    daylight:
+      w.daylight *
+      daylightQuality(
+        weather.isDay,
+        weather.hoursUntilSunset,
+        ACTIVITY_DAYLIGHT_BUFFER_HOURS[activity],
+      ),
     uv: w.uv * applySensitivity(uvQuality(weather.uvIndex), constraints.includes('uvSensitive')),
   };
 }

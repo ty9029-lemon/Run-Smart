@@ -44,6 +44,8 @@ export interface Weather {
   uvIndex: number;
   /** 낮이면 true, 밤이면 false */
   isDay: boolean;
+  /** 이 시각부터 일몰까지 남은 시간(h). 일몰 이후면 음수, 정보가 없으면 undefined */
+  hoursUntilSunset?: number;
 }
 
 /** 시간대별 날씨 (1시간 단위) */
