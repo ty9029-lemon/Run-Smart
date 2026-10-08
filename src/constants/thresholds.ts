@@ -37,6 +37,17 @@ export const HUMIDITY_CHILL_PER_10 = 0.3;
 /** 습도 보정 단위(%p) */
 export const HUMIDITY_UNIT = 10;
 
+/** 복장: 비가 올 때 우비/방수 장비를 추천하는 강수량 기준(mm) */
+export const OUTFIT_RAIN_MIN = 0.1;
+/** 복장: 강풍으로 보고 방풍 겉옷을 더하는 풍속 기준(m/s) */
+export const OUTFIT_STRONG_WIND_MIN = 8;
+/** 복장: 일몰까지 이 시간(h) 이하로 남으면 어두워질 것으로 보고 반사·조명 장비를 더한다 */
+export const OUTFIT_DARK_SOON_HOURS = 1;
+/** 복장: 자외선 지수가 이 값 이상이면 모자·선글라스를 더한다 */
+export const OUTFIT_UV_HIGH_MIN = 6;
+/** 복장: 등산 시 체감온도가 이 값(°C) 이하면 빙판 대비 아이젠을 챙기도록 안내한다 */
+export const OUTFIT_ICE_RISK_MAX = 0;
+
 /** 점수 범위 */
 export const SCORE_MAX = 100;
 export const SCORE_MIN = 0;
