@@ -2,11 +2,13 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { HISTORY_DAYS, MS_PER_DAY } from '../constants/thresholds';
 import { createDummyHistory } from '../data/dummyHistory';
-import type { HistoryEntry } from '../types';
+import type { Feedback, HistoryEntry } from '../types';
 
 interface HistoryState {
   entries: HistoryEntry[];
   addEntry: (entry: HistoryEntry) => void;
+  /** 기록에 체감 피드백을 남긴다 */
+  setFeedback: (id: string, feedback: Feedback) => void;
 }
 
 /** 저장 데이터 버전 (1: '외출' 활동 제거) */
@@ -40,6 +42,12 @@ export const useHistoryStore = create<HistoryState>()(
           );
           return { entries: keepRecent([entry, ...others], Date.now()) };
         }),
+      setFeedback: (id, feedback) =>
+        set((state) => ({
+          entries: state.entries.map((e) =>
+            e.id === id ? { ...e, feedback, feedbackAt: new Date().toISOString() } : e,
+          ),
+        })),
     }),
     {
       name: 'run-smart-history',

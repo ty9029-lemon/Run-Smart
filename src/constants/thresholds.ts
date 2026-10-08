@@ -43,3 +43,12 @@ export const RECOMMEND_SCORE_MARGIN = 3;
 /** 미세먼지 등급 기준(㎍/㎥) */
 export const PM10_GOOD = 30;
 export const PM10_NORMAL = 80;
+
+/** '가기' 기록 후 이 시간(ms)이 지나면 체감 피드백을 묻는다 (1시간) */
+export const FEEDBACK_ASK_DELAY_MS = 60 * 60 * 1000;
+/** '가기' 기록 후 이 시간(ms)이 지나면 피드백을 묻지 않는다 (24시간) */
+export const FEEDBACK_EXPIRE_MS = MS_PER_DAY;
+/** 피드백 1회당 체감온도 보정(°C) */
+export const FEEDBACK_STEP = 0.5;
+/** 피드백 누적 보정의 최대 크기(±°C) */
+export const FEEDBACK_OFFSET_LIMIT = 3;

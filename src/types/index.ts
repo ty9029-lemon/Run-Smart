@@ -11,6 +11,9 @@ export type Constraint =
 /** 가기 / 안 가기 결정 */
 export type Decision = 'go' | 'skip';
 
+/** 운동 후 체감 피드백 (추웠어요 / 적당했어요 / 더웠어요) */
+export type Feedback = 'cold' | 'good' | 'hot';
+
 /** 경고 단계 */
 export type WarningLevel = 'good' | 'caution' | 'careful';
 
@@ -18,10 +21,13 @@ export type WarningLevel = 'good' | 'caution' | 'careful';
 export interface Sensitivity {
   coldLevel: number;
   heatLevel: number;
+  /** 운동 후 피드백으로 학습한 체감온도 보정(°C). 음수면 더 춥게, 양수면 더 덥게 느낀다 */
+  feedbackOffset?: number;
 }
 
 /** 사용자 프로필 */
 export interface Profile extends Sensitivity {
+  feedbackOffset: number;
   selectedActivities: Activity[];
   lastActivity: Activity | null;
   constraints: Constraint[];
@@ -86,4 +92,10 @@ export interface HistoryEntry {
   decision: Decision;
   weatherSummary: string;
   guide: AiGuide;
+  /** 결정 당시 개인 체감온도(°C) */
+  feelsLike?: number;
+  /** 운동 후 체감 피드백 */
+  feedback?: Feedback;
+  /** 피드백을 남긴 시각(ISO) */
+  feedbackAt?: string;
 }

@@ -36,8 +36,11 @@ export default function Home() {
   const profile = useProfileStore((s) => s.profile);
   const locationStatus = useLocationPermission();
   const activity = resolveActivity(profile);
-  const { coldLevel, heatLevel } = profile;
-  const sensitivity = useMemo(() => ({ coldLevel, heatLevel }), [coldLevel, heatLevel]);
+  const { coldLevel, heatLevel, feedbackOffset } = profile;
+  const sensitivity = useMemo(
+    () => ({ coldLevel, heatLevel, feedbackOffset }),
+    [coldLevel, heatLevel, feedbackOffset],
+  );
   const location = useCoords();
   const locationLabel = location?.isCurrent ? CURRENT_LOCATION_LABEL : DEFAULT_LOCATION;
   // 헤더에만 주소를 붙인다. AI 가이드 요청에는 locationLabel을 그대로 보내

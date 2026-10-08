@@ -62,6 +62,11 @@ function convertOffsets(state: LegacyProfileState): LegacyProfileState {
   return { ...state, profile: { ...rest, ...sensitivity } };
 }
 
+/** v2 → v3: 피드백 보정값을 0으로 시작한다. */
+function addFeedbackOffset(state: LegacyProfileState): LegacyProfileState {
+  return { ...state, profile: { ...state.profile, feedbackOffset: 0 } };
+}
+
 /**
  * 저장된 프로필을 현재 버전 형태로 옮긴다.
  * @param persisted localStorage에서 읽은 값
@@ -71,5 +76,6 @@ export function migrateProfileState(persisted: unknown, version: number): unknow
   let state = persisted as LegacyProfileState;
   if (version < 1) state = removeOutingActivity(state);
   if (version < 2) state = convertOffsets(state);
+  if (version < 3) state = addFeedbackOffset(state);
   return state;
 }
