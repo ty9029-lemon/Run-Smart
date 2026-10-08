@@ -1,6 +1,6 @@
 import ActivityPicker from './ActivityPicker';
 import ConstraintList from './ConstraintList';
-import OffsetList from './OffsetList';
+import SensitivityList from './SensitivityList';
 import { toggleActivity, toggleConstraint } from '../lib/profileDraft';
 import type { Profile } from '../types';
 
@@ -12,7 +12,7 @@ interface ProfileFormProps {
   onChange: (next: Profile) => void;
 }
 
-/** 설정 폼: 활동 선택, 체감 임계치, 제약사항 */
+/** 설정 폼: 활동 선택, 추위·더위 민감도, 제약사항 */
 export default function ProfileForm({ draft, error, onChange }: ProfileFormProps) {
   return (
     <>
@@ -24,8 +24,8 @@ export default function ProfileForm({ draft, error, onChange }: ProfileFormProps
         />
       </section>
       <section className={`${SECTION} space-y-5`}>
-        <h2 className="text-base font-bold">활동별 체감 임계치</h2>
-        <OffsetList draft={draft} onChange={onChange} />
+        <h2 className="text-base font-bold">추위·더위 민감도</h2>
+        <SensitivityList draft={draft} onChange={onChange} />
       </section>
       <section className={SECTION}>
         <h2 className="mb-3 text-base font-bold">제약사항</h2>

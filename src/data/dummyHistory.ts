@@ -1,5 +1,6 @@
 import { HISTORY_DAYS, MS_PER_DAY } from '../constants/thresholds';
 import type { Activity, Decision, HistoryEntry } from '../types';
+import { NEUTRAL_SENSITIVITY } from '../lib/feelsLike';
 import { buildDummyGuide } from './dummyGuide';
 import { DUMMY_CURRENT_WEATHER } from './dummyWeather';
 
@@ -9,7 +10,7 @@ const SEED: [number, Activity, Decision, number][] = [
   [2, 'walking', 'go', 3],
   [3, 'running', 'skip', -4],
   [5, 'hiking', 'go', 2],
-  [6, 'outing', 'skip', -2],
+  [6, 'walking', 'skip', -2],
 ];
 
 /**
@@ -29,7 +30,7 @@ export function createDummyHistory(now: number): HistoryEntry[] {
         activity,
         decision,
         weatherSummary: `${weather.temp}°C, ${weather.condition}, 바람 ${weather.windSpeed}m/s`,
-        guide: buildDummyGuide(activity, weather, 0, []),
+        guide: buildDummyGuide(activity, weather, NEUTRAL_SENSITIVITY, []),
       };
     },
   );

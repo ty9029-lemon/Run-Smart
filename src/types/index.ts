@@ -1,5 +1,5 @@
 /** 활동 종류 */
-export type Activity = 'running' | 'hiking' | 'walking' | 'cycling' | 'outing';
+export type Activity = 'running' | 'hiking' | 'walking' | 'cycling';
 
 /** 제약사항 종류 */
 export type Constraint =
@@ -14,11 +14,16 @@ export type Decision = 'go' | 'skip';
 /** 경고 단계 */
 export type WarningLevel = 'good' | 'caution' | 'careful';
 
+/** 추위·더위 민감도 (각 1~5단계, 3이 보통) */
+export interface Sensitivity {
+  coldLevel: number;
+  heatLevel: number;
+}
+
 /** 사용자 프로필 */
-export interface Profile {
+export interface Profile extends Sensitivity {
   selectedActivities: Activity[];
   lastActivity: Activity | null;
-  offsets: Record<Activity, number>;
   constraints: Constraint[];
 }
 

@@ -1,7 +1,14 @@
 import { getActivityMeta } from '../constants/activities';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
 import { calcRunScore, scoreToLevel } from '../lib/runScore';
-import type { Activity, AiGuide, Constraint, WarningLevel, Weather } from '../types';
+import type {
+  Activity,
+  AiGuide,
+  Constraint,
+  Sensitivity,
+  WarningLevel,
+  Weather,
+} from '../types';
 
 /** 경고 단계별 이모지 */
 const LEVEL_EMOJI: Record<WarningLevel, string> = {
@@ -23,7 +30,6 @@ const ACTIVITY_TIPS: Record<Activity, string[]> = {
   hiking: ['미끄럼 방지 신발 확인', '여분 겉옷과 물 챙기기'],
   walking: ['편한 신발 착용', '가벼운 수분 준비'],
   cycling: ['헬멧 착용', '바람을 고려해 겉옷 챙기기'],
-  outing: ['외출 시간대 확인', '가벼운 겉옷 챙기기'],
 };
 
 /** 제약사항별 팁 */
@@ -45,18 +51,18 @@ function buildMessage(weather: Weather, felt: number, level: WarningLevel): stri
  * 더미 AI 가이드를 만든다. (M2에서 실제 AI 응답으로 교체)
  * @param activity 활동
  * @param weather 날씨
- * @param offset 체감 온도 보정값
+ * @param sensitivity 추위·더위 민감도
  * @param constraints 제약사항
  */
 export function buildDummyGuide(
   activity: Activity,
   weather: Weather,
-  offset: number,
+  sensitivity: Sensitivity,
   constraints: Constraint[],
 ): AiGuide {
-  const score = calcRunScore(weather, offset, constraints, activity);
+  const score = calcRunScore(weather, sensitivity, constraints, activity);
   const level = scoreToLevel(score);
-  const felt = calcPersonalFeelsLike(weather, offset);
+  const felt = calcPersonalFeelsLike(weather, sensitivity);
   const constraintTips = constraints
     .map((c) => CONSTRAINT_TIPS[c])
     .filter((tip): tip is string => Boolean(tip));

@@ -4,7 +4,7 @@ import {
   RECOMMEND_MIN_SCORE,
   RECOMMEND_SCORE_MARGIN,
 } from '../constants/thresholds';
-import type { Activity, Constraint, HourlyWeather } from '../types';
+import type { Activity, Constraint, HourlyWeather, Sensitivity } from '../types';
 import { calcPersonalFeelsLike } from './feelsLike';
 import { calcRunScore } from './runScore';
 
@@ -23,34 +23,38 @@ export interface HourScore {
 /**
  * 개인 체감온도가 활동의 쾌적(만점) 구간에서 얼마나 벗어났는지 계산한다.
  * @param weather 시간대 날씨
- * @param offset 체감 온도 보정값
+ * @param sensitivity 추위·더위 민감도
  * @param activity 활동
  */
-function calcComfortGap(weather: HourlyWeather, offset: number, activity: Activity): number {
+function calcComfortGap(
+  weather: HourlyWeather,
+  sensitivity: Sensitivity,
+  activity: Activity,
+): number {
   const { coreMin, coreMax } = ACTIVITY_COMFORT[activity];
-  const felt = calcPersonalFeelsLike(weather, offset);
+  const felt = calcPersonalFeelsLike(weather, sensitivity);
   return Math.max(coreMin - felt, felt - coreMax, 0);
 }
 
 /**
  * 시간대별 활동 지수를 계산한다.
  * @param hourly 시간대별 날씨
- * @param offset 체감 온도 보정값
+ * @param sensitivity 추위·더위 민감도
  * @param constraints 제약사항
  * @param activity 활동
  */
 export function scoreHours(
   hourly: HourlyWeather[],
-  offset: number,
+  sensitivity: Sensitivity,
   constraints: Constraint[],
   activity: Activity,
 ): HourScore[] {
   return hourly.map((h) => ({
     hour: h.hour,
-    score: calcRunScore(h, offset, constraints, activity),
+    score: calcRunScore(h, sensitivity, constraints, activity),
     pm10: h.pm10,
     uvIndex: h.uvIndex,
-    comfortGap: calcComfortGap(h, offset, activity),
+    comfortGap: calcComfortGap(h, sensitivity, activity),
   }));
 }
 

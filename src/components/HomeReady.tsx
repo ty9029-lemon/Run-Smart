@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import DecisionButtons from './DecisionButtons';
 import GuideBox, { type LocationNoticeProps } from './GuideBox';
 import HomeSummary from './HomeSummary';
@@ -56,12 +56,13 @@ export default function HomeReady({
   const addEntry = useHistoryStore((s) => s.addEntry);
   const decision = useTodayDecision(activity);
   const { current, hourly } = weather;
-  const offset = profile.offsets[activity];
-  const score = calcRunScore(current, offset, profile.constraints, activity);
-  const feelsLike = calcPersonalFeelsLike(current, offset);
+  const { coldLevel, heatLevel } = profile;
+  const sensitivity = useMemo(() => ({ coldLevel, heatLevel }), [coldLevel, heatLevel]);
+  const score = calcRunScore(current, sensitivity, profile.constraints, activity);
+  const feelsLike = calcPersonalFeelsLike(current, sensitivity);
   const nowHour = useNow().getHours();
   const upcomingHourly = sliceFromHour(hourly, nowHour);
-  const scores = scoreHours(upcomingHourly, offset, profile.constraints, activity);
+  const scores = scoreHours(upcomingHourly, sensitivity, profile.constraints, activity);
   const best = findBestHourToday(scores, nowHour);
   const range = findGoodRange(sliceToday(scores, nowHour), best);
   const rawWeather = formatRawWeather(current.temp, current.condition, current.windSpeed);
@@ -97,7 +98,7 @@ export default function HomeReady({
       guide:
         guide.state === 'ready'
           ? guide.data
-          : buildDummyGuide(activity, current, offset, profile.constraints),
+          : buildDummyGuide(activity, current, sensitivity, profile.constraints),
     });
   };
 

@@ -4,7 +4,7 @@ import { fetchWeather, type WeatherResult } from '../services/weatherService';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { logger } from '../lib/logger';
 import type { ResolvedCoords } from './useCoords';
-import type { Activity, Constraint, GuideRequest, GuideState } from '../types';
+import type { Activity, Constraint, GuideRequest, GuideState, Sensitivity } from '../types';
 
 /** 홈 화면 데이터 상태. 날씨가 오면 바로 ready가 되고 가이드는 따로 기다린다. */
 export type HomeData =
@@ -16,7 +16,7 @@ export type HomeData =
 /** 조회 입력 */
 interface HomeDataParams {
   activity: Activity | null;
-  offset: number;
+  sensitivity: Sensitivity;
   constraints: Constraint[];
   /** 날씨를 조회할 위치 (권한 확인 중이면 null) */
   location: ResolvedCoords | null;
@@ -85,7 +85,7 @@ function useGuide(request: GuideRequest | null): GuideState {
  * 활동이나 위치가 정해지기 전에는 로딩 상태를 유지한다.
  */
 export function useHomeData(params: HomeDataParams): HomeData {
-  const { activity, offset, constraints, location, locationLabel } = params;
+  const { activity, sensitivity, constraints, location, locationLabel } = params;
   const weather = useWeather(
     activity ? location?.coords.lat : undefined,
     activity ? location?.coords.lon : undefined,
@@ -95,12 +95,12 @@ export function useHomeData(params: HomeDataParams): HomeData {
     if (!activity || !current) return null;
     return buildGuideRequest({
       activity,
-      offset,
+      sensitivity,
       constraints,
       weather: current,
       location: locationLabel,
     });
-  }, [activity, offset, constraints, current, locationLabel]);
+  }, [activity, sensitivity, constraints, current, locationLabel]);
   const guide = useGuide(request);
   if (!activity || weather === null) return { status: 'loading' };
   if (weather === 'error') return { status: 'error' };

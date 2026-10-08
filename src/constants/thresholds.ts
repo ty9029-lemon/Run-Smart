@@ -1,12 +1,15 @@
-/** 체감 온도 보정 최소값(°C) */
-export const OFFSET_MIN = -5;
-/** 체감 온도 보정 최대값(°C) */
-export const OFFSET_MAX = 5;
-/** 체감 온도 보정 조정 단위(°C) */
-export const OFFSET_STEP = 1;
-
-/** 선택 가능한 최대 활동 수 */
-export const MAX_ACTIVITIES = 3;
+/** 추위·더위 민감도 최소 단계 */
+export const SENSITIVITY_MIN = 1;
+/** 추위·더위 민감도 최대 단계 */
+export const SENSITIVITY_MAX = 5;
+/** 추위·더위 민감도 기본(보통) 단계 */
+export const SENSITIVITY_DEFAULT = 3;
+/** 민감도 보정의 기준 체감온도(°C). 이보다 낮으면 추위, 높으면 더위 민감도를 반영한다 */
+export const SENSITIVITY_REFERENCE_TEMP = 15;
+/** 기준에서 이만큼(°C) 벗어나면 민감도가 100% 반영된다 */
+export const SENSITIVITY_RAMP = 10;
+/** 민감도 한 단계당 체감온도 보정(°C) */
+export const SENSITIVITY_DEGREE_PER_LEVEL = 2.5;
 
 /** 시간대별 날씨 표시 개수(24시간) */
 export const HOURS_IN_DAY = 24;
