@@ -1,5 +1,4 @@
 import { ACTIVITIES } from '../constants/activities';
-import { MAX_ACTIVITIES } from '../constants/thresholds';
 import type { Activity } from '../types';
 
 interface ActivityPickerProps {
@@ -8,13 +7,13 @@ interface ActivityPickerProps {
   onToggle: (id: Activity) => void;
 }
 
-/** 활동 선택 (최대 3개) */
+/** 활동 선택 */
 export default function ActivityPicker({ selected, error, onToggle }: ActivityPickerProps) {
   return (
     <div>
       <h2 className="mb-1 text-base font-bold">활동 선택</h2>
       <p className="mb-3 text-sm text-steel-border">
-        최대 {MAX_ACTIVITIES}개까지 고를 수 있어요.
+        여러 개 고를 수 있어요.
       </p>
       <div className="flex flex-wrap gap-2">
         {ACTIVITIES.map(({ id, label, emoji }) => {

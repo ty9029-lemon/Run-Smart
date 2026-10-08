@@ -21,13 +21,12 @@ export interface ComfortRange {
   comfortMax: number;
 }
 
-/** 활동 5종의 체감온도 구간 */
+/** 활동 4종의 체감온도 구간 */
 export const ACTIVITY_COMFORT: Record<Activity, ComfortRange> = {
   running: { coreMin: 8, coreMax: 14, comfortMin: 3, comfortMax: 20 },
   cycling: { coreMin: 10, coreMax: 16, comfortMin: 5, comfortMax: 22 },
   hiking: { coreMin: 10, coreMax: 17, comfortMin: 4, comfortMax: 23 },
   walking: { coreMin: 12, coreMax: 20, comfortMin: 6, comfortMax: 26 },
-  outing: { coreMin: 15, coreMax: 23, comfortMin: 8, comfortMax: 28 },
 };
 
 /** comfort 구간 끝에서의 품질 (core 1.0 → comfort 끝 0.6) */

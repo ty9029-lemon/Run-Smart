@@ -18,7 +18,7 @@ export const ONBOARDING_STEPS: OnboardingStepMeta[] = [
   {
     id: 'offset',
     title: '추위·더위를 얼마나 타세요?',
-    description: '활동마다 체감 온도를 조정해 주세요.',
+    description: '해당하는 정도를 골라 주세요.',
   },
   {
     id: 'constraint',

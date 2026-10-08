@@ -1,14 +1,14 @@
 import { CONSTRAINTS, getActivityMeta } from '../constants/activities';
 import { GUIDE_API_PATH, GUIDE_RETRY_COUNT, GUIDE_TIMEOUT_MS } from '../constants/api';
-import { calcPersonalFeelsLike } from '../lib/feelsLike';
+import { calcAppliedOffset, calcPersonalFeelsLike } from '../lib/feelsLike';
 import { readGuideCache, writeGuideCache } from '../lib/guideCache';
 import { calcRunScore, scoreToLevel } from '../lib/runScore';
-import type { Activity, AiGuide, Constraint, GuideRequest, Weather } from '../types';
+import type { Activity, AiGuide, Constraint, GuideRequest, Sensitivity, Weather } from '../types';
 
 /** 가이드 요청 입력 (PRD 6장 입력 형식) */
 export interface GuideInput {
   activity: Activity;
-  offset: number;
+  sensitivity: Sensitivity;
   constraints: Constraint[];
   weather: Weather;
   /** 헤더에 표시하는 위치 이름 */
@@ -17,16 +17,16 @@ export interface GuideInput {
 
 /** 앱 입력을 서버 요청 본문으로 바꾼다. 체감온도·점수는 앱 계산값을 함께 보낸다. */
 export function buildGuideRequest(input: GuideInput): GuideRequest {
-  const { activity, offset, constraints, weather, location } = input;
-  const score = calcRunScore(weather, offset, constraints, activity);
+  const { activity, sensitivity, constraints, weather, location } = input;
+  const score = calcRunScore(weather, sensitivity, constraints, activity);
   return {
     activityLabel: getActivityMeta(activity).label,
-    offset,
+    offset: calcAppliedOffset(weather, sensitivity),
     constraintLabels: CONSTRAINTS.filter((c) => constraints.includes(c.id)).map(
       (c) => c.label,
     ),
     weather,
-    feltTemp: calcPersonalFeelsLike(weather, offset),
+    feltTemp: calcPersonalFeelsLike(weather, sensitivity),
     score,
     level: scoreToLevel(score),
     location,

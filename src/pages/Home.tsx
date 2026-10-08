@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import HomeHeader from '../components/HomeHeader';
 import HomeReady from '../components/HomeReady';
@@ -36,7 +36,8 @@ export default function Home() {
   const profile = useProfileStore((s) => s.profile);
   const locationStatus = useLocationPermission();
   const activity = resolveActivity(profile);
-  const offset = activity ? profile.offsets[activity] : 0;
+  const { coldLevel, heatLevel } = profile;
+  const sensitivity = useMemo(() => ({ coldLevel, heatLevel }), [coldLevel, heatLevel]);
   const location = useCoords();
   const locationLabel = location?.isCurrent ? CURRENT_LOCATION_LABEL : DEFAULT_LOCATION;
   // 헤더에만 주소를 붙인다. AI 가이드 요청에는 locationLabel을 그대로 보내
@@ -47,7 +48,7 @@ export default function Home() {
   const headerLabel = place ? `${locationLabel} (${place})` : locationLabel;
   const data = useHomeData({
     activity,
-    offset,
+    sensitivity,
     constraints: profile.constraints,
     location,
     locationLabel,

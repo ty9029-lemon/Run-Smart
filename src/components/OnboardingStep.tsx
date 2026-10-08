@@ -1,7 +1,7 @@
 import ActivityPicker from './ActivityPicker';
 import ConstraintList from './ConstraintList';
 import LocationStatus from './LocationStatus';
-import OffsetList from './OffsetList';
+import SensitivityList from './SensitivityList';
 import type { OnboardingStepId } from '../constants/onboarding';
 import {
   requestLocationPermission,
@@ -35,7 +35,7 @@ export default function OnboardingStep({
         />
       );
     case 'offset':
-      return <OffsetList draft={draft} onChange={onChange} />;
+      return <SensitivityList draft={draft} onChange={onChange} />;
     case 'constraint':
       return (
         <ConstraintList

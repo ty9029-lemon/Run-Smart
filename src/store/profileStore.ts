@@ -1,12 +1,15 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { SENSITIVITY_DEFAULT } from '../constants/thresholds';
+import { migrateProfileState } from '../lib/profileMigration';
 import type { Activity, Profile } from '../types';
 
-/** 기본 프로필: 러닝만 선택, 보정값 0 */
+/** 기본 프로필: 러닝만 선택, 추위·더위 모두 보통 */
 export const DEFAULT_PROFILE: Profile = {
   selectedActivities: ['running'],
   lastActivity: 'running',
-  offsets: { running: 0, hiking: 0, walking: 0, cycling: 0, outing: 0 },
+  coldLevel: SENSITIVITY_DEFAULT,
+  heatLevel: SENSITIVITY_DEFAULT,
   constraints: [],
 };
 
@@ -17,6 +20,9 @@ interface ProfileState {
   saveProfile: (profile: Profile) => void;
   setLastActivity: (activity: Activity) => void;
 }
+
+/** 저장 데이터 버전 (1: '외출' 활동 제거, 2: 추위·더위 민감도로 교체) */
+const PROFILE_STORE_VERSION = 2;
 
 /** 사용자 프로필 스토어 (localStorage 저장) */
 export const useProfileStore = create<ProfileState>()(
@@ -29,6 +35,10 @@ export const useProfileStore = create<ProfileState>()(
       setLastActivity: (activity) =>
         set((state) => ({ profile: { ...state.profile, lastActivity: activity } })),
     }),
-    { name: 'run-smart-profile' },
+    {
+      name: 'run-smart-profile',
+      version: PROFILE_STORE_VERSION,
+      migrate: (persisted, version) => migrateProfileState(persisted, version) as ProfileState,
+    },
   ),
 );

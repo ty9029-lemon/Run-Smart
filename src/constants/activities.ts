@@ -7,13 +7,12 @@ export interface ActivityMeta {
   emoji: string;
 }
 
-/** 활동 5종 */
+/** 활동 4종 */
 export const ACTIVITIES: ActivityMeta[] = [
   { id: 'running', label: '러닝', emoji: '🏃' },
   { id: 'hiking', label: '등산', emoji: '🥾' },
   { id: 'walking', label: '산책', emoji: '🚶' },
   { id: 'cycling', label: '자전거', emoji: '🚴' },
-  { id: 'outing', label: '외출', emoji: '🧳' },
 ];
 
 /** 제약사항 표시 정보 */

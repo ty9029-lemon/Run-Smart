@@ -5,7 +5,7 @@ import {
   SCORE_MAX,
   SCORE_MIN,
 } from '../constants/thresholds';
-import type { Activity, Constraint, Weather, WarningLevel } from '../types';
+import type { Activity, Constraint, Sensitivity, Weather, WarningLevel } from '../types';
 import { calcPersonalFeelsLike } from './feelsLike';
 import {
   applySensitivity,
@@ -25,17 +25,17 @@ export type ScoreBreakdown = { [K in keyof typeof SCORE_WEIGHTS]: number };
 /**
  * 항목별 점수를 계산한다. (배점 × 품질)
  * @param weather 날씨 정보
- * @param offset 체감 온도 보정값
+ * @param sensitivity 추위·더위 민감도
  * @param constraints 제약사항
  * @param activity 활동 (체감온도 적정 구간이 다르다)
  */
 export function calcScoreBreakdown(
   weather: Weather,
-  offset: number,
+  sensitivity: Sensitivity,
   constraints: Constraint[],
   activity: Activity,
 ): ScoreBreakdown {
-  const felt = calcPersonalFeelsLike(weather, offset);
+  const felt = calcPersonalFeelsLike(weather, sensitivity);
   const dustSensitive =
     constraints.includes('dustSensitive') || constraints.includes('asthma');
   const w = SCORE_WEIGHTS;
@@ -54,17 +54,17 @@ export function calcScoreBreakdown(
 /**
  * 활동 지수(0~100)를 계산한다.
  * @param weather 날씨 정보
- * @param offset 체감 온도 보정값
+ * @param sensitivity 추위·더위 민감도
  * @param constraints 제약사항
  * @param activity 활동
  */
 export function calcRunScore(
   weather: Weather,
-  offset: number,
+  sensitivity: Sensitivity,
   constraints: Constraint[],
   activity: Activity,
 ): number {
-  const breakdown = calcScoreBreakdown(weather, offset, constraints, activity);
+  const breakdown = calcScoreBreakdown(weather, sensitivity, constraints, activity);
   const total = Object.values(breakdown).reduce((sum, points) => sum + points, 0);
   return Math.round(Math.min(SCORE_MAX, Math.max(SCORE_MIN, total)));
 }

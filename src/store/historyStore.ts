@@ -9,6 +9,12 @@ interface HistoryState {
   addEntry: (entry: HistoryEntry) => void;
 }
 
+/** 저장 데이터 버전 (1: '외출' 활동 제거) */
+const HISTORY_STORE_VERSION = 1;
+
+/** 제거된 활동 id */
+const REMOVED_ACTIVITY = 'outing';
+
 /** 같은 날짜인지 비교 */
 function isSameDay(a: string, b: string): boolean {
   return new Date(a).toDateString() === new Date(b).toDateString();
@@ -35,6 +41,18 @@ export const useHistoryStore = create<HistoryState>()(
           return { entries: keepRecent([entry, ...others], Date.now()) };
         }),
     }),
-    { name: 'run-smart-history' },
+    {
+      name: 'run-smart-history',
+      version: HISTORY_STORE_VERSION,
+      // 제거된 '외출' 활동 기록은 버린다
+      migrate: (persisted, version) => {
+        const state = persisted as HistoryState;
+        if (version >= HISTORY_STORE_VERSION) return state;
+        return {
+          ...state,
+          entries: state.entries.filter((e) => (e.activity as string) !== REMOVED_ACTIVITY),
+        };
+      },
+    },
   ),
 );

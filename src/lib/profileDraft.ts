@@ -1,8 +1,7 @@
-import { MAX_ACTIVITIES } from '../constants/thresholds';
 import type { Activity, Constraint, Profile } from '../types';
 
 /**
- * 활동 선택을 토글한다. 최대 개수를 넘으면 추가하지 않는다.
+ * 활동 선택을 토글한다.
  * @param profile 현재 프로필(초안)
  * @param id 토글할 활동
  */
@@ -11,7 +10,6 @@ export function toggleActivity(profile: Profile, id: Activity): Profile {
   if (selectedActivities.includes(id)) {
     return { ...profile, selectedActivities: selectedActivities.filter((a) => a !== id) };
   }
-  if (selectedActivities.length >= MAX_ACTIVITIES) return profile;
   return { ...profile, selectedActivities: [...selectedActivities, id] };
 }
 
@@ -31,7 +29,12 @@ export function normalizeLastActivity(profile: Profile): Profile {
   return { ...profile, lastActivity: selectedActivities[0] ?? null };
 }
 
-/** 활동별 체감 온도 보정값을 바꾼다. */
-export function setOffset(profile: Profile, id: Activity, value: number): Profile {
-  return { ...profile, offsets: { ...profile.offsets, [id]: value } };
+/**
+ * 추위 또는 더위 민감도 단계를 바꾼다.
+ * @param profile 현재 프로필(초안)
+ * @param kind 바꿀 민감도 ('cold' 추위, 'heat' 더위)
+ * @param level 새 단계
+ */
+export function setSensitivity(profile: Profile, kind: 'cold' | 'heat', level: number): Profile {
+  return kind === 'cold' ? { ...profile, coldLevel: level } : { ...profile, heatLevel: level };
 }
