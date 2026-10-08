@@ -13,7 +13,7 @@ export default function OutfitPanel({ items }: OutfitPanelProps) {
         {items.map((item) => (
           <li
             key={item.label}
-            className="flex flex-col items-center gap-2 rounded-md border border-card-border-ink px-1 py-4 text-center"
+            className="flex flex-col items-center gap-2 rounded-2xl border border-card-border-ink px-1 py-4 text-center"
           >
             <span className="text-5xl leading-none" aria-hidden="true">
               {item.emoji}
