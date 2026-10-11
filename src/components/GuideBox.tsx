@@ -44,7 +44,7 @@ function LocationNotice({ error, onRequest, isOff = false }: LocationNoticeProps
       <p className="text-sm text-steel-border">
         📍 {isOff ? MESSAGES.locationOffNotice : MESSAGES.locationDenied}
       </p>
-      <Button type="button" size="sm" onClick={handleClick}>
+      <Button type="button" variant="outline" size="sm" onClick={handleClick}>
         {MESSAGES.useCurrentLocation}
       </Button>
       {showGuide && (
