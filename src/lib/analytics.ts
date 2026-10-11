@@ -1,8 +1,11 @@
 import * as amplitude from '@amplitude/analytics-browser';
+import mixpanel from 'mixpanel-browser';
 import { logger } from './logger';
 
-/** 중복 초기화 방지 플래그 (StrictMode의 이중 effect 실행 대응) */
-let isInitialized = false;
+/** Amplitude 초기화 여부 (StrictMode의 이중 effect 실행 대응) */
+let isAmplitudeReady = false;
+/** Mixpanel 초기화 여부 (StrictMode의 이중 effect 실행 대응) */
+let isMixpanelReady = false;
 
 /** 커스텀 이벤트 이름 */
 export const ANALYTICS_EVENTS = {
@@ -16,6 +19,7 @@ export const ANALYTICS_EVENTS = {
   historyOpened: 'history_opened',
   historyEntryViewed: 'history_entry_viewed',
   feedbackSubmitted: 'feedback_submitted',
+  ctaClicked: 'cta_clicked',
 } as const;
 
 export type AnalyticsEventName = (typeof ANALYTICS_EVENTS)[keyof typeof ANALYTICS_EVENTS];
@@ -24,21 +28,21 @@ export type AnalyticsEventName = (typeof ANALYTICS_EVENTS)[keyof typeof ANALYTIC
 export type AnalyticsProps = Record<string, string | number | boolean>;
 
 /**
- * 커스텀 이벤트를 Amplitude로 보낸다. 초기화 전이면 무시한다.
+ * 커스텀 이벤트를 Amplitude와 Mixpanel로 보낸다. 초기화된 쪽에만 전송한다.
  * @param name 이벤트 이름
  * @param props 이벤트 속성
  */
 export function trackEvent(name: AnalyticsEventName, props?: AnalyticsProps): void {
-  if (!isInitialized) return;
-  amplitude.track(name, props);
+  if (isAmplitudeReady) amplitude.track(name, props);
+  if (isMixpanelReady) mixpanel.track(name, props);
 }
 
 /**
  * Amplitude를 초기화하고 페이지뷰·클릭·폼 입력 자동 수집을 켠다.
  * API 키가 없으면 경고만 남기고 건너뛴다.
  */
-export function initAnalytics(): void {
-  if (isInitialized) return;
+function initAmplitude(): void {
+  if (isAmplitudeReady) return;
 
   const apiKey = import.meta.env.VITE_AMPLITUDE_API_KEY;
   if (!apiKey) {
@@ -54,5 +58,32 @@ export function initAnalytics(): void {
       elementInteractions: true,
     },
   });
-  isInitialized = true;
+  isAmplitudeReady = true;
+}
+
+/**
+ * Mixpanel을 초기화하고 경로 변경 기준 페이지뷰 자동 수집을 켠다.
+ * 토큰이 없으면 경고만 남기고 건너뛴다.
+ */
+function initMixpanel(): void {
+  if (isMixpanelReady) return;
+
+  const token = import.meta.env.VITE_MIXPANEL_TOKEN;
+  if (!token) {
+    logger.warn('VITE_MIXPANEL_TOKEN이 없어 Mixpanel 초기화를 건너뜁니다.');
+    return;
+  }
+
+  mixpanel.init(token, {
+    // SPA 라우팅에서 경로가 바뀔 때마다 페이지뷰를 기록한다 (쿼리·해시 변경은 무시)
+    track_pageview: 'url-with-path',
+    persistence: 'localStorage',
+  });
+  isMixpanelReady = true;
+}
+
+/** 분석 도구(Amplitude, Mixpanel)를 초기화한다. */
+export function initAnalytics(): void {
+  initAmplitude();
+  initMixpanel();
 }
