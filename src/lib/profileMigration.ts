@@ -67,6 +67,11 @@ function addFeedbackOffset(state: LegacyProfileState): LegacyProfileState {
   return { ...state, profile: { ...state.profile, feedbackOffset: 0 } };
 }
 
+/** v3 → v4: 기존 사용자는 지금처럼 현재 위치를 쓰도록 둔다. */
+function addUseCurrentLocation(state: LegacyProfileState): LegacyProfileState {
+  return { ...state, profile: { ...state.profile, useCurrentLocation: true } };
+}
+
 /**
  * 저장된 프로필을 현재 버전 형태로 옮긴다.
  * @param persisted localStorage에서 읽은 값
@@ -77,5 +82,6 @@ export function migrateProfileState(persisted: unknown, version: number): unknow
   if (version < 1) state = removeOutingActivity(state);
   if (version < 2) state = convertOffsets(state);
   if (version < 3) state = addFeedbackOffset(state);
+  if (version < 4) state = addUseCurrentLocation(state);
   return state;
 }

@@ -13,6 +13,7 @@ export const DEFAULT_PROFILE: Profile = {
   heatLevel: SENSITIVITY_DEFAULT,
   constraints: [],
   feedbackOffset: 0,
+  useCurrentLocation: true,
 };
 
 interface ProfileState {
@@ -27,8 +28,8 @@ interface ProfileState {
   resetFeedbackOffset: () => void;
 }
 
-/** 저장 데이터 버전 (1: '외출' 활동 제거, 2: 추위·더위 민감도로 교체, 3: 피드백 보정 추가) */
-const PROFILE_STORE_VERSION = 3;
+/** 저장 데이터 버전 (1: '외출' 활동 제거, 2: 추위·더위 민감도로 교체, 3: 피드백 보정 추가, 4: 현재 위치 사용 여부 추가) */
+const PROFILE_STORE_VERSION = 4;
 
 /** 사용자 프로필 스토어 (localStorage 저장) */
 export const useProfileStore = create<ProfileState>()(

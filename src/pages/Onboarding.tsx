@@ -6,6 +6,7 @@ import StepIndicator from '../components/StepIndicator';
 import { CTA_IDS } from '../constants/analytics';
 import { ONBOARDING_STEPS } from '../constants/onboarding';
 import { useProfileDraft } from '../hooks/useProfileDraft';
+import { requestLocationPermission } from '../hooks/useLocationPermission';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { DEFAULT_PROFILE } from '../store/profileStore';
 import type { Profile } from '../types';
@@ -23,12 +24,14 @@ const LAST_STEP = ONBOARDING_STEPS.length - 1;
 export default function Onboarding() {
   const navigate = useNavigate();
   const [stepIndex, setStepIndex] = useState(0);
+  const [isStarting, setIsStarting] = useState(false);
   const { draft, error, onChange, validate, submit } = useProfileDraft(
     ONBOARDING_INITIAL,
     (saved) => {
       trackEvent(ANALYTICS_EVENTS.onboardingCompleted, {
         activityCount: saved.selectedActivities.length,
         constraintCount: saved.constraints.length,
+        useCurrentLocation: saved.useCurrentLocation,
       });
       navigate('/', { replace: true });
     },
@@ -36,10 +39,19 @@ export default function Onboarding() {
   const step = ONBOARDING_STEPS[stepIndex];
   const isLast = stepIndex === LAST_STEP;
 
-  /** 마지막 단계의 [시작하기] 클릭을 기록하고 프로필을 저장한다. */
-  const handleStart = () => {
+  /**
+   * 마지막 단계의 [시작하기] 클릭을 기록한다.
+   * 현재 위치 사용이 켜져 있으면 권한 팝업을 띄운 뒤(거부돼도 계속 진행) 프로필을 저장한다.
+   */
+  const handleStart = async () => {
+    setIsStarting(true);
     trackEvent(ANALYTICS_EVENTS.ctaClicked, { cta: CTA_IDS.onboardingStart });
+    if (draft.useCurrentLocation) {
+      trackEvent(ANALYTICS_EVENTS.ctaClicked, { cta: CTA_IDS.locationAllow });
+      await requestLocationPermission();
+    }
     submit();
+    setIsStarting(false);
   };
 
   /** 다음 단계로. 활동 선택 단계는 1개 이상 골라야 넘어간다. */
@@ -72,6 +84,7 @@ export default function Onboarding() {
         <Button
           type="button"
           size="lg"
+          disabled={isStarting}
           onClick={isLast ? handleStart : handleNext}
         >
           {isLast ? '시작하기' : '다음'}

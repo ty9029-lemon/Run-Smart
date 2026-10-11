@@ -31,6 +31,8 @@ export interface Profile extends Sensitivity {
   selectedActivities: Activity[];
   lastActivity: Activity | null;
   constraints: Constraint[];
+  /** 현재 위치로 날씨를 볼지 여부 (false면 서울 기준) */
+  useCurrentLocation: boolean;
 }
 
 /** 현재 날씨 */

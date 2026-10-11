@@ -40,7 +40,12 @@ export default function Settings() {
       </header>
       <ProfileForm draft={draft} error={error} onChange={onChange} />
       <section className="rounded-panel border border-card-border-ink bg-card-charcoal p-6">
-        <LocationStatus status={locationStatus} />
+        <LocationStatus
+          status={locationStatus}
+          enabled={draft.useCurrentLocation}
+          onEnabledChange={(next) => onChange({ ...draft, useCurrentLocation: next })}
+          requestOnEnable
+        />
       </section>
       <Button type="button" size="lg" onClick={handleSave} className="w-full">
         저장
