@@ -44,9 +44,9 @@ async function askClaude(client: Anthropic, req: GuideRequest): Promise<string> 
 async function generateGuide(client: Anthropic, req: GuideRequest): Promise<AiGuide | null> {
   for (let attempt = 0; attempt <= GUIDE_FORMAT_RETRIES; attempt += 1) {
     const text = await askClaude(client, req);
-    const guide = parseGuideResponse(text, req.level);
+    const guide = parseGuideResponse(text, req.level, req.maskAllowed);
     if (guide) return guide;
-    logServerError(`모델 응답 검사 실패 (${attempt + 1}번째): ${findGuideProblem(text)}`);
+    logServerError(`모델 응답 검사 실패 (${attempt + 1}번째): ${findGuideProblem(text, req.maskAllowed)}`);
   }
   return null;
 }

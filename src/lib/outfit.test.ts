@@ -289,13 +289,31 @@ describe('recommendOutfit - 제약사항', () => {
     expect(both.filter((i) => i.label === '마스크')).toHaveLength(1);
   });
 
-  it('제약사항을 체크해도 미세먼지가 좋거나 보통이면 마스크를 추천하지 않는다', () => {
-    [{ pm10: 17 }, { pm10: 30 }, { pm10: 80 }].forEach((overrides) => {
+  it('제약사항을 체크해도 미세먼지가 좋음이면 마스크를 추천하지 않는다', () => {
+    [{ pm10: 17 }, { pm10: 30 }].forEach((overrides) => {
       const result = recommendOutfit(20, weatherWith(overrides), 'running', [
         'asthma',
         'dustSensitive',
       ]).map((i) => i.label);
       expect(result).not.toContain('마스크');
+    });
+  });
+
+  it('미세먼지 민감은 보통에서는 마스크를 추천하지 않는다', () => {
+    [{ pm10: 31 }, { pm10: 80 }].forEach((overrides) => {
+      const result = recommendOutfit(20, weatherWith(overrides), 'running', [
+        'dustSensitive',
+      ]).map((i) => i.label);
+      expect(result).not.toContain('마스크');
+    });
+  });
+
+  it('천식은 미세먼지가 보통일 때도 모든 활동에 마스크를 추천한다', () => {
+    activities.forEach((activity) => {
+      const result = recommendOutfit(20, weatherWith({ pm10: 50 }), activity, ['asthma']).map(
+        (i) => i.label,
+      );
+      expect(result).toContain('마스크');
     });
   });
 

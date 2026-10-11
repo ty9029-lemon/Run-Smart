@@ -1,4 +1,10 @@
-import type { AiGuide, GuideRequest, WarningLevel } from '../../src/types/index.js';
+import type {
+  AiGuide,
+  DustGrade,
+  GuideRequest,
+  UvGrade,
+  WarningLevel,
+} from '../../src/types/index.js';
 
 /** 사용하는 Claude 모델 */
 export const GUIDE_MODEL = 'claude-haiku-4-5';
@@ -32,6 +38,13 @@ const LEVEL_EMOJI: Record<WarningLevel, string> = {
 /** 단정적 금지 표현 (PRD 6장). 포함되면 이상 응답으로 본다 */
 const BANNED_PHRASES = ['가면 안', '가지 마', '가지 말', '절대 금지'];
 
+/** 앱이 정하는 등급 값 (src/types의 DustGrade·UvGrade와 같다) */
+const DUST_GRADES: readonly DustGrade[] = ['좋음', '보통', '나쁨'];
+const UV_GRADES: readonly UvGrade[] = ['보통', '높음'];
+
+/** 마스크를 언급하면 안 되는 상황(maskAllowed가 false)에서 응답에 들어가면 안 되는 표현 */
+const DUST_GEAR_PHRASES = ['마스크', '넥게이터'];
+
 /** 시스템 프롬프트 (PRD 6장 프롬프트 방향) */
 export const SYSTEM_PROMPT = `당신은 사용자의 활동 능력과 기후 민감도를 잘 이해하는 날씨 코치입니다.
 입력으로 활동, 사용자 체감 보정값, 제약사항, 현재 날씨, 앱이 계산한 개인 체감온도와 활동 지수가 주어집니다.
@@ -41,6 +54,10 @@ export const SYSTEM_PROMPT = `당신은 사용자의 활동 능력과 기후 민
 - 체감온도와 활동 지수는 입력값을 그대로 쓰고 다시 계산하지 않습니다.
 - 의학적 진단이나 단정적 금지령을 쓰지 않습니다. "가면 안 됩니다" 대신 "위험 신호가 있으니 신중히 검토하세요"처럼 씁니다.
 - 활동과 제약사항에 맞는 구체적인 팁을 2~4개 줍니다. 복장 제안을 포함합니다.
+- 미세먼지와 자외선 등급은 입력된 dust_grade, uv_grade를 그대로 씁니다. 숫자를 보고 직접 등급을 다시 판단하지 않습니다.
+- mask_allowed가 false이면 미세먼지를 위험 요인으로 말하지 않고, 마스크·넥게이터·호흡기 보호를 언급하지 않습니다. true일 때만 마스크를 권해도 됩니다.
+- uv_grade가 "높음"이 아니면 자외선이 강하다고 쓰지 않습니다.
+- 활동이 산책이면 무릎 보호대 팁을 쓰지 않습니다.
 - 각 팁은 20자 이내의 짧은 구절로 씁니다. 괄호 설명과 부연은 붙이지 않습니다. 예: "긴팔 상의 입기", "무릎 보호대 착용", "수분 챙기기"
 - 한국어로 답합니다.
 
@@ -67,6 +84,11 @@ export function parseGuideRequest(body: unknown): GuideRequest | null {
   if (!isInRange(body.offset, OFFSET_RANGE)) return null;
   if (!isInRange(body.feltTemp, TEMP_RANGE) || !isInRange(w.temp, TEMP_RANGE)) return null;
   if (w.isDay !== undefined && typeof w.isDay !== 'boolean') return null;
+  if (body.dustGrade !== undefined && !DUST_GRADES.includes(body.dustGrade as DustGrade)) {
+    return null;
+  }
+  if (body.uvGrade !== undefined && !UV_GRADES.includes(body.uvGrade as UvGrade)) return null;
+  if (body.maskAllowed !== undefined && typeof body.maskAllowed !== 'boolean') return null;
   if (!isFiniteNumber(body.score) || body.score < 0 || body.score > SCORE_MAX) return null;
   if (!isLevel(body.level)) return null;
   return body as unknown as GuideRequest;
@@ -82,6 +104,7 @@ export function buildUserPrompt(req: GuideRequest): string {
     activity: req.activityLabel,
     user_temp_offset: req.offset,
     constraints: req.constraintLabels,
+    mask_allowed: req.maskAllowed,
     current_weather: {
       temp: w.temp,
       humidity: w.humidity,
@@ -89,7 +112,9 @@ export function buildUserPrompt(req: GuideRequest): string {
       precipitation: w.precipitation,
       condition: w.condition,
       pm10: w.pm10,
+      dust_grade: req.dustGrade,
       uv_index: w.uvIndex,
+      uv_grade: req.uvGrade,
       is_day: w.isDay !== false,
     },
     location: req.location,
@@ -102,7 +127,7 @@ export function buildUserPrompt(req: GuideRequest): string {
 type GuideCheck = { problem: string } | { json: Record<string, unknown> };
 
 /** 모델 응답 텍스트를 검사한다. 문제 이유는 필드 이름만 담는다. (응답 내용은 담지 않는다) */
-function checkGuide(text: string): GuideCheck {
+function checkGuide(text: string, maskAllowed?: boolean): GuideCheck {
   const json = extractJsonObject(text);
   if (!json) return { problem: 'not_json' };
   const { guideMessage, activityTips, detailedReason } = json;
@@ -113,15 +138,20 @@ function checkGuide(text: string): GuideCheck {
   if (!activityTips.every((t) => isBounded(t, GUIDE_TIP_MAX))) return { problem: 'tip_length' };
   const all = [guideMessage, detailedReason, ...activityTips].join(' ');
   const banned = BANNED_PHRASES.find((p) => all.includes(p));
-  return banned ? { problem: 'banned_phrase' } : { json };
+  if (banned) return { problem: 'banned_phrase' };
+  if (maskAllowed === false && DUST_GEAR_PHRASES.some((p) => all.includes(p))) {
+    return { problem: 'mask_not_allowed' };
+  }
+  return { json };
 }
 
 /**
  * 모델 응답이 검사를 통과하지 못한 이유를 돌려준다. 통과하면 null.
  * @param text 모델 응답 텍스트
+ * @param maskAllowed 마스크를 언급해도 되는지 (false인데 마스크 문구가 있으면 문제로 본다)
  */
-export function findGuideProblem(text: string): string | null {
-  const checked = checkGuide(text);
+export function findGuideProblem(text: string, maskAllowed?: boolean): string | null {
+  const checked = checkGuide(text, maskAllowed);
   return 'problem' in checked ? checked.problem : null;
 }
 
@@ -130,10 +160,15 @@ export function findGuideProblem(text: string): string | null {
  * 경고 단계는 앱이 계산한 값을 그대로 쓴다. (점수 표시와 어긋나지 않게)
  * @param text 모델 응답 텍스트
  * @param level 앱이 계산한 경고 단계
+ * @param maskAllowed 마스크를 언급해도 되는지
  * @returns 올바르면 AiGuide, 형식이 어긋나면 null
  */
-export function parseGuideResponse(text: string, level: WarningLevel): AiGuide | null {
-  const checked = checkGuide(text);
+export function parseGuideResponse(
+  text: string,
+  level: WarningLevel,
+  maskAllowed?: boolean,
+): AiGuide | null {
+  const checked = checkGuide(text, maskAllowed);
   if ('problem' in checked) return null;
   const { guideMessage, activityTips, detailedReason } = checked.json;
   return {

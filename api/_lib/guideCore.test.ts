@@ -61,6 +61,16 @@ describe('parseGuideRequest', () => {
     expect(parseGuideRequest(bad)).toBeNull();
   });
 
+  it('등급 필드가 올바르면 통과하고, 없으면(기존 클라이언트) 통과하며, 알 수 없는 값은 거부한다', () => {
+    const graded = { ...VALID_REQUEST, dustGrade: '좋음', uvGrade: '높음' };
+    expect(parseGuideRequest(graded)).not.toBeNull();
+    expect(parseGuideRequest(VALID_REQUEST)).not.toBeNull();
+    expect(parseGuideRequest({ ...VALID_REQUEST, dustGrade: '양호' })).toBeNull();
+    expect(parseGuideRequest({ ...VALID_REQUEST, uvGrade: '강함' })).toBeNull();
+    expect(parseGuideRequest({ ...VALID_REQUEST, maskAllowed: false })).not.toBeNull();
+    expect(parseGuideRequest({ ...VALID_REQUEST, maskAllowed: 'no' })).toBeNull();
+  });
+
   it('알 수 없는 경고 단계와 지나치게 긴 문자열은 거부한다', () => {
     expect(parseGuideRequest({ ...VALID_REQUEST, level: 'danger' })).toBeNull();
     const longLabel = { ...VALID_REQUEST, activityLabel: '가'.repeat(500) };
@@ -82,6 +92,16 @@ describe('buildUserPrompt', () => {
     const parsed = JSON.parse(buildUserPrompt(parseGuideRequest(night)!));
     expect(parsed.current_weather.is_day).toBe(false);
     expect(JSON.parse(buildUserPrompt(parseGuideRequest(VALID_REQUEST)!)).current_weather.is_day).toBe(true);
+  });
+});
+
+describe('buildUserPrompt - 등급', () => {
+  it('앱이 정한 미세먼지·자외선 등급을 담는다', () => {
+    const graded = { ...VALID_REQUEST, dustGrade: '좋음', uvGrade: '보통', maskAllowed: false };
+    const parsed = JSON.parse(buildUserPrompt(parseGuideRequest(graded)!));
+    expect(parsed.current_weather.dust_grade).toBe('좋음');
+    expect(parsed.current_weather.uv_grade).toBe('보통');
+    expect(parsed.mask_allowed).toBe(false);
   });
 });
 
@@ -127,5 +147,18 @@ describe('parseGuideResponse', () => {
   it('단정적 금지 표현이 있으면 null', () => {
     const banned = { ...VALID_OUTPUT, guideMessage: '오늘은 가면 안 됩니다.' };
     expect(parseGuideResponse(JSON.stringify(banned), 'careful')).toBeNull();
+  });
+
+  it('마스크 언급이 허용되지 않았는데 마스크·넥게이터 문구가 있으면 null', () => {
+    const inTip = { ...VALID_OUTPUT, activityTips: ['마스크 준비하기'] };
+    const inMessage = { ...VALID_OUTPUT, guideMessage: '넥게이터로 입을 보호하세요.' };
+    expect(parseGuideResponse(JSON.stringify(inTip), 'good', false)).toBeNull();
+    expect(parseGuideResponse(JSON.stringify(inMessage), 'good', false)).toBeNull();
+  });
+
+  it('마스크 언급이 허용됐거나 허용 여부를 모르면 마스크 문구도 통과한다', () => {
+    const withMask = { ...VALID_OUTPUT, activityTips: ['마스크 준비하기'] };
+    expect(parseGuideResponse(JSON.stringify(withMask), 'good', true)).not.toBeNull();
+    expect(parseGuideResponse(JSON.stringify(withMask), 'good')).not.toBeNull();
   });
 });

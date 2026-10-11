@@ -1,12 +1,12 @@
 import {
   OUTFIT_DARK_SOON_HOURS,
   OUTFIT_ICE_RISK_MAX,
-  OUTFIT_MASK_PM10_ABOVE,
   OUTFIT_RAIN_MIN,
   OUTFIT_STRONG_WIND_MIN,
   OUTFIT_UV_HIGH_MIN,
 } from '../constants/thresholds';
 import type { Activity, Constraint, OutfitItem, Weather } from '../types';
+import { isMaskNeededFor } from './airGrade';
 import { outfitItem } from './outfitTiers';
 
 /** 날씨 조건 때문에 더하고(add) 뺄(remove, 라벨 기준) 항목 */
@@ -74,7 +74,7 @@ const CLEAR_SKY_CONDITIONS = ['맑음'];
 /** 빙판 대비: 등산 한파 시 챙길 장비 */
 const ICE_GEAR = outfitItem('gear', '⛓️', '아이젠');
 
-/** 미세먼지 대비 마스크 (미세먼지가 나쁠 때만 더한다) */
+/** 미세먼지 대비 마스크 (제약사항별 미세먼지 등급 조건을 만족할 때만 더한다) */
 const MASK = outfitItem('gear', '😷', '마스크');
 
 /** 무릎 보호대 (무릎 부담이 적은 산책에는 더하지 않는다) */
@@ -91,21 +91,37 @@ const CONSTRAINT_GEAR: Partial<Record<Constraint, OutfitItem>> = {
 };
 
 /**
+ * 무릎보호대가 필요한지 (산책은 제외). 복장·AI 가이드가 함께 쓴다.
+ * @param activity 활동
+ */
+export function isKneeBraceNeeded(activity: Activity): boolean {
+  return !KNEE_BRACE_EXCLUDED_ACTIVITIES.includes(activity);
+}
+
+/**
  * 제약사항 장비를 지금 날씨·활동에서 더할지 판단한다.
- * 마스크는 미세먼지가 나쁠 때만, 무릎보호대는 산책을 뺀 활동에만 더한다.
- * @param item 제약사항 장비
+ * 마스크는 천식이면 미세먼지 보통 이상, 미세먼지 민감이면 나쁨일 때만,
+ * 무릎보호대는 산책을 뺀 활동에만 더한다.
+ * @param constraint 제약사항
  * @param weather 현재 날씨
  * @param activity 활동
  */
-function isConstraintGearNeeded(item: OutfitItem, weather: Weather, activity: Activity): boolean {
-  if (item.label === MASK.label) return weather.pm10 > OUTFIT_MASK_PM10_ABOVE;
-  if (item.label === KNEE_BRACE.label) return !KNEE_BRACE_EXCLUDED_ACTIVITIES.includes(activity);
+function isConstraintGearNeeded(
+  constraint: Constraint,
+  weather: Weather,
+  activity: Activity,
+): boolean {
+  if (constraint === 'kneeIssue') return isKneeBraceNeeded(activity);
+  if (constraint === 'asthma' || constraint === 'dustSensitive') {
+    return isMaskNeededFor(constraint, weather.pm10);
+  }
   return true;
 }
 
 /**
  * 설정한 제약사항(예: 무릎 문제)에 맞는 보호 장비를 더한다.
- * 마스크는 미세먼지가 나쁠 때(나쁨 이상)만, 무릎보호대는 산책을 제외한 활동에만 더한다.
+ * 마스크는 천식이면 미세먼지 보통 이상, 미세먼지 민감이면 나쁨일 때만 더하고,
+ * 무릎보호대는 산책을 제외한 활동에만 더한다.
  * @param items 복장 항목
  * @param constraints 사용자가 체크한 제약사항
  * @param weather 현재 날씨 (미세먼지 판단용)
@@ -118,8 +134,8 @@ export function applyConstraintGear(
   activity: Activity,
 ): OutfitItem[] {
   const gear = constraints
-    .flatMap((constraint) => CONSTRAINT_GEAR[constraint] ?? [])
-    .filter((item) => isConstraintGearNeeded(item, weather, activity));
+    .filter((constraint) => isConstraintGearNeeded(constraint, weather, activity))
+    .flatMap((constraint) => CONSTRAINT_GEAR[constraint] ?? []);
   return dedupeByLabel([...items, ...gear]);
 }
 
