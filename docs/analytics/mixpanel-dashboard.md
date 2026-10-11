@@ -19,7 +19,7 @@ Mixpanel 화면에서 직접 만들며, 별도 코드 변경은 필요하지 않
 | 이벤트 | 발생 시점 | 속성 |
 |---|---|---|
 | `[Auto] Page View` (`$mp_web_page_view`) | 페이지 경로가 바뀔 때 (자동 수집) | Mixpanel 기본 속성 (`$current_url` 등) |
-| `cta_clicked` | 핵심 버튼 클릭 | `cta`: `onboarding_start` / `location_allow` / `location_settings` / `settings_save` |
+| `cta_clicked` | 핵심 버튼 클릭 | `cta`: `onboarding_start` / `location_allow` / `location_settings` / `settings_save` (`location_allow`는 아래 주석 참고) |
 | `onboarding_completed` | 온보딩 완료 | `activityCount`, `constraintCount`, `useCurrentLocation` |
 | `settings_saved` | 설정 저장 성공 | `coldLevel`, `heatLevel`, `activityCount`, `constraintCount` |
 | `decision_made` | 가기 / 안 가기 선택 | `decision`(`go`/`skip`), `activity`, `score`, `isChange`(오늘 같은 활동으로 이미 결정한 적이 있으면 `true`) |
@@ -33,6 +33,16 @@ Mixpanel 화면에서 직접 만들며, 별도 코드 변경은 필요하지 않
 | `data_load_failed` | 날씨·가이드 로딩 실패 | `reason` 등 |
 
 속성 이름은 camelCase이며, 위치·좌표 같은 개인정보는 수집하지 않습니다.
+`useCurrentLocation`은 "현재 위치로 날씨 보기" 선호(true/false)일 뿐 좌표가 아닙니다.
+
+### `location_allow` 발생 시점 변경 (2026-10-11 배포)
+
+| 시기 | 발생 시점 |
+|---|---|
+| 변경 전 | 온보딩의 [위치 허용하기] 버튼 클릭 |
+| 변경 후 | 온보딩 [시작하기]를 눌렀을 때 현재 위치 사용이 켜져 있을 때, 또는 설정에서 현재 위치 사용을 OFF → ON으로 바꿀 때 |
+
+배포 전후 수치를 직접 비교하지 마세요. 의미가 달라졌습니다.
 
 ---
 
@@ -75,6 +85,7 @@ Mixpanel 화면에서 직접 만들며, 별도 코드 변경은 필요하지 않
 | 점수 구간별 결정 | Insights | `decision_made`, Breakdown `score`(숫자 구간으로 묶기), 두 번째 Breakdown `decision` |
 | 취소 비율 | Insights (Formula) | `A = decision_cancelled`, `B = decision_made`, 수식 `A / B` |
 | 설정 저장 추이 | Insights | 이벤트 `settings_saved`, 지표 **Total Events**, 기간 30D, 차트 Line |
+| 온보딩 시 현재 위치 사용 비율 | Insights | 이벤트 `onboarding_completed`, 지표 **Total Events**, Breakdown `useCurrentLocation`, 차트 Pie |
 
 ---
 
@@ -120,6 +131,8 @@ Preview 배포에서 발생한 이벤트도 같은 프로젝트에 쌓입니다.
 | Insights 지표에 `isChange`를 넣었더니 조건 선택이 안 나옴 | `isChange`를 지표(Metric)에 넣음 | Metric이 아니라 **Filter**의 `+`로 추가 |
 | 필터의 속성 이름이 `is`로 표시됨 | 조건 이름을 속성 칸에 잘못 선택 | 속성을 `cta`처럼 올바른 속성으로 다시 선택 |
 | 저장 시 "Saved Report Limit" 안내 | 무료 플랜 5개 한도 도달 | **Continue With Free Plan**을 선택하고 쓰지 않는 리포트·보드를 삭제 |
+| `location_allow` 수치가 배포 전후로 크게 달라 보임 | 2026-10-11부터 발생 시점이 바뀜 ([위치 허용하기] 클릭 → [시작하기]/설정 ON 전환) | 배포일 이후 데이터만 비교하고, 이전 수치와 직접 비교하지 않기 |
+| `onboarding_completed`에 `useCurrentLocation`이 없는 이벤트가 보임 | 속성은 2026-10-11 배포 이후 이벤트부터 붙음 | 기간을 배포일 이후로 좁혀 확인 |
 | Mixpanel Agent가 만든 보드의 위젯이 비어 있음 | 에이전트 초안의 쿼리가 완성되지 않음 | Events 또는 Insights에서 직접 만들어 보드에 추가 |
 
 ---
