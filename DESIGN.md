@@ -128,12 +128,22 @@ Swoosh는 한밤중의 아레나 콘솔처럼 작동합니다. 거의 완전한 
 ### Primary CTA Button
 **역할:** 채워진 액션 트리거
 
-Lime Pulse(#b7ff2c) 배경, Carbon Black(#000000) 텍스트, 9999px border radius(pill), 세로 16px / 가로 20px 패딩, Plus Jakarta Sans / Pretendard 500 16px, 줄 간격 1.20. 채움색과 같은 1px solid #b7ff2c 테두리. 어느 페이지에서든 가장 채도가 높은 단 하나의 요소이며, 전기가 켜진 듯한 느낌이어야 합니다.
+Lime Pulse(#b7ff2c) 배경, Carbon Black(#000000) 텍스트, 9999px border radius(pill), 높이 40px(default) / 가로 20px 패딩, Plus Jakarta Sans / Pretendard 500 16px, 줄 간격 1.20. 채움색과 같은 1px solid #b7ff2c 테두리. 어느 페이지에서든 가장 채도가 높은 단 하나의 요소이며, 전기가 켜진 듯한 느낌이어야 합니다.
+
+### Button 사이즈
+텍스트 버튼은 아이콘 버튼과 같은 높이 체계(48/40/32/24px)를 씁니다.
+
+| size | 높이 | 폰트 | 용도 |
+|------|------|------|------|
+| lg | 48px | 16px | 터치 강조·단독 CTA |
+| default | 40px | 16px | 기본 버튼 |
+| sm | 32px | 14px | 내비게이션 바 |
+| xs | 24px | 12px | 칩·인라인 보조 액션 |
 
 ### Secondary Navigation Button
 **역할:** 내비게이션의 보조 액션 (예: 기록, 설정)
 
-Card Charcoal(#1f1f21) 배경, Pure White(#ffffff) 텍스트, 테두리 없음, 9999px radius(pill), 세로 8px / 가로 20px의 컴팩트한 패딩, Plus Jakarta Sans / Pretendard 500 14px. 구현은 `Button`의 `variant="secondary" size="sm"`입니다. 라임을 쓰지 않으므로 같은 내비게이션 안의 채워진 CTA와 경쟁하지 않고 공존할 수 있습니다.
+Card Charcoal(#1f1f21) 배경, Pure White(#ffffff) 텍스트, 테두리 없음, 9999px radius(pill), 높이 32px(sm) / 가로 20px의 컴팩트한 패딩, Plus Jakarta Sans / Pretendard 500 14px. 구현은 `Button`의 `variant="secondary" size="sm"`입니다. 라임을 쓰지 않으므로 같은 내비게이션 안의 채워진 CTA와 경쟁하지 않고 공존할 수 있습니다.
 
 ### Icon Button
 **역할:** 텍스트 없이 아이콘만으로 동작하는 정사각형 액션 (예: 설정)

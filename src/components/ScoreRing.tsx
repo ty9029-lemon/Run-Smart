@@ -35,6 +35,7 @@ export default function ScoreRing({ score }: ScoreRingProps) {
             fill="none"
             stroke="var(--color-lime-pulse)"
             strokeWidth={STROKE}
+            strokeLinecap="round"
             strokeDasharray={CIRCUMFERENCE}
             strokeDashoffset={offset}
           />

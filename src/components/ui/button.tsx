@@ -20,10 +20,11 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
+        lg: "h-12 gap-2 px-5 text-base leading-[1.2] has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4",
         default:
-          "gap-2 px-5 py-4 text-base leading-[1.2] has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4",
+          "h-10 gap-2 px-5 text-base leading-[1.2] has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4",
+        sm: "h-8 gap-1.5 px-5 text-sm leading-[1.2] has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4 [&_svg:not([class*='size-'])]:size-3.5",
         xs: "h-6 gap-1 px-3 text-xs has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 [&_svg:not([class*='size-'])]:size-3",
-        sm: "gap-1.5 px-5 py-2 text-sm leading-[1.2] has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4 [&_svg:not([class*='size-'])]:size-3.5",
         icon: "size-10",
         "icon-xs":
           "size-6 [&_svg:not([class*='size-'])]:size-3",
