@@ -21,7 +21,7 @@ Mixpanel 화면에서 직접 만들며, 별도 코드 변경은 필요하지 않
 | `cta_clicked` | 핵심 버튼 클릭 | `cta`: `onboarding_start` / `location_allow` / `location_settings` / `settings_save` |
 | `onboarding_completed` | 온보딩 완료 | `activityCount`, `constraintCount` |
 | `settings_saved` | 설정 저장 성공 | `coldLevel`, `heatLevel`, `activityCount`, `constraintCount` |
-| `decision_made` | 가기 / 안 가기 선택 | `decision`(`go`/`skip`), `activity`, `score` |
+| `decision_made` | 가기 / 안 가기 선택 | `decision`(`go`/`skip`), `activity`, `score`, `isChange`(오늘 같은 활동으로 이미 결정한 적이 있으면 `true`) |
 | `decision_cancelled` | 오늘 결정 취소 | `decision`(취소한 결정), `activity` |
 | `run_score_viewed` | 활동·점수가 바뀌어 결과가 보일 때 | `activity`, `score`, `warningLevel`, `condition` |
 | `activity_changed` | 활동 칩 변경 | `from`, `to` |
@@ -63,7 +63,7 @@ Mixpanel 화면에서 직접 만들며, 별도 코드 변경은 필요하지 않
 
 | 리포트 | 유형 | 설정 |
 |---|---|---|
-| 결정 비율 | Insights | 이벤트 `decision_made`, 지표 **Total**, Breakdown `decision`, 차트 Bar |
+| 결정 비율 | Insights | 이벤트 `decision_made`, 지표 **Total**, 필터 `isChange` = `false`, Breakdown `decision`, 차트 Bar |
 | 활동별 결정 | Insights | `decision_made`, Breakdown `activity`, 두 번째 Breakdown `decision` |
 | 점수 구간별 결정 | Insights | `decision_made`, Breakdown `score`(숫자 구간으로 묶기), 두 번째 Breakdown `decision` |
 | 취소 비율 | Insights (Formula) | `A = decision_cancelled`, `B = decision_made`, 수식 `A / B` |
