@@ -13,7 +13,16 @@ export default function Settings() {
   const navigate = useNavigate();
   const saved = useProfileStore((s) => s.profile);
   const locationStatus = useLocationPermission();
-  const { draft, error, onChange, submit } = useProfileDraft(saved, () => navigate('/'));
+  const { draft, error, onChange, submit } = useProfileDraft(saved, (next) => {
+    // 검증을 통과해 실제로 저장된 값만 기록한다
+    trackEvent(ANALYTICS_EVENTS.settingsSaved, {
+      coldLevel: next.coldLevel,
+      heatLevel: next.heatLevel,
+      activityCount: next.selectedActivities.length,
+      constraintCount: next.constraints.length,
+    });
+    navigate('/');
+  });
 
   /** [저장] 클릭을 기록하고 프로필을 저장한다. */
   const handleSave = () => {
