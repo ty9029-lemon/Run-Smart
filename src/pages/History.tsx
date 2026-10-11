@@ -1,8 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import GuideBox from '../components/GuideBox';
 import HistoryCalendar from '../components/HistoryCalendar';
+import OutfitPanel from '../components/OutfitPanel';
 import { getActivityMeta } from '../constants/activities';
+import { FEEDBACK_LABELS } from '../constants/feedback';
 import { MESSAGES } from '../constants/messages';
 import { MS_PER_DAY } from '../constants/thresholds';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
@@ -21,7 +23,10 @@ function formatDate(date: Date): string {
 
 /** 시간 표기 (예: 오후 3:07) */
 function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' });
+  return new Date(iso).toLocaleTimeString('ko-KR', {
+    hour: 'numeric',
+    minute: '2-digit',
+  });
 }
 
 /** 기록 날짜가 오늘로부터 며칠 전인지 (오늘이면 0) */
@@ -31,51 +36,52 @@ function daysAgoOf(iso: string): number {
   return Math.round(diff / MS_PER_DAY);
 }
 
-/** 히스토리 한 줄 (터치하면 그날의 AI 가이드를 펼친다) */
-function HistoryItem({ entry }: { entry: HistoryEntry }) {
-  const [open, setOpen] = useState(false);
+/** 기록 카드 상단 (시간, 갔음 여부, 활동, 날씨 요약, 체감 피드백) */
+function HistoryHeader({ entry }: { entry: HistoryEntry }) {
   const meta = getActivityMeta(entry.activity);
+  return (
+    <div className="rounded-panel border border-card-border-ink bg-card-charcoal p-6">
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-steel-border">{formatTime(entry.date)}</span>
+        <span
+          className={`text-sm font-medium ${
+            entry.decision === 'go' ? 'text-lime-pulse' : 'text-steel-border'
+          }`}
+        >
+          {entry.decision === 'go' ? '갔음' : '안 갔음'}
+        </span>
+      </div>
+      <p className="text-base font-medium">
+        {meta.emoji} {meta.label}
+      </p>
+      <p className="text-sm text-steel-border">{entry.weatherSummary}</p>
+      {entry.feedback && (
+        <p className="mt-3 text-sm">
+          <span className="text-steel-border">체감 </span>
+          <span className="font-medium">{FEEDBACK_LABELS[entry.feedback]}</span>
+        </p>
+      )}
+    </div>
+  );
+}
 
-  /** 펼칠 때만 열람 이벤트를 보낸다. */
-  const handleToggle = () => {
-    if (!open) {
-      trackEvent(ANALYTICS_EVENTS.historyEntryViewed, {
-        daysAgo: daysAgoOf(entry.date),
-        decision: entry.decision,
-        activity: entry.activity,
-      });
-    }
-    setOpen((v) => !v);
-  };
+/** 히스토리 한 건 (날씨 가이드와 추천 복장을 처음부터 모두 보여준다) */
+function HistoryItem({ entry }: { entry: HistoryEntry }) {
+  // 날짜를 선택해 카드가 보일 때 열람 이벤트를 한 번 보낸다.
+  useEffect(() => {
+    trackEvent(ANALYTICS_EVENTS.historyEntryViewed, {
+      daysAgo: daysAgoOf(entry.date),
+      decision: entry.decision,
+      activity: entry.activity,
+    });
+  }, [entry.date, entry.decision, entry.activity]);
 
   return (
     <li className="space-y-2">
-      <button
-        type="button"
-        aria-expanded={open}
-        onClick={handleToggle}
-        className="w-full rounded-panel border border-card-border-ink bg-card-charcoal p-6 text-left"
-      >
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-steel-border">{formatTime(entry.date)}</span>
-          <span
-            className={`text-sm font-medium ${
-              entry.decision === 'go' ? 'text-lime-pulse' : 'text-steel-border'
-            }`}
-          >
-            {entry.decision === 'go' ? '갔음' : '안 갔음'}
-          </span>
-        </div>
-        <p className="text-base font-medium">
-          {meta.emoji} {meta.label}
-        </p>
-        <p className="text-sm text-steel-border">{entry.weatherSummary}</p>
-      </button>
-      {open && (
-        <GuideBox
-          guide={{ state: 'ready', data: entry.guide }}
-          rawWeather={entry.weatherSummary}
-        />
+      <HistoryHeader entry={entry} />
+      <GuideBox guide={{ state: 'ready', data: entry.guide }} rawWeather={entry.weatherSummary} />
+      {entry.outfit && entry.outfit.length > 0 && (
+        <OutfitPanel items={entry.outfit} title="추천 복장" />
       )}
     </li>
   );
@@ -91,7 +97,7 @@ function DayPanel({ date, entries }: { date: Date; entries: HistoryEntry[] }) {
       ) : (
         <ul className="space-y-3">
           {entries.map((entry) => (
-            // 날짜가 바뀌면 펼침 상태도 초기화되도록 key에 날짜를 섞는다.
+            // 날짜가 바뀌면 카드를 새로 그려 열람 이벤트가 다시 전송되도록 key에 날짜를 섞는다.
             <HistoryItem key={`${dayKey(date)}-${entry.id}`} entry={entry} />
           ))}
         </ul>

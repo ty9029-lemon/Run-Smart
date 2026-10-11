@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { buildDummyGuide } from '../data/dummyGuide';
 import { DUMMY_CURRENT_WEATHER } from '../data/dummyWeather';
 import { NEUTRAL_SENSITIVITY } from '../lib/feelsLike';
-import type { HistoryEntry } from '../types';
+import type { HistoryEntry, OutfitItem } from '../types';
 import { useHistoryStore } from './historyStore';
 
 /** 테스트용 기록 항목 */
@@ -30,5 +30,31 @@ describe('removeEntry', () => {
   it('없는 id면 아무것도 바꾸지 않는다', () => {
     useHistoryStore.getState().removeEntry('missing');
     expect(useHistoryStore.getState().entries).toHaveLength(2);
+  });
+});
+
+describe('addEntry', () => {
+  beforeEach(() => {
+    useHistoryStore.setState({ entries: [] });
+  });
+
+  it('추천 복장을 기록과 함께 보존한다', () => {
+    const outfit: OutfitItem[] = [{ category: 'top', icon: 'longSleeve', label: '긴팔 티셔츠' }];
+    useHistoryStore.getState().addEntry({ ...makeEntry('a'), outfit });
+    expect(useHistoryStore.getState().entries[0].outfit).toEqual(outfit);
+  });
+});
+
+describe('setFeedback', () => {
+  beforeEach(() => {
+    useHistoryStore.setState({ entries: [makeEntry('a'), makeEntry('b')] });
+  });
+
+  it('지정한 기록에만 피드백과 시각을 남긴다', () => {
+    useHistoryStore.getState().setFeedback('a', 'cold');
+    const [a, b] = useHistoryStore.getState().entries;
+    expect(a.feedback).toBe('cold');
+    expect(a.feedbackAt).toBeDefined();
+    expect(b.feedback).toBeUndefined();
   });
 });

@@ -78,6 +78,7 @@ export default function HomeReady({
   const best = findBestHourToday(scores, nowHour);
   const range = findGoodRange(sliceToday(scores, nowHour), best);
   const rawWeather = formatRawWeather(current.temp, current.condition, current.windSpeed);
+  const outfit = recommendOutfit(feelsLike, current, activity, profile.constraints);
 
   // 활동이나 점수가 바뀌어 새 결과가 보일 때마다 전송
   useEffect(() => {
@@ -110,6 +111,8 @@ export default function HomeReady({
       decision: next,
       weatherSummary: `${current.temp}°C, ${current.condition}, 바람 ${current.windSpeed}m/s`,
       feelsLike,
+      // 기록 화면에서 당시 추천 복장을 다시 보여주기 위해 함께 저장한다.
+      outfit,
       // AI 가이드가 없으면 앱 내 계산 기반 가이드를 기록으로 남긴다.
       guide:
         guide.state === 'ready'
@@ -133,7 +136,7 @@ export default function HomeReady({
         activity={activity}
         score={score}
         level={scoreToLevel(score)}
-        outfit={recommendOutfit(feelsLike, current, activity, profile.constraints)}
+        outfit={outfit}
         onSelectActivity={handleSelectActivity}
       />
       <WeatherCard weather={current} feelsLike={feelsLike} />
