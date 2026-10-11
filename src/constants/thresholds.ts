@@ -62,8 +62,6 @@ export const RECOMMEND_SCORE_MARGIN = 3;
 /** 미세먼지 등급 기준(㎍/㎥) */
 export const PM10_GOOD = 30;
 export const PM10_NORMAL = 80;
-/** 복장: 미세먼지 민감·천식을 체크해도 PM10이 이 값(㎍/㎥)을 넘어야(나쁨 이상) 마스크를 추천한다 */
-export const OUTFIT_MASK_PM10_ABOVE = PM10_NORMAL;
 
 /** 결정을 기록한 뒤 이 시간(ms) 동안은 버튼 대신 피드백과 '취소하기'만 보여준다 (1시간) */
 export const DECISION_LOCK_MS = 60 * 60 * 1000;

@@ -1,16 +1,9 @@
-import { PM10_GOOD, PM10_NORMAL } from '../constants/thresholds';
+import { getDustGrade } from '../lib/airGrade';
 import type { Weather } from '../types';
 
 interface WeatherCardProps {
   weather: Weather;
   feelsLike: number;
-}
-
-/** 미세먼지 등급 문구 */
-function dustLabel(pm10: number): string {
-  if (pm10 <= PM10_GOOD) return '좋음';
-  if (pm10 <= PM10_NORMAL) return '보통';
-  return '나쁨';
 }
 
 /** 실시간 날씨 카드 (기온, 체감온도, 습도, 강수, 풍속, 미세먼지) */
@@ -20,7 +13,7 @@ export default function WeatherCard({ weather, feelsLike }: WeatherCardProps) {
     { label: '습도', value: `${weather.humidity}%` },
     { label: '강수', value: `${weather.precipitation}mm` },
     { label: '풍속', value: `${weather.windSpeed}m/s` },
-    { label: '미세먼지', value: `${dustLabel(weather.pm10)} (${weather.pm10})` },
+    { label: '미세먼지', value: `${getDustGrade(weather.pm10)} (${weather.pm10})` },
     { label: '자외선', value: `${weather.uvIndex}` },
   ];
   return (

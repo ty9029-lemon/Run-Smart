@@ -1,5 +1,6 @@
 import { CONSTRAINTS, getActivityMeta } from '../constants/activities';
 import { GUIDE_API_PATH, GUIDE_RETRY_COUNT, GUIDE_TIMEOUT_MS } from '../constants/api';
+import { getDustGrade, getUvGrade, shouldRecommendMask } from '../lib/airGrade';
 import { calcAppliedOffset, calcPersonalFeelsLike } from '../lib/feelsLike';
 import { readGuideCache, writeGuideCache } from '../lib/guideCache';
 import { calcRunScore, scoreToLevel } from '../lib/runScore';
@@ -30,6 +31,9 @@ export function buildGuideRequest(input: GuideInput): GuideRequest {
     score,
     level: scoreToLevel(score),
     location,
+    dustGrade: getDustGrade(weather.pm10),
+    uvGrade: getUvGrade(weather.uvIndex),
+    maskAllowed: shouldRecommendMask(constraints, weather.pm10),
   };
 }
 

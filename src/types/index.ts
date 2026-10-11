@@ -70,6 +70,12 @@ export type GuideState =
   | { state: 'failed' }
   | { state: 'ready'; data: AiGuide };
 
+/** 미세먼지 등급 (날씨 카드·복장·AI 가이드 공통) */
+export type DustGrade = '좋음' | '보통' | '나쁨';
+
+/** 자외선 등급 (복장의 선글라스·선크림 기준과 같다) */
+export type UvGrade = '보통' | '높음';
+
 /** AI 가이드 요청 본문 (PRD 6장 입력 형식 + 앱이 계산한 체감온도·점수) */
 export interface GuideRequest {
   activityLabel: string;
@@ -80,6 +86,12 @@ export interface GuideRequest {
   score: number;
   level: WarningLevel;
   location: string;
+  /** 앱이 정한 미세먼지 등급 (없으면 기존 클라이언트) */
+  dustGrade?: DustGrade;
+  /** 앱이 정한 자외선 등급 */
+  uvGrade?: UvGrade;
+  /** AI 가이드가 마스크를 언급해도 되는지 (false면 언급하지 않는다. 없으면 기존 클라이언트) */
+  maskAllowed?: boolean;
 }
 
 /** 복장 추천 항목 분류 (화면에서 그룹 소제목으로 쓴다) */

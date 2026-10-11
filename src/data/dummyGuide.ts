@@ -1,5 +1,7 @@
 import { getActivityMeta } from '../constants/activities';
+import { getDustGrade, shouldRecommendMask } from '../lib/airGrade';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
+import { isKneeBraceNeeded } from '../lib/outfitConditions';
 import { calcRunScore, scoreToLevel } from '../lib/runScore';
 import type {
   Activity,
@@ -36,9 +38,19 @@ const ACTIVITY_TIPS: Record<Activity, string[]> = {
 const CONSTRAINT_TIPS: Partial<Record<Constraint, string>> = {
   kneeIssue: '무릎 보호대 체크',
   uvSensitive: '자외선 차단제 바르기',
-  dustSensitive: '미세먼지 마스크 고려',
   asthma: '흡입기 등 개인 약 챙기기',
 };
+
+/** 마스크 팁 (천식·미세먼지 민감의 등급 조건을 만족할 때만 보여 준다) */
+const MASK_TIP = '미세먼지 마스크 고려';
+
+/**
+ * 제약사항 팁을 지금 활동에서 보여 줄지 판단한다. (복장 추천과 같은 규칙)
+ * 무릎 보호대 팁은 산책을 뺀 활동에만 보여 준다.
+ */
+function isConstraintTipNeeded(constraint: Constraint, activity: Activity): boolean {
+  return constraint !== 'kneeIssue' || isKneeBraceNeeded(activity);
+}
 
 /** 가이드 본문 구성 */
 function buildMessage(weather: Weather, felt: number, level: WarningLevel): string {
@@ -64,13 +76,15 @@ export function buildDummyGuide(
   const level = scoreToLevel(score);
   const felt = calcPersonalFeelsLike(weather, sensitivity);
   const constraintTips = constraints
+    .filter((c) => isConstraintTipNeeded(c, activity))
     .map((c) => CONSTRAINT_TIPS[c])
     .filter((tip): tip is string => Boolean(tip));
+  const maskTips = shouldRecommendMask(constraints, weather.pm10) ? [MASK_TIP] : [];
   return {
     guideMessage: buildMessage(weather, felt, level),
-    activityTips: [...ACTIVITY_TIPS[activity], ...constraintTips],
+    activityTips: [...ACTIVITY_TIPS[activity], ...constraintTips, ...maskTips],
     warningLevel: level,
     goOrNotEmoji: LEVEL_EMOJI[level],
-    detailedReason: `${getActivityMeta(activity).label} 기준 활동 지수는 ${score}점이에요. ${weather.condition}, 풍속 ${weather.windSpeed}m/s, 미세먼지 ${weather.pm10}㎍/㎥를 종합했어요.`,
+    detailedReason: `${getActivityMeta(activity).label} 기준 활동 지수는 ${score}점이에요. ${weather.condition}, 풍속 ${weather.windSpeed}m/s, 미세먼지 ${getDustGrade(weather.pm10)}(${weather.pm10}㎍/㎥)를 종합했어요.`,
   };
 }
