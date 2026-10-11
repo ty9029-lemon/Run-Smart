@@ -1,6 +1,7 @@
 import {
   OUTFIT_DARK_SOON_HOURS,
   OUTFIT_ICE_RISK_MAX,
+  OUTFIT_MASK_PM10_ABOVE,
   OUTFIT_RAIN_MIN,
   OUTFIT_STRONG_WIND_MIN,
   OUTFIT_UV_HIGH_MIN,
@@ -73,20 +74,52 @@ const CLEAR_SKY_CONDITIONS = ['맑음'];
 /** 빙판 대비: 등산 한파 시 챙길 장비 */
 const ICE_GEAR = outfitItem('gear', '⛓️', '아이젠');
 
-/** 제약사항별로 활동과 상관없이 더하는 장비 */
+/** 미세먼지 대비 마스크 (미세먼지가 나쁠 때만 더한다) */
+const MASK = outfitItem('gear', '😷', '마스크');
+
+/** 무릎 보호대 (무릎 부담이 적은 산책에는 더하지 않는다) */
+const KNEE_BRACE = outfitItem('gear', '🦿', '무릎보호대');
+
+/** 무릎보호대를 더하지 않는 활동 */
+const KNEE_BRACE_EXCLUDED_ACTIVITIES: Activity[] = ['walking'];
+
+/** 제약사항별로 더하는 장비 (마스크·무릎보호대는 아래 조건을 만족할 때만 남긴다) */
 const CONSTRAINT_GEAR: Partial<Record<Constraint, OutfitItem>> = {
-  kneeIssue: outfitItem('gear', '🦿', '무릎보호대'),
-  asthma: outfitItem('gear', '😷', '마스크'),
-  dustSensitive: outfitItem('gear', '😷', '마스크'),
+  kneeIssue: KNEE_BRACE,
+  asthma: MASK,
+  dustSensitive: MASK,
 };
 
 /**
+ * 제약사항 장비를 지금 날씨·활동에서 더할지 판단한다.
+ * 마스크는 미세먼지가 나쁠 때만, 무릎보호대는 산책을 뺀 활동에만 더한다.
+ * @param item 제약사항 장비
+ * @param weather 현재 날씨
+ * @param activity 활동
+ */
+function isConstraintGearNeeded(item: OutfitItem, weather: Weather, activity: Activity): boolean {
+  if (item.label === MASK.label) return weather.pm10 > OUTFIT_MASK_PM10_ABOVE;
+  if (item.label === KNEE_BRACE.label) return !KNEE_BRACE_EXCLUDED_ACTIVITIES.includes(activity);
+  return true;
+}
+
+/**
  * 설정한 제약사항(예: 무릎 문제)에 맞는 보호 장비를 더한다.
+ * 마스크는 미세먼지가 나쁠 때(나쁨 이상)만, 무릎보호대는 산책을 제외한 활동에만 더한다.
  * @param items 복장 항목
  * @param constraints 사용자가 체크한 제약사항
+ * @param weather 현재 날씨 (미세먼지 판단용)
+ * @param activity 활동
  */
-export function applyConstraintGear(items: OutfitItem[], constraints: Constraint[]): OutfitItem[] {
-  const gear = constraints.flatMap((constraint) => CONSTRAINT_GEAR[constraint] ?? []);
+export function applyConstraintGear(
+  items: OutfitItem[],
+  constraints: Constraint[],
+  weather: Weather,
+  activity: Activity,
+): OutfitItem[] {
+  const gear = constraints
+    .flatMap((constraint) => CONSTRAINT_GEAR[constraint] ?? [])
+    .filter((item) => isConstraintGearNeeded(item, weather, activity));
   return dedupeByLabel([...items, ...gear]);
 }
 
