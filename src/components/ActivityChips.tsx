@@ -26,7 +26,7 @@ export default function ActivityChips({
             onClick={() => onSelect(id)}
             className={`rounded-full border px-5 py-2 text-sm font-medium ${
               active
-                ? 'border-lime-pulse bg-lime-pulse text-carbon-black'
+                ? 'border-primary bg-primary/10 text-primary'
                 : 'border-steel-border bg-transparent text-pure-white'
             }`}
           >

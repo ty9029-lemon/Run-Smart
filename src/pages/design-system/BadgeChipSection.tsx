@@ -39,7 +39,7 @@ export default function BadgeChipSection() {
   return (
     <Section
       title="Badge · Chip"
-      description="라임은 active 배지와 선택된 칩 같은 활성 상태에만 씁니다."
+      description="라임은 active 배지와 선택된 칩(라임 테두리 + 옅은 라임 배경) 같은 활성 상태에만 씁니다."
     >
       <BadgeRow />
       <ChipRow />

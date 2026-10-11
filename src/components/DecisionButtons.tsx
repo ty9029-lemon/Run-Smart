@@ -51,7 +51,7 @@ export default function DecisionButtons({
       <div className="grid grid-cols-2 gap-3">
         <Button
           type="button"
-          variant={decision === 'go' ? 'default' : 'outline'}
+          variant="default"
           size="lg"
           onClick={() => onDecide('go')}
         >

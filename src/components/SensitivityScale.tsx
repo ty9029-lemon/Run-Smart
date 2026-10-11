@@ -43,8 +43,8 @@ export default function SensitivityScale({ question, value, onChange }: Sensitiv
                   aria-checked={on}
                   aria-label={LEVEL_LABEL[level] ?? `${level}단계`}
                   onClick={() => onChange(level)}
-                  className={`shrink-0 rounded-full border-2 ${CIRCLE_SIZE_CLASS[level]} ${
-                    on ? 'border-lime-pulse bg-lime-pulse' : 'border-steel-border'
+                  className={`shrink-0 rounded-full border-[1.5px] ${CIRCLE_SIZE_CLASS[level]} ${
+                    on ? 'border-primary bg-primary/10' : 'border-steel-border'
                   }`}
                 />
               </div>

@@ -2,13 +2,13 @@ import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
 
-/** 칩 스타일: 선택 상태에서만 라임을 쓴다 (pill 형태) */
+/** 칩 스타일: 선택 상태는 라임 테두리 + 옅은 라임 배경 (pill 형태) */
 const chipVariants = cva(
   "inline-flex shrink-0 items-center justify-center gap-2 rounded-full border px-5 py-2 text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-40",
   {
     variants: {
       selected: {
-        true: "border-primary bg-primary text-primary-foreground",
+        true: "border-primary bg-primary/10 text-primary",
         false: "border-input bg-transparent text-foreground hover:border-foreground",
       },
     },
