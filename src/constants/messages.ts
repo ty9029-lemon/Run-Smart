@@ -11,6 +11,7 @@ export const MESSAGES = {
   // 브라우저는 설정 화면을 직접 열 수 없어 안내 문구로 대신한다.
   locationSettingsGuide:
     '브라우저 주소창 왼쪽의 자물쇠(사이트 설정)에서 위치 권한을 허용해 주세요.',
+  locationOffNotice: '현재 위치 사용이 꺼져 있어 서울 기준으로 보여드리고 있어요.',
   locationOffHint: '꺼 두면 서울 기준으로 날씨를 보여드려요.',
   locationAskOnStartHint: '시작하면 위치 권한을 물어봐요.',
   historyEmptyDay: '이 날은 기록이 없어요.',
