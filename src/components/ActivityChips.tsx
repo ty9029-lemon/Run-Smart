@@ -30,7 +30,7 @@ export default function ActivityChips({
                 : 'border-steel-border bg-transparent text-pure-white'
             }`}
           >
-            {meta.emoji} {meta.label}
+            {meta.label}
           </button>
         );
       })}

@@ -16,7 +16,7 @@ export default function ActivityPicker({ selected, error, onToggle }: ActivityPi
         여러 개 고를 수 있어요.
       </p>
       <div className="flex flex-wrap gap-2">
-        {ACTIVITIES.map(({ id, label, emoji }) => {
+        {ACTIVITIES.map(({ id, label }) => {
           const on = selected.includes(id);
           return (
             <button
@@ -30,7 +30,7 @@ export default function ActivityPicker({ selected, error, onToggle }: ActivityPi
                   : 'border-steel-border text-pure-white'
               }`}
             >
-              {emoji} {label}
+              {label}
             </button>
           );
         })}
