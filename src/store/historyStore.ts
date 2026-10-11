@@ -13,11 +13,25 @@ interface HistoryState {
   setFeedback: (id: string, feedback: Feedback) => void;
 }
 
-/** 저장 데이터 버전 (1: '외출' 활동 제거) */
-const HISTORY_STORE_VERSION = 1;
+/** 저장 데이터 버전 (1: '외출' 활동 제거, 2: 안 가기(skip) 기록 제거) */
+const HISTORY_STORE_VERSION = 2;
 
 /** 제거된 활동 id */
 const REMOVED_ACTIVITY = 'outing';
+
+/** 제거된 결정 값 (안 가기 기능 폐지) */
+const REMOVED_DECISION = 'skip';
+
+/**
+ * 이전 버전에서 저장된 기록 중 더 이상 쓰지 않는 항목('외출' 활동, 안 가기 기록)을 버린다.
+ * @param entries 저장돼 있던 기록
+ */
+export function dropRemovedEntries(entries: HistoryEntry[]): HistoryEntry[] {
+  return entries.filter(
+    (e) =>
+      (e.activity as string) !== REMOVED_ACTIVITY && (e.decision as string) !== REMOVED_DECISION,
+  );
+}
 
 /** 같은 날짜인지 비교 */
 function isSameDay(a: string, b: string): boolean {
@@ -56,14 +70,11 @@ export const useHistoryStore = create<HistoryState>()(
     {
       name: 'run-smart-history',
       version: HISTORY_STORE_VERSION,
-      // 제거된 '외출' 활동 기록은 버린다
+      // 제거된 '외출' 활동과 안 가기(skip) 기록은 버린다
       migrate: (persisted, version) => {
         const state = persisted as HistoryState;
         if (version >= HISTORY_STORE_VERSION) return state;
-        return {
-          ...state,
-          entries: state.entries.filter((e) => (e.activity as string) !== REMOVED_ACTIVITY),
-        };
+        return { ...state, entries: dropRemovedEntries(state.entries) };
       },
     },
   ),

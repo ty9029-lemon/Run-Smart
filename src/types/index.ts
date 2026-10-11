@@ -10,8 +10,8 @@ export type Constraint =
   | 'dustSensitive'
   | 'asthma';
 
-/** 가기 / 안 가기 결정 */
-export type Decision = 'go' | 'skip';
+/** 가기 결정 */
+export type Decision = 'go';
 
 /** 운동 후 체감 피드백 (추웠어요 / 적당했어요 / 더웠어요) */
 export type Feedback = 'cold' | 'good' | 'hot';

@@ -3,7 +3,7 @@ import { buildDummyGuide } from '../data/dummyGuide';
 import { DUMMY_CURRENT_WEATHER } from '../data/dummyWeather';
 import { NEUTRAL_SENSITIVITY } from '../lib/feelsLike';
 import type { HistoryEntry, OutfitItem } from '../types';
-import { useHistoryStore } from './historyStore';
+import { dropRemovedEntries, useHistoryStore } from './historyStore';
 
 /** 테스트용 기록 항목 */
 function makeEntry(id: string): HistoryEntry {
@@ -56,5 +56,14 @@ describe('setFeedback', () => {
     expect(a.feedback).toBe('cold');
     expect(a.feedbackAt).toBeDefined();
     expect(b.feedback).toBeUndefined();
+  });
+});
+
+describe('dropRemovedEntries', () => {
+  it('안 가기(skip)와 외출 기록은 버리고 나머지는 남긴다', () => {
+    const skip = { ...makeEntry('skip'), decision: 'skip' } as unknown as HistoryEntry;
+    const outing = { ...makeEntry('outing'), activity: 'outing' } as unknown as HistoryEntry;
+    const kept = makeEntry('go');
+    expect(dropRemovedEntries([skip, outing, kept]).map((e) => e.id)).toEqual(['go']);
   });
 });
