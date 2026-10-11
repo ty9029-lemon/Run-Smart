@@ -22,8 +22,8 @@ Mixpanel 화면에서 직접 만들며, 별도 코드 변경은 필요하지 않
 | `cta_clicked` | 핵심 버튼 클릭 | `cta`: `onboarding_start` / `location_allow` / `location_settings` / `settings_save` (`location_allow`는 아래 주석 참고) |
 | `onboarding_completed` | 온보딩 완료 | `activityCount`, `constraintCount`, `useCurrentLocation` |
 | `settings_saved` | 설정 저장 성공 | `coldLevel`, `heatLevel`, `activityCount`, `constraintCount` |
-| `decision_made` | 가기 / 안 가기 선택 | `decision`(`go`/`skip`), `activity`, `score`, `isChange`(오늘 같은 활동으로 이미 결정한 적이 있으면 `true`) |
-| `decision_cancelled` | 오늘 결정 취소 | `decision`(취소한 결정), `activity` |
+| `decision_made` | 가기 선택 (홈의 '안 가기' 버튼 제거 후 `skip`은 더 이상 새로 발생하지 않고 과거 데이터에만 남음) | `decision`(`go`/`skip`), `activity`, `score`, `isChange`(오늘 같은 활동으로 이미 결정한 적이 있으면 `true`) |
+| `decision_cancelled` | 출발 토스트의 '실행 취소'로 방금 결정을 취소 | `decision`(취소한 결정), `activity` |
 | `run_score_viewed` | 활동·점수가 바뀌어 결과가 보일 때 | `activity`, `score`, `warningLevel`, `condition` |
 | `activity_changed` | 활동 칩 변경 | `from`, `to` |
 | `feedback_submitted` | 운동 후 체감 피드백 제출 | `feedback`(`cold`/`good`/`hot`), `activity`, `feelsLike` |
