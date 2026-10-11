@@ -1,25 +1,50 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { CTA_IDS } from '../constants/analytics';
 import { MESSAGES } from '../constants/messages';
+import {
+  requestLocationPermission,
+  type LocationStatus as Status,
+} from '../hooks/useLocationPermission';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
-import type { LocationStatus as Status } from '../hooks/useLocationPermission';
 
 interface LocationStatusProps {
+  /** 브라우저 위치 권한 상태 */
   status: Status;
-  /** 있으면 [위치 허용하기] 버튼을 보여준다 (온보딩용) */
-  onRequest?: () => void;
+  /** 현재 위치로 날씨를 볼지 여부 (앱 내 선호) */
+  enabled: boolean;
+  onEnabledChange: (next: boolean) => void;
+  /** true면 토글을 켤 때 바로 권한을 요청한다. false면 호출한 쪽이 나중에 요청한다. */
+  requestOnEnable?: boolean;
 }
 
-/** 위치 권한 상태 표시 ("허용됨" / "비활성화됨") + 설정 이동 안내 */
-export default function LocationStatus({ status, onRequest }: LocationStatusProps) {
-  const [showGuide, setShowGuide] = useState(false);
-  const granted = status === 'granted';
+/** 안내 문구를 고른다. 선호가 꺼져 있으면 서울 기준, 켜져 있으면 권한 상태에 맞춰 안내한다. */
+function pickHint(enabled: boolean, status: Status, requestOnEnable: boolean): string | null {
+  if (!enabled) return MESSAGES.locationOffHint;
+  if (status === 'granted') return null;
+  return requestOnEnable ? null : MESSAGES.locationAskOnStartHint;
+}
 
-  /** [위치 허용하기] 클릭을 기록하고 권한 요청을 실행한다. */
-  const handleRequest = () => {
+/** 현재 위치 사용 토글 + 브라우저 권한 상태에 따른 안내 */
+export default function LocationStatus({
+  status,
+  enabled,
+  onEnabledChange,
+  requestOnEnable = false,
+}: LocationStatusProps) {
+  const [showGuide, setShowGuide] = useState(false);
+  const labelId = useId();
+  const granted = status === 'granted';
+  const hint = pickHint(enabled, status, requestOnEnable);
+
+  /** 선호를 바꾸고, 켤 때 요청 모드면 권한을 요청한다. 거부되면 설정 안내를 보여준다. */
+  const handleToggle = async (checked: boolean) => {
+    onEnabledChange(checked);
+    setShowGuide(false);
+    if (!checked || !requestOnEnable || granted) return;
     trackEvent(ANALYTICS_EVENTS.ctaClicked, { cta: CTA_IDS.locationAllow });
-    onRequest?.();
+    if (!(await requestLocationPermission())) setShowGuide(true);
   };
 
   /** [설정으로 이동] 클릭을 기록하고 안내 문구를 토글한다. */
@@ -31,23 +56,17 @@ export default function LocationStatus({ status, onRequest }: LocationStatusProp
   return (
     <div>
       <div className="flex items-center justify-between">
-        <span className="text-base">위치 권한</span>
-        <span className={granted ? 'font-medium text-lime-pulse' : 'text-steel-border'}>
-          {granted ? '허용됨' : '비활성화됨'}
-        </span>
+        <span id={labelId} className="text-base">위치 권한</span>
+        <Switch aria-labelledby={labelId} checked={enabled} onCheckedChange={handleToggle} />
       </div>
-      {!granted && onRequest && (
-        <Button type="button" size="sm" onClick={handleRequest} className="mt-3 mr-2">
-          위치 허용하기
-        </Button>
-      )}
-      {!granted && (
+      {hint && <p className="mt-2 text-sm text-steel-border">{hint}</p>}
+      {enabled && !granted && (
         <Button
           type="button"
-          variant="outline"
+          variant="ghost"
           size="sm"
           onClick={handleSettings}
-          className="mt-3"
+          className="mt-3 -ml-5 text-steel-border"
         >
           설정으로 이동
         </Button>

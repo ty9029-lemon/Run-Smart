@@ -3,10 +3,7 @@ import ConstraintList from './ConstraintList';
 import LocationStatus from './LocationStatus';
 import SensitivityList from './SensitivityList';
 import type { OnboardingStepId } from '../constants/onboarding';
-import {
-  requestLocationPermission,
-  useLocationPermission,
-} from '../hooks/useLocationPermission';
+import { useLocationPermission } from '../hooks/useLocationPermission';
 import { toggleActivity, toggleConstraint } from '../lib/profileDraft';
 import type { Profile } from '../types';
 
@@ -44,6 +41,12 @@ export default function OnboardingStep({
         />
       );
     case 'location':
-      return <LocationStatus status={locationStatus} onRequest={requestLocationPermission} />;
+      return (
+        <LocationStatus
+          status={locationStatus}
+          enabled={draft.useCurrentLocation}
+          onEnabledChange={(next) => onChange({ ...draft, useCurrentLocation: next })}
+        />
+      );
   }
 }

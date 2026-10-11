@@ -20,7 +20,7 @@ Mixpanel 화면에서 직접 만들며, 별도 코드 변경은 필요하지 않
 |---|---|---|
 | `[Auto] Page View` (`$mp_web_page_view`) | 페이지 경로가 바뀔 때 (자동 수집) | Mixpanel 기본 속성 (`$current_url` 등) |
 | `cta_clicked` | 핵심 버튼 클릭 | `cta`: `onboarding_start` / `location_allow` / `location_settings` / `settings_save` |
-| `onboarding_completed` | 온보딩 완료 | `activityCount`, `constraintCount` |
+| `onboarding_completed` | 온보딩 완료 | `activityCount`, `constraintCount`, `useCurrentLocation` |
 | `settings_saved` | 설정 저장 성공 | `coldLevel`, `heatLevel`, `activityCount`, `constraintCount` |
 | `decision_made` | 가기 / 안 가기 선택 | `decision`(`go`/`skip`), `activity`, `score`, `isChange`(오늘 같은 활동으로 이미 결정한 적이 있으면 `true`) |
 | `decision_cancelled` | 오늘 결정 취소 | `decision`(취소한 결정), `activity` |

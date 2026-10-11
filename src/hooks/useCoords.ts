@@ -64,12 +64,14 @@ async function readPosition(): Promise<Coords | CoordsError> {
  * 두 번 뜨지 않도록), 이후에는 아래 경우에만 다시 읽는다. (PRD 6장)
  * - 권한 요청이 성공했을 때
  * - 서울 기준으로 떨어진 상태에서 설정 앱 등에서 화면으로 돌아왔을 때
+ * @param enabled false면 위치를 읽지 않고 서울 기준으로 둔다 (사용자가 현재 위치 사용을 끈 경우)
  */
-export function useCoords(): ResolvedCoords | null {
+export function useCoords(enabled: boolean): ResolvedCoords | null {
   const [resolved, setResolved] = useState<ResolvedCoords | null>(null);
   const [readCount, setReadCount] = useState(0);
-  const needsRetry = resolved !== null && !resolved.isCurrent;
+  const needsRetry = enabled && resolved !== null && !resolved.isCurrent;
   useEffect(() => {
+    if (!enabled) return;
     let cancelled = false;
     (async () => {
       const result = await readPosition();
@@ -83,7 +85,7 @@ export function useCoords(): ResolvedCoords | null {
     return () => {
       cancelled = true;
     };
-  }, [readCount]);
+  }, [readCount, enabled]);
   useEffect(() => {
     const reread = () => setReadCount((n) => n + 1);
     const onVisible = () => {
@@ -96,5 +98,6 @@ export function useCoords(): ResolvedCoords | null {
       document.removeEventListener('visibilitychange', onVisible);
     };
   }, [needsRetry]);
-  return resolved;
+  // 끈 동안에는 읽어 둔 값과 무관하게 서울 기준을 돌려준다.
+  return enabled ? resolved : SEOUL_FALLBACK;
 }

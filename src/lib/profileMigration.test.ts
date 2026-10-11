@@ -41,6 +41,7 @@ describe('migrateProfileState', () => {
       coldLevel: 5,
       heatLevel: 3,
       feedbackOffset: 0,
+      useCurrentLocation: true,
     });
     expect(migrated.hasOnboarded).toBe(true);
   });
@@ -65,5 +66,19 @@ describe('v2 → v3', () => {
     const result = migrateProfileState(v2, 2) as { profile: { feedbackOffset: number; coldLevel: number } };
     expect(result.profile.feedbackOffset).toBe(0);
     expect(result.profile.coldLevel).toBe(4);
+  });
+});
+
+describe('v3 → v4', () => {
+  it('기존 사용자는 현재 위치를 계속 사용한다', () => {
+    const v3 = {
+      hasOnboarded: true,
+      profile: { selectedActivities: ['running'], lastActivity: 'running', coldLevel: 4, heatLevel: 3, constraints: [], feedbackOffset: -1 },
+    };
+    const result = migrateProfileState(v3, 3) as {
+      profile: { useCurrentLocation: boolean; feedbackOffset: number };
+    };
+    expect(result.profile.useCurrentLocation).toBe(true);
+    expect(result.profile.feedbackOffset).toBe(-1);
   });
 });

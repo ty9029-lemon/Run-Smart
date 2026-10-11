@@ -41,13 +41,16 @@ export default function Home() {
     () => ({ coldLevel, heatLevel, feedbackOffset }),
     [coldLevel, heatLevel, feedbackOffset],
   );
-  const location = useCoords();
+  const location = useCoords(profile.useCurrentLocation);
   const locationLabel = location?.isCurrent ? CURRENT_LOCATION_LABEL : DEFAULT_LOCATION;
   // 헤더에만 주소를 붙인다. AI 가이드 요청에는 locationLabel을 그대로 보내
   // 주소가 도착해도 가이드를 다시 받지 않는다.
   const place = usePlaceLabel(location?.isCurrent ? location.coords : null);
   // 권한이 허용돼도 기기 설정 때문에 위치를 못 읽어 서울 기준이면 안내를 보여준다.
-  const showLocationNotice = locationStatus !== 'granted' || location?.isCurrent === false;
+  // 사용자가 현재 위치 사용을 직접 껐다면 선택을 존중해 안내하지 않는다.
+  const showLocationNotice =
+    profile.useCurrentLocation &&
+    (locationStatus !== 'granted' || location?.isCurrent === false);
   const headerLabel = place ? `${locationLabel} (${place})` : locationLabel;
   const data = useHomeData({
     activity,
@@ -59,12 +62,12 @@ export default function Home() {
 
   // 위치 권한이 거부된 상태로 홈을 보면 한 번 기록
   useEffect(() => {
-    if (locationStatus !== 'denied') return;
+    if (!profile.useCurrentLocation || locationStatus !== 'denied') return;
     trackEvent(ANALYTICS_EVENTS.dataLoadFailed, {
       reason: 'location',
       locationStatus,
     });
-  }, [locationStatus]);
+  }, [locationStatus, profile.useCurrentLocation]);
 
   return (
     <main className="mx-auto max-w-md space-y-6 px-4 py-6">
