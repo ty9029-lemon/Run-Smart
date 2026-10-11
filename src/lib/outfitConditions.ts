@@ -17,30 +17,30 @@ interface ConditionGear {
 
 /** 비: 활동별 방수 장비 (기존 보온 겉옷은 방수 겉옷으로 바꾼다) */
 const RAIN_GEAR: Record<Activity, ConditionGear> = {
-  walking: { add: [outfitItem('outer', '☔', '우비/방수')] },
+  walking: { add: [outfitItem('outer', 'raincoat', '우비/방수')] },
   running: {
-    add: [outfitItem('outer', '☔', '방수 바람막이')],
+    add: [outfitItem('outer', 'raincoat', '방수 바람막이')],
     remove: ['경량 바람막이'],
   },
   cycling: {
     add: [
-      outfitItem('outer', '☔', '방수 재킷'),
-      outfitItem('gear', '🛞', '흙받이'),
-      outfitItem('gear', '🥾', '방수 슈커버'),
+      outfitItem('outer', 'raincoat', '방수 재킷'),
+      outfitItem('gear', 'fender', '흙받이'),
+      outfitItem('gear', 'shoeCover', '방수 슈커버'),
     ],
     remove: ['윈드 재킷', '윈드 베스트'],
   },
   hiking: {
-    add: [outfitItem('outer', '☔', '하드쉘'), outfitItem('gear', '🎒', '배낭 레인커버')],
+    add: [outfitItem('outer', 'raincoat', '하드쉘'), outfitItem('gear', 'rainCover', '배낭 레인커버')],
     remove: ['소프트쉘'],
   },
 };
 
 /** 강풍: 방풍 겉옷이 없을 때 더하는 겉옷 (산책은 해당 없음) */
 const WIND_LAYER: Partial<Record<Activity, OutfitItem>> = {
-  running: outfitItem('outer', '🧥', '경량 바람막이'),
-  cycling: outfitItem('outer', '🦺', '윈드 베스트'),
-  hiking: outfitItem('outer', '🧥', '소프트쉘'),
+  running: outfitItem('outer', 'jacket', '경량 바람막이'),
+  cycling: outfitItem('outer', 'vest', '윈드 베스트'),
+  hiking: outfitItem('outer', 'jacket', '소프트쉘'),
 };
 
 /** 이미 바람을 막아 주는 겉옷 라벨 (이 중 하나가 있으면 방풍 겉옷을 또 더하지 않는다) */
@@ -48,37 +48,37 @@ const WINDPROOF_LABELS = ['경량 바람막이', '윈드 재킷', '윈드 베스
 
 /** 어두울 때: 눈에 띄는 반사 소재와 조명 */
 const DARK_GEAR: Partial<Record<Activity, OutfitItem[]>> = {
-  running: [outfitItem('outer', '🦺', '반사 소재 옷')],
-  cycling: [outfitItem('outer', '🦺', '반사 조끼'), outfitItem('gear', '🔦', '전조등·후미등')],
-  hiking: [outfitItem('gear', '🔦', '헤드랜턴')],
+  running: [outfitItem('outer', 'vest', '반사 소재 옷')],
+  cycling: [outfitItem('outer', 'vest', '반사 조끼'), outfitItem('gear', 'headlamp', '전조등·후미등')],
+  hiking: [outfitItem('gear', 'headlamp', '헤드랜턴')],
 };
 
 /** 자외선이 강할 때: 모자·선크림 (눈 보호 장비는 SUNGLASSES로 따로 더한다) */
 const UV_GEAR: Partial<Record<Activity, OutfitItem[]>> = {
-  running: [outfitItem('gear', '🧢', '러닝 캡')],
-  cycling: [outfitItem('gear', '🧴', '선크림')],
-  hiking: [outfitItem('gear', '👒', '챙 넓은 모자'), outfitItem('gear', '🧴', '선크림')],
+  running: [outfitItem('gear', 'cap', '러닝 캡')],
+  cycling: [outfitItem('gear', 'sunscreen', '선크림')],
+  hiking: [outfitItem('gear', 'wideHat', '챙 넓은 모자'), outfitItem('gear', 'sunscreen', '선크림')],
 };
 
 /** 눈 보호 장비: 운동 활동은 선글라스와 고글을 하나로 통합하고, 산책은 선글라스로만 보여 준다 */
 const SUNGLASSES_GEAR: Record<Activity, OutfitItem> = {
-  walking: outfitItem('gear', '🕶️', '선글라스'),
-  running: outfitItem('gear', '🕶️', '선글라스/고글'),
-  cycling: outfitItem('gear', '🕶️', '선글라스/고글'),
-  hiking: outfitItem('gear', '🕶️', '선글라스/고글'),
+  walking: outfitItem('gear', 'sunglasses', '선글라스'),
+  running: outfitItem('gear', 'sunglasses', '선글라스/고글'),
+  cycling: outfitItem('gear', 'sunglasses', '선글라스/고글'),
+  hiking: outfitItem('gear', 'sunglasses', '선글라스/고글'),
 };
 
 /** 구름이 없는 맑은 날씨로 보는 날씨 상태 (openMeteo의 weatherCodeToCondition 라벨 기준) */
 const CLEAR_SKY_CONDITIONS = ['맑음'];
 
 /** 빙판 대비: 등산 한파 시 챙길 장비 */
-const ICE_GEAR = outfitItem('gear', '⛓️', '아이젠');
+const ICE_GEAR = outfitItem('gear', 'crampons', '아이젠');
 
 /** 미세먼지 대비 마스크 (미세먼지 등급과 제약사항 조건을 만족할 때만 더한다) */
-const MASK = outfitItem('gear', '😷', '마스크');
+const MASK = outfitItem('gear', 'mask', '마스크');
 
 /** 무릎 보호대 (무릎 부담이 적은 산책에는 더하지 않는다) */
-const KNEE_BRACE = outfitItem('gear', '🦿', '무릎보호대');
+const KNEE_BRACE = outfitItem('gear', 'kneeBrace', '무릎보호대');
 
 /** 무릎보호대를 더하지 않는 활동 */
 const KNEE_BRACE_EXCLUDED_ACTIVITIES: Activity[] = ['walking'];

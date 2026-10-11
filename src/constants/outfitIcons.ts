@@ -1,0 +1,35 @@
+/**
+ * 복장 일러스트 키 목록 (모양 기준). 키를 추가하면 같은 이름의
+ * `src/assets/outfit/<키>.webp` 이미지도 함께 넣어야 한다.
+ */
+export const OUTFIT_ICON_KEYS = [
+  'tshirt',
+  'longSleeve',
+  'tank',
+  'cyclingJersey',
+  'jacket',
+  'fleece',
+  'vest',
+  'raincoat',
+  'pants',
+  'shorts',
+  'tights',
+  'sneakers',
+  'hikingBoots',
+  'socks',
+  'gloves',
+  'cap',
+  'sunscreen',
+  'wideHat',
+  'sunglasses',
+  'headlamp',
+  'helmet',
+  'legWarmer',
+  'armWarmer',
+  'fender',
+  'shoeCover',
+  'rainCover',
+  'crampons',
+  'mask',
+  'kneeBrace',
+] as const;

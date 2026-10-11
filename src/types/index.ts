@@ -1,3 +1,5 @@
+import type { OUTFIT_ICON_KEYS } from '../constants/outfitIcons';
+
 /** 활동 종류 */
 export type Activity = 'running' | 'hiking' | 'walking' | 'cycling';
 
@@ -97,10 +99,13 @@ export interface GuideRequest {
 /** 복장 추천 항목 분류 (화면에서 그룹 소제목으로 쓴다) */
 export type OutfitCategory = 'top' | 'bottom' | 'outer' | 'shoes' | 'gear';
 
+/** 복장 일러스트 종류 (label이 아니라 모양 기준으로 묶은 키) */
+export type OutfitIconKey = (typeof OUTFIT_ICON_KEYS)[number];
+
 /** 복장 추천 항목 */
 export interface OutfitItem {
   category: OutfitCategory;
-  emoji: string;
+  icon: OutfitIconKey;
   label: string;
 }
 

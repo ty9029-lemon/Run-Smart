@@ -1,11 +1,12 @@
 import { groupOutfitByCategory } from '../lib/outfit';
 import type { OutfitItem } from '../types';
+import OutfitIcon from './outfit/OutfitIcon';
 
 interface OutfitPanelProps {
   items: OutfitItem[];
 }
 
-/** 복장 추천 영역 (M1은 이모지, 분류 순서대로 이어 붙인 3열 그리드) */
+/** 복장 추천 영역 (3D 메탈릭 일러스트, 분류 순서대로 이어 붙인 3열 그리드) */
 export default function OutfitPanel({ items }: OutfitPanelProps) {
   const orderedItems = groupOutfitByCategory(items).flatMap((group) => group.items);
   return (
@@ -17,9 +18,7 @@ export default function OutfitPanel({ items }: OutfitPanelProps) {
             key={item.label}
             className="flex flex-col items-center gap-2 rounded-2xl border border-card-border-ink px-1 py-4 text-center"
           >
-            <span className="text-5xl leading-none" aria-hidden="true">
-              {item.emoji}
-            </span>
+            <OutfitIcon icon={item.icon} className="size-16" />
             <span className="text-xs leading-tight">{item.label}</span>
           </li>
         ))}

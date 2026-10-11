@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import { OUTFIT_ICON_KEYS } from '../constants/outfitIcons';
 import type { Activity, Weather } from '../types';
 import { groupOutfitByCategory, recommendOutfit } from './outfit';
+import { listOutfitIconFileKeys, outfitIconUrl } from './outfitIconUrls';
 
 /** 조건 없는 맑은 낮 날씨(필요한 값만 덮어쓴다) */
 function weatherWith(overrides: Partial<Weather> = {}): Weather {
@@ -151,6 +153,28 @@ describe('recommendOutfit - 자전거', () => {
 
   it('자외선이 약하면 선글라스를 추천하지 않는다', () => {
     expect(labels(20, 'cycling', { uvIndex: 2 })).not.toContain('선글라스/고글');
+  });
+
+  it('반팔·민소매 구간에서는 팔 보호 장비(암워머·쿨 팔토시)를 함께 추천한다', () => {
+    expect(labels(13, 'cycling')).toContain('암워머');
+    expect(labels(18, 'cycling')).toContain('쿨 팔토시');
+    expect(labels(28, 'cycling')).toContain('쿨 팔토시');
+  });
+
+  it('긴팔 구간에서는 쿨 팔토시를 추천하지 않는다', () => {
+    expect(labels(0, 'cycling')).not.toContain('쿨 팔토시');
+    expect(labels(8, 'cycling')).not.toContain('쿨 팔토시');
+  });
+
+  it('어느 체감온도에서든 짧은 소매 져지에는 팔 보호 장비가 함께 나온다', () => {
+    const shortSleeves = ['반팔 사이클 져지', '민소매 사이클 져지'];
+    const armGear = ['암워머', '쿨 팔토시'];
+    for (let feelsLike = -10; feelsLike <= 40; feelsLike += 1) {
+      const result = labels(feelsLike, 'cycling');
+      if (result.some((label) => shortSleeves.includes(label))) {
+        expect(result.some((label) => armGear.includes(label)), `${feelsLike}°C`).toBe(true);
+      }
+    }
   });
 });
 
@@ -352,5 +376,31 @@ describe('groupOutfitByCategory', () => {
     const groups = groupOutfitByCategory(items);
     expect(groups.map((g) => g.category)).toEqual(['top', 'outer', 'bottom', 'shoes']);
     expect(groups.flatMap((g) => g.items)).toHaveLength(items.length);
+  });
+});
+
+describe('recommendOutfit - 일러스트 키', () => {
+  const ACTIVITIES: Activity[] = ['walking', 'running', 'cycling', 'hiking'];
+  const FEELS_LIKE_SAMPLES = [-5, 4, 8, 14, 20, 25, 30];
+  const ICON_KEY_PATTERN = /^[a-z][A-Za-z]+$/;
+  const stormy = weatherWith({ precipitation: 5, windSpeed: 10, uvIndex: 8, pm10: 150, isDay: false });
+
+  it('모든 추천 항목이 이모지가 아닌 영문 일러스트 키를 가진다', () => {
+    ACTIVITIES.forEach((activity) => {
+      FEELS_LIKE_SAMPLES.forEach((feelsLike) => {
+        const items = recommendOutfit(feelsLike, stormy, activity, ['kneeIssue', 'asthma']);
+        items.forEach((item) => expect(item.icon).toMatch(ICON_KEY_PATTERN));
+      });
+    });
+  });
+});
+
+describe('복장 일러스트 에셋', () => {
+  it('모든 아이콘 키에 해당하는 이미지 파일이 있다', () => {
+    OUTFIT_ICON_KEYS.forEach((key) => expect(outfitIconUrl(key), key).toBeTruthy());
+  });
+
+  it('키 목록에 없는 이미지 파일이 에셋 폴더에 남아 있지 않다', () => {
+    expect([...listOutfitIconFileKeys()].sort()).toEqual([...OUTFIT_ICON_KEYS].sort());
   });
 });
