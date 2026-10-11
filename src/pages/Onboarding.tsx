@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import OnboardingStep from '../components/OnboardingStep';
 import StepIndicator from '../components/StepIndicator';
+import { CTA_IDS } from '../constants/analytics';
 import { ONBOARDING_STEPS } from '../constants/onboarding';
 import { useProfileDraft } from '../hooks/useProfileDraft';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
@@ -35,6 +36,12 @@ export default function Onboarding() {
   const step = ONBOARDING_STEPS[stepIndex];
   const isLast = stepIndex === LAST_STEP;
 
+  /** 마지막 단계의 [시작하기] 클릭을 기록하고 프로필을 저장한다. */
+  const handleStart = () => {
+    trackEvent(ANALYTICS_EVENTS.ctaClicked, { cta: CTA_IDS.onboardingStart });
+    submit();
+  };
+
   /** 다음 단계로. 활동 선택 단계는 1개 이상 골라야 넘어간다. */
   const handleNext = () => {
     if (step.id === 'activity' && !validate()) return;
@@ -65,7 +72,7 @@ export default function Onboarding() {
         <Button
           type="button"
           size="lg"
-          onClick={isLast ? submit : handleNext}
+          onClick={isLast ? handleStart : handleNext}
         >
           {isLast ? '시작하기' : '다음'}
         </Button>

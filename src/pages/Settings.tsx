@@ -2,7 +2,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import LocationStatus from '../components/LocationStatus';
 import ProfileForm from '../components/ProfileForm';
+import { CTA_IDS } from '../constants/analytics';
 import { useLocationPermission } from '../hooks/useLocationPermission';
+import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { useProfileDraft } from '../hooks/useProfileDraft';
 import { useProfileStore } from '../store/profileStore';
 
@@ -12,6 +14,12 @@ export default function Settings() {
   const saved = useProfileStore((s) => s.profile);
   const locationStatus = useLocationPermission();
   const { draft, error, onChange, submit } = useProfileDraft(saved, () => navigate('/'));
+
+  /** [저장] 클릭을 기록하고 프로필을 저장한다. */
+  const handleSave = () => {
+    trackEvent(ANALYTICS_EVENTS.ctaClicked, { cta: CTA_IDS.settingsSave });
+    submit();
+  };
 
   return (
     <main className="mx-auto max-w-md space-y-4 px-4 py-6">
@@ -25,7 +33,7 @@ export default function Settings() {
       <section className="rounded-panel border border-card-border-ink bg-card-charcoal p-6">
         <LocationStatus status={locationStatus} />
       </section>
-      <Button type="button" size="lg" onClick={submit} className="w-full">
+      <Button type="button" size="lg" onClick={handleSave} className="w-full">
         저장
       </Button>
     </main>

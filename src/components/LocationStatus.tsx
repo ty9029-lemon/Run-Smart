@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { CTA_IDS } from '../constants/analytics';
 import { MESSAGES } from '../constants/messages';
+import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import type { LocationStatus as Status } from '../hooks/useLocationPermission';
 
 interface LocationStatusProps {
@@ -13,6 +15,19 @@ interface LocationStatusProps {
 export default function LocationStatus({ status, onRequest }: LocationStatusProps) {
   const [showGuide, setShowGuide] = useState(false);
   const granted = status === 'granted';
+
+  /** [위치 허용하기] 클릭을 기록하고 권한 요청을 실행한다. */
+  const handleRequest = () => {
+    trackEvent(ANALYTICS_EVENTS.ctaClicked, { cta: CTA_IDS.locationAllow });
+    onRequest?.();
+  };
+
+  /** [설정으로 이동] 클릭을 기록하고 안내 문구를 토글한다. */
+  const handleSettings = () => {
+    trackEvent(ANALYTICS_EVENTS.ctaClicked, { cta: CTA_IDS.locationSettings });
+    setShowGuide((v) => !v);
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -22,7 +37,7 @@ export default function LocationStatus({ status, onRequest }: LocationStatusProp
         </span>
       </div>
       {!granted && onRequest && (
-        <Button type="button" size="sm" onClick={onRequest} className="mt-3 mr-2">
+        <Button type="button" size="sm" onClick={handleRequest} className="mt-3 mr-2">
           위치 허용하기
         </Button>
       )}
@@ -31,7 +46,7 @@ export default function LocationStatus({ status, onRequest }: LocationStatusProp
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => setShowGuide((v) => !v)}
+          onClick={handleSettings}
           className="mt-3"
         >
           설정으로 이동
