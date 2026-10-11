@@ -119,6 +119,8 @@ export interface HistoryEntry {
   guide: AiGuide;
   /** 결정 당시 개인 체감온도(°C) */
   feelsLike?: number;
+  /** 결정 당시 추천 복장 (이전 기록에는 없음) */
+  outfit?: OutfitItem[];
   /** 운동 후 체감 피드백 */
   feedback?: Feedback;
   /** 피드백을 남긴 시각(ISO) */

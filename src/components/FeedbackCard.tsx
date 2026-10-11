@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { getActivityMeta } from '../constants/activities';
+import { FEEDBACK_LABELS, FEEDBACK_ORDER } from '../constants/feedback';
 import { useFeedbackPrompt } from '../hooks/useFeedbackPrompt';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { useHistoryStore } from '../store/historyStore';
@@ -8,11 +9,10 @@ import { useProfileStore } from '../store/profileStore';
 import type { Feedback } from '../types';
 
 /** 피드백 선택지 */
-const OPTIONS: { value: Feedback; label: string }[] = [
-  { value: 'cold', label: '추웠어요' },
-  { value: 'good', label: '적당했어요' },
-  { value: 'hot', label: '더웠어요' },
-];
+const OPTIONS: { value: Feedback; label: string }[] = FEEDBACK_ORDER.map((value) => ({
+  value,
+  label: FEEDBACK_LABELS[value],
+}));
 
 const CARD = 'rounded-panel border border-card-border-ink bg-card-charcoal p-6';
 
