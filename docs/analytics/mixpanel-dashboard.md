@@ -3,9 +3,10 @@
 Run-Smart에서 수집 중인 이벤트를 한눈에 보기 위한 Mixpanel 보드(Board) 구성 방법입니다.
 Mixpanel 화면에서 직접 만들며, 별도 코드 변경은 필요하지 않습니다.
 
-- 보드 이름: **Run-Smart 개요**
-- 구성: 사용량 / 온보딩 퍼널 / 가기·안 가기 결정 / 설정 민감도 분포 (총 4개 섹션)
+- 보드 이름: **Run-Smart**
+- 구성: 사용량 / 온보딩 퍼널 / 가기·안 가기 결정 / 설정 민감도 분포
 - 운영 도메인: `runners-fit.vercel.app`
+- 요금제: 무료 플랜 (저장 리포트 **사용자당 5개** 제한, 아래 "2. 현재 보드 구성" 참고)
 
 > 이벤트는 Amplitude와 Mixpanel 양쪽으로 전송됩니다. 이 문서는 Mixpanel 기준입니다.
 
@@ -35,93 +36,107 @@ Mixpanel 화면에서 직접 만들며, 별도 코드 변경은 필요하지 않
 
 ---
 
-## 2. 보드 만들기
+## 2. 현재 보드 구성 (운영 중)
+
+무료 플랜의 저장 한도(5개)에 맞춰 아래 5개 리포트를 `Run-Smart` 보드에 저장해 두었습니다.
+
+| # | 위젯 | 유형 | 설정 |
+|---|---|---|---|
+| 1 | 일별 방문자 | Insights | 이벤트 `[Auto] Page View`, 지표 **Uniques**, 기간 30D, 차트 Line |
+| 2 | 온보딩 전환 | Funnels | 1단계 `[Auto] Page View` → 2단계 `cta_clicked`(`cta` is `onboarding_start`) → 3단계 `onboarding_completed`, 전환 창 1일 |
+| 3 | 가기 / 안 가기 비율 | Insights | 이벤트 `decision_made`, 지표 **Total Events**, 필터 `isChange` is `false`, Breakdown `decision`, 차트 Pie |
+| 4 | 추위 민감도 분포 | Insights | 이벤트 `settings_saved`, 지표 **Total Events**, Breakdown `coldLevel`, 차트 Bar |
+| 5 | 더위 민감도 분포 | Insights | 이벤트 `settings_saved`, 지표 **Total Events**, Breakdown `heatLevel`, 차트 Bar |
+
+한계:
+- 온보딩 중간 단계(다음 버튼)는 이벤트가 없어 단계별 이탈은 볼 수 없습니다.
+  필요하면 단계 이벤트(`onboarding_step_viewed` 등) 추가를 별도로 진행합니다.
+- 민감도는 1~5단계(3이 보통)입니다. 숫자 속성이라 Breakdown 시 구간으로 묶이면
+  **Group by → Individual values**(개별 값)로 바꿔 보세요.
+
+### 보드 새로 만들기
 
 1. Mixpanel 왼쪽 위 **Create New → Board**를 선택합니다.
-2. 이름을 `Run-Smart 개요`로 정합니다.
-3. 아래 리포트를 하나씩 만들어 보드에 추가합니다. (리포트 화면 오른쪽 위 **Add to Board**)
-4. 보드 전체 필터를 설정합니다. 아래 "4. 운영 데이터만 보기"를 참고하세요.
-
-### A. 사용량
-
-| 리포트 | 유형 | 설정 |
-|---|---|---|
-| 일별 방문자 | Insights | 이벤트 `[Auto] Page View`, 지표 **Uniques**, 기간 30D, 차트 Line |
-| 페이지별 조회수 | Insights | 이벤트 `[Auto] Page View`, 지표 **Total**, Breakdown `$current_url`(경로), 차트 Bar |
-| 주간 재방문 | Retention | 시작·복귀 이벤트 모두 `[Auto] Page View`, 주 단위(Weekly) |
-
-### B. 온보딩 퍼널
-
-| 리포트 | 유형 | 설정 |
-|---|---|---|
-| 온보딩 전환 | Funnels | 1단계 `[Auto] Page View` → 2단계 `cta_clicked`(필터 `cta` = `onboarding_start`) → 3단계 `onboarding_completed`, 전환 창 1일 |
-
-한계: 온보딩 중간 단계(다음 버튼)는 이벤트가 없어 단계별 이탈은 볼 수 없습니다.
-필요하면 단계 이벤트(`onboarding_step_viewed` 등) 추가를 별도로 진행합니다.
-
-### C. 가기 / 안 가기 결정
-
-| 리포트 | 유형 | 설정 |
-|---|---|---|
-| 결정 비율 | Insights | 이벤트 `decision_made`, 지표 **Total**, 필터 `isChange` = `false`, Breakdown `decision`, 차트 Bar |
-| 활동별 결정 | Insights | `decision_made`, Breakdown `activity`, 두 번째 Breakdown `decision` |
-| 점수 구간별 결정 | Insights | `decision_made`, Breakdown `score`(숫자 구간으로 묶기), 두 번째 Breakdown `decision` |
-| 취소 비율 | Insights (Formula) | `A = decision_cancelled`, `B = decision_made`, 수식 `A / B` |
-
-### D. 설정 민감도 분포
-
-| 리포트 | 유형 | 설정 |
-|---|---|---|
-| 추위 민감도 분포 | Insights | 이벤트 `settings_saved`, 지표 **Total**, Breakdown `coldLevel`, 차트 Bar |
-| 더위 민감도 분포 | Insights | 이벤트 `settings_saved`, 지표 **Total**, Breakdown `heatLevel`, 차트 Bar |
-| 저장 횟수 추이 | Insights | 이벤트 `settings_saved`, 지표 **Total**, 기간 30D, 차트 Line |
-
-민감도는 1~5단계(3이 보통)입니다. 숫자 속성이라 Breakdown 시 구간으로 묶이면
-**Group by → Individual values**(개별 값)로 바꿔 보세요.
+2. 이름을 `Run-Smart`로 정합니다.
+3. 위 표의 리포트를 하나씩 만들어 보드에 추가합니다. (리포트 화면 오른쪽 위 **Save**에서 보드 선택)
 
 ---
 
-## 3. 배치 권장 순서
+## 3. 저장 한도를 넘는 추가 분석
+
+무료 플랜은 저장 리포트가 5개까지입니다. 아래 리포트는 저장하지 않고 **Insights에서 일회성으로 조회**하세요.
+(저장하려면 기존 리포트를 지우거나 요금제를 올려야 합니다.)
+
+| 분석 | 유형 | 설정 |
+|---|---|---|
+| 페이지별 조회수 | Insights | 이벤트 `[Auto] Page View`, 지표 **Total Events**, Breakdown `$current_url`, 차트 Bar |
+| 주간 재방문 | Retention | 시작·복귀 이벤트 모두 `[Auto] Page View`, 주 단위(Weekly) |
+| 활동별 결정 | Insights | `decision_made`, Breakdown `activity`, 두 번째 Breakdown `decision` |
+| 점수 구간별 결정 | Insights | `decision_made`, Breakdown `score`(숫자 구간으로 묶기), 두 번째 Breakdown `decision` |
+| 취소 비율 | Insights (Formula) | `A = decision_cancelled`, `B = decision_made`, 수식 `A / B` |
+| 설정 저장 추이 | Insights | 이벤트 `settings_saved`, 지표 **Total Events**, 기간 30D, 차트 Line |
+
+---
+
+## 4. 배치 권장 순서
 
 위에서 아래로 읽는 흐름이 되도록 배치합니다.
 
 1. 일별 방문자 (전체 규모)
 2. 온보딩 전환 퍼널 (유입 → 활성화)
-3. 결정 비율, 취소 비율 (핵심 행동)
-4. 활동별·점수 구간별 결정 (원인 분석)
-5. 추위·더위 민감도 분포 (사용자 성향)
-6. 주간 재방문 (정착도)
+3. 가기 / 안 가기 비율 (핵심 행동)
+4. 추위·더위 민감도 분포 (사용자 성향)
 
 ---
 
-## 4. 운영 데이터만 보기
+## 5. 운영 데이터만 보기
 
 Preview 배포에서 발생한 이벤트도 같은 프로젝트에 쌓입니다. 운영 데이터만 보려면
 보드 상단 **Filter**에서 `$current_url`이 `runners-fit.vercel.app`을 **포함(contains)** 하도록 설정하세요.
 
 주의:
-- `$current_url`은 페이지뷰 외 이벤트에도 기본 속성으로 붙어 있어야 필터가 적용됩니다.
-  일부 이벤트에서 필터 후 데이터가 사라지면, 해당 이벤트에는 URL 속성이 없는 것이므로
-  그 리포트는 보드 필터 대신 리포트 개별 설정으로 확인하세요.
+- `$current_url`은 Mixpanel 브라우저 SDK가 모든 이벤트에 붙이는 기본 속성입니다.
+  필터 후 일부 리포트의 데이터가 사라지면 그 리포트는 보드 필터 대신 리포트 개별 설정으로 확인하세요.
 - 수집은 배포 이후부터 시작됩니다. 그 이전 데이터는 없습니다.
+
+### `isChange` 필터 (가기 / 안 가기)
+
+가기 → 취소 → 안 가기처럼 하루에 결정을 바꿔도 이벤트는 누른 횟수만큼 쌓입니다.
+하루 **최초 결정**만 집계하려면 `decision_made`에 필터 `isChange` is `false`를 겁니다.
+바꾼 결정만 보려면 값을 `true`로 바꿉니다.
+
+- `isChange`는 배포 이후 발생한 이벤트부터 붙습니다. 이전 이벤트는 필터에서 제외됩니다.
+- 이력은 기기·브라우저 단위(`localStorage`)로 관리되어, 다른 기기에서는 각각 첫 결정으로 기록됩니다.
 
 ---
 
-## 5. 공유와 구독
+## 6. 자주 겪는 문제
+
+| 증상 | 원인 | 해결 |
+|---|---|---|
+| 이벤트 선택 목록에 `All Events`만 보임, Lexicon에 우리 이벤트가 없음 | 새 이벤트가 카탈로그(Lexicon)에 올라오는 데 시간이 걸림 (데이터 수집은 정상) | 이벤트 이름을 직접 입력해 지정. Events 화면(실시간 목록)에서 수신 확인 |
+| 리포트에서 `Page View`를 찾았는데 데이터가 없음 | 페이지뷰의 실제 이름은 `$mp_web_page_view`(표시명 `[Auto] Page View`) | 표시명 `[Auto] Page View`를 선택하거나 `$mp_web_page_view`를 직접 입력 |
+| 보드 위젯이 "데이터 없음"인데 편집 화면에서는 보임 | 저장된 쿼리가 아직 갱신되지 않음 | 위젯을 열어 **Save**로 덮어쓰기, 보드에서 기간 `30D` 선택 후 새로고침 |
+| Insights 지표에 `isChange`를 넣었더니 조건 선택이 안 나옴 | `isChange`를 지표(Metric)에 넣음 | Metric이 아니라 **Filter**의 `+`로 추가 |
+| 필터의 속성 이름이 `is`로 표시됨 | 조건 이름을 속성 칸에 잘못 선택 | 속성을 `cta`처럼 올바른 속성으로 다시 선택 |
+| 저장 시 "Saved Report Limit" 안내 | 무료 플랜 5개 한도 도달 | **Continue With Free Plan**을 선택하고 쓰지 않는 리포트·보드를 삭제 |
+| Mixpanel Agent가 만든 보드의 위젯이 비어 있음 | 에이전트 초안의 쿼리가 완성되지 않음 | Events 또는 Insights에서 직접 만들어 보드에 추가 |
+
+---
+
+## 7. 공유와 구독
 
 - **공유**: 보드 오른쪽 위 **Share**에서 링크를 복사하거나 프로젝트 멤버를 초대합니다.
-- **정기 확인**: 보드 오른쪽 위 **Subscribe**(또는 알림 아이콘)에서 주간 이메일 구독을 설정할 수 있습니다.
+- **정기 확인**: 보드 오른쪽 위 **Subscribe**에서 이메일 구독을 설정할 수 있습니다.
 
 메뉴 이름은 Mixpanel 버전에 따라 다를 수 있습니다.
 
 ---
 
-## 6. 검증 체크리스트
+## 8. 검증 체크리스트
 
-보드를 만든 뒤 아래를 확인합니다.
-
-- [ ] 일별 방문자 수가 **Data → Events**의 `[Auto] Page View` 건수와 같은 흐름인지
-- [ ] `decision_made`의 `go` + `skip` 합이 Events 화면의 `decision_made` 건수와 같은지
-- [ ] 취소 비율이 0~100% 범위인지
+- [ ] 일별 방문자 수가 **Data → Events**의 `[Auto] Page View` 흐름과 맞는지
+- [ ] `decision_made`의 `go` + `skip` 합이 Events 화면의 `isChange=false` 건수와 같은지
 - [ ] `settings_saved`의 `coldLevel`·`heatLevel` 값이 1~5 안에 있는지
+- [ ] 온보딩 전환 퍼널의 1단계 숫자가 일별 방문자 합계와 비슷한 규모인지
 - [ ] 운영 도메인 필터 적용 시 데이터가 사라지지 않는지
