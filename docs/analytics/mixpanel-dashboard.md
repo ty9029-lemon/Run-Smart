@@ -22,8 +22,8 @@ Mixpanel 화면에서 직접 만들며, 별도 코드 변경은 필요하지 않
 | `cta_clicked` | 핵심 버튼 클릭 | `cta`: `onboarding_start` / `location_allow` / `location_settings` / `settings_save` (`location_allow`는 아래 주석 참고) |
 | `onboarding_completed` | 온보딩 완료 | `activityCount`, `constraintCount`, `useCurrentLocation` |
 | `settings_saved` | 설정 저장 성공 | `coldLevel`, `heatLevel`, `activityCount`, `constraintCount` |
-| `decision_made` | 가기 선택 (홈의 '안 가기' 버튼 제거 후 `skip`은 더 이상 새로 발생하지 않고 과거 데이터에만 남음) | `decision`(`go`/`skip`), `activity`, `score`, `isChange`(오늘 같은 활동으로 이미 결정한 적이 있으면 `true`) |
-| `decision_cancelled` | 출발 토스트의 '실행 취소'로 방금 결정을 취소 | `decision`(취소한 결정), `activity` |
+| `decision_made` | 가기 선택 (홈의 '안 가기' 버튼 제거 후 `skip`은 새로 발생하지 않고 Mixpanel의 과거 데이터에만 남음) | `decision`(`go`), `activity`, `score`, `isChange`(오늘 같은 활동으로 이미 결정한 적이 있으면 `true`) |
+| `decision_cancelled` | 출발 토스트의 '실행 취소' 또는 홈의 '출발 취소'로 오늘 결정을 취소 | `decision`(취소한 결정), `activity` |
 | `run_score_viewed` | 활동·점수가 바뀌어 결과가 보일 때 | `activity`, `score`, `warningLevel`, `condition` |
 | `activity_changed` | 활동 칩 변경 | `from`, `to` |
 | `feedback_submitted` | 운동 후 체감 피드백 제출 | `feedback`(`cold`/`good`/`hot`), `activity`, `feelsLike` |
@@ -54,7 +54,7 @@ Mixpanel 화면에서 직접 만들며, 별도 코드 변경은 필요하지 않
 |---|---|---|---|
 | 1 | 일별 방문자 | Insights | 이벤트 `[Auto] Page View`, 지표 **Uniques**, 기간 30D, 차트 Line |
 | 2 | 온보딩 전환 | Funnels | 1단계 `[Auto] Page View` → 2단계 `cta_clicked`(`cta` is `onboarding_start`) → 3단계 `onboarding_completed`, 전환 창 1일 |
-| 3 | 가기 / 안 가기 비율 | Insights | 이벤트 `decision_made`, 지표 **Total Events**, 필터 `isChange` is `false`, Breakdown `decision`, 차트 Pie |
+| 3 | 가기 / 안 가기 비율 (홈 '안 가기' 제거로 새 `skip`이 없어 과거 데이터 비교용) | Insights | 이벤트 `decision_made`, 지표 **Total Events**, 필터 `isChange` is `false`, Breakdown `decision`, 차트 Pie |
 | 4 | 추위 민감도 분포 | Insights | 이벤트 `settings_saved`, 지표 **Total Events**, Breakdown `coldLevel`, 차트 Bar |
 | 5 | 더위 민감도 분포 | Insights | 이벤트 `settings_saved`, 지표 **Total Events**, Breakdown `heatLevel`, 차트 Bar |
 
@@ -149,7 +149,7 @@ Preview 배포에서 발생한 이벤트도 같은 프로젝트에 쌓입니다.
 ## 8. 검증 체크리스트
 
 - [ ] 일별 방문자 수가 **Data → Events**의 `[Auto] Page View` 흐름과 맞는지
-- [ ] `decision_made`의 `go` + `skip` 합이 Events 화면의 `isChange=false` 건수와 같은지
+- [ ] `decision_made` 건수가 Events 화면의 `isChange=false` 건수와 같은지 (과거 `skip` 포함)
 - [ ] `settings_saved`의 `coldLevel`·`heatLevel` 값이 1~5 안에 있는지
 - [ ] 온보딩 전환 퍼널의 1단계 숫자가 일별 방문자 합계와 비슷한 규모인지
 - [ ] 운영 도메인 필터 적용 시 데이터가 사라지지 않는지
