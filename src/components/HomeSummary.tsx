@@ -13,7 +13,7 @@ interface HomeSummaryProps {
   onSelectActivity: (activity: Activity) => void;
 }
 
-/** 첫 화면 요약: 활동 칩 → 가이드 헤드라인 → 러닝 지수 → 오늘의 복장(1단) */
+/** 첫 화면 요약: 활동 칩 → 가이드 헤드라인 → 러닝 지수 → 오늘 추천 복장(1단) */
 export default function HomeSummary({
   activities,
   activity,
