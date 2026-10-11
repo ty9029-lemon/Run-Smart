@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import { useProfileStore } from '../store/profileStore';
 
 interface FeedbackOffsetSectionProps {
@@ -25,13 +26,9 @@ export default function FeedbackOffsetSection({ className }: FeedbackOffsetSecti
       <h2 className="text-base font-bold">피드백 보정</h2>
       <p className="text-sm text-steel-border">{describeOffset(offset)}</p>
       {offset !== 0 && (
-        <button
-          type="button"
-          onClick={reset}
-          className="rounded-full border border-steel-border px-4 py-2 text-sm text-pure-white"
-        >
+        <Button type="button" variant="secondary" size="sm" onClick={reset}>
           보정 초기화
-        </button>
+        </Button>
       )}
     </section>
   );

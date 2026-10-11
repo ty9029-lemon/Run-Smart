@@ -140,6 +140,8 @@ Lime Pulse(#b7ff2c) 배경, Carbon Black(#000000) 텍스트, 9999px border radiu
 | sm | 32px | 14px | 내비게이션 바 |
 | xs | 24px | 12px | 칩·인라인 보조 액션 |
 
+화면 하단의 주요 CTA(온보딩 이전/다음/시작하기, 홈 가기/안 가기, 설정 저장)는 `size="lg"`를 씁니다. 버튼은 직접 스타일링하지 않고 항상 `Button` 컴포넌트를 사용합니다.
+
 ### Secondary Navigation Button
 **역할:** 내비게이션의 보조 액션 (예: 기록, 설정)
 

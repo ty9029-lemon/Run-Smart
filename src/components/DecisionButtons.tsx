@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import { MESSAGES } from '../constants/messages';
 import type { Decision } from '../types';
 
@@ -28,13 +29,9 @@ function DecisionFeedback({
       <p className="text-base font-medium text-pure-white" role="status">
         {DECISION_MESSAGE[decision]}
       </p>
-      <button
-        type="button"
-        onClick={onCancel}
-        className="rounded-full border border-steel-border px-5 py-3 text-sm font-medium text-pure-white"
-      >
+      <Button type="button" variant="secondary" size="sm" onClick={onCancel}>
         {MESSAGES.decisionCancel}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -52,24 +49,27 @@ export default function DecisionButtons({
   return (
     <div>
       <div className="grid grid-cols-2 gap-3">
-        <button
+        <Button
           type="button"
+          variant={decision === 'go' ? 'default' : 'outline'}
+          size="lg"
           onClick={() => onDecide('go')}
-          className={`rounded-full border border-lime-pulse px-5 py-4 text-base font-medium ${
-            decision === 'go' ? 'bg-lime-pulse text-carbon-black' : 'text-lime-pulse'
-          }`}
         >
           가기
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="secondary"
+          size="lg"
           onClick={() => onDecide('skip')}
-          className={`rounded-full border border-steel-border px-5 py-4 text-base font-medium ${
-            decision === 'skip' ? 'bg-pure-white text-carbon-black' : 'text-pure-white'
-          }`}
+          className={
+            decision === 'skip'
+              ? 'bg-pure-white text-carbon-black hover:bg-pure-white'
+              : undefined
+          }
         >
           안 가기
-        </button>
+        </Button>
       </div>
       {decision && (
         <p className="mt-2 text-center text-sm text-steel-border" role="status">
