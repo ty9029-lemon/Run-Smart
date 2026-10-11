@@ -19,6 +19,7 @@ import {
 } from '../lib/bestHour';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { isDecisionLocked } from '../lib/decision';
+import { recordDecisionAndCheckChange } from '../lib/decisionTracking';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
 import { recommendOutfit } from '../lib/outfit';
 import { calcRunScore, scoreToLevel } from '../lib/runScore';
@@ -98,8 +99,10 @@ export default function HomeReady({
 
   /** 결정을 히스토리에 기록한다. */
   const handleDecide = (next: Decision) => {
-    trackEvent(ANALYTICS_EVENTS.decisionMade, { decision: next, activity, score });
     const decidedAt = new Date();
+    // 오늘 이미 결정한 적이 있으면(취소 후 재결정 포함) isChange로 구분해 집계 중복을 피한다
+    const isChange = recordDecisionAndCheckChange(activity, decidedAt);
+    trackEvent(ANALYTICS_EVENTS.decisionMade, { decision: next, activity, score, isChange });
     addEntry({
       id: `${decidedAt.getTime()}`,
       date: decidedAt.toISOString(),
