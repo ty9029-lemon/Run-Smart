@@ -4,12 +4,12 @@ import OutfitIcon from './outfit/OutfitIcon';
 
 interface OutfitPanelProps {
   items: OutfitItem[];
-  /** 영역 제목 (기본: 오늘의 복장) */
+  /** 영역 제목 (기본: 오늘 추천 복장) */
   title?: string;
 }
 
 /** 복장 추천 영역 (3D 메탈릭 일러스트, 분류 순서대로 이어 붙인 3열 그리드) */
-export default function OutfitPanel({ items, title = '오늘의 복장' }: OutfitPanelProps) {
+export default function OutfitPanel({ items, title = '오늘 추천 복장' }: OutfitPanelProps) {
   const orderedItems = groupOutfitByCategory(items).flatMap((group) => group.items);
   return (
     <section className="rounded-panel border border-card-border-ink bg-card-charcoal p-6">
