@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { MESSAGES } from '../constants/messages';
 import type { CoordsError } from '../hooks/useCoords';
 import type { LocationStatus } from '../hooks/useLocationPermission';
@@ -39,13 +40,9 @@ function LocationNotice({ error, onRequest }: LocationNoticeProps) {
   return (
     <div className="space-y-3">
       <p className="text-sm text-steel-border">📍 {MESSAGES.locationDenied}</p>
-      <button
-        type="button"
-        onClick={handleClick}
-        className="rounded-full border border-lime-pulse bg-lime-pulse px-5 py-2 text-sm font-medium text-carbon-black"
-      >
+      <Button type="button" size="sm" onClick={handleClick}>
         {MESSAGES.useCurrentLocation}
-      </button>
+      </Button>
       {showGuide && (
         <p className="text-sm text-steel-border">{MESSAGES.locationSettingsGuide}</p>
       )}

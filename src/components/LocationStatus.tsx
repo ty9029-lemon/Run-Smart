@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { MESSAGES } from '../constants/messages';
 import type { LocationStatus as Status } from '../hooks/useLocationPermission';
 
@@ -21,22 +22,20 @@ export default function LocationStatus({ status, onRequest }: LocationStatusProp
         </span>
       </div>
       {!granted && onRequest && (
-        <button
-          type="button"
-          onClick={onRequest}
-          className="mt-3 mr-2 rounded-full border border-lime-pulse bg-lime-pulse px-5 py-2 text-sm font-medium text-carbon-black"
-        >
+        <Button type="button" size="sm" onClick={onRequest} className="mt-3 mr-2">
           위치 허용하기
-        </button>
+        </Button>
       )}
       {!granted && (
-        <button
+        <Button
           type="button"
+          variant="outline"
+          size="sm"
           onClick={() => setShowGuide((v) => !v)}
-          className="mt-3 rounded-full border border-lime-pulse px-5 py-2 text-sm font-medium text-lime-pulse"
+          className="mt-3"
         >
           설정으로 이동
-        </button>
+        </Button>
       )}
       {showGuide && <p className="mt-2 text-sm text-steel-border">{MESSAGES.locationSettingsGuide}</p>}
     </div>

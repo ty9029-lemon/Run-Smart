@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import LocationStatus from '../components/LocationStatus';
 import ProfileForm from '../components/ProfileForm';
 import { useLocationPermission } from '../hooks/useLocationPermission';
@@ -24,13 +25,9 @@ export default function Settings() {
       <section className="rounded-panel border border-card-border-ink bg-card-charcoal p-6">
         <LocationStatus status={locationStatus} />
       </section>
-      <button
-        type="button"
-        onClick={submit}
-        className="w-full rounded-full border border-lime-pulse bg-lime-pulse px-5 py-4 text-base font-medium text-carbon-black"
-      >
+      <Button type="button" size="lg" onClick={submit} className="w-full">
         저장
-      </button>
+      </Button>
     </main>
   );
 }

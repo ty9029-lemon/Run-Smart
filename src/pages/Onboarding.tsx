@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import OnboardingStep from '../components/OnboardingStep';
 import StepIndicator from '../components/StepIndicator';
 import { ONBOARDING_STEPS } from '../constants/onboarding';
@@ -16,7 +17,6 @@ const ONBOARDING_INITIAL: Profile = {
 };
 
 const LAST_STEP = ONBOARDING_STEPS.length - 1;
-const BUTTON = 'rounded-full border px-5 py-4 text-base font-medium';
 
 /** 첫 진입 온보딩: 활동 → 체감 임계치 → 제약사항 → 위치 순서로 진행 */
 export default function Onboarding() {
@@ -52,21 +52,23 @@ export default function Onboarding() {
         <OnboardingStep step={step.id} draft={draft} error={error} onChange={onChange} />
       </section>
       <div className="grid grid-cols-2 gap-3">
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          size="lg"
           disabled={stepIndex === 0}
           onClick={() => setStepIndex((i) => i - 1)}
-          className={`${BUTTON} border-steel-border text-pure-white disabled:invisible`}
+          className="disabled:invisible"
         >
           이전
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          size="lg"
           onClick={isLast ? submit : handleNext}
-          className={`${BUTTON} border-lime-pulse bg-lime-pulse text-carbon-black`}
         >
           {isLast ? '시작하기' : '다음'}
-        </button>
+        </Button>
       </div>
     </main>
   );

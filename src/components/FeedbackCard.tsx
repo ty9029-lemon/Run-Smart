@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { getActivityMeta } from '../constants/activities';
 import { useFeedbackPrompt } from '../hooks/useFeedbackPrompt';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
@@ -51,14 +52,15 @@ export default function FeedbackCard() {
       </h2>
       <div className="grid grid-cols-3 gap-2">
         {OPTIONS.map(({ value, label }) => (
-          <button
+          <Button
             key={value}
             type="button"
+            variant="outline"
             onClick={() => handleSelect(value)}
-            className="rounded-full border border-lime-pulse px-3 py-3 text-sm font-medium text-lime-pulse"
+            className="px-3 text-sm"
           >
             {label}
-          </button>
+          </Button>
         ))}
       </div>
       <button
