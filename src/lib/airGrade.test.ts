@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
   getDustGrade,
   getUvGrade,
-  isMaskMentionAllowed,
   isMaskNeededFor,
   shouldRecommendMask,
 } from './airGrade';
@@ -35,16 +34,14 @@ describe('마스크 규칙', () => {
     expect(isMaskNeededFor('kneeIssue', 100)).toBe(false);
   });
 
-  it('제약사항 중 하나라도 조건을 만족하면 마스크를 추천한다', () => {
-    expect(shouldRecommendMask([], 100)).toBe(false);
-    expect(shouldRecommendMask(['asthma', 'dustSensitive'], 50)).toBe(true);
-    expect(shouldRecommendMask(['dustSensitive'], 50)).toBe(false);
+  it('미세먼지가 나쁨이면 제약사항이 없어도 마스크를 추천한다', () => {
+    expect(shouldRecommendMask([], 81)).toBe(true);
+    expect(shouldRecommendMask([], 80)).toBe(false);
   });
 
-  it('AI 가이드는 미세먼지가 나쁘거나 제약사항 때문에 필요할 때만 마스크를 언급할 수 있다', () => {
-    expect(isMaskMentionAllowed([], 17)).toBe(false);
-    expect(isMaskMentionAllowed(['dustSensitive'], 50)).toBe(false);
-    expect(isMaskMentionAllowed(['asthma'], 50)).toBe(true);
-    expect(isMaskMentionAllowed([], 100)).toBe(true);
+  it('천식은 보통에서도, 미세먼지 민감은 나쁨에서만 마스크를 추천한다', () => {
+    expect(shouldRecommendMask(['asthma', 'dustSensitive'], 50)).toBe(true);
+    expect(shouldRecommendMask(['dustSensitive'], 50)).toBe(false);
+    expect(shouldRecommendMask(['kneeIssue'], 17)).toBe(false);
   });
 });

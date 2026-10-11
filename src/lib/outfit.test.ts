@@ -317,9 +317,18 @@ describe('recommendOutfit - 제약사항', () => {
     });
   });
 
-  it('미세먼지가 나빠도 제약사항을 체크하지 않았으면 마스크를 추천하지 않는다', () => {
-    const result = recommendOutfit(20, dusty, 'running', []).map((i) => i.label);
-    expect(result).not.toContain('마스크');
+  it('제약사항을 체크하지 않아도 미세먼지가 나쁘면 모든 활동에 마스크를 추천한다', () => {
+    activities.forEach((activity) => {
+      const result = recommendOutfit(20, dusty, activity, []).map((i) => i.label);
+      expect(result).toContain('마스크');
+    });
+  });
+
+  it('제약사항이 없고 미세먼지가 보통 이하면 마스크를 추천하지 않는다', () => {
+    [17, 50, 80].forEach((pm10) => {
+      const result = recommendOutfit(20, weatherWith({ pm10 }), 'running', []).map((i) => i.label);
+      expect(result).not.toContain('마스크');
+    });
   });
 
   it('체크하지 않았거나 다른 제약사항만 있으면 해당 장비를 추천하지 않는다', () => {
@@ -327,7 +336,7 @@ describe('recommendOutfit - 제약사항', () => {
     expect(labels(20, 'running')).not.toContain('마스크');
     const asthma = recommendOutfit(20, dusty, 'running', ['asthma']).map((i) => i.label);
     expect(asthma).not.toContain('무릎보호대');
-    const knee = recommendOutfit(20, dusty, 'running', ['kneeIssue']).map((i) => i.label);
+    const knee = recommendOutfit(20, weatherWith(), 'running', ['kneeIssue']).map((i) => i.label);
     expect(knee).not.toContain('마스크');
   });
 

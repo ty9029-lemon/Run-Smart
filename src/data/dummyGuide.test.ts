@@ -42,6 +42,11 @@ describe('buildDummyGuide - 제약사항 팁', () => {
     );
   });
 
+  it('제약사항이 없어도 미세먼지가 나쁘면 마스크 팁을 보여 준다', () => {
+    expect(tips('running', weatherWith({ pm10: 100 }), [])).toContain('미세먼지 마스크 고려');
+    expect(tips('running', weatherWith({ pm10: 50 }), [])).not.toContain('미세먼지 마스크 고려');
+  });
+
   it('천식과 미세먼지 민감을 함께 체크해도 마스크 팁은 한 번만 나온다', () => {
     const result = tips('running', weatherWith({ pm10: 100 }), ['asthma', 'dustSensitive']);
     expect(result.filter((tip) => tip === '미세먼지 마스크 고려')).toHaveLength(1);

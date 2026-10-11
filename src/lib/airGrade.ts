@@ -20,7 +20,7 @@ export function getUvGrade(uvIndex: number): UvGrade {
 }
 
 /**
- * 제약사항 때문에 마스크를 추천해야 하는지 판단한다.
+ * 제약사항 때문에 마스크를 추천해야 하는지 판단한다. (미세먼지 나쁨 자체는 shouldRecommendMask가 본다)
  * 천식은 미세먼지가 보통 이상, 미세먼지 민감은 나쁨일 때 추천한다.
  * @param constraint 제약사항
  * @param pm10 PM10 농도(㎍/㎥)
@@ -33,20 +33,13 @@ export function isMaskNeededFor(constraint: Constraint, pm10: number): boolean {
 }
 
 /**
- * 체크한 제약사항 중 하나라도 마스크를 추천해야 하는지 판단한다. (복장·더미 가이드 공통)
+ * 마스크를 추천해야 하는지 판단한다. (복장·더미 가이드·AI 가이드 공통)
+ * 미세먼지가 나쁨이면 제약사항과 무관하게 추천하고,
+ * 그 밖에는 체크한 제약사항 중 하나라도 조건을 만족할 때 추천한다.
  * @param constraints 사용자가 체크한 제약사항
  * @param pm10 PM10 농도(㎍/㎥)
  */
 export function shouldRecommendMask(constraints: Constraint[], pm10: number): boolean {
+  if (getDustGrade(pm10) === '나쁨') return true;
   return constraints.some((constraint) => isMaskNeededFor(constraint, pm10));
-}
-
-/**
- * AI 가이드가 마스크를 언급해도 되는지 판단한다.
- * 미세먼지가 나쁨이거나, 제약사항 때문에 마스크를 추천하는 경우에만 허용한다.
- * @param constraints 사용자가 체크한 제약사항
- * @param pm10 PM10 농도(㎍/㎥)
- */
-export function isMaskMentionAllowed(constraints: Constraint[], pm10: number): boolean {
-  return getDustGrade(pm10) === '나쁨' || shouldRecommendMask(constraints, pm10);
 }
