@@ -26,7 +26,7 @@ export default function ActivityPicker({ selected, error, onToggle }: ActivityPi
               onClick={() => onToggle(id)}
               className={`rounded-full border px-5 py-2 text-sm font-medium ${
                 on
-                  ? 'border-lime-pulse bg-lime-pulse text-carbon-black'
+                  ? 'border-primary bg-primary/10 text-primary'
                   : 'border-steel-border text-pure-white'
               }`}
             >
