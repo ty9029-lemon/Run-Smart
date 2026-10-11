@@ -9,7 +9,7 @@ export const BUTTON_VARIANTS = [
   'link',
 ] as const;
 
-export const BUTTON_SIZES = ['default', 'sm'] as const;
+export const BUTTON_SIZES = ['lg', 'default', 'sm', 'xs'] as const;
 
 export const ICON_BUTTON_SIZES = ['icon-lg', 'icon', 'icon-sm', 'icon-xs'] as const;
 
