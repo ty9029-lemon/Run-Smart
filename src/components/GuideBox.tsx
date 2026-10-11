@@ -12,6 +12,8 @@ export interface LocationNoticeProps {
   error?: CoordsError;
   /** 브라우저 위치 권한 요청 */
   onRequest: () => Promise<boolean>;
+  /** 사용자가 현재 위치 사용을 직접 꺼 둔 상태인지 (권한 안내 대신 꺼짐 안내를 보여준다) */
+  isOff?: boolean;
 }
 
 interface GuideBoxProps {
@@ -31,7 +33,7 @@ const DEVICE_GUIDE_ERROR_CODES: readonly number[] = [1, 2];
  * 차단(denied)으로 보여도 일단 읽어 보고, 실패하면 설정 안내를 펼친다.
  * (사이트 설정을 바꿨는데 앱이 이전 상태를 들고 있을 수 있다.)
  */
-function LocationNotice({ error, onRequest }: LocationNoticeProps) {
+function LocationNotice({ error, onRequest, isOff = false }: LocationNoticeProps) {
   const [showGuide, setShowGuide] = useState(false);
   const handleClick = async () => {
     const succeeded = await onRequest();
@@ -39,14 +41,16 @@ function LocationNotice({ error, onRequest }: LocationNoticeProps) {
   };
   return (
     <div className="space-y-3">
-      <p className="text-sm text-steel-border">📍 {MESSAGES.locationDenied}</p>
-      <Button type="button" size="sm" onClick={handleClick}>
+      <p className="text-sm text-steel-border">
+        📍 {isOff ? MESSAGES.locationOffNotice : MESSAGES.locationDenied}
+      </p>
+      <Button type="button" variant="outline" size="sm" onClick={handleClick}>
         {MESSAGES.useCurrentLocation}
       </Button>
       {showGuide && (
         <p className="text-sm text-steel-border">{MESSAGES.locationSettingsGuide}</p>
       )}
-      {error && DEVICE_GUIDE_ERROR_CODES.includes(error.code) && (
+      {!isOff && error && DEVICE_GUIDE_ERROR_CODES.includes(error.code) && (
         <p className="text-sm text-steel-border">{MESSAGES.locationSystemGuide}</p>
       )}
     </div>

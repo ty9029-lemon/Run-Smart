@@ -34,6 +34,7 @@ function Notice({ children }: { children: React.ReactNode }) {
 /** 홈 (메인 대시보드) */
 export default function Home() {
   const profile = useProfileStore((s) => s.profile);
+  const setUseCurrentLocation = useProfileStore((s) => s.setUseCurrentLocation);
   const locationStatus = useLocationPermission();
   const activity = resolveActivity(profile);
   const { coldLevel, heatLevel, feedbackOffset } = profile;
@@ -47,10 +48,20 @@ export default function Home() {
   // 주소가 도착해도 가이드를 다시 받지 않는다.
   const place = usePlaceLabel(location?.isCurrent ? location.coords : null);
   // 권한이 허용돼도 기기 설정 때문에 위치를 못 읽어 서울 기준이면 안내를 보여준다.
-  // 사용자가 현재 위치 사용을 직접 껐다면 선택을 존중해 안내하지 않는다.
+  // 사용자가 직접 껐다면 다시 켤 수 있도록 꺼짐 안내와 버튼을 보여준다.
+  const isLocationOff = !profile.useCurrentLocation;
   const showLocationNotice =
-    profile.useCurrentLocation &&
-    (locationStatus !== 'granted' || location?.isCurrent === false);
+    isLocationOff || locationStatus !== 'granted' || location?.isCurrent === false;
+
+  /**
+   * 위치 권한을 요청한다. 꺼 둔 상태였다면 권한을 받은 뒤에 다시 켠다.
+   * (먼저 켜면 위치 읽기와 권한 요청이 겹쳐 팝업이 두 번 요청된다.)
+   */
+  const handleRequestLocation = async () => {
+    const granted = await requestLocationPermission();
+    if (granted && isLocationOff) setUseCurrentLocation(true);
+    return granted;
+  };
   const headerLabel = place ? `${locationLabel} (${place})` : locationLabel;
   const data = useHomeData({
     activity,
@@ -93,7 +104,8 @@ export default function Home() {
               ? {
                   status: locationStatus,
                   error: location?.error,
-                  onRequest: requestLocationPermission,
+                  onRequest: handleRequestLocation,
+                  isOff: isLocationOff,
                 }
               : undefined
           }

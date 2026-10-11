@@ -22,6 +22,8 @@ interface ProfileState {
   hasOnboarded: boolean;
   saveProfile: (profile: Profile) => void;
   setLastActivity: (activity: Activity) => void;
+  /** 현재 위치로 날씨를 볼지 여부를 바꾼다 (홈에서 다시 켤 때 사용) */
+  setUseCurrentLocation: (next: boolean) => void;
   /** 체감 피드백을 보정값에 누적한다 */
   applyFeedback: (feedback: Feedback) => void;
   /** 피드백으로 학습한 보정값을 0으로 되돌린다 */
@@ -45,6 +47,8 @@ export const useProfileStore = create<ProfileState>()(
         })),
       setLastActivity: (activity) =>
         set((state) => ({ profile: { ...state.profile, lastActivity: activity } })),
+      setUseCurrentLocation: (next) =>
+        set((state) => ({ profile: { ...state.profile, useCurrentLocation: next } })),
       applyFeedback: (feedback) =>
         set((state) => ({
           profile: {
