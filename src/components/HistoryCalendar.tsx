@@ -26,12 +26,11 @@ interface HistoryCalendarProps {
   onChangeMonth: (month: YearMonth) => void;
 }
 
-/** 셀 접근성 라벨 (예: 10월 7일, 가기 1건, 안 가기 1건) */
+/** 셀 접근성 라벨 (예: 10월 7일, 활동 1건) */
 function buildCellLabel(date: Date, entries: HistoryEntry[]): string {
   const dateText = `${date.getMonth() + 1}월 ${date.getDate()}일`;
   if (entries.length === 0) return `${dateText}, 기록 없음`;
-  const goCount = entries.filter((e) => e.decision === 'go').length;
-  return `${dateText}, 가기 ${goCount}건, 안 가기 ${entries.length - goCount}건`;
+  return `${dateText}, 활동 ${entries.length}건`;
 }
 
 /** 칸 안의 활동 표시: 첫 활동 이모지, 2개 이상이면 나머지 개수를 +N으로 보여준다. */
@@ -40,9 +39,7 @@ function DayMarker({ entries }: { entries: HistoryEntry[] }) {
   const [first, ...rest] = entries;
   return (
     <span className="flex items-center justify-center gap-0.5 leading-none">
-      <span className={`text-lg ${first.decision === 'skip' ? 'opacity-40' : ''}`}>
-        {getActivityMeta(first.activity).emoji}
-      </span>
+      <span className="text-lg">{getActivityMeta(first.activity).emoji}</span>
       {rest.length > 0 && (
         <span className="text-xs font-medium text-steel-border">+{rest.length}</span>
       )}
@@ -59,7 +56,7 @@ interface DayCellProps {
   onSelect: (date: Date) => void;
 }
 
-/** 달력의 하루 칸: 날짜 숫자와 그날의 활동 표시 (안 갔음은 흐리게) */
+/** 달력의 하루 칸: 날짜 숫자와 그날의 활동 표시 */
 function DayCell({ date, entries, isToday, isSelected, isFuture, onSelect }: DayCellProps) {
   return (
     <button

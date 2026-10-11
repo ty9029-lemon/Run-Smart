@@ -27,7 +27,7 @@ import { getSunsetStatus } from '../lib/scoreFactors';
 import { useHistoryStore } from '../store/historyStore';
 import { useProfileStore } from '../store/profileStore';
 import type { WeatherResult } from '../services/weatherService';
-import type { Activity, Decision, GuideState, Profile } from '../types';
+import type { Activity, GuideState, HistoryEntry, Profile } from '../types';
 
 interface HomeReadyProps {
   activity: Activity;
@@ -37,6 +37,17 @@ interface HomeReadyProps {
   guide: GuideState;
   /** 위치 권한이 없어 서울 기준일 때만 전달한다 (가이드 칸에 안내와 버튼을 보여준다) */
   location?: LocationNoticeProps;
+}
+
+/** 오늘 이 활동으로 기록한 출발 항목을 찾는다. */
+function useTodayEntry(activity: Activity): HistoryEntry | null {
+  const entries = useHistoryStore((s) => s.entries);
+  const today = new Date().toDateString();
+  return (
+    entries.find(
+      (e) => e.activity === activity && new Date(e.date).toDateString() === today,
+    ) ?? null
+  );
 }
 
 /** 날씨·가이드가 준비됐을 때의 홈 본문 */
@@ -50,8 +61,7 @@ export default function HomeReady({
   const setLastActivity = useProfileStore((s) => s.setLastActivity);
   const addEntry = useHistoryStore((s) => s.addEntry);
   const removeEntry = useHistoryStore((s) => s.removeEntry);
-  // 방금 기록한 출발 항목 id (토스트의 '실행 취소' 대상)
-  const [departureId, setDepartureId] = useState<string | null>(null);
+  const todayEntry = useTodayEntry(activity);
   const [toastOpen, setToastOpen] = useState(false);
   const now = useNow();
   const { current, hourly } = weather;
@@ -90,17 +100,15 @@ export default function HomeReady({
 
   /** 출발을 히스토리에 기록하고 토스트를 띄운다. */
   const handleDecide = () => {
-    const next: Decision = 'go';
     const decidedAt = new Date();
     // 오늘 이미 결정한 적이 있으면(취소 후 재결정 포함) isChange로 구분해 집계 중복을 피한다
     const isChange = recordDecisionAndCheckChange(activity, decidedAt);
-    trackEvent(ANALYTICS_EVENTS.decisionMade, { decision: next, activity, score, isChange });
-    const entryId = `${decidedAt.getTime()}`;
+    trackEvent(ANALYTICS_EVENTS.decisionMade, { decision: 'go', activity, score, isChange });
     addEntry({
-      id: entryId,
+      id: `${decidedAt.getTime()}`,
       date: decidedAt.toISOString(),
       activity,
-      decision: next,
+      decision: 'go',
       weatherSummary: `${current.temp}°C, ${current.condition}, 바람 ${current.windSpeed}m/s`,
       feelsLike,
       // 기록 화면에서 당시 추천 복장을 다시 보여주기 위해 함께 저장한다.
@@ -111,16 +119,15 @@ export default function HomeReady({
           ? guide.data
           : buildDummyGuide(activity, current, sensitivity, profile.constraints),
     });
-    setDepartureId(entryId);
     setToastOpen(true);
   };
 
-  /** 토스트의 '실행 취소': 방금 기록한 출발을 삭제한다. */
-  const handleUndo = () => {
-    if (!departureId) return;
+  /** 토스트의 '실행 취소'와 CTA의 '출발 취소'가 함께 쓰는 취소 처리 */
+  const handleCancel = () => {
+    if (!todayEntry) return;
     trackEvent(ANALYTICS_EVENTS.decisionCancelled, { decision: 'go', activity });
-    removeEntry(departureId);
-    setDepartureId(null);
+    removeEntry(todayEntry.id);
+    setToastOpen(false);
   };
 
   return (
@@ -147,12 +154,17 @@ export default function HomeReady({
           ACTIVITY_DAYLIGHT_BUFFER_HOURS[activity],
         )}
       />
-      <DecisionButtons onDecide={handleDecide} />
+      <DecisionButtons
+        departed={todayEntry !== null}
+        activityLabel={getActivityMeta(activity).label}
+        onDecide={handleDecide}
+        onCancel={handleCancel}
+      />
       <DepartureToast
         open={toastOpen}
         activityLabel={getActivityMeta(activity).label}
         onOpenChange={setToastOpen}
-        onUndo={handleUndo}
+        onUndo={handleCancel}
       />
     </div>
   );

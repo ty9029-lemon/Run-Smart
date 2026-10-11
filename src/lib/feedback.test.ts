@@ -40,10 +40,9 @@ describe('findPendingFeedback', () => {
     expect(findPendingFeedback([entryAgo(FEEDBACK_EXPIRE_MS)], NOW)).toBeNull();
   });
 
-  it('안 가기와 이미 답한 기록은 묻지 않는다', () => {
-    const skip = entryAgo(FEEDBACK_ASK_DELAY_MS, { decision: 'skip' });
+  it('이미 답한 기록은 묻지 않는다', () => {
     const answered = entryAgo(FEEDBACK_ASK_DELAY_MS + 1, { feedback: 'good' });
-    expect(findPendingFeedback([skip, answered], NOW)).toBeNull();
+    expect(findPendingFeedback([answered], NOW)).toBeNull();
   });
 
   it('여러 개면 가장 최근 기록을 고른다', () => {

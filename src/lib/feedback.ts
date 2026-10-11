@@ -21,7 +21,7 @@ const FEEDBACK_DELTA: Record<Feedback, number> = {
  */
 export function findPendingFeedback(entries: HistoryEntry[], now: number): HistoryEntry | null {
   const candidates = entries.filter((e) => {
-    if (e.decision !== 'go' || e.feedback) return false;
+    if (e.feedback) return false;
     const elapsed = now - new Date(e.date).getTime();
     return elapsed >= FEEDBACK_ASK_DELAY_MS && elapsed < FEEDBACK_EXPIRE_MS;
   });
