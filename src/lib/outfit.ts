@@ -15,7 +15,7 @@ const WARMUP_ACTIVITIES: Activity[] = ['running', 'cycling'];
  * @param feelsLike 개인 체감온도
  * @param weather 현재 날씨
  * @param activity 활동
- * @param constraints 사용자가 체크한 제약사항 (예: 무릎 문제 → 무릎보호대)
+ * @param constraints 사용자가 체크한 제약사항 (예: 무릎 문제 → 무릎보호대(산책 제외), 미세먼지 나쁨 + 민감 → 마스크)
  */
 export function recommendOutfit(
   feelsLike: number,
@@ -28,7 +28,7 @@ export function recommendOutfit(
   const tier = tiers.find((t) => feelsLike + warmup <= t.max) ?? tiers[0];
   const items = [...tier.items, ...BASE_ITEMS_BY_ACTIVITY[activity]];
   const withConditions = applyOutfitConditions(items, weather, activity, feelsLike);
-  return applyConstraintGear(withConditions, constraints);
+  return applyConstraintGear(withConditions, constraints, weather, activity);
 }
 
 /**
