@@ -52,16 +52,23 @@ const DARK_GEAR: Partial<Record<Activity, OutfitItem[]>> = {
   hiking: [outfitItem('gear', '🔦', '헤드랜턴')],
 };
 
-/** 자외선이 강할 때: 모자·선글라스·선크림 */
+/** 자외선이 강할 때: 모자·선크림 (눈 보호 장비는 SUNGLASSES로 따로 더한다) */
 const UV_GEAR: Partial<Record<Activity, OutfitItem[]>> = {
-  running: [outfitItem('gear', '🧢', '러닝 캡'), outfitItem('gear', '🕶️', '선글라스')],
-  cycling: [outfitItem('gear', '🕶️', '선글라스'), outfitItem('gear', '🧴', '선크림')],
-  hiking: [
-    outfitItem('gear', '👒', '챙 넓은 모자'),
-    outfitItem('gear', '🕶️', '선글라스'),
-    outfitItem('gear', '🧴', '선크림'),
-  ],
+  running: [outfitItem('gear', '🧢', '러닝 캡')],
+  cycling: [outfitItem('gear', '🧴', '선크림')],
+  hiking: [outfitItem('gear', '👒', '챙 넓은 모자'), outfitItem('gear', '🧴', '선크림')],
 };
+
+/** 눈 보호 장비: 운동 활동은 선글라스와 고글을 하나로 통합하고, 산책은 선글라스로만 보여 준다 */
+const SUNGLASSES_GEAR: Record<Activity, OutfitItem> = {
+  walking: outfitItem('gear', '🕶️', '선글라스'),
+  running: outfitItem('gear', '🕶️', '선글라스/고글'),
+  cycling: outfitItem('gear', '🕶️', '선글라스/고글'),
+  hiking: outfitItem('gear', '🕶️', '선글라스/고글'),
+};
+
+/** 구름이 없는 맑은 날씨로 보는 날씨 상태 (openMeteo의 weatherCodeToCondition 라벨 기준) */
+const CLEAR_SKY_CONDITIONS = ['맑음'];
 
 /** 빙판 대비: 등산 한파 시 챙길 장비 */
 const ICE_GEAR = outfitItem('gear', '⛓️', '아이젠');
@@ -89,6 +96,16 @@ function isDarkSoon(weather: Weather): boolean {
   return weather.hoursUntilSunset !== undefined && weather.hoursUntilSunset <= OUTFIT_DARK_SOON_HOURS;
 }
 
+/** 구름 없이 맑은 낮이라 눈부심이 큰지 */
+function isSunnyDaytime(weather: Weather): boolean {
+  return weather.isDay && CLEAR_SKY_CONDITIONS.includes(weather.condition);
+}
+
+/** 자외선이 강하거나 맑은 낮이라 눈 보호 장비가 필요한지 */
+function needsSunglasses(weather: Weather): boolean {
+  return weather.uvIndex >= OUTFIT_UV_HIGH_MIN || isSunnyDaytime(weather);
+}
+
 /** items에서 remove 라벨을 빼고 add를 이어 붙인다 */
 function swapItems(items: OutfitItem[], add: OutfitItem[], remove: string[] = []): OutfitItem[] {
   return [...items.filter((item) => !remove.includes(item.label)), ...add];
@@ -100,7 +117,7 @@ function dedupeByLabel(items: OutfitItem[]): OutfitItem[] {
 }
 
 /**
- * 날씨 조건(바람·비·어두움·자외선·빙판)에 따라 활동 전용 항목을 더하거나 바꾼다.
+ * 날씨 조건(바람·비·어두움·자외선·맑은 낮·빙판)에 따라 활동 전용 항목을 더하거나 바꾼다.
  * 바람 → 비 순서로 적용해, 비가 오면 방풍 겉옷이 방수 겉옷으로 대체된다.
  * @param items 체감온도 구간으로 정해진 기본 항목
  * @param weather 현재 날씨
@@ -125,6 +142,7 @@ export function applyOutfitConditions(
   }
   if (isDarkSoon(weather)) result = swapItems(result, DARK_GEAR[activity] ?? []);
   if (weather.uvIndex >= OUTFIT_UV_HIGH_MIN) result = swapItems(result, UV_GEAR[activity] ?? []);
+  if (needsSunglasses(weather)) result = swapItems(result, [SUNGLASSES_GEAR[activity]]);
   if (activity === 'hiking' && feelsLike <= OUTFIT_ICE_RISK_MAX) result = swapItems(result, [ICE_GEAR]);
   return dedupeByLabel(result);
 }
