@@ -20,6 +20,7 @@ export const ANALYTICS_EVENTS = {
   historyEntryViewed: 'history_entry_viewed',
   feedbackSubmitted: 'feedback_submitted',
   ctaClicked: 'cta_clicked',
+  settingsSaved: 'settings_saved',
 } as const;
 
 export type AnalyticsEventName = (typeof ANALYTICS_EVENTS)[keyof typeof ANALYTICS_EVENTS];
