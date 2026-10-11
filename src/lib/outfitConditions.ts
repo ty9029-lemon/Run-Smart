@@ -56,7 +56,11 @@ const DARK_GEAR: Partial<Record<Activity, OutfitItem[]>> = {
 const UV_GEAR: Partial<Record<Activity, OutfitItem[]>> = {
   running: [outfitItem('gear', '🧢', '러닝 캡'), outfitItem('gear', '🕶️', '선글라스')],
   cycling: [outfitItem('gear', '🕶️', '선글라스'), outfitItem('gear', '🧴', '선크림')],
-  hiking: [outfitItem('gear', '👒', '챙 넓은 모자'), outfitItem('gear', '🧴', '선크림')],
+  hiking: [
+    outfitItem('gear', '👒', '챙 넓은 모자'),
+    outfitItem('gear', '🕶️', '선글라스'),
+    outfitItem('gear', '🧴', '선크림'),
+  ],
 };
 
 /** 빙판 대비: 등산 한파 시 챙길 장비 */

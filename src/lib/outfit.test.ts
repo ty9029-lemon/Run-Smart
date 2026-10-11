@@ -100,6 +100,10 @@ describe('recommendOutfit - 러닝', () => {
       expect.arrayContaining(['러닝 캡', '선글라스']),
     );
   });
+
+  it('자외선이 약하면 선글라스를 추천하지 않는다', () => {
+    expect(labels(15, 'running', { uvIndex: 2 })).not.toContain('선글라스');
+  });
 });
 
 describe('recommendOutfit - 자전거', () => {
@@ -130,6 +134,16 @@ describe('recommendOutfit - 자전거', () => {
     expect(labels(20, 'cycling', { isDay: false })).toEqual(
       expect.arrayContaining(['전조등·후미등', '반사 조끼']),
     );
+  });
+
+  it('자외선이 강하면 선글라스와 선크림을 더한다', () => {
+    expect(labels(20, 'cycling', { uvIndex: 7 })).toEqual(
+      expect.arrayContaining(['선글라스', '선크림']),
+    );
+  });
+
+  it('자외선이 약하면 선글라스를 추천하지 않는다', () => {
+    expect(labels(20, 'cycling', { uvIndex: 2 })).not.toContain('선글라스');
   });
 });
 
@@ -169,10 +183,14 @@ describe('recommendOutfit - 등산', () => {
     expect(labels(14, 'hiking', { windSpeed: 10 })).toContain('소프트쉘');
   });
 
-  it('자외선이 강하면 챙 넓은 모자와 선크림을 더한다', () => {
+  it('자외선이 강하면 챙 넓은 모자와 선글라스, 선크림을 더한다', () => {
     expect(labels(20, 'hiking', { uvIndex: 8 })).toEqual(
-      expect.arrayContaining(['챙 넓은 모자', '선크림']),
+      expect.arrayContaining(['챙 넓은 모자', '선글라스', '선크림']),
     );
+  });
+
+  it('자외선이 약하면 선글라스를 추천하지 않는다', () => {
+    expect(labels(20, 'hiking', { uvIndex: 2 })).not.toContain('선글라스');
   });
 });
 
