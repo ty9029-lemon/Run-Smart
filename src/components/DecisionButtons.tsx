@@ -1,81 +1,14 @@
 import { Button } from '@/components/ui/button';
-import { MESSAGES } from '../constants/messages';
-import type { Decision } from '../types';
 
 interface DecisionButtonsProps {
-  decision: Decision | null;
-  /** 기록 직후라 버튼 대신 피드백과 '취소하기'만 보여줄지 여부 */
-  locked: boolean;
-  onDecide: (decision: Decision) => void;
-  onCancel: () => void;
+  onDecide: () => void;
 }
 
-/** 결정 결과 문구 */
-const DECISION_MESSAGE: Record<Decision, string> = {
-  go: MESSAGES.decisionGo,
-  skip: MESSAGES.decisionSkip,
-};
-
-/** 기록 직후 보여주는 피드백과 [취소하기] 버튼 */
-function DecisionFeedback({
-  decision,
-  onCancel,
-}: {
-  decision: Decision;
-  onCancel: () => void;
-}) {
+/** [이대로 출발하기] 단일 CTA 버튼. 기록 결과는 토스트로 안내한다. */
+export default function DecisionButtons({ onDecide }: DecisionButtonsProps) {
   return (
-    <div className="flex flex-col items-center gap-3 py-2">
-      <p className="text-base font-medium text-pure-white" role="status">
-        {DECISION_MESSAGE[decision]}
-      </p>
-      <Button type="button" variant="secondary" size="sm" onClick={onCancel}>
-        {MESSAGES.decisionCancel}
-      </Button>
-    </div>
-  );
-}
-
-/** [가기 / 안 가기] 빠른 응답 버튼. 기록 직후에는 피드백과 [취소하기]로 바뀐다. */
-export default function DecisionButtons({
-  decision,
-  locked,
-  onDecide,
-  onCancel,
-}: DecisionButtonsProps) {
-  if (decision && locked) {
-    return <DecisionFeedback decision={decision} onCancel={onCancel} />;
-  }
-  return (
-    <div>
-      <div className="grid grid-cols-2 gap-3">
-        <Button
-          type="button"
-          variant="default"
-          size="lg"
-          onClick={() => onDecide('go')}
-        >
-          가기
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          size="lg"
-          onClick={() => onDecide('skip')}
-          className={
-            decision === 'skip'
-              ? 'bg-pure-white text-carbon-black hover:bg-pure-white'
-              : undefined
-          }
-        >
-          안 가기
-        </Button>
-      </div>
-      {decision && (
-        <p className="mt-2 text-center text-sm text-steel-border" role="status">
-          {DECISION_MESSAGE[decision]}
-        </p>
-      )}
-    </div>
+    <Button type="button" variant="default" size="lg" onClick={onDecide} className="w-full">
+      이대로 출발하기
+    </Button>
   );
 }

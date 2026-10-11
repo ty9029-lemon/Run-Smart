@@ -36,21 +36,12 @@ function daysAgoOf(iso: string): number {
   return Math.round(diff / MS_PER_DAY);
 }
 
-/** 기록 카드 상단 (시간, 갔음 여부, 활동, 날씨 요약, 체감 피드백) */
+/** 기록 카드 상단 (시간, 활동, 날씨 요약, 체감 피드백) */
 function HistoryHeader({ entry }: { entry: HistoryEntry }) {
   const meta = getActivityMeta(entry.activity);
   return (
     <div className="rounded-panel border border-card-border-ink bg-card-charcoal p-6">
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-steel-border">{formatTime(entry.date)}</span>
-        <span
-          className={`text-sm font-medium ${
-            entry.decision === 'go' ? 'text-lime-pulse' : 'text-steel-border'
-          }`}
-        >
-          {entry.decision === 'go' ? '갔음' : '안 갔음'}
-        </span>
-      </div>
+      <p className="text-sm text-steel-border">{formatTime(entry.date)}</p>
       <p className="text-base font-medium">
         {meta.emoji} {meta.label}
       </p>
