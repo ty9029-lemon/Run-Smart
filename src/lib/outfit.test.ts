@@ -51,9 +51,16 @@ describe('recommendOutfit - 산책(일상복)', () => {
     expect(labels(20, 'walking', { precipitation: 1 })).toContain('우비/방수');
   });
 
-  it('바람·어두움·자외선 장비는 더하지 않는다', () => {
-    const result = labels(20, 'walking', { windSpeed: 12, isDay: false, uvIndex: 9 });
+  it('바람·어두움 장비는 더하지 않는다', () => {
+    const result = labels(20, 'walking', { windSpeed: 12, isDay: false });
     expect(result).toEqual(labels(20, 'walking'));
+  });
+
+  it('자외선이 강하면 선글라스만 더하고 모자·선크림은 더하지 않는다', () => {
+    const result = labels(20, 'walking', { uvIndex: 9 });
+    expect(result).toContain('선글라스');
+    expect(result).not.toContain('선글라스/고글');
+    expect(result).not.toContain('선크림');
   });
 });
 
@@ -209,6 +216,7 @@ describe('recommendOutfit - 공통', () => {
 });
 
 describe('recommendOutfit - 맑은 낮 선글라스/고글', () => {
+  /** 선글라스와 고글을 통합 표기하는 운동 활동 (산책은 선글라스로만 표기) */
   const outdoorActivities: Activity[] = ['running', 'cycling', 'hiking'];
   const sunny = { condition: '맑음', isDay: true, uvIndex: 2 };
 
@@ -236,8 +244,15 @@ describe('recommendOutfit - 맑은 낮 선글라스/고글', () => {
     expect(result).not.toContain('선크림');
   });
 
-  it('산책에는 추천하지 않는다', () => {
-    expect(labels(15, 'walking', sunny)).not.toContain('선글라스/고글');
+  it('산책에는 고글 없이 선글라스로만 추천한다', () => {
+    const result = labels(15, 'walking', sunny);
+    expect(result).toContain('선글라스');
+    expect(result).not.toContain('선글라스/고글');
+  });
+
+  it('산책도 맑아도 밤이거나 흐리면 추천하지 않는다', () => {
+    expect(labels(15, 'walking', { ...sunny, isDay: false })).not.toContain('선글라스');
+    expect(labels(15, 'walking', { ...sunny, condition: '흐림' })).not.toContain('선글라스');
   });
 });
 

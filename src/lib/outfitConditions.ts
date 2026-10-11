@@ -59,11 +59,13 @@ const UV_GEAR: Partial<Record<Activity, OutfitItem[]>> = {
   hiking: [outfitItem('gear', '👒', '챙 넓은 모자'), outfitItem('gear', '🧴', '선크림')],
 };
 
-/** 눈 보호 장비: 선글라스와 고글을 하나의 항목으로 통합한다 */
-const SUNGLASSES = outfitItem('gear', '🕶️', '선글라스/고글');
-
-/** 눈 보호 장비를 추천하는 활동 (산책은 해당 없음) */
-const SUNGLASSES_ACTIVITIES: Activity[] = ['running', 'cycling', 'hiking'];
+/** 눈 보호 장비: 운동 활동은 선글라스와 고글을 하나로 통합하고, 산책은 선글라스로만 보여 준다 */
+const SUNGLASSES_GEAR: Record<Activity, OutfitItem> = {
+  walking: outfitItem('gear', '🕶️', '선글라스'),
+  running: outfitItem('gear', '🕶️', '선글라스/고글'),
+  cycling: outfitItem('gear', '🕶️', '선글라스/고글'),
+  hiking: outfitItem('gear', '🕶️', '선글라스/고글'),
+};
 
 /** 구름이 없는 맑은 날씨로 보는 날씨 상태 (openMeteo의 weatherCodeToCondition 라벨 기준) */
 const CLEAR_SKY_CONDITIONS = ['맑음'];
@@ -99,9 +101,8 @@ function isSunnyDaytime(weather: Weather): boolean {
   return weather.isDay && CLEAR_SKY_CONDITIONS.includes(weather.condition);
 }
 
-/** 자외선이 강하거나 맑은 낮이면 활동에 맞는 눈 보호 장비를 더한다 */
-function needsSunglasses(weather: Weather, activity: Activity): boolean {
-  if (!SUNGLASSES_ACTIVITIES.includes(activity)) return false;
+/** 자외선이 강하거나 맑은 낮이라 눈 보호 장비가 필요한지 */
+function needsSunglasses(weather: Weather): boolean {
   return weather.uvIndex >= OUTFIT_UV_HIGH_MIN || isSunnyDaytime(weather);
 }
 
@@ -141,7 +142,7 @@ export function applyOutfitConditions(
   }
   if (isDarkSoon(weather)) result = swapItems(result, DARK_GEAR[activity] ?? []);
   if (weather.uvIndex >= OUTFIT_UV_HIGH_MIN) result = swapItems(result, UV_GEAR[activity] ?? []);
-  if (needsSunglasses(weather, activity)) result = swapItems(result, [SUNGLASSES]);
+  if (needsSunglasses(weather)) result = swapItems(result, [SUNGLASSES_GEAR[activity]]);
   if (activity === 'hiking' && feelsLike <= OUTFIT_ICE_RISK_MAX) result = swapItems(result, [ICE_GEAR]);
   return dedupeByLabel(result);
 }
