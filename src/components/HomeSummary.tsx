@@ -5,7 +5,6 @@ import { LEVEL_LABEL } from '../constants/messages';
 import type { Activity, OutfitItem, WarningLevel } from '../types';
 
 interface HomeSummaryProps {
-  activities: Activity[];
   activity: Activity;
   score: number;
   level: WarningLevel;
@@ -15,7 +14,6 @@ interface HomeSummaryProps {
 
 /** 첫 화면 요약: 활동 칩 → 가이드 헤드라인 → 러닝 지수 → 오늘 추천 복장(1단) */
 export default function HomeSummary({
-  activities,
   activity,
   score,
   level,
@@ -25,7 +23,6 @@ export default function HomeSummary({
   return (
     <div className="space-y-4">
       <ActivityChips
-        activities={activities}
         selected={activity}
         onSelect={onSelectActivity}
       />

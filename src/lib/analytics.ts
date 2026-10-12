@@ -14,6 +14,7 @@ export const ANALYTICS_EVENTS = {
   decisionMade: 'decision_made',
   decisionCancelled: 'decision_cancelled',
   activityChanged: 'activity_changed',
+  activityDisabledClicked: 'activity_disabled_clicked',
   dataLoadFailed: 'data_load_failed',
   hourlyForecastScrolled: 'hourly_forecast_scrolled',
   historyOpened: 'history_opened',

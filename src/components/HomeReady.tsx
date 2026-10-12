@@ -139,7 +139,6 @@ export default function HomeReady({
     <div className="space-y-6">
       <FeedbackCard />
       <HomeSummary
-        activities={profile.selectedActivities}
         activity={activity}
         score={score}
         level={scoreToLevel(score)}

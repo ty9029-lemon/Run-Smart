@@ -5,14 +5,19 @@ export interface ActivityMeta {
   id: Activity;
   label: string;
   emoji: string;
+  /** 선택 가능 여부 (false면 "준비 중"으로 비활성 표시) */
+  enabled: boolean;
 }
+
+/** 비활성 활동 안내 문구 */
+export const COMING_SOON_MESSAGE = '아직 준비 중인 기능이에요.';
 
 /** 활동 4종 */
 export const ACTIVITIES: ActivityMeta[] = [
-  { id: 'running', label: '러닝', emoji: '🏃' },
-  { id: 'hiking', label: '등산', emoji: '🥾' },
-  { id: 'walking', label: '산책', emoji: '🚶' },
-  { id: 'cycling', label: '자전거', emoji: '🚴' },
+  { id: 'running', label: '러닝', emoji: '🏃', enabled: true },
+  { id: 'hiking', label: '등산', emoji: '🥾', enabled: false },
+  { id: 'walking', label: '산책', emoji: '🚶', enabled: false },
+  { id: 'cycling', label: '자전거', emoji: '🚴', enabled: false },
 ];
 
 /** 제약사항 표시 정보 */
@@ -22,6 +27,11 @@ export const CONSTRAINTS: { id: Constraint; label: string }[] = [
   { id: 'dustSensitive', label: '미세먼지 민감' },
   { id: 'asthma', label: '천식' },
 ];
+
+/** 선택 가능한(비활성이 아닌) 활동인지 확인 */
+export function isActivityEnabled(id: string): boolean {
+  return ACTIVITIES.some((a) => a.id === id && a.enabled);
+}
 
 /** 활동 id로 표시 정보 조회 */
 export function getActivityMeta(id: Activity): ActivityMeta {

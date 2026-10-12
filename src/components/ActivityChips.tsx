@@ -1,39 +1,33 @@
-import { getActivityMeta } from '../constants/activities';
+import ActivityChip from './ActivityChip';
+import { ACTIVITIES } from '../constants/activities';
+import { ACTIVITY_SCREENS } from '../constants/analytics';
+import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import type { Activity } from '../types';
 
 interface ActivityChipsProps {
-  activities: Activity[];
   selected: Activity | null;
   onSelect: (activity: Activity) => void;
 }
 
-/** 오늘 활동 칩 (프로필에서 고른 활동 중 하나를 선택) */
-export default function ActivityChips({
-  activities,
-  selected,
-  onSelect,
-}: ActivityChipsProps) {
+/** 오늘 활동 칩 (준비 중인 활동은 비활성으로 보여준다) */
+export default function ActivityChips({ selected, onSelect }: ActivityChipsProps) {
   return (
     <div className="flex flex-wrap gap-2" role="group" aria-label="오늘 활동">
-      {activities.map((id) => {
-        const meta = getActivityMeta(id);
-        const active = id === selected;
-        return (
-          <button
-            key={id}
-            type="button"
-            aria-pressed={active}
-            onClick={() => onSelect(id)}
-            className={`rounded-full border px-5 py-2 text-sm font-medium ${
-              active
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-steel-border bg-transparent text-pure-white'
-            }`}
-          >
-            {meta.label}
-          </button>
-        );
-      })}
+      {ACTIVITIES.map(({ id, label, enabled }) => (
+        <ActivityChip
+          key={id}
+          label={label}
+          enabled={enabled}
+          selected={id === selected}
+          onClick={() => onSelect(id)}
+          onDisabledClick={() =>
+            trackEvent(ANALYTICS_EVENTS.activityDisabledClicked, {
+              activity: id,
+              screen: ACTIVITY_SCREENS.home,
+            })
+          }
+        />
+      ))}
     </div>
   );
 }

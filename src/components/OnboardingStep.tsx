@@ -2,6 +2,7 @@ import ActivityPicker from './ActivityPicker';
 import ConstraintList from './ConstraintList';
 import LocationStatus from './LocationStatus';
 import SensitivityList from './SensitivityList';
+import { ACTIVITY_SCREENS } from '../constants/analytics';
 import type { OnboardingStepId } from '../constants/onboarding';
 import { useLocationPermission } from '../hooks/useLocationPermission';
 import { toggleActivity, toggleConstraint } from '../lib/profileDraft';
@@ -28,6 +29,7 @@ export default function OnboardingStep({
         <ActivityPicker
           selected={draft.selectedActivities}
           error={error}
+          screen={ACTIVITY_SCREENS.onboarding}
           onToggle={(id) => onChange(toggleActivity(draft, id))}
         />
       );

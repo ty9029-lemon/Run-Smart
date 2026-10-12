@@ -1,3 +1,4 @@
+import { isActivityEnabled } from '../constants/activities';
 import {
   SENSITIVITY_DEFAULT,
   SENSITIVITY_DEGREE_PER_LEVEL,
@@ -8,6 +9,9 @@ import type { Profile, Sensitivity } from '../types';
 
 /** 제거된 활동 id */
 const REMOVED_ACTIVITY = 'outing';
+
+/** 비활성 활동만 남았을 때 대체할 기본 활동 */
+const FALLBACK_ACTIVITY = 'running';
 
 /** 이전 버전 저장 형태 (활동별 보정값을 가진다) */
 export interface LegacyProfileState {
@@ -72,6 +76,20 @@ function addUseCurrentLocation(state: LegacyProfileState): LegacyProfileState {
   return { ...state, profile: { ...state.profile, useCurrentLocation: true } };
 }
 
+/** v4 → v5: 준비 중인 활동을 선택 목록에서 빼고, 비면 러닝으로 보정한다. 온보딩 전이면 건드리지 않는다. */
+function removeDisabledActivities(state: LegacyProfileState): LegacyProfileState {
+  const { profile } = state;
+  // 온보딩 전(활동이 비어 있음)이면 그대로 둔다
+  if (!state.hasOnboarded) return state;
+  const enabled = profile.selectedActivities.filter(isActivityEnabled);
+  const selectedActivities = enabled.length > 0 ? enabled : [FALLBACK_ACTIVITY];
+  const lastActivity =
+    profile.lastActivity && selectedActivities.includes(profile.lastActivity)
+      ? profile.lastActivity
+      : selectedActivities[0];
+  return { ...state, profile: { ...profile, selectedActivities, lastActivity } };
+}
+
 /**
  * 저장된 프로필을 현재 버전 형태로 옮긴다.
  * @param persisted localStorage에서 읽은 값
@@ -83,5 +101,6 @@ export function migrateProfileState(persisted: unknown, version: number): unknow
   if (version < 2) state = convertOffsets(state);
   if (version < 3) state = addFeedbackOffset(state);
   if (version < 4) state = addUseCurrentLocation(state);
+  if (version < 5) state = removeDisabledActivities(state);
   return state;
 }

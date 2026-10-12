@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import { TooltipProvider } from './components/ui/tooltip';
 import DesignSystem from './pages/DesignSystem';
 import History from './pages/History';
 import Home from './pages/Home';
@@ -21,17 +22,19 @@ function OnboardingOnly() {
 /** 앱 라우팅: 온보딩 / 홈 / 설정 / 히스토리 */
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/design-system" element={<DesignSystem />} />
-        <Route path="/onboarding" element={<OnboardingOnly />} />
-        <Route element={<RequireOnboarding />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/history" element={<History />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <TooltipProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/design-system" element={<DesignSystem />} />
+          <Route path="/onboarding" element={<OnboardingOnly />} />
+          <Route element={<RequireOnboarding />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/history" element={<History />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
   );
 }

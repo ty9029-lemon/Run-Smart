@@ -30,8 +30,8 @@ interface ProfileState {
   resetFeedbackOffset: () => void;
 }
 
-/** 저장 데이터 버전 (1: '외출' 활동 제거, 2: 추위·더위 민감도로 교체, 3: 피드백 보정 추가, 4: 현재 위치 사용 여부 추가) */
-const PROFILE_STORE_VERSION = 4;
+/** 저장 데이터 버전 (1: '외출' 활동 제거, 2: 추위·더위 민감도로 교체, 3: 피드백 보정 추가, 4: 현재 위치 사용 여부 추가, 5: 준비 중인 활동 제거) */
+const PROFILE_STORE_VERSION = 5;
 
 /** 사용자 프로필 스토어 (localStorage 저장) */
 export const useProfileStore = create<ProfileState>()(
