@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   DECISION_LOG_KEY,
+  decisionTimingProps,
   recordDecisionAndCheckChange,
   type DecisionLogStorage,
 } from './decisionTracking';
@@ -56,5 +57,23 @@ describe('recordDecisionAndCheckChange', () => {
 
   it('저장소를 쓸 수 없으면 변경이 아닌 것으로 본다', () => {
     expect(recordDecisionAndCheckChange('running', MORNING, null)).toBe(false);
+  });
+});
+
+describe('decisionTimingProps', () => {
+  it('첫 결정이면 걸린 시간을 반올림해 붙인다', () => {
+    expect(decisionTimingProps(false, 3456.7)).toEqual({ timeToDecisionMs: 3457 });
+  });
+
+  it('재결정이면 값을 붙이지 않는다', () => {
+    expect(decisionTimingProps(true, 3000)).toEqual({});
+  });
+
+  it('시작 시점을 모르면 값을 붙이지 않는다', () => {
+    expect(decisionTimingProps(false, null)).toEqual({});
+  });
+
+  it('음수 경과 시간은 0으로 보정한다', () => {
+    expect(decisionTimingProps(false, -5)).toEqual({ timeToDecisionMs: 0 });
   });
 });

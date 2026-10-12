@@ -59,3 +59,18 @@ export function recordDecisionAndCheckChange(
   }
   return false;
 }
+
+/**
+ * 결정 이벤트에 붙일 "결과가 보인 뒤 결정까지 걸린 시간" 속성을 만든다.
+ * 재결정(isChange)이거나 시작 시점을 모르면 값을 붙이지 않는다.
+ * @param isChange 오늘 이미 같은 활동으로 결정한 적이 있는지
+ * @param elapsedMs 결과가 보인 뒤 경과한 시간(ms), 알 수 없으면 null
+ * @returns timeToDecisionMs 속성 (붙이지 않을 때는 빈 객체)
+ */
+export function decisionTimingProps(
+  isChange: boolean,
+  elapsedMs: number | null,
+): { timeToDecisionMs?: number } {
+  if (isChange || elapsedMs === null) return {};
+  return { timeToDecisionMs: Math.max(0, Math.round(elapsedMs)) };
+}
