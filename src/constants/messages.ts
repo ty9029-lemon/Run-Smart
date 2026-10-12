@@ -64,7 +64,7 @@ export function formatDepartureToast(activityLabel: string): string {
  * @param activityLabel 활동명 (예: 러닝)
  */
 export function formatDepartedNotice(activityLabel: string): string {
-  return `${withObjectParticle(activityLabel)} 출발했어요. 다시 만나요`;
+  return `${withObjectParticle(activityLabel)} 출발했어요. 잠시 뒤에 다시 만나요.`;
 }
 
 /** 경고 단계별 헤드라인 문구 */
