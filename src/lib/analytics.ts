@@ -1,11 +1,15 @@
 import * as amplitude from '@amplitude/analytics-browser';
 import mixpanel from 'mixpanel-browser';
+import { PARTICIPANT_ID_PROPERTY } from '../constants/analytics';
 import { logger } from './logger';
+import { parseParticipantId } from './participantId';
 
 /** Amplitude 초기화 여부 (StrictMode의 이중 effect 실행 대응) */
 let isAmplitudeReady = false;
 /** Mixpanel 초기화 여부 (StrictMode의 이중 effect 실행 대응) */
 let isMixpanelReady = false;
+/** 마지막으로 등록한 UT 참가자 코드 (같은 값의 중복 등록 방지) */
+let registeredParticipantId: string | null = null;
 
 /** 커스텀 이벤트 이름 */
 export const ANALYTICS_EVENTS = {
@@ -88,8 +92,32 @@ function initMixpanel(): void {
   isMixpanelReady = true;
 }
 
-/** 분석 도구(Amplitude, Mixpanel)를 초기화한다. */
-export function initAnalytics(): void {
+/**
+ * UT 참가자 코드를 두 도구에 등록한다. 사용자 ID는 바꾸지 않고 속성으로만 붙인다.
+ * Amplitude는 사용자 속성, Mixpanel은 모든 이벤트에 붙는 super property로 저장된다.
+ * @param participantId 검증된 참가자 코드
+ */
+function registerParticipant(participantId: string): void {
+  if (participantId === registeredParticipantId) return;
+  registeredParticipantId = participantId;
+  if (isAmplitudeReady) {
+    amplitude.identify(new amplitude.Identify().set(PARTICIPANT_ID_PROPERTY, participantId));
+  }
+  if (isMixpanelReady) mixpanel.register({ [PARTICIPANT_ID_PROPERTY]: participantId });
+}
+
+/** 현재 URL의 쿼리 문자열 (브라우저가 아니면 빈 문자열) */
+function getLocationSearch(): string {
+  return typeof window === 'undefined' ? '' : window.location.search;
+}
+
+/**
+ * 분석 도구(Amplitude, Mixpanel)를 초기화하고, URL에 유효한 UT 참가자 코드가 있으면 등록한다.
+ * @param search 참가자 코드를 읽을 쿼리 문자열 (기본: 현재 URL)
+ */
+export function initAnalytics(search: string = getLocationSearch()): void {
   initAmplitude();
   initMixpanel();
+  const participantId = parseParticipantId(search);
+  if (participantId) registerParticipant(participantId);
 }

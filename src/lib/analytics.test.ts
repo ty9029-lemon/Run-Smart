@@ -1,7 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const amplitudeMock = vi.hoisted(() => ({ init: vi.fn(), track: vi.fn() }));
-const mixpanelMock = vi.hoisted(() => ({ init: vi.fn(), track: vi.fn() }));
+const amplitudeMock = vi.hoisted(() => {
+  /** 설정한 사용자 속성을 props에 모아 두는 Identify 대역 */
+  class Identify {
+    props: Record<string, unknown> = {};
+    set(key: string, value: unknown) {
+      this.props[key] = value;
+      return this;
+    }
+  }
+  return { init: vi.fn(), track: vi.fn(), identify: vi.fn(), Identify };
+});
+const mixpanelMock = vi.hoisted(() => ({ init: vi.fn(), track: vi.fn(), register: vi.fn() }));
 
 vi.mock('@amplitude/analytics-browser', () => amplitudeMock);
 vi.mock('mixpanel-browser', () => ({ default: mixpanelMock }));
@@ -65,6 +75,53 @@ describe('analytics', () => {
     const { ANALYTICS_EVENTS } = await loadAnalytics();
 
     expect(ANALYTICS_EVENTS.outfitViewed).toBe('outfit_viewed');
+  });
+
+  it('유효한 참가자 코드가 URL에 있으면 두 도구에 participantId로 등록한다', async () => {
+    vi.stubEnv('VITE_AMPLITUDE_API_KEY', 'amp-key');
+    vi.stubEnv('VITE_MIXPANEL_TOKEN', 'mp-token');
+    const { initAnalytics } = await loadAnalytics();
+
+    initAnalytics('?pid=P01');
+
+    const identifyArg = amplitudeMock.identify.mock.calls[0][0];
+    expect(identifyArg.props).toEqual({ participantId: 'P01' });
+    expect(mixpanelMock.register).toHaveBeenCalledWith({ participantId: 'P01' });
+  });
+
+  it('같은 참가자 코드로 다시 초기화해도 한 번만 등록한다', async () => {
+    vi.stubEnv('VITE_AMPLITUDE_API_KEY', 'amp-key');
+    vi.stubEnv('VITE_MIXPANEL_TOKEN', 'mp-token');
+    const { initAnalytics } = await loadAnalytics();
+
+    initAnalytics('?pid=P01');
+    initAnalytics('?pid=P01');
+
+    expect(amplitudeMock.identify).toHaveBeenCalledTimes(1);
+    expect(mixpanelMock.register).toHaveBeenCalledTimes(1);
+  });
+
+  it('참가자 코드가 없거나 형식이 틀리면 등록하지 않는다', async () => {
+    vi.stubEnv('VITE_AMPLITUDE_API_KEY', 'amp-key');
+    vi.stubEnv('VITE_MIXPANEL_TOKEN', 'mp-token');
+    const { initAnalytics } = await loadAnalytics();
+
+    initAnalytics('');
+    initAnalytics('?pid=a@b.com');
+
+    expect(amplitudeMock.identify).not.toHaveBeenCalled();
+    expect(mixpanelMock.register).not.toHaveBeenCalled();
+  });
+
+  it('초기화된 도구에만 참가자 코드를 등록한다', async () => {
+    vi.stubEnv('VITE_AMPLITUDE_API_KEY', '');
+    vi.stubEnv('VITE_MIXPANEL_TOKEN', 'mp-token');
+    const { initAnalytics } = await loadAnalytics();
+
+    initAnalytics('?pid=P02');
+
+    expect(amplitudeMock.identify).not.toHaveBeenCalled();
+    expect(mixpanelMock.register).toHaveBeenCalledWith({ participantId: 'P02' });
   });
 
   it('초기화 전에는 이벤트를 보내지 않는다', async () => {

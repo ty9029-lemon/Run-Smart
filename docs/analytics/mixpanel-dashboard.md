@@ -36,6 +36,25 @@ Mixpanel 화면에서 직접 만들며, 별도 코드 변경은 필요하지 않
 속성 이름은 camelCase이며, 위치·좌표 같은 개인정보는 수집하지 않습니다.
 `useCurrentLocation`은 "현재 위치로 날씨 보기" 선호(true/false)일 뿐 좌표가 아닙니다.
 
+### UT 참가자 코드 (`participantId`)
+
+UT 참가자별로 이벤트를 구분하기 위해, URL에 참가자 코드를 붙여 접속하게 합니다.
+
+```
+https://runners-fit.vercel.app/?pid=P01
+```
+
+- 코드는 Mixpanel에서는 **모든 이벤트의 `participantId` 속성**(super property)으로,
+  Amplitude에서는 **사용자 속성 `participantId`** 로 저장됩니다. 사용자 ID는 바꾸지 않습니다.
+- 한 번 접속하면 브라우저에 저장되어, 이후 `?pid=` 없이 들어와도 같은 코드로 기록됩니다.
+  다른 코드로 접속하면 새 코드로 덮어씁니다.
+- 영문·숫자·`-`·`_`, 최대 32자만 허용합니다. 이름·이메일 같은 개인정보는 코드로 쓰지 마세요.
+  (`P01`, `ut-02` 형태 권장. 허용 형식이 아니면 무시됩니다.)
+- 참가자별로 보려면 Mixpanel은 `participantId`로 Breakdown/Filter,
+  Amplitude는 User Lookup 또는 `participantId`로 세그먼트를 만듭니다.
+- 참가자 코드와 실제 사람의 대응표는 이 저장소 밖(UT 운영 문서)에서 별도로 관리하세요.
+- 2026-10-12 이후 발생한 이벤트부터 붙습니다.
+
 ### `location_allow` 발생 시점 변경 (2026-10-11 배포)
 
 | 시기 | 발생 시점 |
