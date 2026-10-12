@@ -7,6 +7,8 @@ export interface ActivityMeta {
   emoji: string;
   /** 선택 가능 여부 (false면 "준비 중"으로 비활성 표시) */
   enabled: boolean;
+  /** 기록 캘린더에서 활동한 날 숫자 아래에 찍는 점 색 (Tailwind 클래스) */
+  calendarDot: string;
 }
 
 /** 비활성 활동 안내 문구 */
@@ -14,10 +16,10 @@ export const COMING_SOON_MESSAGE = '아직 준비 중인 기능이에요.';
 
 /** 활동 4종 */
 export const ACTIVITIES: ActivityMeta[] = [
-  { id: 'running', label: '러닝', emoji: '🏃', enabled: true },
-  { id: 'hiking', label: '등산', emoji: '🥾', enabled: false },
-  { id: 'walking', label: '산책', emoji: '🚶', enabled: false },
-  { id: 'cycling', label: '자전거', emoji: '🚴', enabled: false },
+  { id: 'running', label: '러닝', emoji: '🏃', enabled: true, calendarDot: 'bg-lime-pulse' },
+  { id: 'hiking', label: '등산', emoji: '🥾', enabled: false, calendarDot: 'bg-amber-400' },
+  { id: 'walking', label: '산책', emoji: '🚶', enabled: false, calendarDot: 'bg-sky-400' },
+  { id: 'cycling', label: '자전거', emoji: '🚴', enabled: false, calendarDot: 'bg-fuchsia-400' },
 ];
 
 /** 제약사항 표시 정보 */
