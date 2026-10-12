@@ -50,6 +50,13 @@ describe('findPendingFeedback', () => {
     const newer = entryAgo(FEEDBACK_ASK_DELAY_MS * 2);
     expect(findPendingFeedback([older, newer], NOW)).toBe(newer);
   });
+
+  it('최근 기록에 답하면 같은 날 이전 기록을 이어서 묻는다', () => {
+    const older = entryAgo(FEEDBACK_ASK_DELAY_MS * 3);
+    const newer = entryAgo(FEEDBACK_ASK_DELAY_MS * 2);
+    const answeredNewer = { ...newer, feedback: 'good' as const };
+    expect(findPendingFeedback([older, answeredNewer], NOW)).toBe(older);
+  });
 });
 
 describe('applyFeedbackToOffset', () => {

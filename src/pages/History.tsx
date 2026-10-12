@@ -8,6 +8,7 @@ import { FEEDBACK_LABELS } from '../constants/feedback';
 import { MESSAGES } from '../constants/messages';
 import { MS_PER_DAY } from '../constants/thresholds';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
+import { formatTime } from '../lib/formatTime';
 import { dayKey, groupEntriesByDay, type YearMonth } from '../lib/historyCalendar';
 import { useHistoryStore } from '../store/historyStore';
 import type { HistoryEntry } from '../types';
@@ -18,14 +19,6 @@ function formatDate(date: Date): string {
     month: 'long',
     day: 'numeric',
     weekday: 'short',
-  });
-}
-
-/** 시간 표기 (예: 오후 3:07) */
-function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString('ko-KR', {
-    hour: 'numeric',
-    minute: '2-digit',
   });
 }
 

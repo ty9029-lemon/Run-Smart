@@ -33,11 +33,6 @@ export function dropRemovedEntries(entries: HistoryEntry[]): HistoryEntry[] {
   );
 }
 
-/** 같은 날짜인지 비교 */
-function isSameDay(a: string, b: string): boolean {
-  return new Date(a).toDateString() === new Date(b).toDateString();
-}
-
 /** 보관 기간(HISTORY_DAYS) 이내 기록만 남기고 최신순 정렬 */
 function keepRecent(entries: HistoryEntry[], now: number): HistoryEntry[] {
   const limit = now - HISTORY_DAYS * MS_PER_DAY;
@@ -51,11 +46,10 @@ export const useHistoryStore = create<HistoryState>()(
   persist(
     (set) => ({
       entries: createDummyHistory(Date.now()),
+      // 같은 날 같은 활동도 출발할 때마다 각각 기록한다 (같은 id만 교체)
       addEntry: (entry) =>
         set((state) => {
-          const others = state.entries.filter(
-            (e) => !(isSameDay(e.date, entry.date) && e.activity === entry.activity),
-          );
+          const others = state.entries.filter((e) => e.id !== entry.id);
           return { entries: keepRecent([entry, ...others], Date.now()) };
         }),
       removeEntry: (id) =>
