@@ -10,6 +10,7 @@ import WeatherCard from './WeatherCard';
 import { buildDummyGuide } from '../data/dummyGuide';
 import { getActivityMeta } from '../constants/activities';
 import { useAppReview } from '../hooks/useAppReview';
+import { useElapsedSinceMount } from '../hooks/useElapsedSinceMount';
 import { useFeedbackPrompt } from '../hooks/useFeedbackPrompt';
 import { useNow } from '../hooks/useNow';
 import { formatRawWeather } from '../constants/messages';
@@ -23,7 +24,7 @@ import {
   sliceToday,
 } from '../lib/bestHour';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
-import { recordDecisionAndCheckChange } from '../lib/decisionTracking';
+import { decisionTimingProps, recordDecisionAndCheckChange } from '../lib/decisionTracking';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
 import { recommendOutfit } from '../lib/outfit';
 import { calcRunScore, scoreToLevel } from '../lib/runScore';
@@ -68,6 +69,8 @@ export default function HomeReady({
   const todayEntry = useTodayEntry(activity);
   const [toastOpen, setToastOpen] = useState(false);
   const now = useNow();
+  // 결과가 화면에 준비된 시점부터 결정까지 걸린 시간을 재기 위한 경과 시간 읽기
+  const getElapsedMs = useElapsedSinceMount();
   // 만족도 팝업은 토스트와 체감 카드가 끝난 뒤에 띄운다 ('다음에 할게요'로 닫은 카드는 막지 않는다)
   const entryCount = useHistoryStore((s) => s.entries.length);
   const pendingFeedback = useFeedbackPrompt();
@@ -120,7 +123,13 @@ export default function HomeReady({
     const decidedAt = new Date();
     // 오늘 이미 결정한 적이 있으면(취소 후 재결정 포함) isChange로 구분해 집계 중복을 피한다
     const isChange = recordDecisionAndCheckChange(activity, decidedAt);
-    trackEvent(ANALYTICS_EVENTS.decisionMade, { decision: 'go', activity, score, isChange });
+    trackEvent(ANALYTICS_EVENTS.decisionMade, {
+      decision: 'go',
+      activity,
+      score,
+      isChange,
+      ...decisionTimingProps(isChange, getElapsedMs()),
+    });
     addEntry({
       id: `${decidedAt.getTime()}`,
       date: decidedAt.toISOString(),
