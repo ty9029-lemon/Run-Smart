@@ -73,3 +73,22 @@ export const FEEDBACK_EXPIRE_MS = MS_PER_DAY;
 export const FEEDBACK_STEP = 0.5;
 /** 피드백 누적 보정의 최대 크기(±°C) */
 export const FEEDBACK_OFFSET_LIMIT = 3;
+
+/** 앱 만족도 팝업: 노출에 필요한 최소 출발 기록 수 */
+export const APP_REVIEW_MIN_ENTRIES = 1;
+/** 앱 만족도 팝업: 홈 진입 후 팝업을 띄우기까지의 대기 시간(ms) */
+export const APP_REVIEW_SHOW_DELAY_MS = 3000;
+/** 앱 만족도 팝업: 토스트·체감 카드가 끝난 뒤 팝업을 띄우기까지의 대기 시간(ms) */
+export const APP_REVIEW_AFTER_BLOCKER_DELAY_MS = 2000;
+/** 앱 만족도 팝업: 이만큼(ms) 활동이 없다가 돌아오면 새 세션(재방문)으로 본다 (30분) */
+export const APP_REVIEW_SESSION_IDLE_MS = 30 * MS_PER_MINUTE;
+/** 앱 만족도 팝업: 닫은 뒤 다시 묻지 않는 기간(일) */
+export const APP_REVIEW_DISMISS_COOLDOWN_DAYS = 7;
+/** 앱 만족도 팝업: 이 횟수만큼 닫으면 더 이상 묻지 않는다 */
+export const APP_REVIEW_MAX_DISMISSALS = 2;
+/** 앱 만족도 팝업: 별점 최대값 */
+export const APP_REVIEW_MAX_RATING = 5;
+/** 앱 만족도 팝업: 이 점수 이하이면 아쉬운 점을 물어본다 */
+export const APP_REVIEW_LOW_RATING_MAX = 3;
+/** 앱 만족도 팝업: 메시지 최대 글자 수 */
+export const APP_REVIEW_MAX_MESSAGE_LENGTH = 200;

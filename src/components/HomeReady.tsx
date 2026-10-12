@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import AppReviewDialog from './AppReviewDialog';
 import DecisionButtons from './DecisionButtons';
 import DepartureToast from './DepartureToast';
 import FeedbackCard from './FeedbackCard';
@@ -8,6 +9,8 @@ import HourlyForecast from './HourlyForecast';
 import WeatherCard from './WeatherCard';
 import { buildDummyGuide } from '../data/dummyGuide';
 import { getActivityMeta } from '../constants/activities';
+import { useAppReview } from '../hooks/useAppReview';
+import { useFeedbackPrompt } from '../hooks/useFeedbackPrompt';
 import { useNow } from '../hooks/useNow';
 import { formatRawWeather } from '../constants/messages';
 import { ACTIVITY_DAYLIGHT_BUFFER_HOURS } from '../constants/scoring';
@@ -65,6 +68,15 @@ export default function HomeReady({
   const todayEntry = useTodayEntry(activity);
   const [toastOpen, setToastOpen] = useState(false);
   const now = useNow();
+  // 만족도 팝업은 토스트와 체감 카드가 끝난 뒤에 띄운다 ('다음에 할게요'로 닫은 카드는 막지 않는다)
+  const entryCount = useHistoryStore((s) => s.entries.length);
+  const pendingFeedback = useFeedbackPrompt();
+  const [feedbackDismissedId, setFeedbackDismissedId] = useState<string | null>(null);
+  const hasPendingFeedback = pendingFeedback !== null && pendingFeedback.id !== feedbackDismissedId;
+  const appReview = useAppReview({
+    entryCount,
+    isBlocked: toastOpen || hasPendingFeedback,
+  });
   // 출발 후 일정 시간(산책이 끝났을 시점)이 지나면 다시 출발할 수 있게 한다
   const departed =
     todayEntry !== null &&
@@ -137,7 +149,7 @@ export default function HomeReady({
 
   return (
     <div className="space-y-6">
-      <FeedbackCard />
+      <FeedbackCard onDismiss={setFeedbackDismissedId} />
       <HomeSummary
         activity={activity}
         score={score}
@@ -169,6 +181,11 @@ export default function HomeReady({
         activityLabel={getActivityMeta(activity).label}
         onOpenChange={setToastOpen}
         onUndo={handleCancel}
+      />
+      <AppReviewDialog
+        open={appReview.open}
+        onSubmit={appReview.submit}
+        onDismiss={appReview.dismiss}
       />
     </div>
   );

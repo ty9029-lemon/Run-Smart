@@ -23,6 +23,20 @@ export const MESSAGES = {
     '기기의 위치 서비스도 확인해 주세요. iPhone은 설정 → 개인정보 보호 및 보안 → 위치 서비스 → Safari 웹사이트에서 "앱을 사용하는 동안"으로, Android는 설정의 위치 기능과 브라우저 앱의 위치 권한을 확인해 주세요.',
 } as const;
 
+/** 앱 만족도 팝업 문구 */
+export const APP_REVIEW_MESSAGES = {
+  title: 'Run Smart, 어떠셨나요?',
+  description: '별점을 남겨 주시면 서비스를 개선하는 데 큰 도움이 돼요.',
+  ratingLabel: '만족도 별점',
+  messageLabel: '남기고 싶은 말',
+  messagePlaceholder: '자유롭게 적어 주세요. (선택)',
+  messagePlaceholderLow: '어떤 점이 아쉬웠나요? (선택)',
+  submit: '보내기',
+  submitting: '보내는 중…',
+  later: '다음에 할게요',
+  failed: '지금은 보내지 못했어요. 잠시 후 다시 시도해 주세요.',
+} as const;
+
 /**
  * AI 가이드를 받지 못했을 때 보여주는 원시 날씨 문구 (PRD 6장)
  * @param temp 기온(°C)
