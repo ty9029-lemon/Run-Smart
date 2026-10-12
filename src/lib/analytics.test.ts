@@ -162,6 +162,32 @@ describe('analytics', () => {
     expect(mixpanelMock.register_once).toHaveBeenCalledWith({});
   });
 
+  it('접속 호스트를 hostname 속성으로 두 도구에 등록한다', async () => {
+    vi.stubEnv('VITE_AMPLITUDE_API_KEY', 'amp-key');
+    vi.stubEnv('VITE_MIXPANEL_TOKEN', 'mp-token');
+    const { initAnalytics } = await loadAnalytics();
+    const expected = {
+      hostname: 'localhost',
+      isInAppBrowser: false,
+      inAppBrowserName: 'none',
+    };
+
+    initAnalytics('', SAFARI_UA, 'localhost');
+
+    expect(amplitudeMock.identify.mock.calls[0][0].props).toEqual(expected);
+    expect(mixpanelMock.register).toHaveBeenCalledWith(expected);
+  });
+
+  it('호스트를 알 수 없으면 hostname 속성은 등록하지 않는다', async () => {
+    vi.stubEnv('VITE_AMPLITUDE_API_KEY', 'amp-key');
+    vi.stubEnv('VITE_MIXPANEL_TOKEN', 'mp-token');
+    const { initAnalytics } = await loadAnalytics();
+
+    initAnalytics('', SAFARI_UA, '');
+
+    expect(amplitudeMock.identify.mock.calls[0][0].props).not.toHaveProperty('hostname');
+  });
+
   it('같은 속성으로 다시 초기화해도 한 번만 등록한다', async () => {
     vi.stubEnv('VITE_AMPLITUDE_API_KEY', 'amp-key');
     vi.stubEnv('VITE_MIXPANEL_TOKEN', 'mp-token');

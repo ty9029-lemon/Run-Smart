@@ -61,3 +61,6 @@ export const ACQUISITION_PARAMS = {
 
 /** 유입 채널 속성값 최대 길이 (비정상적으로 긴 값 차단) */
 export const ACQUISITION_VALUE_MAX_LENGTH = 64;
+
+/** 접속 호스트(도메인)를 분석 도구에 저장할 때 쓰는 속성 이름 (개발·미리보기·운영 트래픽 구분용) */
+export const HOSTNAME_PROPERTY = 'hostname';
