@@ -49,6 +49,14 @@ interface DayCellProps {
   onSelect: (date: Date) => void;
 }
 
+/** 날짜 숫자 스타일: 선택한 날은 흰 원 배경(오늘이면 라임 원 배경), 오늘은 라임색 숫자 */
+function getNumberStyle(isToday: boolean, isSelected: boolean): string {
+  if (isSelected && isToday) return 'bg-lime-pulse font-bold text-carbon-black';
+  if (isSelected) return 'bg-pure-white font-bold text-carbon-black';
+  if (isToday) return 'font-bold text-lime-pulse';
+  return 'text-pure-white';
+}
+
 /** 달력의 하루 칸: 날짜 숫자와 그날의 활동 점 */
 function DayCell({ date, entries, isToday, isSelected, isFuture, onSelect }: DayCellProps) {
   return (
@@ -58,14 +66,10 @@ function DayCell({ date, entries, isToday, isSelected, isFuture, onSelect }: Day
       aria-pressed={isSelected}
       aria-label={buildCellLabel(date, entries)}
       onClick={() => onSelect(date)}
-      className={`flex min-h-14 w-full flex-col items-center gap-1 rounded-xl border p-1 text-base disabled:opacity-30 ${
-        isSelected ? 'border-lime-pulse' : 'border-transparent'
-      }`}
+      className="flex min-h-14 w-full flex-col items-center gap-1 rounded-xl p-1 text-base disabled:opacity-30"
     >
       <span
-        className={`flex size-8 items-center justify-center rounded-full ${
-          isToday ? 'bg-pure-white font-bold text-carbon-black' : 'text-pure-white'
-        }`}
+        className={`flex size-8 items-center justify-center rounded-full ${getNumberStyle(isToday, isSelected)}`}
       >
         {date.getDate()}
       </span>
