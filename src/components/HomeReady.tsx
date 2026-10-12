@@ -11,6 +11,7 @@ import { getActivityMeta } from '../constants/activities';
 import { useNow } from '../hooks/useNow';
 import { formatRawWeather } from '../constants/messages';
 import { ACTIVITY_DAYLIGHT_BUFFER_HOURS } from '../constants/scoring';
+import { FEEDBACK_ASK_DELAY_MS } from '../constants/thresholds';
 import {
   findBestHourToday,
   findGoodRange,
@@ -39,7 +40,7 @@ interface HomeReadyProps {
   location?: LocationNoticeProps;
 }
 
-/** 오늘 이 활동으로 기록한 출발 항목을 찾는다. */
+/** 오늘 이 활동으로 기록한 가장 최근 출발 항목을 찾는다. (entries는 최신순) */
 function useTodayEntry(activity: Activity): HistoryEntry | null {
   const entries = useHistoryStore((s) => s.entries);
   const today = new Date().toDateString();
@@ -64,6 +65,10 @@ export default function HomeReady({
   const todayEntry = useTodayEntry(activity);
   const [toastOpen, setToastOpen] = useState(false);
   const now = useNow();
+  // 출발 후 일정 시간(산책이 끝났을 시점)이 지나면 다시 출발할 수 있게 한다
+  const departed =
+    todayEntry !== null &&
+    now.getTime() - new Date(todayEntry.date).getTime() < FEEDBACK_ASK_DELAY_MS;
   const { current, hourly } = weather;
   const { coldLevel, heatLevel, feedbackOffset } = profile;
   const sensitivity = useMemo(
@@ -155,7 +160,7 @@ export default function HomeReady({
         )}
       />
       <DecisionButtons
-        departed={todayEntry !== null}
+        departed={departed}
         activityLabel={getActivityMeta(activity).label}
         onDecide={handleDecide}
         onCancel={handleCancel}

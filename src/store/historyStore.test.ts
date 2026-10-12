@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { MS_PER_MINUTE } from '../constants/thresholds';
 import { buildDummyGuide } from '../data/dummyGuide';
 import { DUMMY_CURRENT_WEATHER } from '../data/dummyWeather';
 import { NEUTRAL_SENSITIVITY } from '../lib/feelsLike';
@@ -42,6 +43,28 @@ describe('addEntry', () => {
     const outfit: OutfitItem[] = [{ category: 'top', icon: 'longSleeve', label: '긴팔 티셔츠' }];
     useHistoryStore.getState().addEntry({ ...makeEntry('a'), outfit });
     expect(useHistoryStore.getState().entries[0].outfit).toEqual(outfit);
+  });
+});
+
+describe('addEntry (같은 날 같은 활동)', () => {
+  beforeEach(() => {
+    useHistoryStore.setState({ entries: [] });
+  });
+
+  it('출발할 때마다 각각 기록하고 최신순으로 둔다', () => {
+    const { addEntry } = useHistoryStore.getState();
+    const first = { ...makeEntry('first'), date: new Date(Date.now() - MS_PER_MINUTE).toISOString() };
+    const second = { ...makeEntry('second'), date: new Date().toISOString() };
+    addEntry(first);
+    addEntry(second);
+    expect(useHistoryStore.getState().entries.map((e) => e.id)).toEqual(['second', 'first']);
+  });
+
+  it('같은 id는 중복 없이 교체한다', () => {
+    const { addEntry } = useHistoryStore.getState();
+    addEntry(makeEntry('same'));
+    addEntry(makeEntry('same'));
+    expect(useHistoryStore.getState().entries).toHaveLength(1);
   });
 });
 

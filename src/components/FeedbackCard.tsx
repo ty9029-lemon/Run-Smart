@@ -4,6 +4,7 @@ import { getActivityMeta } from '../constants/activities';
 import { FEEDBACK_LABELS, FEEDBACK_ORDER } from '../constants/feedback';
 import { useFeedbackPrompt } from '../hooks/useFeedbackPrompt';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
+import { formatTime } from '../lib/formatTime';
 import { useHistoryStore } from '../store/historyStore';
 import { useProfileStore } from '../store/profileStore';
 import type { Feedback } from '../types';
@@ -22,9 +23,10 @@ export default function FeedbackCard() {
   const setFeedback = useHistoryStore((s) => s.setFeedback);
   const applyFeedback = useProfileStore((s) => s.applyFeedback);
   const [dismissedId, setDismissedId] = useState<string | null>(null);
-  const [submitted, setSubmitted] = useState(false);
+  // 방금 답한 기록 id. 다음 미응답 기록이 있으면 그 기록의 질문이 이어서 나온다.
+  const [submittedId, setSubmittedId] = useState<string | null>(null);
 
-  if (submitted) {
+  if (submittedId && (!pending || pending.id === submittedId)) {
     return (
       <p className={`${CARD} text-sm`} role="status">
         알려주셔서 고마워요. 다음 추천부터 반영할게요.
@@ -42,13 +44,13 @@ export default function FeedbackCard() {
       activity: pending.activity,
       feelsLike: pending.feelsLike ?? 0,
     });
-    setSubmitted(true);
+    setSubmittedId(pending.id);
   };
 
   return (
     <section className={`${CARD} space-y-4`} aria-label="운동 후 피드백">
       <h2 className="text-base font-bold">
-        오늘 {getActivityMeta(pending.activity).label}, 어땠어요?
+        {formatTime(pending.date)} {getActivityMeta(pending.activity).label}, 어땠어요?
       </h2>
       <div className="grid grid-cols-3 gap-2">
         {OPTIONS.map(({ value, label }) => (
