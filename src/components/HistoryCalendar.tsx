@@ -33,18 +33,11 @@ function buildCellLabel(date: Date, entries: HistoryEntry[]): string {
   return `${dateText}, 활동 ${entries.length}건`;
 }
 
-/** 칸 안의 활동 표시: 첫 활동 이모지, 2개 이상이면 나머지 개수를 +N으로 보여준다. */
-function DayMarker({ entries }: { entries: HistoryEntry[] }) {
+/** 날짜 아래 활동 점: 첫 활동의 색으로 작게 표시한다. 기록이 없으면 그리지 않는다. */
+function DayDot({ entries }: { entries: HistoryEntry[] }) {
   if (entries.length === 0) return null;
-  const [first, ...rest] = entries;
-  return (
-    <span className="flex items-center justify-center gap-0.5 leading-none">
-      <span className="text-lg">{getActivityMeta(first.activity).emoji}</span>
-      {rest.length > 0 && (
-        <span className="text-xs font-medium text-steel-border">+{rest.length}</span>
-      )}
-    </span>
-  );
+  const { calendarDot } = getActivityMeta(entries[0].activity);
+  return <span aria-hidden="true" className={`size-2 rounded-full ${calendarDot}`} />;
 }
 
 interface DayCellProps {
@@ -56,7 +49,15 @@ interface DayCellProps {
   onSelect: (date: Date) => void;
 }
 
-/** 달력의 하루 칸: 날짜 숫자와 그날의 활동 표시 */
+/** 날짜 숫자 스타일: 선택한 날은 흰 원 배경(오늘이면 라임 원 배경), 오늘은 라임색 숫자 */
+function getNumberStyle(isToday: boolean, isSelected: boolean): string {
+  if (isSelected && isToday) return 'bg-lime-pulse font-bold text-carbon-black';
+  if (isSelected) return 'bg-pure-white font-bold text-carbon-black';
+  if (isToday) return 'font-bold text-lime-pulse';
+  return 'text-pure-white';
+}
+
+/** 달력의 하루 칸: 날짜 숫자와 그날의 활동 점 */
 function DayCell({ date, entries, isToday, isSelected, isFuture, onSelect }: DayCellProps) {
   return (
     <button
@@ -65,18 +66,14 @@ function DayCell({ date, entries, isToday, isSelected, isFuture, onSelect }: Day
       aria-pressed={isSelected}
       aria-label={buildCellLabel(date, entries)}
       onClick={() => onSelect(date)}
-      className={`flex min-h-20 w-full flex-col items-center gap-1 rounded-xl border p-1 text-base disabled:opacity-30 ${
-        isSelected ? 'border-lime-pulse' : 'border-transparent'
-      }`}
+      className="flex min-h-14 w-full flex-col items-center gap-1 rounded-xl p-1 text-base disabled:opacity-30"
     >
       <span
-        className={`flex size-8 items-center justify-center rounded-full ${
-          isToday ? 'bg-pure-white font-bold text-carbon-black' : 'text-pure-white'
-        }`}
+        className={`flex size-8 items-center justify-center rounded-full ${getNumberStyle(isToday, isSelected)}`}
       >
         {date.getDate()}
       </span>
-      <DayMarker entries={entries} />
+      <DayDot entries={entries} />
     </button>
   );
 }
