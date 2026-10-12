@@ -17,8 +17,13 @@ const OPTIONS: { value: Feedback; label: string }[] = FEEDBACK_ORDER.map((value)
 
 const CARD = 'rounded-panel border border-card-border-ink bg-card-charcoal p-6';
 
+interface FeedbackCardProps {
+  /** '다음에 할게요'로 닫았을 때, 닫은 기록의 id와 함께 알린다. */
+  onDismiss?: (id: string) => void;
+}
+
 /** 다녀온 뒤 체감을 묻는 카드. 답하면 다음 추천(복장·시간대)에 반영된다. */
-export default function FeedbackCard() {
+export default function FeedbackCard({ onDismiss }: FeedbackCardProps) {
   const pending = useFeedbackPrompt();
   const setFeedback = useHistoryStore((s) => s.setFeedback);
   const applyFeedback = useProfileStore((s) => s.applyFeedback);
@@ -67,7 +72,10 @@ export default function FeedbackCard() {
       </div>
       <button
         type="button"
-        onClick={() => setDismissedId(pending.id)}
+        onClick={() => {
+          setDismissedId(pending.id);
+          onDismiss?.(pending.id);
+        }}
         className="w-full text-center text-sm text-steel-border"
       >
         다음에 할게요

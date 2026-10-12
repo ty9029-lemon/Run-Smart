@@ -22,6 +22,9 @@ export const ANALYTICS_EVENTS = {
   feedbackSubmitted: 'feedback_submitted',
   ctaClicked: 'cta_clicked',
   settingsSaved: 'settings_saved',
+  appReviewShown: 'app_review_shown',
+  appReviewSubmitted: 'app_review_submitted',
+  appReviewDismissed: 'app_review_dismissed',
 } as const;
 
 export type AnalyticsEventName = (typeof ANALYTICS_EVENTS)[keyof typeof ANALYTICS_EVENTS];
