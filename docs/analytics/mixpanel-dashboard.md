@@ -55,6 +55,50 @@ https://runners-fit.vercel.app/?pid=P01
 - 참가자 코드와 실제 사람의 대응표는 이 저장소 밖(UT 운영 문서)에서 별도로 관리하세요.
 - 2026-10-12 이후 발생한 이벤트부터 붙습니다.
 
+### 유입 채널 속성 (`utmSource`, `utmMedium`, `utmCampaign`)
+
+SNS 게시글 링크의 `utm` 파라미터로 어느 채널에서 왔는지 구분합니다.
+
+```
+https://runners-fit.vercel.app/?utm_source=threads&utm_campaign=ut1
+https://runners-fit.vercel.app/?utm_source=x&utm_campaign=ut1
+https://runners-fit.vercel.app/?utm_source=instagram&utm_campaign=ut1
+```
+
+- **첫 접속의 값만 유지**합니다 (first-touch). 이후 다른 링크로 들어와도 처음 채널이 남습니다.
+  Mixpanel은 모든 이벤트의 속성, Amplitude는 사용자 속성(`setOnce`)으로 저장됩니다.
+- SDK 자동 수집(`utm_source` 등)은 신규 사용자가 `/onboarding`으로 리다이렉트되면서 쿼리가 사라지면
+  Amplitude에서 놓치는 것이 확인되어, 초기화 시점에 직접 읽어 따로 저장합니다.
+  마지막 방문 기준 값은 기존 `utm_source` 속성(Mixpanel)을 보세요.
+- 영문·숫자·`-`·`_`·`.`, 최대 64자만 허용하며 그 외 값은 무시됩니다.
+- 채널 값은 소문자로 통일하세요 (`x`, `threads`, `instagram`, `kakao`, `community`).
+- 2026-10-12 이후 발생한 이벤트부터 붙습니다.
+
+### 인앱 브라우저 속성 (`isInAppBrowser`, `inAppBrowserName`)
+
+SNS·메신저 앱 안의 웹뷰로 열린 접속을 구분하기 위한 속성입니다.
+인앱 브라우저는 일반 브라우저와 저장소가 분리되어 있어 같은 사람이 매번 새 사용자로 잡힐 수 있고,
+그만큼 **재방문율이 실제보다 낮게** 나옵니다. 재방문 지표는 인앱 접속을 분리해서 보세요.
+
+| 속성 | 값 | 설명 |
+|---|---|---|
+| `isInAppBrowser` | `true` / `false` | 앱 안의 웹뷰로 열렸는지 |
+| `inAppBrowserName` | `instagram`, `threads`, `x`, `facebook`, `kakaotalk`, `naver`, `line`, `band`, `daum`, `tiktok`, `webview`, `none` | 앱 이름. 앱을 특정하지 못한 웹뷰는 `webview`, 일반 브라우저는 `none` |
+
+- Mixpanel에서는 모든 이벤트의 속성(super property), Amplitude에서는 사용자 속성으로 저장됩니다.
+- User-Agent 기반 판별이라 앱 업데이트로 달라질 수 있습니다. 분석용 세그먼트로만 쓰세요.
+- **X(트위터)의 iOS 인앱 브라우저는 일반 Safari와 User-Agent가 같아 구분되지 않을 수 있습니다.**
+  채널 구분은 링크의 `utm_source`(예: `x`, `threads`)를 기준으로 하고, 이 속성은 보조로 쓰세요.
+- 새 사용자의 첫 `[Auto] Page View`부터 붙습니다. (2026-10-12 이후)
+- 재방문율 비교 예: `isInAppBrowser`가 `false`인 사용자만 Retention, 또는 `inAppBrowserName`별 Breakdown.
+
+#### 페이지뷰 수집 방식 변경 (2026-10-12)
+
+Mixpanel 자동 페이지뷰 수집은 초기화 시점에 발생해 사용자 속성이 빠지므로 끄고,
+속성을 등록한 뒤 경로(pathname)가 바뀔 때마다 앱이 직접 `$mp_web_page_view`를 기록합니다.
+이벤트 이름과 표시명(`[Auto] Page View`)은 그대로입니다. 쿼리·해시만 바뀐 경우는 기록하지 않습니다.
+온보딩을 마치지 않은 신규 사용자는 `/` → `/onboarding` 리다이렉트로 페이지뷰가 2건 기록됩니다.
+
 ### `location_allow` 발생 시점 변경 (2026-10-11 배포)
 
 | 시기 | 발생 시점 |

@@ -39,3 +39,25 @@ export const PARTICIPANT_ID_PROPERTY = 'participantId';
 
 /** 참가자 코드 최대 길이 (이름·이메일 같은 개인정보가 들어오지 않도록 짧게 제한) */
 export const PARTICIPANT_ID_MAX_LENGTH = 32;
+
+/** 인앱 브라우저 여부를 분석 도구에 저장할 때 쓰는 속성 이름 */
+export const IN_APP_BROWSER_PROPERTY = 'isInAppBrowser';
+
+/** 인앱 브라우저 이름(instagram, kakaotalk 등)을 분석 도구에 저장할 때 쓰는 속성 이름 */
+export const IN_APP_BROWSER_NAME_PROPERTY = 'inAppBrowserName';
+
+/** 인앱 브라우저가 아닐 때 이름 속성에 넣는 값 */
+export const IN_APP_BROWSER_NONE = 'none';
+
+/**
+ * 유입 채널 구분용 URL 파라미터와, 분석 도구에 저장할 속성 이름.
+ * SDK의 자동 UTM 수집은 리다이렉트로 쿼리가 사라지면 놓칠 수 있어 초기화 시점에 직접 읽는다.
+ */
+export const ACQUISITION_PARAMS = {
+  utm_source: 'utmSource',
+  utm_medium: 'utmMedium',
+  utm_campaign: 'utmCampaign',
+} as const;
+
+/** 유입 채널 속성값 최대 길이 (비정상적으로 긴 값 차단) */
+export const ACQUISITION_VALUE_MAX_LENGTH = 64;

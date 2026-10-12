@@ -1,6 +1,12 @@
 import * as amplitude from '@amplitude/analytics-browser';
 import mixpanel from 'mixpanel-browser';
-import { PARTICIPANT_ID_PROPERTY } from '../constants/analytics';
+import {
+  IN_APP_BROWSER_NAME_PROPERTY,
+  IN_APP_BROWSER_PROPERTY,
+  PARTICIPANT_ID_PROPERTY,
+} from '../constants/analytics';
+import { parseAcquisition } from './acquisition';
+import { detectInAppBrowser } from './inAppBrowser';
 import { logger } from './logger';
 import { parseParticipantId } from './participantId';
 
@@ -8,8 +14,14 @@ import { parseParticipantId } from './participantId';
 let isAmplitudeReady = false;
 /** Mixpanel 초기화 여부 (StrictMode의 이중 effect 실행 대응) */
 let isMixpanelReady = false;
-/** 마지막으로 등록한 UT 참가자 코드 (같은 값의 중복 등록 방지) */
-let registeredParticipantId: string | null = null;
+/** 마지막으로 Amplitude에 등록한 사용자 속성 (같은 값의 중복 등록 방지) */
+let registeredUserPropsKey: string | null = null;
+
+/** 모든 이벤트(사용자)에 붙이는 속성 (참가자 코드, 인앱 브라우저 여부 등) */
+type UserProps = Record<string, string | boolean>;
+
+/** 첫 접속 시점의 값만 남기는 속성 (유입 채널 등) */
+type FirstTouchProps = Record<string, string>;
 
 /** 커스텀 이벤트 이름 */
 export const ANALYTICS_EVENTS = {
@@ -72,10 +84,12 @@ function initAmplitude(): void {
 }
 
 /**
- * Mixpanel을 초기화하고 경로 변경 기준 페이지뷰 자동 수집을 켠다.
+ * Mixpanel을 초기화한다. 사용자 속성은 초기화 직후(loaded) super property로 등록해 이후 이벤트에 모두 붙인다.
  * 토큰이 없으면 경고만 남기고 건너뛴다.
+ * @param userProps 모든 이벤트에 붙일 속성
+ * @param firstTouchProps 처음 등록된 값만 유지할 속성 (유입 채널)
  */
-function initMixpanel(): void {
+function initMixpanel(userProps: UserProps, firstTouchProps: FirstTouchProps): void {
   if (isMixpanelReady) return;
 
   const token = import.meta.env.VITE_MIXPANEL_TOKEN;
@@ -85,25 +99,40 @@ function initMixpanel(): void {
   }
 
   mixpanel.init(token, {
-    // SPA 라우팅에서 경로가 바뀔 때마다 페이지뷰를 기록한다 (쿼리·해시 변경은 무시)
-    track_pageview: 'url-with-path',
+    // 자동 페이지뷰는 끈다. 초기화 시점에 발생하면 사용자 속성이 등록되기 전이라 속성이 빠진다.
+    // 대신 속성을 등록한 뒤 trackPageView로 직접 기록한다.
+    track_pageview: false,
     persistence: 'localStorage',
+    loaded: (instance) => {
+      instance.register(userProps);
+      instance.register_once(firstTouchProps);
+    },
   });
   isMixpanelReady = true;
 }
 
 /**
- * UT 참가자 코드를 두 도구에 등록한다. 사용자 ID는 바꾸지 않고 속성으로만 붙인다.
- * Amplitude는 사용자 속성, Mixpanel은 모든 이벤트에 붙는 super property로 저장된다.
- * @param participantId 검증된 참가자 코드
+ * 페이지뷰를 Mixpanel에 기록한다. 경로가 바뀔 때 호출한다.
+ * 사용자 속성이 등록된 뒤에 호출해야 첫 페이지뷰에도 속성이 붙는다.
  */
-function registerParticipant(participantId: string): void {
-  if (participantId === registeredParticipantId) return;
-  registeredParticipantId = participantId;
-  if (isAmplitudeReady) {
-    amplitude.identify(new amplitude.Identify().set(PARTICIPANT_ID_PROPERTY, participantId));
-  }
-  if (isMixpanelReady) mixpanel.register({ [PARTICIPANT_ID_PROPERTY]: participantId });
+export function trackPageView(): void {
+  if (isMixpanelReady) mixpanel.track_pageview();
+}
+
+/**
+ * 사용자 속성을 Amplitude 사용자 속성으로 등록한다. 사용자 ID는 바꾸지 않는다.
+ * (Mixpanel은 초기화 시점에 super property로 등록된다.)
+ * @param userProps 매번 최신 값으로 덮어쓸 속성
+ * @param firstTouchProps 처음 등록된 값만 유지할 속성
+ */
+function registerAmplitudeUserProps(userProps: UserProps, firstTouchProps: FirstTouchProps): void {
+  const key = JSON.stringify([userProps, firstTouchProps]);
+  if (!isAmplitudeReady || key === registeredUserPropsKey) return;
+  registeredUserPropsKey = key;
+  const identify = new amplitude.Identify();
+  Object.entries(userProps).forEach(([name, value]) => identify.set(name, value));
+  Object.entries(firstTouchProps).forEach(([name, value]) => identify.setOnce(name, value));
+  amplitude.identify(identify);
 }
 
 /** 현재 URL의 쿼리 문자열 (브라우저가 아니면 빈 문자열) */
@@ -111,13 +140,40 @@ function getLocationSearch(): string {
   return typeof window === 'undefined' ? '' : window.location.search;
 }
 
+/** 현재 브라우저의 User-Agent (브라우저가 아니면 빈 문자열) */
+function getUserAgent(): string {
+  return typeof navigator === 'undefined' ? '' : navigator.userAgent;
+}
+
 /**
- * 분석 도구(Amplitude, Mixpanel)를 초기화하고, URL에 유효한 UT 참가자 코드가 있으면 등록한다.
- * @param search 참가자 코드를 읽을 쿼리 문자열 (기본: 현재 URL)
+ * 이벤트에 붙일 사용자 속성을 만든다.
+ * 인앱 브라우저 여부는 항상 포함하고, 참가자 코드는 URL에 유효한 값이 있을 때만 포함한다.
  */
-export function initAnalytics(search: string = getLocationSearch()): void {
-  initAmplitude();
-  initMixpanel();
+function buildUserProps(search: string, userAgent: string): UserProps {
+  const { isInAppBrowser, inAppBrowserName } = detectInAppBrowser(userAgent);
   const participantId = parseParticipantId(search);
-  if (participantId) registerParticipant(participantId);
+  return {
+    ...(participantId ? { [PARTICIPANT_ID_PROPERTY]: participantId } : {}),
+    [IN_APP_BROWSER_PROPERTY]: isInAppBrowser,
+    [IN_APP_BROWSER_NAME_PROPERTY]: inAppBrowserName,
+  };
+}
+
+/**
+ * 분석 도구(Amplitude, Mixpanel)를 초기화하고 사용자 속성을 등록한다.
+ * 속성: 참가자 코드(URL ?pid=, 유효할 때만), 인앱 브라우저 여부와 앱 이름,
+ * 첫 접속의 유입 채널(utm_source·utm_medium·utm_campaign, 처음 값만 유지)
+ * @param search 참가자 코드를 읽을 쿼리 문자열 (기본: 현재 URL)
+ * @param userAgent 인앱 브라우저를 판별할 User-Agent (기본: 현재 브라우저)
+ */
+export function initAnalytics(
+  search: string = getLocationSearch(),
+  userAgent: string = getUserAgent(),
+): void {
+  const userProps = buildUserProps(search, userAgent);
+  // 리다이렉트로 쿼리가 사라지기 전에 동기적으로 읽어 둔다
+  const firstTouchProps = parseAcquisition(search);
+  initAmplitude();
+  initMixpanel(userProps, firstTouchProps);
+  registerAmplitudeUserProps(userProps, firstTouchProps);
 }
