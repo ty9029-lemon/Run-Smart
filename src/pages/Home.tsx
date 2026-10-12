@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import HomeHeader from '../components/HomeHeader';
 import HomeReady from '../components/HomeReady';
+import { isActivityEnabled } from '../constants/activities';
 import { CURRENT_LOCATION_LABEL } from '../constants/api';
 import { DEFAULT_LOCATION, MESSAGES } from '../constants/messages';
 import { useCoords } from '../hooks/useCoords';
@@ -17,7 +18,8 @@ import type { Activity, Profile } from '../types';
 
 /** 오늘 활동을 정한다. 마지막 활동이 선택 목록에 없으면 첫 번째 활동. */
 function resolveActivity(profile: Profile): Activity | null {
-  const { lastActivity, selectedActivities } = profile;
+  const { lastActivity } = profile;
+  const selectedActivities = profile.selectedActivities.filter(isActivityEnabled);
   if (lastActivity && selectedActivities.includes(lastActivity)) return lastActivity;
   return selectedActivities[0] ?? null;
 }

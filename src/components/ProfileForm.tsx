@@ -2,6 +2,7 @@ import ActivityPicker from './ActivityPicker';
 import ConstraintList from './ConstraintList';
 import FeedbackOffsetSection from './FeedbackOffsetSection';
 import SensitivityList from './SensitivityList';
+import { ACTIVITY_SCREENS } from '../constants/analytics';
 import { toggleActivity, toggleConstraint } from '../lib/profileDraft';
 import type { Profile } from '../types';
 
@@ -21,6 +22,7 @@ export default function ProfileForm({ draft, error, onChange }: ProfileFormProps
         <ActivityPicker
           selected={draft.selectedActivities}
           error={error}
+          screen={ACTIVITY_SCREENS.settings}
           onToggle={(id) => onChange(toggleActivity(draft, id))}
         />
       </section>

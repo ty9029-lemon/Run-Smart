@@ -82,3 +82,28 @@ describe('v3 → v4', () => {
     expect(result.profile.feedbackOffset).toBe(-1);
   });
 });
+
+describe('v4 → v5', () => {
+  type V5 = { profile: { selectedActivities: string[]; lastActivity: string | null } };
+  const base = { coldLevel: 4, heatLevel: 3, constraints: [], feedbackOffset: 0, useCurrentLocation: true };
+
+  it('준비 중인 활동을 선택 목록에서 뺀다', () => {
+    const v4 = {
+      hasOnboarded: true,
+      profile: { ...base, selectedActivities: ['running', 'walking'], lastActivity: 'walking' },
+    };
+    const result = migrateProfileState(v4, 4) as V5;
+    expect(result.profile.selectedActivities).toEqual(['running']);
+    expect(result.profile.lastActivity).toBe('running');
+  });
+
+  it('활성 활동이 하나도 없으면 러닝으로 보정한다', () => {
+    const v4 = {
+      hasOnboarded: true,
+      profile: { ...base, selectedActivities: ['hiking', 'cycling'], lastActivity: 'hiking' },
+    };
+    const result = migrateProfileState(v4, 4) as V5;
+    expect(result.profile.selectedActivities).toEqual(['running']);
+    expect(result.profile.lastActivity).toBe('running');
+  });
+});
