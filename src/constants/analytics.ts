@@ -30,3 +30,12 @@ export const OUTFIT_VIEW_RATIO = 0.5;
 
 /** 복장 패널을 "봤다"고 인정하는 최소 노출 시간(ms) */
 export const OUTFIT_VIEW_DWELL_MS = 1000;
+
+/** UT 참가자 코드를 전달하는 URL 쿼리 파라미터 이름 (예: /?pid=P01) */
+export const PARTICIPANT_ID_PARAM = 'pid';
+
+/** 참가자 코드를 분석 도구에 저장할 때 쓰는 속성 이름 */
+export const PARTICIPANT_ID_PROPERTY = 'participantId';
+
+/** 참가자 코드 최대 길이 (이름·이메일 같은 개인정보가 들어오지 않도록 짧게 제한) */
+export const PARTICIPANT_ID_MAX_LENGTH = 32;
