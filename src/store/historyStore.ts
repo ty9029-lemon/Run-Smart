@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { HISTORY_DAYS, MS_PER_DAY } from '../constants/thresholds';
-import { createDummyHistory } from '../data/dummyHistory';
 import type { Feedback, HistoryEntry } from '../types';
 
 interface HistoryState {
@@ -13,8 +12,11 @@ interface HistoryState {
   setFeedback: (id: string, feedback: Feedback) => void;
 }
 
-/** 저장 데이터 버전 (1: '외출' 활동 제거, 2: 안 가기(skip) 기록 제거) */
-const HISTORY_STORE_VERSION = 2;
+/** 저장 데이터 버전 (1: '외출' 활동 제거, 2: 안 가기(skip) 기록 제거, 3: 더미 시드 기록 제거) */
+const HISTORY_STORE_VERSION = 3;
+
+/** 예전 더미 시드 기록의 id 접두어 */
+const SEED_ID_PREFIX = 'seed-';
 
 /** 제거된 활동 id */
 const REMOVED_ACTIVITY = 'outing';
@@ -33,6 +35,14 @@ export function dropRemovedEntries(entries: HistoryEntry[]): HistoryEntry[] {
   );
 }
 
+/**
+ * 예전에 모든 사용자에게 채워 주던 더미 시드 기록을 버린다.
+ * @param entries 저장돼 있던 기록
+ */
+export function dropSeedEntries(entries: HistoryEntry[]): HistoryEntry[] {
+  return entries.filter((e) => !e.id.startsWith(SEED_ID_PREFIX));
+}
+
 /** 보관 기간(HISTORY_DAYS) 이내 기록만 남기고 최신순 정렬 */
 function keepRecent(entries: HistoryEntry[], now: number): HistoryEntry[] {
   const limit = now - HISTORY_DAYS * MS_PER_DAY;
@@ -41,11 +51,11 @@ function keepRecent(entries: HistoryEntry[], now: number): HistoryEntry[] {
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
-/** 활동 히스토리 스토어 (localStorage 저장, 최초엔 더미 데이터로 시작) */
+/** 활동 히스토리 스토어 (localStorage 저장, 최초엔 빈 기록으로 시작) */
 export const useHistoryStore = create<HistoryState>()(
   persist(
     (set) => ({
-      entries: createDummyHistory(Date.now()),
+      entries: [],
       // 같은 날 같은 활동도 출발할 때마다 각각 기록한다 (같은 id만 교체)
       addEntry: (entry) =>
         set((state) => {
@@ -64,11 +74,11 @@ export const useHistoryStore = create<HistoryState>()(
     {
       name: 'run-smart-history',
       version: HISTORY_STORE_VERSION,
-      // 제거된 '외출' 활동과 안 가기(skip) 기록은 버린다
+      // 제거된 '외출' 활동, 안 가기(skip) 기록, 더미 시드 기록은 버린다
       migrate: (persisted, version) => {
         const state = persisted as HistoryState;
         if (version >= HISTORY_STORE_VERSION) return state;
-        return { ...state, entries: dropRemovedEntries(state.entries) };
+        return { ...state, entries: dropSeedEntries(dropRemovedEntries(state.entries)) };
       },
     },
   ),

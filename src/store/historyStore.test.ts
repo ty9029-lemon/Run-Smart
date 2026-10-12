@@ -4,7 +4,7 @@ import { buildDummyGuide } from '../data/dummyGuide';
 import { DUMMY_CURRENT_WEATHER } from '../data/dummyWeather';
 import { NEUTRAL_SENSITIVITY } from '../lib/feelsLike';
 import type { HistoryEntry, OutfitItem } from '../types';
-import { dropRemovedEntries, useHistoryStore } from './historyStore';
+import { dropRemovedEntries, dropSeedEntries, useHistoryStore } from './historyStore';
 
 /** 테스트용 기록 항목 */
 function makeEntry(id: string): HistoryEntry {
@@ -88,5 +88,12 @@ describe('dropRemovedEntries', () => {
     const outing = { ...makeEntry('outing'), activity: 'outing' } as unknown as HistoryEntry;
     const kept = makeEntry('go');
     expect(dropRemovedEntries([skip, outing, kept]).map((e) => e.id)).toEqual(['go']);
+  });
+});
+
+describe('dropSeedEntries', () => {
+  it('더미 시드 기록만 버리고 사용자 기록은 남긴다', () => {
+    const entries = [makeEntry('seed-1'), makeEntry('seed-5'), makeEntry('1735689600000')];
+    expect(dropSeedEntries(entries).map((e) => e.id)).toEqual(['1735689600000']);
   });
 });
