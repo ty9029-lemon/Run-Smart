@@ -19,6 +19,7 @@ export const ANALYTICS_EVENTS = {
   hourlyForecastScrolled: 'hourly_forecast_scrolled',
   historyOpened: 'history_opened',
   historyEntryViewed: 'history_entry_viewed',
+  outfitViewed: 'outfit_viewed',
   feedbackSubmitted: 'feedback_submitted',
   ctaClicked: 'cta_clicked',
   settingsSaved: 'settings_saved',

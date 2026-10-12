@@ -61,6 +61,12 @@ describe('analytics', () => {
     expect(mixpanelMock.track).toHaveBeenCalledWith('decision_made', undefined);
   });
 
+  it('복장 노출 이벤트 이름이 정의돼 있다', async () => {
+    const { ANALYTICS_EVENTS } = await loadAnalytics();
+
+    expect(ANALYTICS_EVENTS.outfitViewed).toBe('outfit_viewed');
+  });
+
   it('초기화 전에는 이벤트를 보내지 않는다', async () => {
     const { trackEvent, ANALYTICS_EVENTS } = await loadAnalytics();
 

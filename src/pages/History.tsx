@@ -4,6 +4,7 @@ import GuideBox from '../components/GuideBox';
 import HistoryCalendar from '../components/HistoryCalendar';
 import OutfitPanel from '../components/OutfitPanel';
 import { getActivityMeta } from '../constants/activities';
+import { OUTFIT_SOURCES } from '../constants/analytics';
 import { FEEDBACK_LABELS } from '../constants/feedback';
 import { MESSAGES } from '../constants/messages';
 import { MS_PER_DAY } from '../constants/thresholds';
@@ -65,7 +66,12 @@ function HistoryItem({ entry }: { entry: HistoryEntry }) {
       <HistoryHeader entry={entry} />
       <GuideBox guide={{ state: 'ready', data: entry.guide }} rawWeather={entry.weatherSummary} />
       {entry.outfit && entry.outfit.length > 0 && (
-        <OutfitPanel items={entry.outfit} title="추천 복장" />
+        <OutfitPanel
+          items={entry.outfit}
+          title="추천 복장"
+          source={OUTFIT_SOURCES.history}
+          activity={entry.activity}
+        />
       )}
     </li>
   );

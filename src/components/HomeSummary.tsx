@@ -1,6 +1,7 @@
 import ActivityChips from './ActivityChips';
 import OutfitPanel from './OutfitPanel';
 import ScoreRing from './ScoreRing';
+import { OUTFIT_SOURCES } from '../constants/analytics';
 import { LEVEL_LABEL } from '../constants/messages';
 import type { Activity, OutfitItem, WarningLevel } from '../types';
 
@@ -28,7 +29,7 @@ export default function HomeSummary({
       />
       <h1 className="text-3xl font-bold leading-tight">{LEVEL_LABEL[level]}</h1>
       <ScoreRing score={score} />
-      <OutfitPanel items={outfit} />
+      <OutfitPanel items={outfit} source={OUTFIT_SOURCES.home} activity={activity} />
     </div>
   );
 }
