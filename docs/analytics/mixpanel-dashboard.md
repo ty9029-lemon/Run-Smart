@@ -78,6 +78,23 @@ https://runners-fit.vercel.app/?utm_source=instagram&utm_campaign=ut1
 - 채널 값은 소문자로 통일하세요 (`x`, `threads`, `instagram`, `kakao`, `community`).
 - 2026-10-12 이후 발생한 이벤트부터 붙습니다.
 
+### 접속 호스트 속성 (`hostname`)
+
+개발(`localhost`)·미리보기·운영 트래픽을 구분하기 위한 속성입니다.
+Amplitude는 이벤트에 접속 도메인이 따로 없어, 이 속성이 없으면 개발 중 접속을 걸러낼 수 없습니다.
+
+| 값 | 의미 |
+|---|---|
+| `runners-fit.vercel.app` | 운영 |
+| `localhost` | 로컬 개발·테스트 |
+| 그 외 `*.vercel.app` | 미리보기(Preview) 배포 |
+
+- Mixpanel에서는 모든 이벤트의 속성, Amplitude에서는 사용자 속성으로 저장됩니다.
+  (Mixpanel에는 자동 속성 `current_domain`, `$current_url`도 있어 기존 방식으로도 구분할 수 있습니다.)
+- **운영 데이터만 보려면** `hostname` **is** `runners-fit.vercel.app` 필터를 겁니다.
+  개발 접속만 빼려면 `hostname` **is not** `localhost`를 걸되, 이 속성이 붙기 전의 이벤트는 값이 없어 포함됩니다.
+- 이 속성이 배포된 이후의 이벤트부터 붙습니다.
+
 ### 인앱 브라우저 속성 (`isInAppBrowser`, `inAppBrowserName`)
 
 SNS·메신저 앱 안의 웹뷰로 열린 접속을 구분하기 위한 속성입니다.
