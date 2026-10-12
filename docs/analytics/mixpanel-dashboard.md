@@ -32,6 +32,9 @@ Mixpanel 화면에서 직접 만들며, 별도 코드 변경은 필요하지 않
 | `history_entry_viewed` | 기록 항목 열람 | `daysAgo`, `decision`, `activity` |
 | `outfit_viewed` | 복장 패널이 50% 이상 1초 이상 화면에 보였을 때 (마운트당 1회, 2026-10-12 추가) | `source`(`home`/`history`), `activity`, `itemCount` |
 | `hourly_forecast_scrolled` | 시간대별 예보 스크롤 | `maxHour` |
+| `app_review_shown` | 재방문 시 앱 만족도 팝업이 열렸을 때 | `entryCount`(출발 기록 수) |
+| `app_review_submitted` | 별점(과 메시지)을 제출해 저장에 성공했을 때 | `rating`(1~5), `hasMessage`(메시지 작성 여부), `entryCount`. **메시지 본문은 분석 도구로 보내지 않음** |
+| `app_review_dismissed` | 팝업을 응답 없이 닫았을 때 | `dismissCount`(누적 닫은 횟수) |
 | `data_load_failed` | 날씨·가이드 로딩 실패 | `reason` 등 |
 
 속성 이름은 camelCase이며, 위치·좌표 같은 개인정보는 수집하지 않습니다.
@@ -197,7 +200,12 @@ Mixpanel 자동 페이지뷰 수집은 초기화 시점에 발생해 사용자 �
 | 데이터 로딩 실패율 | Insights (Formula) | `A = data_load_failed`, `B = run_score_viewed`, 수식 `A / B` |
 | 주간 결정 횟수 | Insights | 이벤트 `decision_made`, 지표 **Frequency per user**, 주 단위 |
 | 활동별·점수 구간별 결정 | Insights | `decision_made`, Breakdown `activity` 또는 `score`(숫자 구간) |
-| 앱 리뷰 | Funnels | `app_review_shown` → `app_review_submitted` (제출 이벤트는 수신 후 선택 가능) |
+| 앱 만족도 응답률 | Funnels | `app_review_shown` → `app_review_submitted`, 전환 창 1일 (제출 이벤트는 첫 수신 후 목록에 나타남) |
+| 별점 분포 | Insights | `app_review_submitted`, **Total Events**, Breakdown `rating`, 차트 Bar |
+| 평균 별점 | Insights | `app_review_submitted`, 지표 **Average of** `rating`, 차트 Line (주 단위 권장) |
+| 메시지 작성 비율 | Insights | `app_review_submitted`, **Total Events**, Breakdown `hasMessage`, 차트 Pie |
+| 저점수(1~3점) 비율 | Insights (Formula) | `A = app_review_submitted`(필터 `rating` ≤ 3), `B = app_review_submitted`, 수식 `A / B` |
+| 팝업 닫기 비율 | Insights (Formula) | `A = app_review_dismissed`, `B = app_review_shown`, 수식 `A / B` |
 | 페이지별 조회수 | Insights | `[Auto] Page View`, **Total Events**, Breakdown `$current_url`, 차트 Bar |
 | 민감도 분포 | Insights | `settings_saved`, **Total Events**, Breakdown `coldLevel` 또는 `heatLevel` |
 | 참가자 개별 흐름 | Insights | 필터 `participantId` is `P01`, 이벤트 전체 |
@@ -270,3 +278,32 @@ Preview 배포에서 발생한 이벤트도 같은 프로젝트에 쌓입니다.
 - [ ] `feedback_submitted`의 `feedback` 값이 `cold`/`good`/`hot` 안에 있는지
 - [ ] 운영 도메인 필터 적용 시 데이터가 사라지지 않는지
 - [ ] 채널·인앱 비교를 할 때 표본이 최소 기준(신규 30명, 피드백 20건) 이상인지
+
+---
+
+## 9. 앱 만족도 팝업 (별점·메시지)
+
+재방문한 사용자에게 별점(1~5)과 선택 메시지(최대 200자)를 묻는 팝업입니다. 성공 기준의 "만족" 가설을 직접 확인하는 데이터입니다.
+
+| 항목 | 내용 |
+|---|---|
+| 노출 대상 | 이전 세션이 있던 재방문(마지막 활동 후 30분 이상) + 출발 기록 1건 이상 |
+| 노출 시점 | 화면 진입 약 3초 뒤. 토스트·체감 피드백 카드가 떠 있으면 그 뒤 |
+| 닫기 | "다음에 할게요" → 7일 쿨다운, 최대 2회 |
+| 분석 이벤트 | `app_review_shown` / `app_review_submitted` / `app_review_dismissed` (1장 참고) |
+| 저장 | Supabase `app_reviews` 테이블 (별점, 메시지, 출발 기록 수, 익명 사용자 ID) |
+
+### 어디서 무엇을 보나
+
+| 보고 싶은 것 | 위치 |
+|---|---|
+| 별점 분포, 평균, 응답률, 팝업 닫기 비율 | Mixpanel / Amplitude (3장의 일회성 조회) |
+| 메시지 본문, 저점수 사유 | **Supabase** (`docs/analytics/app-review-queries.md`의 조회 쿼리) |
+
+### 해석 주의
+
+- **생존자 편향**: 재방문자만 묻기 때문에 첫 방문에서 떠난 사용자의 불만은 포함되지 않습니다. 별점은 "남은 사용자의 만족"으로 읽습니다.
+- **낮은 응답률**: 닫을 수 있어 표본이 작을 수 있습니다. 평균보다 분포와 메시지를 중심으로 보고, 최소 20건 이상일 때 판단합니다.
+- **인앱 브라우저**: 저장소가 분리되면 재방문으로 인식되지 않아 팝업이 안 뜰 수 있습니다. `inAppBrowserName`별로 응답률을 비교하세요.
+- **메시지 개인정보**: 자유 입력이라 연락처 등이 적힐 수 있습니다. 외부로 공유할 때는 마스킹하세요.
+
