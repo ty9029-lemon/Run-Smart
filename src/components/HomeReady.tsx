@@ -14,7 +14,7 @@ import { useFeedbackPrompt } from '../hooks/useFeedbackPrompt';
 import { useNow } from '../hooks/useNow';
 import { formatRawWeather } from '../constants/messages';
 import { ACTIVITY_DAYLIGHT_BUFFER_HOURS } from '../constants/scoring';
-import { FEEDBACK_ASK_DELAY_MS } from '../constants/thresholds';
+import { REDEPARTURE_DELAY_MS } from '../constants/thresholds';
 import {
   findBestHourToday,
   findGoodRange,
@@ -77,10 +77,10 @@ export default function HomeReady({
     entryCount,
     isBlocked: toastOpen || hasPendingFeedback,
   });
-  // 출발 후 일정 시간(산책이 끝났을 시점)이 지나면 다시 출발할 수 있게 한다
+  // 출발 후 일정 시간(활동이 끝났을 시점)이 지나면 다시 출발할 수 있게 한다
   const departed =
     todayEntry !== null &&
-    now.getTime() - new Date(todayEntry.date).getTime() < FEEDBACK_ASK_DELAY_MS;
+    now.getTime() - new Date(todayEntry.date).getTime() < REDEPARTURE_DELAY_MS;
   const { current, hourly } = weather;
   const { coldLevel, heatLevel, feedbackOffset } = profile;
   const sensitivity = useMemo(
