@@ -4,7 +4,8 @@ Run-Smart에서 수집 중인 이벤트를 한눈에 보기 위한 Mixpanel 보�
 Mixpanel 화면에서 직접 만들며, 별도 코드 변경은 필요하지 않습니다.
 
 - 보드 이름: **Run-Smart**
-- 구성: 사용량 / 온보딩 퍼널 / 가기·안 가기 결정 / 설정 민감도 분포
+- 구성(2026-10-12 UT 개편): 핵심 퍼널 / 결정까지 걸린 시간 / 체감 피드백 / 재방문 리텐션 / 온보딩 전환
+- 가설: 유저는 러닝을 할지 말지와 어떻게 입을지 한눈에 파악하고, 앱에 만족하며, 재방문한다.
 - 운영 도메인: `runners-fit.vercel.app`
 - 요금제: 무료 플랜 (저장 리포트 **사용자당 5개** 제한, 아래 "2. 현재 보드 구성" 참고)
 
@@ -110,17 +111,60 @@ Mixpanel 자동 페이지뷰 수집은 초기화 시점에 발생해 사용자 �
 
 ---
 
-## 2. 현재 보드 구성 (운영 중)
+## 2. 보드 구성 (UT용, 2026-10-12 개편)
 
-무료 플랜의 저장 한도(5개)에 맞춰 아래 5개 리포트를 `Run-Smart` 보드에 저장해 두었습니다.
+가설 "한눈에 파악 → 만족 → 재방문"을 검증하도록 5개 리포트를 구성합니다.
+무료 플랜의 저장 한도(5개)에 맞춘 구성이며, 아래 "공통 필터"를 모든 리포트에 적용합니다.
 
-| # | 위젯 | 유형 | 설정 |
+### 성공 기준 (최소 표본: 신규 방문자 30명, 피드백 20건. 미만이면 판단 보류)
+
+| # | 기준 | 확인 리포트 |
+|---|---|---|
+| 1 | 첫 세션 결정 도달 ≥ 70% | 리포트 1 |
+| 2 | 결정 전 옷차림 확인 ≥ 70% | 리포트 1 |
+| 3 | 체감 피드백 `good` ≥ 60% | 리포트 3 |
+| 4 | 첫 결정 후 7일 내 재방문 ≥ 20% | 리포트 4 |
+
+성공 기준은 **합계**로 판단하고, 채널별 비교는 참고용입니다. 표본이 작아 채널별로 나누면 판단 보류가 됩니다.
+
+### 공통 필터 (모든 리포트)
+
+| 필터 | 이유 |
+|---|---|
+| `utmCampaign` **is not** `ut0` | 게시 전 테스트 접속 제외 |
+| `participantId` **is not** `P00` | 테스트 참가자 제외 |
+| 기간: 게시일 이후 | 게시 전 개발·테스트 이벤트 제외 |
+
+운영 도메인만 보려면 5장의 `$current_url` 필터를 함께 적용합니다.
+
+### 리포트 5개
+
+| # | 리포트 | 유형 | 설정 |
 |---|---|---|---|
-| 1 | 일별 방문자 | Insights | 이벤트 `[Auto] Page View`, 지표 **Uniques**, 기간 30D, 차트 Line |
-| 2 | 온보딩 전환 | Funnels | 1단계 `[Auto] Page View` → 2단계 `cta_clicked`(`cta` is `onboarding_start`) → 3단계 `onboarding_completed`, 전환 창 1일 |
-| 3 | 가기 / 안 가기 비율 (홈 '안 가기' 제거로 새 `skip`이 없어 과거 데이터 비교용) | Insights | 이벤트 `decision_made`, 지표 **Total Events**, 필터 `isChange` is `false`, Breakdown `decision`, 차트 Pie |
-| 4 | 추위 민감도 분포 | Insights | 이벤트 `settings_saved`, 지표 **Total Events**, Breakdown `coldLevel`, 차트 Bar |
-| 5 | 더위 민감도 분포 | Insights | 이벤트 `settings_saved`, 지표 **Total Events**, Breakdown `heatLevel`, 차트 Bar |
+| 1 | 핵심 퍼널 | Funnels | 1단계 `run_score_viewed` → 2단계 `outfit_viewed` → 3단계 `decision_made`, 전환 창 1일, 집계 Uniques |
+| 2 | 결정까지 걸린 시간 | Insights | 이벤트 `decision_made`, 필터 `isChange` is `false`, 지표 **Median of** `timeToDecisionMs`, 차트 Line (일 단위) |
+| 3 | 체감 피드백 분포 | Insights | 이벤트 `feedback_submitted`, 지표 **Total Events**, Breakdown `feedback`, 차트 Bar |
+| 4 | 재방문 리텐션 | Retention | 시작·복귀 이벤트 모두 `decision_made`, 일(Day) 단위 (7일 내 재방문 기준) |
+| 5 | 온보딩 전환 | Funnels | 1단계 `[Auto] Page View` → 2단계 `cta_clicked`(`cta` is `onboarding_start`) → 3단계 `onboarding_completed`, 전환 창 1일 |
+
+리포트 설명:
+
+- **1. 핵심 퍼널**: "한눈에 파악"의 핵심. 결과를 본 사용자 중 옷차림을 확인하고 결정까지 간 비율입니다.
+  오래 걸리거나 중간에서 이탈하면 홈 정보 위계를 의심합니다.
+- **2. 결정까지 걸린 시간**: 짧을수록 한눈에 파악했다는 신호입니다. 평균보다 **중앙값**을 봅니다.
+  앱을 백그라운드로 두었다가 돌아온 경우 값이 매우 크게 나옵니다. 재결정(`isChange=true`)은 값이 붙지 않습니다.
+- **3. 체감 피드백**: `good` 비율이 성공 기준 3번입니다. `cold`/`hot` 쏠림은 옷차림 추천 보정이 필요하다는 신호입니다.
+- **4. 재방문 리텐션**: 인앱 브라우저(인스타그램·카카오톡 등)는 저장소가 분리되어 같은 사람이 새 사용자로 잡혀 낮게 나올 수 있습니다.
+  `isInAppBrowser`로 분리해서 비교하세요.
+- **5. 온보딩 전환**: SNS 유입의 첫 관문입니다. `isInAppBrowser`·`utmSource`로 Breakdown 하면 채널·환경별 이탈을 볼 수 있습니다.
+
+### 이전 보드에서 내린 리포트
+
+| 이전 리포트 | 내린 이유 |
+|---|---|
+| 일별 방문자 | UT에서는 규모보다 전환·재방문이 핵심. 필요하면 3장의 일회성 조회로 확인 |
+| 가기 / 안 가기 비율 | 홈의 '안 가기' 제거로 새 `skip`이 없어 의미가 없음 |
+| 추위·더위 민감도 분포 | 가설 검증과 직접 관련이 없음. 필요하면 3장에서 일회성 조회 |
 
 한계:
 - 온보딩 중간 단계(다음 버튼)는 이벤트가 없어 단계별 이탈은 볼 수 없습니다.
@@ -133,23 +177,30 @@ Mixpanel 자동 페이지뷰 수집은 초기화 시점에 발생해 사용자 �
 1. Mixpanel 왼쪽 위 **Create New → Board**를 선택합니다.
 2. 이름을 `Run-Smart`로 정합니다.
 3. 위 표의 리포트를 하나씩 만들어 보드에 추가합니다. (리포트 화면 오른쪽 위 **Save**에서 보드 선택)
+4. 기존 리포트(일별 방문자, 가기/안 가기, 추위·더위)는 저장 한도 확보를 위해 삭제하거나 새 보드로 옮깁니다.
+5. 보드 상단 **Filter**에 공통 필터를 적용합니다.
 
 ---
 
 ## 3. 저장 한도를 넘는 추가 분석
 
-무료 플랜은 저장 리포트가 5개까지입니다. 아래 리포트는 저장하지 않고 **Insights에서 일회성으로 조회**하세요.
+무료 플랜은 저장 리포트가 5개까지입니다. 아래 분석은 저장하지 않고 **Insights 등에서 일회성으로 조회**하세요.
 (저장하려면 기존 리포트를 지우거나 요금제를 올려야 합니다.)
 
 | 분석 | 유형 | 설정 |
 |---|---|---|
-| 페이지별 조회수 | Insights | 이벤트 `[Auto] Page View`, 지표 **Total Events**, Breakdown `$current_url`, 차트 Bar |
-| 주간 재방문 | Retention | 시작·복귀 이벤트 모두 `[Auto] Page View`, 주 단위(Weekly) |
-| 활동별 결정 | Insights | `decision_made`, Breakdown `activity`, 두 번째 Breakdown `decision` |
-| 점수 구간별 결정 | Insights | `decision_made`, Breakdown `score`(숫자 구간으로 묶기), 두 번째 Breakdown `decision` |
-| 취소 비율 | Insights (Formula) | `A = decision_cancelled`, `B = decision_made`, 수식 `A / B` |
-| 설정 저장 추이 | Insights | 이벤트 `settings_saved`, 지표 **Total Events**, 기간 30D, 차트 Line |
-| 온보딩 시 현재 위치 사용 비율 | Insights | 이벤트 `onboarding_completed`, 지표 **Total Events**, Breakdown `useCurrentLocation`, 차트 Pie |
+| 채널별 사용자 | Insights | 이벤트 `run_score_viewed`, 지표 **Uniques**, Breakdown `utmSource`, 차트 Bar |
+| 인앱 vs 일반 브라우저 | Insights | 이벤트 `run_score_viewed`, 지표 **Uniques**, Breakdown `inAppBrowserName` |
+| 옷차림 확인률 | Insights (Formula) | `A = outfit_viewed`(필터 `source` is `home`) Uniques, `B = run_score_viewed` Uniques, 수식 `A / B` |
+| 결정 취소 비율 | Insights (Formula) | `A = decision_cancelled`, `B = decision_made`, 수식 `A / B` |
+| 탐색 행동 | Insights | 이벤트 `activity_changed`, `hourly_forecast_scrolled`, 지표 **Average per user** |
+| 데이터 로딩 실패율 | Insights (Formula) | `A = data_load_failed`, `B = run_score_viewed`, 수식 `A / B` |
+| 주간 결정 횟수 | Insights | 이벤트 `decision_made`, 지표 **Frequency per user**, 주 단위 |
+| 활동별·점수 구간별 결정 | Insights | `decision_made`, Breakdown `activity` 또는 `score`(숫자 구간) |
+| 앱 리뷰 | Funnels | `app_review_shown` → `app_review_submitted` (제출 이벤트는 수신 후 선택 가능) |
+| 페이지별 조회수 | Insights | `[Auto] Page View`, **Total Events**, Breakdown `$current_url`, 차트 Bar |
+| 민감도 분포 | Insights | `settings_saved`, **Total Events**, Breakdown `coldLevel` 또는 `heatLevel` |
+| 참가자 개별 흐름 | Insights | 필터 `participantId` is `P01`, 이벤트 전체 |
 
 ---
 
@@ -157,10 +208,11 @@ Mixpanel 자동 페이지뷰 수집은 초기화 시점에 발생해 사용자 �
 
 위에서 아래로 읽는 흐름이 되도록 배치합니다.
 
-1. 일별 방문자 (전체 규모)
-2. 온보딩 전환 퍼널 (유입 → 활성화)
-3. 가기 / 안 가기 비율 (핵심 행동)
-4. 추위·더위 민감도 분포 (사용자 성향)
+1. 온보딩 전환 (유입 → 활성화)
+2. 핵심 퍼널 (한눈에 파악)
+3. 결정까지 걸린 시간 (한눈에 파악의 속도)
+4. 체감 피드백 분포 (만족)
+5. 재방문 리텐션 (재방문)
 
 ---
 
@@ -212,8 +264,9 @@ Preview 배포에서 발생한 이벤트도 같은 프로젝트에 쌓입니다.
 
 ## 8. 검증 체크리스트
 
-- [ ] 일별 방문자 수가 **Data → Events**의 `[Auto] Page View` 흐름과 맞는지
-- [ ] `decision_made` 건수가 Events 화면의 `isChange=false` 건수와 같은지 (과거 `skip` 포함)
-- [ ] `settings_saved`의 `coldLevel`·`heatLevel` 값이 1~5 안에 있는지
-- [ ] 온보딩 전환 퍼널의 1단계 숫자가 일별 방문자 합계와 비슷한 규모인지
+- [ ] 보드 필터에 `utmCampaign` ≠ `ut0`, `participantId` ≠ `P00`, 기간(게시일 이후)이 적용되어 있는지
+- [ ] 핵심 퍼널 1단계(`run_score_viewed`) 사용자 수가 Events 화면의 같은 이벤트 흐름과 맞는지
+- [ ] `timeToDecisionMs`가 숫자로 들어오고, `isChange` is `false` 필터에서만 값이 있는지
+- [ ] `feedback_submitted`의 `feedback` 값이 `cold`/`good`/`hot` 안에 있는지
 - [ ] 운영 도메인 필터 적용 시 데이터가 사라지지 않는지
+- [ ] 채널·인앱 비교를 할 때 표본이 최소 기준(신규 30명, 피드백 20건) 이상인지
