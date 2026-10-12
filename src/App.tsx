@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import AnalyticsInit from './components/AnalyticsInit';
 import { TooltipProvider } from './components/ui/tooltip';
 import DesignSystem from './pages/DesignSystem';
 import History from './pages/History';
@@ -24,6 +25,7 @@ export default function App() {
   return (
     <TooltipProvider>
       <BrowserRouter>
+        <AnalyticsInit />
         <Routes>
           <Route path="/design-system" element={<DesignSystem />} />
           <Route path="/onboarding" element={<OnboardingOnly />} />
