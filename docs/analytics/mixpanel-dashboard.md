@@ -153,9 +153,10 @@ Mixpanel 자동 페이지뷰 수집은 초기화 시점에 발생해 사용자 �
 |---|---|
 | `utmCampaign` **is not** `ut0` | 게시 전 테스트 접속 제외 |
 | `participantId` **is not** `P00` | 테스트 참가자 제외 |
-| 기간: 게시일 이후 | 게시 전 개발·테스트 이벤트 제외 |
+| `hostname` **is** `runners-fit.vercel.app` | 로컬·Preview·호스트 속성이 없던 시기의 개발 데이터 제외 |
+| 기간: `2026-10-13` 이후 | 이 프로젝트 시간대는 한국 시간이 아니고 하루가 한국 시간 오후 4시에 시작하므로, 오후 4시 이후에 게시해야 `Oct 13`으로 집계됨 |
 
-운영 도메인만 보려면 5장의 `$current_url` 필터를 함께 적용합니다.
+호스트 필터가 게시 전 데이터를 대부분 제외하며, 남는 것은 `ut0` 없이 운영에 접속한 소수 이벤트입니다.
 
 ### 리포트 5개
 
@@ -289,7 +290,7 @@ Preview 배포에서 발생한 이벤트도 같은 프로젝트에 쌓입니다.
 
 ## 8. 검증 체크리스트
 
-- [ ] 보드 필터에 `utmCampaign` ≠ `ut0`, `participantId` ≠ `P00`, 기간(게시일 이후)이 적용되어 있는지
+- [ ] 보드 필터에 `utmCampaign` ≠ `ut0`, `participantId` ≠ `P00`, `hostname` = `runners-fit.vercel.app`, 기간(`2026-10-13` 이후)이 적용되어 있는지
 - [ ] 핵심 퍼널 1단계(`run_score_viewed`) 사용자 수가 Events 화면의 같은 이벤트 흐름과 맞는지
 - [ ] `timeToDecisionMs`가 숫자로 들어오고, `isChange` is `false` 필터에서만 값이 있는지
 - [ ] `feedback_submitted`의 `feedback` 값이 `cold`/`good`/`hot` 안에 있는지
