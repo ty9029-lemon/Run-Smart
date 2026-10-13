@@ -64,3 +64,6 @@ export const ACQUISITION_VALUE_MAX_LENGTH = 64;
 
 /** 접속 호스트(도메인)를 분석 도구에 저장할 때 쓰는 속성 이름 (개발·미리보기·운영 트래픽 구분용) */
 export const HOSTNAME_PROPERTY = 'hostname';
+
+/** 분석 데이터를 전송하는 운영 호스트. 이 호스트가 아니면(로컬·Preview) 분석 도구를 초기화하지 않는다. */
+export const PRODUCTION_HOSTNAME = 'runners-fit.vercel.app';

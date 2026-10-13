@@ -46,7 +46,8 @@ https://runners-fit.vercel.app/?utm_source=kakao&utm_medium=chat&utm_campaign=ut
 
 ## 5. 테스트 접속 규칙
 
-어느 환경(운영, Preview, 로컬)에서든 테스트할 때는 첫 접속부터 아래를 붙이고 시크릿 창을 사용합니다.
+로컬과 Preview에서는 분석 도구가 초기화되지 않아(`runners-fit.vercel.app`만 전송) 데이터가 쌓이지 않습니다.
+운영 사이트에서 테스트할 때만 첫 접속부터 아래를 붙이고 시크릿 창을 사용합니다.
 
 ```
 ?utm_source=test&utm_campaign=ut0&pid=P00
@@ -57,7 +58,7 @@ https://runners-fit.vercel.app/?utm_source=kakao&utm_medium=chat&utm_campaign=ut
 | `utm_campaign=ut0` | Amplitude 대시보드 모든 차트에서 제외됨 |
 | `pid=P00` | Mixpanel 보드 필터 `participantId ≠ P00`로 제외됨 |
 
-운영 사이트 접속은 최소한으로 하고, UI·기능 확인은 Preview(PR의 Vercel 링크)나 로컬에서 합니다.
+운영 사이트 접속은 최소한으로 하고, UI·기능 확인은 Preview(PR의 Vercel 링크)나 로컬에서 합니다. 분석 이벤트 전송 자체를 확인하려면 운영 호스트에서만 가능합니다.
 로컬 개발 서버는 `api/` 함수가 동작하지 않아 날씨 장소명·AI 가이드가 실패합니다. API까지 보려면 Preview를 쓰세요.
 
 ## 6. 게시 후 작업
@@ -74,7 +75,7 @@ https://runners-fit.vercel.app/?utm_source=kakao&utm_medium=chat&utm_campaign=ut
 
 | 항목 | 내용 |
 |---|---|
-| 개발·Preview 환경 분석 전송 차단 | 운영 호스트가 아니면 Amplitude·Mixpanel 초기화를 건너뛰는 작은 PR. 대시보드 한도로 모든 차트에 호스트 필터를 못 넣었기 때문에 데이터 섞임 방지용으로 권장했음. 게시 직전·직후에 다시 결정 |
+| ~~개발·Preview 환경 분석 전송 차단~~ | 완료: 운영 호스트(`runners-fit.vercel.app`)가 아니면 Amplitude·Mixpanel 초기화를 건너뜁니다 (`PRODUCTION_HOSTNAME`, `src/constants/analytics.ts`). 운영 도메인이 바뀌면 이 상수도 바꿔야 합니다 |
 | Amplitude 차트 추가 | 저장 한도 20개에 도달. 새 차트(예: `timeToDecisionMs` 중앙값)는 기존 차트를 지운 뒤 추가 |
 
 ## 8. 참고 위치
