@@ -36,6 +36,8 @@ vi.mock('@amplitude/analytics-browser', () => amplitudeMock);
 vi.mock('mixpanel-browser', () => ({ default: mixpanelMock }));
 vi.mock('./logger', () => ({ logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
 
+const PRODUCTION_HOST = 'runners-fit.vercel.app';
+
 const SAFARI_UA =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
 const INSTAGRAM_UA =
@@ -61,7 +63,7 @@ describe('analytics', () => {
     vi.stubEnv('VITE_MIXPANEL_TOKEN', '');
     const { initAnalytics } = await loadAnalytics();
 
-    initAnalytics();
+    initAnalytics('', '', PRODUCTION_HOST);
 
     expect(amplitudeMock.init).not.toHaveBeenCalled();
     expect(mixpanelMock.init).not.toHaveBeenCalled();
@@ -72,7 +74,7 @@ describe('analytics', () => {
     vi.stubEnv('VITE_MIXPANEL_TOKEN', 'mp-token');
     const { initAnalytics, trackEvent, ANALYTICS_EVENTS } = await loadAnalytics();
 
-    initAnalytics();
+    initAnalytics('', '', PRODUCTION_HOST);
     trackEvent(ANALYTICS_EVENTS.ctaClicked, { cta: 'settings_save' });
 
     expect(mixpanelMock.init).toHaveBeenCalledWith(
@@ -88,7 +90,7 @@ describe('analytics', () => {
     vi.stubEnv('VITE_MIXPANEL_TOKEN', 'mp-token');
     const { initAnalytics, trackEvent, ANALYTICS_EVENTS } = await loadAnalytics();
 
-    initAnalytics();
+    initAnalytics('', '', PRODUCTION_HOST);
     trackEvent(ANALYTICS_EVENTS.decisionMade);
 
     expect(amplitudeMock.track).not.toHaveBeenCalled();
@@ -105,9 +107,14 @@ describe('analytics', () => {
     vi.stubEnv('VITE_AMPLITUDE_API_KEY', 'amp-key');
     vi.stubEnv('VITE_MIXPANEL_TOKEN', 'mp-token');
     const { initAnalytics } = await loadAnalytics();
-    const expected = { participantId: 'P01', isInAppBrowser: false, inAppBrowserName: 'none' };
+    const expected = {
+      participantId: 'P01',
+      hostname: PRODUCTION_HOST,
+      isInAppBrowser: false,
+      inAppBrowserName: 'none',
+    };
 
-    initAnalytics('?pid=P01', SAFARI_UA);
+    initAnalytics('?pid=P01', SAFARI_UA, PRODUCTION_HOST);
 
     expect(amplitudeMock.identify.mock.calls[0][0].props).toEqual(expected);
     expect(mixpanelMock.register).toHaveBeenCalledWith(expected);
@@ -117,9 +124,13 @@ describe('analytics', () => {
     vi.stubEnv('VITE_AMPLITUDE_API_KEY', 'amp-key');
     vi.stubEnv('VITE_MIXPANEL_TOKEN', 'mp-token');
     const { initAnalytics } = await loadAnalytics();
-    const expected = { isInAppBrowser: true, inAppBrowserName: 'instagram' };
+    const expected = {
+      hostname: PRODUCTION_HOST,
+      isInAppBrowser: true,
+      inAppBrowserName: 'instagram',
+    };
 
-    initAnalytics('', INSTAGRAM_UA);
+    initAnalytics('', INSTAGRAM_UA, PRODUCTION_HOST);
 
     expect(amplitudeMock.identify.mock.calls[0][0].props).toEqual(expected);
     expect(mixpanelMock.register).toHaveBeenCalledWith(expected);
@@ -130,9 +141,10 @@ describe('analytics', () => {
     vi.stubEnv('VITE_MIXPANEL_TOKEN', 'mp-token');
     const { initAnalytics } = await loadAnalytics();
 
-    initAnalytics('?pid=a@b.com', SAFARI_UA);
+    initAnalytics('?pid=a@b.com', SAFARI_UA, PRODUCTION_HOST);
 
     expect(amplitudeMock.identify.mock.calls[0][0].props).toEqual({
+      hostname: PRODUCTION_HOST,
       isInAppBrowser: false,
       inAppBrowserName: 'none',
     });
@@ -145,7 +157,7 @@ describe('analytics', () => {
     const { initAnalytics } = await loadAnalytics();
     const expected = { utmSource: 'x', utmCampaign: 'ut1' };
 
-    initAnalytics('?utm_source=x&utm_campaign=ut1', SAFARI_UA);
+    initAnalytics('?utm_source=x&utm_campaign=ut1', SAFARI_UA, PRODUCTION_HOST);
 
     expect(amplitudeMock.identify.mock.calls[0][0].onceProps).toEqual(expected);
     expect(mixpanelMock.register_once).toHaveBeenCalledWith(expected);
@@ -156,7 +168,7 @@ describe('analytics', () => {
     vi.stubEnv('VITE_MIXPANEL_TOKEN', 'mp-token');
     const { initAnalytics } = await loadAnalytics();
 
-    initAnalytics('', SAFARI_UA);
+    initAnalytics('', SAFARI_UA, PRODUCTION_HOST);
 
     expect(amplitudeMock.identify.mock.calls[0][0].onceProps).toEqual({});
     expect(mixpanelMock.register_once).toHaveBeenCalledWith({});
@@ -167,34 +179,41 @@ describe('analytics', () => {
     vi.stubEnv('VITE_MIXPANEL_TOKEN', 'mp-token');
     const { initAnalytics } = await loadAnalytics();
     const expected = {
-      hostname: 'localhost',
+      hostname: PRODUCTION_HOST,
       isInAppBrowser: false,
       inAppBrowserName: 'none',
     };
 
-    initAnalytics('', SAFARI_UA, 'localhost');
+    initAnalytics('', SAFARI_UA, PRODUCTION_HOST);
 
     expect(amplitudeMock.identify.mock.calls[0][0].props).toEqual(expected);
     expect(mixpanelMock.register).toHaveBeenCalledWith(expected);
   });
 
-  it('호스트를 알 수 없으면 hostname 속성은 등록하지 않는다', async () => {
-    vi.stubEnv('VITE_AMPLITUDE_API_KEY', 'amp-key');
-    vi.stubEnv('VITE_MIXPANEL_TOKEN', 'mp-token');
-    const { initAnalytics } = await loadAnalytics();
+  it.each(['localhost', 'runners-fit-git-feat-x.vercel.app', ''])(
+    '운영 호스트가 아니면(%j) 두 도구를 초기화하지 않는다',
+    async (hostname) => {
+      vi.stubEnv('VITE_AMPLITUDE_API_KEY', 'amp-key');
+      vi.stubEnv('VITE_MIXPANEL_TOKEN', 'mp-token');
+      const { initAnalytics, trackEvent, ANALYTICS_EVENTS } = await loadAnalytics();
 
-    initAnalytics('', SAFARI_UA, '');
+      initAnalytics('?pid=P01', SAFARI_UA, hostname);
+      trackEvent(ANALYTICS_EVENTS.ctaClicked, { cta: 'settings_save' });
 
-    expect(amplitudeMock.identify.mock.calls[0][0].props).not.toHaveProperty('hostname');
-  });
+      expect(amplitudeMock.init).not.toHaveBeenCalled();
+      expect(mixpanelMock.init).not.toHaveBeenCalled();
+      expect(amplitudeMock.track).not.toHaveBeenCalled();
+      expect(mixpanelMock.track).not.toHaveBeenCalled();
+    },
+  );
 
   it('같은 속성으로 다시 초기화해도 한 번만 등록한다', async () => {
     vi.stubEnv('VITE_AMPLITUDE_API_KEY', 'amp-key');
     vi.stubEnv('VITE_MIXPANEL_TOKEN', 'mp-token');
     const { initAnalytics } = await loadAnalytics();
 
-    initAnalytics('?pid=P01', SAFARI_UA);
-    initAnalytics('?pid=P01', SAFARI_UA);
+    initAnalytics('?pid=P01', SAFARI_UA, PRODUCTION_HOST);
+    initAnalytics('?pid=P01', SAFARI_UA, PRODUCTION_HOST);
 
     expect(amplitudeMock.identify).toHaveBeenCalledTimes(1);
     expect(mixpanelMock.register).toHaveBeenCalledTimes(1);
@@ -205,11 +224,12 @@ describe('analytics', () => {
     vi.stubEnv('VITE_MIXPANEL_TOKEN', 'mp-token');
     const { initAnalytics } = await loadAnalytics();
 
-    initAnalytics('?pid=P02', SAFARI_UA);
+    initAnalytics('?pid=P02', SAFARI_UA, PRODUCTION_HOST);
 
     expect(amplitudeMock.identify).not.toHaveBeenCalled();
     expect(mixpanelMock.register).toHaveBeenCalledWith({
       participantId: 'P02',
+      hostname: PRODUCTION_HOST,
       isInAppBrowser: false,
       inAppBrowserName: 'none',
     });
@@ -220,7 +240,7 @@ describe('analytics', () => {
     vi.stubEnv('VITE_MIXPANEL_TOKEN', 'mp-token');
     const { initAnalytics, trackPageView } = await loadAnalytics();
 
-    initAnalytics('', SAFARI_UA);
+    initAnalytics('', SAFARI_UA, PRODUCTION_HOST);
     trackPageView();
 
     expect(mixpanelMock.init).toHaveBeenCalledWith(

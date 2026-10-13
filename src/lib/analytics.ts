@@ -5,6 +5,7 @@ import {
   IN_APP_BROWSER_NAME_PROPERTY,
   IN_APP_BROWSER_PROPERTY,
   PARTICIPANT_ID_PROPERTY,
+  PRODUCTION_HOSTNAME,
 } from '../constants/analytics';
 import { parseAcquisition } from './acquisition';
 import { detectInAppBrowser } from './inAppBrowser';
@@ -168,6 +169,7 @@ function buildUserProps(search: string, userAgent: string, hostname: string): Us
 
 /**
  * 분석 도구(Amplitude, Mixpanel)를 초기화하고 사용자 속성을 등록한다.
+ * 운영 호스트가 아니면(로컬·Preview) 개발 이벤트가 실제 데이터에 섞이지 않도록 초기화하지 않는다.
  * 속성: 참가자 코드(URL ?pid=, 유효할 때만), 접속 호스트, 인앱 브라우저 여부와 앱 이름,
  * 첫 접속의 유입 채널(utm_source·utm_medium·utm_campaign, 처음 값만 유지)
  * @param search 참가자 코드를 읽을 쿼리 문자열 (기본: 현재 URL)
@@ -179,6 +181,11 @@ export function initAnalytics(
   userAgent: string = getUserAgent(),
   hostname: string = getHostname(),
 ): void {
+  if (hostname !== PRODUCTION_HOSTNAME) {
+    logger.info('운영 호스트가 아니라 분석 도구 초기화를 건너뜁니다.');
+    return;
+  }
+
   const userProps = buildUserProps(search, userAgent, hostname);
   // 리다이렉트로 쿼리가 사라지기 전에 동기적으로 읽어 둔다
   const firstTouchProps = parseAcquisition(search);
