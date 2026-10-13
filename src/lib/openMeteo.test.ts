@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  applyObservation,
   buildForecastQuery,
   parseWeather,
   weatherCodeToCondition,
@@ -134,5 +135,30 @@ describe('parseWeather', () => {
   it('예보 응답 형식이 올바르지 않으면 에러를 던진다', () => {
     const broken = { current: undefined, hourly: undefined } as unknown as ForecastResponse;
     expect(() => parseWeather(broken, AIR)).toThrow();
+  });
+});
+
+describe('applyObservation', () => {
+  const base = parseWeather(makeForecast('2026-10-06T14:15'), AIR);
+
+  it('기온·습도·풍속을 실측값으로 바꾸고 나머지는 유지한다', () => {
+    const merged = applyObservation(base, { temp: 19.44, humidity: 72.4, windSpeed: 1.84 });
+    expect(merged.current.temp).toBe(19.4);
+    expect(merged.current.humidity).toBe(72);
+    expect(merged.current.windSpeed).toBe(1.8);
+    expect(merged.current.condition).toBe(base.current.condition);
+    expect(merged.current.uvIndex).toBe(base.current.uvIndex);
+    expect(merged.hourly).toBe(base.hourly);
+  });
+
+  it('습도·풍속이 없으면 예보 값을 유지한다', () => {
+    const merged = applyObservation(base, { temp: 15, humidity: null, windSpeed: null });
+    expect(merged.current.temp).toBe(15);
+    expect(merged.current.humidity).toBe(base.current.humidity);
+    expect(merged.current.windSpeed).toBe(base.current.windSpeed);
+  });
+
+  it('실황이 없으면 원본을 그대로 돌려준다', () => {
+    expect(applyObservation(base, null)).toBe(base);
   });
 });

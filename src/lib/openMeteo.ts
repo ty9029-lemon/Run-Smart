@@ -186,6 +186,41 @@ function toHourly(
 }
 
 /**
+ * 기상청 실황 관측값 (/api/weather-now 응답).
+ * 습도·풍속은 관측되지 않았을 수 있다.
+ */
+export interface Observation {
+  temp: number;
+  humidity: number | null;
+  windSpeed: number | null;
+}
+
+/**
+ * 현재 날씨의 기온·습도·풍속을 실제 관측값으로 바꾼다. (예측 모델은 기온이 실측과 다를 수 있다)
+ * 날씨 상태·강수·자외선·미세먼지와 시간대별 예보는 그대로 둔다.
+ * @param result 예보 기반 날씨
+ * @param observation 기상청 실황. 없으면 원본을 그대로 돌려준다.
+ */
+export function applyObservation(
+  result: WeatherResult,
+  observation: Observation | null,
+): WeatherResult {
+  if (!observation) return result;
+  const { current } = result;
+  return {
+    ...result,
+    current: {
+      ...current,
+      temp: round1(observation.temp),
+      humidity:
+        observation.humidity === null ? current.humidity : Math.round(observation.humidity),
+      windSpeed:
+        observation.windSpeed === null ? current.windSpeed : round1(observation.windSpeed),
+    },
+  };
+}
+
+/**
  * 예보·대기질 응답을 앱의 날씨 형태로 변환한다.
  * 현재 날씨의 자외선·미세먼지는 현재 시각이 속한 시간대 값을 쓴다.
  * @param forecast 예보 응답
