@@ -19,6 +19,9 @@ export type Feedback = 'cold' | 'good' | 'hot';
 /** 경고 단계 */
 export type WarningLevel = 'good' | 'caution' | 'careful';
 
+/** 러닝 전용 5단계 (경고 단계를 더 잘게 나눈 것) */
+export type ScoreTier = 'excellent' | 'good' | 'fair' | 'caution' | 'careful';
+
 /** 추위·더위 민감도 (각 1~5단계, 3이 보통) */
 export interface Sensitivity {
   coldLevel: number;
@@ -87,6 +90,8 @@ export interface GuideRequest {
   feltTemp: number;
   score: number;
   level: WarningLevel;
+  /** 러닝 5단계 (러닝이 아니거나 기존 클라이언트면 없음) */
+  scoreTier?: ScoreTier;
   location: string;
   /** 앱이 정한 미세먼지 등급 (없으면 기존 클라이언트) */
   dustGrade?: DustGrade;

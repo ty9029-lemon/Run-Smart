@@ -54,6 +54,8 @@ export const SCORE_MIN = 0;
 /** 경고 단계 기준 점수 */
 export const SCORE_GOOD = 70;
 export const SCORE_CAUTION = 45;
+/** 러닝 5단계 중 '가볍게 뛰기 괜찮은' 단계의 최소 점수 */
+export const SCORE_FAIR = 60;
 /** 추천 시간대를 구간으로 묶을 때의 최소 점수 */
 export const RECOMMEND_MIN_SCORE = 80;
 /** 최고점과 이 점수 이내로 차이 나는 시간대를 함께 추천한다 */
