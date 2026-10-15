@@ -66,7 +66,7 @@ const RUNNING_TIERS: OutfitTier[] = [
     items: [
       outfitItem('top', 'longSleeve', '기모 기능성 긴팔'),
       outfitItem('outer', 'jacket', '경량 바람막이'),
-      outfitItem('bottom', 'tights', '기모 러닝 타이츠'),
+      outfitItem('bottom', 'pants', '기모 바지/레깅스'),
       outfitItem('gear', 'gloves', '러닝 장갑·넥워머'),
     ],
   },
@@ -75,18 +75,18 @@ const RUNNING_TIERS: OutfitTier[] = [
     items: [
       outfitItem('top', 'longSleeve', '기능성 긴팔 티셔츠'),
       outfitItem('outer', 'jacket', '경량 바람막이'),
-      outfitItem('bottom', 'tights', '러닝 타이츠'),
+      outfitItem('bottom', 'pants', '긴바지/러닝 레깅스'),
     ],
   },
   {
     max: CHILLY_MAX,
-    items: [outfitItem('top', 'longSleeve', '기능성 긴팔 티셔츠'), outfitItem('bottom', 'tights', '러닝 타이츠')],
+    items: [outfitItem('top', 'longSleeve', '기능성 긴팔 티셔츠'), outfitItem('bottom', 'pants', '긴바지/러닝 레깅스')],
   },
   {
     max: MILD_MAX,
     items: [
       outfitItem('top', 'longSleeve', '기능성 얇은 긴팔'),
-      outfitItem('bottom', 'tights', '러닝 7부 타이츠'),
+      outfitItem('bottom', 'shorts', '반바지/러닝 레깅스'),
     ],
   },
   {
