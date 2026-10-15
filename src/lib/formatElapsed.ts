@@ -19,3 +19,12 @@ export function formatElapsed(elapsedMs: number): string {
   if (hours === 0) return `${pad2(minutes)}:${pad2(seconds)}`;
   return `${hours}:${pad2(minutes)}:${pad2(seconds)}`;
 }
+
+/**
+ * 시작과 종료 시각 사이의 활동 시간(초)을 구한다. 화면 표시(formatElapsed)와 같이 1초 미만은 버린다.
+ * @param startedAtMs 시작 시각(ms)
+ * @param endedAtMs 종료 시각(ms)
+ */
+export function elapsedSeconds(startedAtMs: number, endedAtMs: number): number {
+  return Math.floor(Math.max(0, endedAtMs - startedAtMs) / MS_PER_SECOND);
+}

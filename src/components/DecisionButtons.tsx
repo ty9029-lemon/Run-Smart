@@ -23,7 +23,8 @@ interface DecisionButtonsProps {
   /** 진행 중인 활동의 시작 시각(ms). 진행 중이 아니면 null */
   startedAt: number | null;
   onDecide: () => void;
-  onEnd: () => void;
+  /** 종료 확인 후 호출. 타이머 버튼을 누른 시각(ms)을 종료 시각으로 넘긴다 */
+  onEnd: (endedAtMs: number) => void;
   onCancel: () => void;
 }
 
@@ -53,12 +54,20 @@ function RunningTimer({
   onEnd,
   onCancel,
 }: Pick<DecisionButtonsProps, 'activityLabel' | 'activity' | 'startedAt' | 'onEnd' | 'onCancel'>) {
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const elapsedText = formatElapsed(useStopwatch(startedAt));
+  // 타이머 버튼을 누른 순간의 시각과 경과 시간. 확인 팝업이 떠 있는 동안 표시를 고정한다
+  const [paused, setPaused] = useState<{ at: number; elapsedMs: number } | null>(null);
+  const liveElapsedMs = useStopwatch(startedAt);
+  const elapsedText = formatElapsed(paused ? paused.elapsedMs : liveElapsedMs);
 
-  /** 종료를 취소하고 활동을 계속한다. */
+  /** 누른 순간을 종료 후보 시각으로 잡고 확인 팝업을 연다. */
+  const handleOpenConfirm = () => {
+    const at = Date.now();
+    setPaused({ at, elapsedMs: startedAt === null ? 0 : at - startedAt });
+  };
+
+  /** 종료를 취소하고 활동을 계속한다. 팝업을 열어 둔 시간도 활동 시간에 포함된다. */
   const handleContinue = () => {
-    setConfirmOpen(false);
+    setPaused(null);
     trackEvent(ANALYTICS_EVENTS.activityEndDismissed, { activity });
   };
 
@@ -68,7 +77,7 @@ function RunningTimer({
         type="button"
         variant="default"
         size="lg"
-        onClick={() => setConfirmOpen(true)}
+        onClick={handleOpenConfirm}
         aria-label={formatTimerButtonLabel(activityLabel, elapsedText)}
         className="w-full"
       >
@@ -82,11 +91,11 @@ function RunningTimer({
       </Button>
       <CancelLink onCancel={onCancel} />
       <EndActivityDialog
-        open={confirmOpen}
+        open={paused !== null}
         activityLabel={activityLabel}
         elapsedText={elapsedText}
         onContinue={handleContinue}
-        onConfirm={onEnd}
+        onConfirm={() => paused && onEnd(paused.at)}
       />
     </div>
   );

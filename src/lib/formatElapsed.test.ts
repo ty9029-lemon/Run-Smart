@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatElapsed } from './formatElapsed';
+import { elapsedSeconds, formatElapsed } from './formatElapsed';
 
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
@@ -27,5 +27,15 @@ describe('formatElapsed', () => {
 
   it('음수는 00:00으로 본다', () => {
     expect(formatElapsed(-5 * SECOND)).toBe('00:00');
+  });
+});
+
+describe('elapsedSeconds', () => {
+  it('화면 표시와 같이 1초 미만은 버린다', () => {
+    expect(elapsedSeconds(1000, 1000 + 20 * SECOND + 900)).toBe(20);
+  });
+
+  it('종료가 시작보다 앞서면 0이다', () => {
+    expect(elapsedSeconds(5000, 1000)).toBe(0);
   });
 });

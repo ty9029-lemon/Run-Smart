@@ -17,7 +17,6 @@ import { useFeedbackPrompt } from '../hooks/useFeedbackPrompt';
 import { useNow } from '../hooks/useNow';
 import { formatRawWeather } from '../constants/messages';
 import { ACTIVITY_DAYLIGHT_BUFFER_HOURS } from '../constants/scoring';
-import { MS_PER_SECOND } from '../constants/thresholds';
 import {
   findBestHourToday,
   findGoodRange,
@@ -29,6 +28,7 @@ import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { decisionTimingProps, recordDecisionAndCheckChange } from '../lib/decisionTracking';
 import { getDepartureStatus } from '../lib/departureStatus';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
+import { elapsedSeconds } from '../lib/formatElapsed';
 import { recommendOutfit } from '../lib/outfit';
 import { calcRunScore, scoreToLevel } from '../lib/runScore';
 import { getSunsetStatus } from '../lib/scoreFactors';
@@ -159,10 +159,10 @@ export default function HomeReady({
     setToastOpen(true);
   };
 
-  /** 타이머 버튼으로 활동을 마치고 활동 시간을 기록한다. */
-  const handleEnd = () => {
+  /** 타이머 버튼으로 활동을 마치고 활동 시간을 기록한다. (종료 시각은 타이머 버튼을 누른 시각) */
+  const handleEnd = (endedAtMs: number) => {
     if (!session) return;
-    const durationSec = Math.round((Date.now() - session.startedAt) / MS_PER_SECOND);
+    const durationSec = elapsedSeconds(session.startedAt, endedAtMs);
     setDuration(session.entryId, durationSec);
     clearSession();
     setToastOpen(false);
