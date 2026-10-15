@@ -29,7 +29,11 @@ interface DecisionButtonsProps {
 
 /** 출발 전 기본 CTA */
 function StartButton({ onDecide }: Pick<DecisionButtonsProps, 'onDecide'>) {
-  return <StartButton onDecide={onDecide} />;
+  return (
+    <Button type="button" variant="default" size="lg" onClick={onDecide} className="w-full">
+      이대로 출발하기
+    </Button>
+  );
 }
 
 /** [출발 취소] 링크 버튼 */
@@ -132,9 +136,5 @@ export default function DecisionButtons({
       </div>
     );
   }
-  return (
-    <Button type="button" variant="default" size="lg" onClick={onDecide} className="w-full">
-      이대로 출발하기
-    </Button>
-  );
+  return <StartButton onDecide={onDecide} />;
 }
