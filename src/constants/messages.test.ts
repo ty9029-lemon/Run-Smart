@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
   formatDepartedNotice,
   formatDepartureToast,
-  formatEndButtonLabel,
+  formatEndDialogDescription,
+  formatEndDialogTitle,
   formatEndedNotice,
+  formatTimerButtonLabel,
 } from './messages';
 
 describe('formatDepartureToast', () => {
@@ -28,8 +30,21 @@ describe('formatEndedNotice', () => {
   });
 });
 
-describe('formatEndButtonLabel', () => {
-  it('활동명과 경과 시간을 함께 읽어 준다', () => {
-    expect(formatEndButtonLabel('러닝', '1:00:01')).toBe('러닝 종료하기, 경과 시간 1:00:01');
+describe('formatTimerButtonLabel', () => {
+  it('활동명과 경과 시간을 읽어 주고 종료 확인이 열린다고 알려 준다', () => {
+    expect(formatTimerButtonLabel('러닝', '1:00:01')).toBe(
+      '러닝 경과 시간 1:00:01, 누르면 종료 확인',
+    );
+  });
+});
+
+describe('종료 확인 팝업 문구', () => {
+  it('받침 유무에 맞는 조사로 제목을 만든다', () => {
+    expect(formatEndDialogTitle('러닝')).toBe('러닝을 종료할까요?');
+    expect(formatEndDialogTitle('자전거')).toBe('자전거를 종료할까요?');
+  });
+
+  it('경과 시간을 넣어 설명을 만든다', () => {
+    expect(formatEndDialogDescription('00:07')).toBe('지금까지 00:07 동안 기록했어요.');
   });
 });

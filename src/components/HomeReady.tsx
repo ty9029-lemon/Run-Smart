@@ -204,6 +204,7 @@ export default function HomeReady({
         <DecisionButtons
           status={status}
           activityLabel={getActivityMeta(activity).label}
+          activity={activity}
           startedAt={isRunning ? session.startedAt : null}
           onDecide={handleDecide}
           onEnd={handleEnd}

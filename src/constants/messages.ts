@@ -18,6 +18,9 @@ export const MESSAGES = {
   historyEmptyDay: '이 날은 기록이 없어요.',
   toastUndo: '실행 취소',
   departureCancel: '출발 취소',
+  elapsedLabel: '경과 시간',
+  endContinue: '계속하기',
+  endConfirm: '종료하기',
   // 사이트 설정이 허용이어도 기기(시스템) 설정이 꺼져 있으면 위치를 읽을 수 없다.
   locationSystemGuide:
     '기기의 위치 서비스도 확인해 주세요. iPhone은 설정 → 개인정보 보호 및 보안 → 위치 서비스 → Safari 웹사이트에서 "앱을 사용하는 동안"으로, Android는 설정의 위치 기능과 브라우저 앱의 위치 권한을 확인해 주세요.',
@@ -76,12 +79,28 @@ export function formatEndedNotice(activityLabel: string): string {
 }
 
 /**
- * 진행 중인 활동의 종료 버튼 접근성 라벨
+ * 진행 중인 활동의 타이머 버튼 접근성 라벨 (누르면 종료 확인 팝업이 열린다)
  * @param activityLabel 활동명 (예: 러닝)
  * @param elapsedText 경과 시간 표기 (예: 00:07)
  */
-export function formatEndButtonLabel(activityLabel: string, elapsedText: string): string {
-  return `${activityLabel} 종료하기, 경과 시간 ${elapsedText}`;
+export function formatTimerButtonLabel(activityLabel: string, elapsedText: string): string {
+  return `${activityLabel} ${MESSAGES.elapsedLabel} ${elapsedText}, 누르면 종료 확인`;
+}
+
+/**
+ * 활동 종료 확인 팝업 제목
+ * @param activityLabel 활동명 (예: 러닝)
+ */
+export function formatEndDialogTitle(activityLabel: string): string {
+  return `${withObjectParticle(activityLabel)} 종료할까요?`;
+}
+
+/**
+ * 활동 종료 확인 팝업 설명
+ * @param elapsedText 경과 시간 표기 (예: 00:07)
+ */
+export function formatEndDialogDescription(elapsedText: string): string {
+  return `지금까지 ${elapsedText} 동안 기록했어요.`;
 }
 
 /** 경고 단계별 헤드라인 문구 */
