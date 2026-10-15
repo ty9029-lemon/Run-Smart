@@ -75,7 +75,7 @@ describe('recommendOutfit - 러닝', () => {
 
   it('추우면 기모 바지와 경량 바람막이, 더우면 민소매를 추천한다', () => {
     expect(labels(-2, 'running')).toEqual(
-      expect.arrayContaining(['기모 바지', '경량 바람막이', '러닝 장갑·넥워머']),
+      expect.arrayContaining(['기모 바지/레깅스', '경량 바람막이', '러닝 장갑·넥워머']),
     );
     expect(labels(-2, 'running')).not.toContain('기모 러닝 타이츠');
     expect(labels(5, 'running')).toEqual(expect.arrayContaining(['긴바지/러닝 레깅스', '경량 바람막이']));

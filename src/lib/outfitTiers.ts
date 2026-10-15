@@ -66,7 +66,7 @@ const RUNNING_TIERS: OutfitTier[] = [
     items: [
       outfitItem('top', 'longSleeve', '기모 기능성 긴팔'),
       outfitItem('outer', 'jacket', '경량 바람막이'),
-      outfitItem('bottom', 'pants', '기모 바지'),
+      outfitItem('bottom', 'pants', '기모 바지/레깅스'),
       outfitItem('gear', 'gloves', '러닝 장갑·넥워머'),
     ],
   },
