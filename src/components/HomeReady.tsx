@@ -13,7 +13,7 @@ import { useAppReview } from '../hooks/useAppReview';
 import { useElapsedSinceMount } from '../hooks/useElapsedSinceMount';
 import { useFeedbackPrompt } from '../hooks/useFeedbackPrompt';
 import { useNow } from '../hooks/useNow';
-import { formatRawWeather } from '../constants/messages';
+import { formatRawWeather, formatRecommendSummary } from '../constants/messages';
 import { ACTIVITY_DAYLIGHT_BUFFER_HOURS } from '../constants/scoring';
 import { REDEPARTURE_DELAY_MS } from '../constants/thresholds';
 import {
@@ -164,6 +164,7 @@ export default function HomeReady({
         score={score}
         level={scoreToLevel(score)}
         outfit={outfit}
+        recommendSummary={best ? formatRecommendSummary(best, range) : undefined}
         onSelectActivity={handleSelectActivity}
       />
       <WeatherCard weather={current} feelsLike={feelsLike} />
