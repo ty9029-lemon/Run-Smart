@@ -35,7 +35,7 @@ function Toast({
   return (
     <ToastPrimitive.Root
       className={cn(
-        "flex items-center justify-between gap-4 rounded-panel border border-card-border-ink bg-card-charcoal p-4 text-pure-white shadow-lg",
+        "flex items-center justify-between gap-4 rounded-panel border border-transparent bg-pure-white p-4 text-carbon-black shadow-lg",
         "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-4 data-[state=open]:fade-in-0",
         "data-[state=closed]:animate-out data-[state=closed]:fade-out-0",
         className
