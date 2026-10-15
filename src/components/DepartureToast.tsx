@@ -34,7 +34,7 @@ export default function DepartureToast({
           </Button>
         </ToastAction>
       </Toast>
-      <ToastViewport />
+      <ToastViewport className="bottom-[calc(5.5rem+env(safe-area-inset-bottom))]" />
     </ToastProvider>
   );
 }
