@@ -71,6 +71,21 @@ export function formatDepartedNotice(activityLabel: string): string {
 }
 
 /**
+ * 다시 출발할 수 있게 된 뒤에도 오늘 이미 출발한 기록이 있음을 알리는 문구
+ * @param timeLabel 출발 시각 (예: 오전 7:30)
+ * @param activityLabel 활동명 (예: 러닝)
+ * @param feedbackPending 위쪽에 체감 피드백 카드가 열려 있는지
+ */
+export function formatPreviousDeparture(
+  timeLabel: string,
+  activityLabel: string,
+  feedbackPending: boolean,
+): string {
+  const base = `오늘 ${timeLabel}에 ${withObjectParticle(activityLabel)} 출발한 기록이 있어요.`;
+  return feedbackPending ? `${base} 위 카드에서 어땠는지 남겨 주세요.` : base;
+}
+
+/**
  * 활동을 마친 뒤 CTA 자리에 보여주는 안내 문구
  * @param activityLabel 활동명 (예: 러닝)
  */
