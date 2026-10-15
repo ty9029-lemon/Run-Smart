@@ -8,7 +8,8 @@ export type Constraint =
   | 'kneeIssue'
   | 'uvSensitive'
   | 'dustSensitive'
-  | 'asthma';
+  | 'asthma'
+  | 'rhinitis';
 
 /** 가기 결정 */
 export type Decision = 'go';
