@@ -5,6 +5,7 @@ import {
   formatEndDialogDescription,
   formatEndDialogTitle,
   formatEndedNotice,
+  formatPreviousDeparture,
   formatTimerButtonLabel,
 } from './messages';
 
@@ -46,5 +47,22 @@ describe('종료 확인 팝업 문구', () => {
 
   it('경과 시간을 넣어 설명을 만든다', () => {
     expect(formatEndDialogDescription('00:07')).toBe('지금까지 00:07 동안 기록했어요.');
+  });
+});
+
+describe('formatPreviousDeparture', () => {
+  it('오늘 출발한 시각과 활동을 알린다', () => {
+    expect(formatPreviousDeparture('오전 7:30', '러닝', false)).toBe(
+      '오늘 오전 7:30에 러닝을 출발한 기록이 있어요.',
+    );
+    expect(formatPreviousDeparture('오후 6:10', '자전거', false)).toBe(
+      '오늘 오후 6:10에 자전거를 출발한 기록이 있어요.',
+    );
+  });
+
+  it('피드백 카드가 열려 있으면 카드로 안내한다', () => {
+    expect(formatPreviousDeparture('오전 7:30', '러닝', true)).toBe(
+      '오늘 오전 7:30에 러닝을 출발한 기록이 있어요. 위 카드에서 어땠는지 남겨 주세요.',
+    );
   });
 });
