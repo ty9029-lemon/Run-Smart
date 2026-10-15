@@ -46,9 +46,8 @@ const WIND_LAYER: Partial<Record<Activity, OutfitItem>> = {
 /** 이미 바람을 막아 주는 겉옷 라벨 (이 중 하나가 있으면 방풍 겉옷을 또 더하지 않는다) */
 const WINDPROOF_LABELS = ['경량 바람막이', '윈드 재킷', '윈드 베스트', '소프트쉘', '하드쉘'];
 
-/** 어두울 때: 눈에 띄는 반사 소재와 조명 */
+/** 어두울 때: 반사 조끼와 조명 (러닝은 반사 소재 옷을 가진 사람이 적어 제외하고 AI 가이드로 안내한다) */
 const DARK_GEAR: Partial<Record<Activity, OutfitItem[]>> = {
-  running: [outfitItem('outer', 'vest', '반사 소재 옷')],
   cycling: [outfitItem('outer', 'vest', '반사 조끼'), outfitItem('gear', 'headlamp', '전조등·후미등')],
   hiking: [outfitItem('gear', 'headlamp', '헤드랜턴')],
 };

@@ -73,12 +73,18 @@ describe('recommendOutfit - 러닝', () => {
     expect(labels(15, 'running')).not.toContain('기능성 반팔 티셔츠');
   });
 
-  it('추우면 러닝 타이츠와 경량 바람막이, 더우면 민소매를 추천한다', () => {
+  it('추우면 기모 바지와 경량 바람막이, 더우면 민소매를 추천한다', () => {
     expect(labels(-2, 'running')).toEqual(
-      expect.arrayContaining(['기모 러닝 타이츠', '경량 바람막이', '러닝 장갑·넥워머']),
+      expect.arrayContaining(['기모 바지', '경량 바람막이', '러닝 장갑·넥워머']),
     );
-    expect(labels(5, 'running')).toEqual(expect.arrayContaining(['러닝 타이츠', '경량 바람막이']));
+    expect(labels(-2, 'running')).not.toContain('기모 러닝 타이츠');
+    expect(labels(5, 'running')).toEqual(expect.arrayContaining(['긴바지/러닝 레깅스', '경량 바람막이']));
     expect(labels(25, 'running')).toContain('러닝 민소매');
+  });
+
+  it('선선한 날에는 러닝 7부 타이츠 대신 반바지/러닝 레깅스를 추천한다', () => {
+    expect(labels(15, 'running')).toContain('반바지/러닝 레깅스');
+    expect(labels(15, 'running')).not.toContain('러닝 7부 타이츠');
   });
 
   it('신발은 러닝화다', () => {
@@ -97,11 +103,10 @@ describe('recommendOutfit - 러닝', () => {
     expect(labels(15, 'running', { windSpeed: 9 })).toContain('경량 바람막이');
   });
 
-  it('밤이거나 일몰이 임박하면 반사 소재 옷을 더한다 (헤드랜턴은 제외)', () => {
-    expect(labels(15, 'running')).not.toContain('반사 소재 옷');
-    expect(labels(15, 'running', { isDay: false })).toContain('반사 소재 옷');
+  it('밤이거나 일몰이 임박해도 반사 소재 옷과 헤드랜턴은 추천하지 않는다 (AI 가이드가 안내)', () => {
+    expect(labels(15, 'running', { isDay: false })).not.toContain('반사 소재 옷');
     expect(labels(15, 'running', { isDay: false })).not.toContain('헤드랜턴');
-    expect(labels(15, 'running', { hoursUntilSunset: 0.5 })).toContain('반사 소재 옷');
+    expect(labels(15, 'running', { hoursUntilSunset: 0.5 })).not.toContain('반사 소재 옷');
   });
 
   it('자외선이 강하면 러닝 캡과 선글라스를 더한다', () => {
