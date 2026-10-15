@@ -27,6 +27,11 @@ interface DecisionButtonsProps {
   onCancel: () => void;
 }
 
+/** 출발 전 기본 CTA */
+function StartButton({ onDecide }: Pick<DecisionButtonsProps, 'onDecide'>) {
+  return <StartButton onDecide={onDecide} />;
+}
+
 /** [출발 취소] 링크 버튼 */
 function CancelLink({ onCancel }: { onCancel: () => void }) {
   return (
@@ -109,10 +114,11 @@ export default function DecisionButtons({
   }
   if (status === 'ended') {
     return (
-      <div className="py-2 text-center">
-        <p className="text-base font-medium text-pure-white" role="status">
+      <div className="space-y-3">
+        <p className="text-center text-base font-medium text-pure-white" role="status">
           {formatEndedNotice(activityLabel)}
         </p>
+        <StartButton onDecide={onDecide} />
       </div>
     );
   }

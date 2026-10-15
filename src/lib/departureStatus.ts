@@ -5,7 +5,7 @@ import type { HistoryEntry } from '../types';
  * 홈 CTA 자리의 상태
  * - ready: 출발 전 (출발하기 버튼)
  * - running: 활동 진행 중 (타이머 버튼)
- * - ended: 활동을 마친 직후 (종료 안내)
+ * - ended: 활동을 마친 직후 (종료 안내와 함께 출발 버튼도 보여 바로 다시 출발할 수 있다)
  * - departed: 종료 버튼 도입 전에 출발만 기록된 상태 (출발 안내와 취소)
  */
 export type DepartureStatus = 'ready' | 'running' | 'ended' | 'departed';
