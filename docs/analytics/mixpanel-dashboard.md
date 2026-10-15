@@ -29,7 +29,8 @@ Mixpanel 화면에서 직접 만들며, 별도 코드 변경은 필요하지 않
 | `activity_end_dismissed` | 종료 확인 팝업에서 '계속하기'(또는 ESC·바깥 탭)로 종료를 취소 | `activity` |
 | `run_score_viewed` | 활동·점수가 바뀌어 결과가 보일 때 | `activity`, `score`, `warningLevel`, `condition` |
 | `activity_changed` | 활동 칩 변경 | `from`, `to` |
-| `feedback_submitted` | 운동 후 체감 피드백 제출 | `feedback`(`cold`/`good`/`hot`), `activity`, `feelsLike` |
+| `feedback_submitted` | 운동 후 체감 피드백 제출 | `feedback`(`cold`/`good`/`hot`), `activity`, `feelsLike`, `source`(`sheet`: 종료 직후 바텀 시트 / `card`: 홈 상단 카드, 시트 도입 이후 추가) |
+| `feedback_sheet_dismissed` | 종료 직후 피드백 바텀 시트를 답하지 않고 닫음 (이후 앱 재방문 시 상단 카드가 다시 묻는다) | `activity` |
 | `history_opened` | 기록 화면 진입 | - |
 | `history_entry_viewed` | 기록 항목 열람 | `daysAgo`, `decision`, `activity` |
 | `outfit_viewed` | 복장 패널이 50% 이상 1초 이상 화면에 보였을 때 (마운트당 1회, 2026-10-12 추가) | `source`(`home`/`history`), `activity`, `itemCount` |
