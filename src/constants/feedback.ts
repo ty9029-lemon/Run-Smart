@@ -14,6 +14,7 @@ export const FEEDBACK_ORDER: Feedback[] = ['cold', 'good', 'hot'];
 export const FEEDBACK_SOURCES = {
   sheet: 'sheet',
   card: 'card',
+  history: 'history',
 } as const;
 
 export type FeedbackSource = (typeof FEEDBACK_SOURCES)[keyof typeof FEEDBACK_SOURCES];
@@ -24,6 +25,7 @@ export const FEEDBACK_MESSAGES = {
   later: '다음에 할게요',
   thanks: '알려주셔서 고마워요. 다음 추천부터 반영할게요.',
   sheetDescription: '답해 주시면 다음 추천에 반영돼요.',
+  historyPrompt: '체감은 어땠나요?',
 } as const;
 
 /**

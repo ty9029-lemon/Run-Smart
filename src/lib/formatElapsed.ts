@@ -28,3 +28,19 @@ export function formatElapsed(elapsedMs: number): string {
 export function elapsedSeconds(startedAtMs: number, endedAtMs: number): number {
   return Math.floor(Math.max(0, endedAtMs - startedAtMs) / MS_PER_SECOND);
 }
+
+/**
+ * 활동 시간을 읽기 쉬운 한국어로 바꾼다.
+ * 1분 미만은 `42초`, 1시간 미만은 `21분 5초`(초가 0이면 `21분`), 1시간 이상은 `1시간 5분`(분이 0이면 `1시간`).
+ * @param durationSec 활동 시간(초). 음수는 0으로 본다
+ */
+export function formatDurationText(durationSec: number): string {
+  const totalSeconds = Math.floor(Math.max(0, durationSec));
+  const seconds = totalSeconds % SECONDS_PER_MINUTE;
+  const totalMinutes = Math.floor(totalSeconds / SECONDS_PER_MINUTE);
+  const minutes = totalMinutes % MINUTES_PER_HOUR;
+  const hours = Math.floor(totalMinutes / MINUTES_PER_HOUR);
+  if (hours > 0) return minutes > 0 ? `${hours}시간 ${minutes}분` : `${hours}시간`;
+  if (totalMinutes === 0) return `${seconds}초`;
+  return seconds > 0 ? `${minutes}분 ${seconds}초` : `${minutes}분`;
+}
