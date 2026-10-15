@@ -23,6 +23,12 @@ export const HISTORY_DAYS = 365;
 export const DAYS_PER_WEEK = 7;
 /** 1시간의 분 */
 export const MINUTES_PER_HOUR = 60;
+/** 1분의 초 */
+export const SECONDS_PER_MINUTE = 60;
+/** 1초의 밀리초 */
+export const MS_PER_SECOND = 1000;
+/** 활동 타이머 표시를 갱신하는 주기(ms) */
+export const STOPWATCH_TICK_MS = MS_PER_SECOND;
 /** 1분의 밀리초 */
 export const MS_PER_MINUTE = 60 * 1000;
 /** 하루의 밀리초 */

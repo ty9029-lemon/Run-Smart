@@ -9,13 +9,14 @@ import HourlyForecast from './HourlyForecast';
 import WeatherCard from './WeatherCard';
 import { buildDummyGuide } from '../data/dummyGuide';
 import { getActivityMeta } from '../constants/activities';
+import { useActiveSession } from '../hooks/useActiveSession';
 import { useAppReview } from '../hooks/useAppReview';
 import { useElapsedSinceMount } from '../hooks/useElapsedSinceMount';
 import { useFeedbackPrompt } from '../hooks/useFeedbackPrompt';
 import { useNow } from '../hooks/useNow';
 import { formatRawWeather } from '../constants/messages';
 import { ACTIVITY_DAYLIGHT_BUFFER_HOURS } from '../constants/scoring';
-import { REDEPARTURE_DELAY_MS } from '../constants/thresholds';
+import { MS_PER_SECOND } from '../constants/thresholds';
 import {
   findBestHourToday,
   findGoodRange,
@@ -25,10 +26,12 @@ import {
 } from '../lib/bestHour';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { decisionTimingProps, recordDecisionAndCheckChange } from '../lib/decisionTracking';
+import { getDepartureStatus } from '../lib/departureStatus';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
 import { recommendOutfit } from '../lib/outfit';
 import { calcRunScore, scoreToLevel } from '../lib/runScore';
 import { getSunsetStatus } from '../lib/scoreFactors';
+import { useActiveSessionStore } from '../store/activeSessionStore';
 import { useHistoryStore } from '../store/historyStore';
 import { useProfileStore } from '../store/profileStore';
 import type { WeatherResult } from '../services/weatherService';
@@ -66,6 +69,11 @@ export default function HomeReady({
   const setLastActivity = useProfileStore((s) => s.setLastActivity);
   const addEntry = useHistoryStore((s) => s.addEntry);
   const removeEntry = useHistoryStore((s) => s.removeEntry);
+  const setDuration = useHistoryStore((s) => s.setDuration);
+  const startSession = useActiveSessionStore((s) => s.start);
+  const clearSession = useActiveSessionStore((s) => s.clear);
+  const session = useActiveSession();
+  const isRunning = session !== null && session.activity === activity;
   const todayEntry = useTodayEntry(activity);
   const [toastOpen, setToastOpen] = useState(false);
   const now = useNow();
@@ -78,12 +86,10 @@ export default function HomeReady({
   const hasPendingFeedback = pendingFeedback !== null && pendingFeedback.id !== feedbackDismissedId;
   const appReview = useAppReview({
     entryCount,
-    isBlocked: toastOpen || hasPendingFeedback,
+    isBlocked: toastOpen || hasPendingFeedback || isRunning,
   });
-  // 출발 후 일정 시간(활동이 끝났을 시점)이 지나면 다시 출발할 수 있게 한다
-  const departed =
-    todayEntry !== null &&
-    now.getTime() - new Date(todayEntry.date).getTime() < REDEPARTURE_DELAY_MS;
+  // 활동을 마친 뒤(종료 기록이 없으면 출발 후) 일정 시간이 지나면 다시 출발할 수 있게 한다
+  const status = getDepartureStatus(todayEntry, isRunning, now.getTime());
   const { current, hourly } = weather;
   const { coldLevel, heatLevel, feedbackOffset } = profile;
   const sensitivity = useMemo(
@@ -130,8 +136,9 @@ export default function HomeReady({
       isChange,
       ...decisionTimingProps(isChange, getElapsedMs()),
     });
+    const entryId = `${decidedAt.getTime()}`;
     addEntry({
-      id: `${decidedAt.getTime()}`,
+      id: entryId,
       date: decidedAt.toISOString(),
       activity,
       decision: 'go',
@@ -145,14 +152,27 @@ export default function HomeReady({
           ? guide.data
           : buildDummyGuide(activity, current, sensitivity, profile.constraints),
     });
+    startSession({ entryId, activity, startedAt: decidedAt.getTime() });
     setToastOpen(true);
+  };
+
+  /** 타이머 버튼으로 활동을 마치고 활동 시간을 기록한다. */
+  const handleEnd = () => {
+    if (!session) return;
+    const durationSec = Math.round((Date.now() - session.startedAt) / MS_PER_SECOND);
+    setDuration(session.entryId, durationSec);
+    clearSession();
+    setToastOpen(false);
+    trackEvent(ANALYTICS_EVENTS.activityEnded, { activity, durationSec });
   };
 
   /** 토스트의 '실행 취소'와 CTA의 '출발 취소'가 함께 쓰는 취소 처리 */
   const handleCancel = () => {
-    if (!todayEntry) return;
+    const targetId = session?.entryId ?? todayEntry?.id;
+    if (!targetId) return;
     trackEvent(ANALYTICS_EVENTS.decisionCancelled, { decision: 'go', activity });
-    removeEntry(todayEntry.id);
+    removeEntry(targetId);
+    clearSession();
     setToastOpen(false);
   };
 
@@ -180,9 +200,11 @@ export default function HomeReady({
         )}
       />
       <DecisionButtons
-        departed={departed}
+        status={status}
         activityLabel={getActivityMeta(activity).label}
+        startedAt={isRunning ? session.startedAt : null}
         onDecide={handleDecide}
+        onEnd={handleEnd}
         onCancel={handleCancel}
       />
       <DepartureToast

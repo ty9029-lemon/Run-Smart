@@ -56,7 +56,7 @@ export function formatRawWeather(
  * @param activityLabel 활동명 (예: 러닝)
  */
 export function formatDepartureToast(activityLabel: string): string {
-  return `즐거운 ${activityLabel} 되세요!\n돌아오시면 착장 피드백을 반영해 드릴게요.`;
+  return `즐거운 ${activityLabel} 되세요!\n끝나고 더웠는지 추웠는지 알려주세요.`;
 }
 
 /**
@@ -65,6 +65,23 @@ export function formatDepartureToast(activityLabel: string): string {
  */
 export function formatDepartedNotice(activityLabel: string): string {
   return `${withObjectParticle(activityLabel)} 출발했어요. 잠시 뒤에 다시 만나요.`;
+}
+
+/**
+ * 활동을 마친 뒤 CTA 자리에 보여주는 안내 문구
+ * @param activityLabel 활동명 (예: 러닝)
+ */
+export function formatEndedNotice(activityLabel: string): string {
+  return `${withObjectParticle(activityLabel)} 마쳤어요. 수고하셨어요!`;
+}
+
+/**
+ * 진행 중인 활동의 종료 버튼 접근성 라벨
+ * @param activityLabel 활동명 (예: 러닝)
+ * @param elapsedText 경과 시간 표기 (예: 00:07)
+ */
+export function formatEndButtonLabel(activityLabel: string, elapsedText: string): string {
+  return `${activityLabel} 종료하기, 경과 시간 ${elapsedText}`;
 }
 
 /** 경고 단계별 헤드라인 문구 */

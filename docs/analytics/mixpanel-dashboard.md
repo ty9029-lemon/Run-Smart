@@ -25,6 +25,7 @@ Mixpanel 화면에서 직접 만들며, 별도 코드 변경은 필요하지 않
 | `settings_saved` | 설정 저장 성공 | `coldLevel`, `heatLevel`, `activityCount`, `constraintCount` |
 | `decision_made` | 가기 선택 (홈의 '안 가기' 버튼 제거 후 `skip`은 새로 발생하지 않고 Mixpanel의 과거 데이터에만 남음) | `decision`(`go`), `activity`, `score`, `isChange`(오늘 같은 활동으로 이미 결정한 적이 있으면 `true`), `timeToDecisionMs`(결과 화면이 준비된 뒤 결정까지 걸린 시간(ms). 재결정(`isChange=true`)에는 붙지 않으며 2026-10-12 추가) |
 | `decision_cancelled` | 출발 토스트의 '실행 취소' 또는 홈의 '출발 취소'로 오늘 결정을 취소 | `decision`(취소한 결정), `activity` |
+| `activity_ended` | 홈의 타이머 버튼을 눌러 활동을 종료 | `activity`, `durationSec`(활동 시간, 초) |
 | `run_score_viewed` | 활동·점수가 바뀌어 결과가 보일 때 | `activity`, `score`, `warningLevel`, `condition` |
 | `activity_changed` | 활동 칩 변경 | `from`, `to` |
 | `feedback_submitted` | 운동 후 체감 피드백 제출 | `feedback`(`cold`/`good`/`hot`), `activity`, `feelsLike` |

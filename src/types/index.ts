@@ -125,4 +125,6 @@ export interface HistoryEntry {
   feedback?: Feedback;
   /** 피드백을 남긴 시각(ISO) */
   feedbackAt?: string;
+  /** 활동 시간(초). 종료 버튼을 눌러 활동을 마친 기록에만 있다 */
+  durationSec?: number;
 }

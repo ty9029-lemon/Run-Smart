@@ -31,6 +31,7 @@ export const ANALYTICS_EVENTS = {
   runScoreViewed: 'run_score_viewed',
   decisionMade: 'decision_made',
   decisionCancelled: 'decision_cancelled',
+  activityEnded: 'activity_ended',
   activityChanged: 'activity_changed',
   activityDisabledClicked: 'activity_disabled_clicked',
   dataLoadFailed: 'data_load_failed',

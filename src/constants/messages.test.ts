@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { formatDepartedNotice, formatDepartureToast } from './messages';
+import {
+  formatDepartedNotice,
+  formatDepartureToast,
+  formatEndButtonLabel,
+  formatEndedNotice,
+} from './messages';
 
 describe('formatDepartureToast', () => {
   it('활동명을 넣어 출발 안내 문구를 만든다', () => {
     expect(formatDepartureToast('러닝')).toBe(
-      '즐거운 러닝 되세요!\n돌아오시면 착장 피드백을 반영해 드릴게요.',
+      '즐거운 러닝 되세요!\n끝나고 더웠는지 추웠는지 알려주세요.',
     );
   });
 });
@@ -13,5 +18,18 @@ describe('formatDepartedNotice', () => {
   it('받침 유무에 맞는 조사로 출발 안내 문구를 만든다', () => {
     expect(formatDepartedNotice('러닝')).toBe('러닝을 출발했어요. 잠시 뒤에 다시 만나요.');
     expect(formatDepartedNotice('자전거')).toBe('자전거를 출발했어요. 잠시 뒤에 다시 만나요.');
+  });
+});
+
+describe('formatEndedNotice', () => {
+  it('받침 유무에 맞는 조사로 종료 안내 문구를 만든다', () => {
+    expect(formatEndedNotice('러닝')).toBe('러닝을 마쳤어요. 수고하셨어요!');
+    expect(formatEndedNotice('자전거')).toBe('자전거를 마쳤어요. 수고하셨어요!');
+  });
+});
+
+describe('formatEndButtonLabel', () => {
+  it('활동명과 경과 시간을 함께 읽어 준다', () => {
+    expect(formatEndButtonLabel('러닝', '1:00:01')).toBe('러닝 종료하기, 경과 시간 1:00:01');
   });
 });
