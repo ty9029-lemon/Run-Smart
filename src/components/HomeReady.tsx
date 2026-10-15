@@ -199,20 +199,23 @@ export default function HomeReady({
           ACTIVITY_DAYLIGHT_BUFFER_HOURS[activity],
         )}
       />
-      <DecisionButtons
-        status={status}
-        activityLabel={getActivityMeta(activity).label}
-        startedAt={isRunning ? session.startedAt : null}
-        onDecide={handleDecide}
-        onEnd={handleEnd}
-        onCancel={handleCancel}
-      />
-      <DepartureToast
-        open={toastOpen}
-        activityLabel={getActivityMeta(activity).label}
-        onOpenChange={setToastOpen}
-        onUndo={handleCancel}
-      />
+      {/* 토스트가 버튼 바로 위에 뜨도록 버튼과 같은 기준(relative) 안에 둔다 */}
+      <div className="relative">
+        <DecisionButtons
+          status={status}
+          activityLabel={getActivityMeta(activity).label}
+          startedAt={isRunning ? session.startedAt : null}
+          onDecide={handleDecide}
+          onEnd={handleEnd}
+          onCancel={handleCancel}
+        />
+        <DepartureToast
+          open={toastOpen}
+          activityLabel={getActivityMeta(activity).label}
+          onOpenChange={setToastOpen}
+          onUndo={handleCancel}
+        />
+      </div>
       <AppReviewDialog
         open={appReview.open}
         onSubmit={appReview.submit}
