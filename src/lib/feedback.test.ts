@@ -40,6 +40,16 @@ describe('findPendingFeedback', () => {
     expect(findPendingFeedback([entryAgo(FEEDBACK_EXPIRE_MS)], NOW)).toBeNull();
   });
 
+  it('활동을 마친 기록은 대기 없이 바로 묻는다', () => {
+    const ended = entryAgo(1000, { durationSec: 600 });
+    expect(findPendingFeedback([ended], NOW)).toBe(ended);
+  });
+
+  it('진행 중인 활동의 기록은 시간이 지나도 묻지 않는다', () => {
+    const running = entryAgo(FEEDBACK_ASK_DELAY_MS * 2);
+    expect(findPendingFeedback([running], NOW, running.id)).toBeNull();
+  });
+
   it('이미 답한 기록은 묻지 않는다', () => {
     const answered = entryAgo(FEEDBACK_ASK_DELAY_MS + 1, { feedback: 'good' });
     expect(findPendingFeedback([answered], NOW)).toBeNull();

@@ -23,6 +23,12 @@ export const HISTORY_DAYS = 365;
 export const DAYS_PER_WEEK = 7;
 /** 1시간의 분 */
 export const MINUTES_PER_HOUR = 60;
+/** 1분의 초 */
+export const SECONDS_PER_MINUTE = 60;
+/** 1초의 밀리초 */
+export const MS_PER_SECOND = 1000;
+/** 활동 타이머 표시를 갱신하는 주기(ms) */
+export const STOPWATCH_TICK_MS = MS_PER_SECOND;
 /** 1분의 밀리초 */
 export const MS_PER_MINUTE = 60 * 1000;
 /** 하루의 밀리초 */
@@ -73,6 +79,8 @@ export const REDEPARTURE_DELAY_MINUTES = 30;
 export const REDEPARTURE_DELAY_MS = REDEPARTURE_DELAY_MINUTES * MS_PER_MINUTE;
 /** '가기' 기록 후 이 시간(ms)이 지나면 피드백을 묻지 않는다 (24시간) */
 export const FEEDBACK_EXPIRE_MS = MS_PER_DAY;
+/** 피드백 시트에서 답한 뒤 감사 문구를 보여주고 닫기까지의 시간(ms) */
+export const FEEDBACK_SHEET_THANKS_MS = 1500;
 /** 피드백 1회당 체감온도 보정(°C) */
 export const FEEDBACK_STEP = 0.5;
 /** 피드백 누적 보정의 최대 크기(±°C) */

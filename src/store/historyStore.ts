@@ -10,6 +10,8 @@ interface HistoryState {
   removeEntry: (id: string) => void;
   /** 기록에 체감 피드백을 남긴다 */
   setFeedback: (id: string, feedback: Feedback) => void;
+  /** 활동을 마친 기록에 활동 시간(초)을 남긴다 */
+  setDuration: (id: string, durationSec: number) => void;
 }
 
 /** 저장 데이터 버전 (1: '외출' 활동 제거, 2: 안 가기(skip) 기록 제거, 3: 더미 시드 기록 제거) */
@@ -69,6 +71,10 @@ export const useHistoryStore = create<HistoryState>()(
           entries: state.entries.map((e) =>
             e.id === id ? { ...e, feedback, feedbackAt: new Date().toISOString() } : e,
           ),
+        })),
+      setDuration: (id, durationSec) =>
+        set((state) => ({
+          entries: state.entries.map((e) => (e.id === id ? { ...e, durationSec } : e)),
         })),
     }),
     {
