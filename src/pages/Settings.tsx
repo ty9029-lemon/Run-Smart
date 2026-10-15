@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import LocationStatus from '../components/LocationStatus';
 import ProfileForm from '../components/ProfileForm';
@@ -32,11 +32,8 @@ export default function Settings() {
 
   return (
     <main className="mx-auto max-w-md space-y-4 px-4 py-6">
-      <header className="flex items-center justify-between">
+      <header>
         <h1 className="text-2xl font-bold">설정</h1>
-        <Link to="/" className="text-sm text-steel-border">
-          ← 홈
-        </Link>
       </header>
       <ProfileForm draft={draft} error={error} onChange={onChange} />
       <section className="rounded-panel border border-card-border-ink bg-card-charcoal p-6">
