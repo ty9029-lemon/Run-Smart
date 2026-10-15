@@ -21,13 +21,13 @@ export function getUvGrade(uvIndex: number): UvGrade {
 
 /**
  * 제약사항 때문에 마스크를 추천해야 하는지 판단한다. (미세먼지 나쁨 자체는 shouldRecommendMask가 본다)
- * 천식은 미세먼지가 보통 이상, 미세먼지 민감은 나쁨일 때 추천한다.
+ * 천식·비염은 미세먼지가 보통 이상, 미세먼지 민감은 나쁨일 때 추천한다.
  * @param constraint 제약사항
  * @param pm10 PM10 농도(㎍/㎥)
  */
 export function isMaskNeededFor(constraint: Constraint, pm10: number): boolean {
   const grade = getDustGrade(pm10);
-  if (constraint === 'asthma') return grade !== '좋음';
+  if (constraint === 'asthma' || constraint === 'rhinitis') return grade !== '좋음';
   if (constraint === 'dustSensitive') return grade === '나쁨';
   return false;
 }

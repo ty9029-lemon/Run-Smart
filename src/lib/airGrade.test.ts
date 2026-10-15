@@ -45,3 +45,10 @@ describe('마스크 규칙', () => {
     expect(shouldRecommendMask(['kneeIssue'], 17)).toBe(false);
   });
 });
+
+describe('비염 마스크 기준', () => {
+  it('천식과 같이 PM10이 보통 이상이면 추천한다', () => {
+    expect(isMaskNeededFor('rhinitis', 30)).toBe(false);
+    expect(isMaskNeededFor('rhinitis', 31)).toBe(true);
+  });
+});

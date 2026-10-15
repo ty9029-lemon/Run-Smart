@@ -15,7 +15,7 @@ const WARMUP_ACTIVITIES: Activity[] = ['running', 'cycling'];
  * @param feelsLike 개인 체감온도
  * @param weather 현재 날씨
  * @param activity 활동
- * @param constraints 사용자가 체크한 제약사항 (예: 무릎 문제 → 무릎보호대(산책 제외), 미세먼지 나쁨 또는 천식 + 보통 → 마스크)
+ * @param constraints 사용자가 체크한 제약사항 (예: 무릎 문제 → 무릎보호대(산책 제외), 미세먼지 나쁨 또는 천식·비염 + 보통 → 스포츠 마스크, 비염 + 찬 공기 → 티슈)
  */
 export function recommendOutfit(
   feelsLike: number,

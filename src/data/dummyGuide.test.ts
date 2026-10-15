@@ -29,32 +29,32 @@ describe('buildDummyGuide - 제약사항 팁', () => {
   it('미세먼지 민감은 좋음·보통이면 마스크 팁을 보여 주지 않는다', () => {
     [17, 30, 80].forEach((pm10) => {
       const result = tips('running', weatherWith({ pm10 }), ['dustSensitive']);
-      expect(result).not.toContain('미세먼지 마스크 고려');
+      expect(result).not.toContain('미세먼지 스포츠 마스크 고려');
     });
   });
 
   it('천식은 미세먼지가 보통이면 마스크 팁을 보여 주고, 좋음이면 보여 주지 않는다', () => {
     expect(tips('running', weatherWith({ pm10: 50 }), ['asthma'])).toContain(
-      '미세먼지 마스크 고려',
+      '미세먼지 스포츠 마스크 고려',
     );
     expect(tips('running', weatherWith({ pm10: 17 }), ['asthma'])).not.toContain(
-      '미세먼지 마스크 고려',
+      '미세먼지 스포츠 마스크 고려',
     );
   });
 
   it('제약사항이 없어도 미세먼지가 나쁘면 마스크 팁을 보여 준다', () => {
-    expect(tips('running', weatherWith({ pm10: 100 }), [])).toContain('미세먼지 마스크 고려');
-    expect(tips('running', weatherWith({ pm10: 50 }), [])).not.toContain('미세먼지 마스크 고려');
+    expect(tips('running', weatherWith({ pm10: 100 }), [])).toContain('미세먼지 스포츠 마스크 고려');
+    expect(tips('running', weatherWith({ pm10: 50 }), [])).not.toContain('미세먼지 스포츠 마스크 고려');
   });
 
   it('천식과 미세먼지 민감을 함께 체크해도 마스크 팁은 한 번만 나온다', () => {
     const result = tips('running', weatherWith({ pm10: 100 }), ['asthma', 'dustSensitive']);
-    expect(result.filter((tip) => tip === '미세먼지 마스크 고려')).toHaveLength(1);
+    expect(result.filter((tip) => tip === '미세먼지 스포츠 마스크 고려')).toHaveLength(1);
   });
 
   it('미세먼지가 나쁨이면 마스크 팁을 보여 준다', () => {
     expect(tips('running', weatherWith({ pm10: 100 }), ['dustSensitive'])).toContain(
-      '미세먼지 마스크 고려',
+      '미세먼지 스포츠 마스크 고려',
     );
   });
 
@@ -66,5 +66,30 @@ describe('buildDummyGuide - 제약사항 팁', () => {
   it('상세 근거에 날씨 카드와 같은 미세먼지 등급을 적는다', () => {
     const guide = buildDummyGuide('running', weatherWith({ pm10: 17 }), SENSITIVITY, []);
     expect(guide.detailedReason).toContain('미세먼지 좋음(17㎍/㎥)');
+  });
+});
+
+describe('비염 팁', () => {
+  const COLD_TIP = '찬 공기가 콧속을 자극해요. 티슈를 챙기고 넥워머로 코와 입을 가려 보세요';
+  const DRY_TIP = '공기가 건조해요. 활동 전후로 물을 충분히 드세요';
+
+  it('찬 공기에서만 찬 공기 팁을 보여 준다', () => {
+    expect(tips('running', weatherWith({ temp: 0 }), ['rhinitis'])).toContain(COLD_TIP);
+    expect(tips('running', weatherWith({ temp: 15 }), ['rhinitis'])).not.toContain(COLD_TIP);
+  });
+
+  it('건조한 공기에서만 건조 팁을 보여 준다', () => {
+    expect(tips('running', weatherWith({ humidity: 20 }), ['rhinitis'])).toContain(DRY_TIP);
+    expect(tips('running', weatherWith({ humidity: 50 }), ['rhinitis'])).not.toContain(DRY_TIP);
+  });
+
+  it('비염이 아니면 보여 주지 않는다', () => {
+    expect(tips('running', weatherWith({ temp: 0, humidity: 20 }), [])).not.toContain(COLD_TIP);
+  });
+
+  it('PM10이 보통 이상이면 마스크 팁을 보여 준다', () => {
+    expect(tips('running', weatherWith({ pm10: 50 }), ['rhinitis'])).toContain(
+      '미세먼지 스포츠 마스크 고려',
+    );
   });
 });

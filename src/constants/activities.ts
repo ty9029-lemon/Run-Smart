@@ -28,6 +28,7 @@ export const CONSTRAINTS: { id: Constraint; label: string }[] = [
   { id: 'uvSensitive', label: '자외선 민감' },
   { id: 'dustSensitive', label: '미세먼지 민감' },
   { id: 'asthma', label: '천식' },
+  { id: 'rhinitis', label: '비염' },
 ];
 
 /** 선택 가능한(비활성이 아닌) 활동인지 확인 */
