@@ -12,7 +12,7 @@ import {
 import { useFeedbackPrompt } from '../hooks/useFeedbackPrompt';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { parseDistanceKm } from '../lib/distance';
-import { formatTime } from '../lib/formatTime';
+import { formatDayPrefix, formatTime } from '../lib/formatTime';
 import { useHistoryStore } from '../store/historyStore';
 import { useProfileStore } from '../store/profileStore';
 import type { Feedback, FeedbackDetail, HistoryEntry } from '../types';
@@ -96,7 +96,10 @@ function FeedbackHeader({
   return (
     <div className="space-y-4">
       <DialogTitle className="text-lg">
-        {formatTime(entry.date)} {getActivityMeta(entry.activity).label}, 어땠어요?
+        {[formatDayPrefix(entry.date), formatTime(entry.date), getActivityMeta(entry.activity).label]
+          .filter(Boolean)
+          .join(' ')}
+        , 어땠어요?
       </DialogTitle>
       <DialogDescription className="sr-only">
         체감과 거리, 실제 착용한 복장을 기록하면 다음 추천에 반영돼요.
