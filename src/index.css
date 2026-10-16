@@ -19,6 +19,9 @@
   --color-steel-border: #707072;
   --color-pure-white: #ffffff;
   --color-carbon-black: #000000;
+  /* 시간대별 점수 막대 등급 색 (라임은 lime-pulse 사용) */
+  --color-score-caution: #ffc24b;
+  --color-score-warn: #ff7a6b;
 
   /* 라틴 글리프는 Plus Jakarta Sans가 먼저 받고, 한글은 Pretendard로 넘어간다 */
   --font-sans: 'Plus Jakarta Sans', 'Pretendard Variable', Pretendard,

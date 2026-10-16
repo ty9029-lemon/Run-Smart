@@ -1,7 +1,7 @@
-import { useEffect, useRef, type UIEvent } from 'react';
+import { useEffect, useRef, useState, type UIEvent } from 'react';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import type { HourRange, HourScore } from '../lib/bestHour';
-import { RECOMMEND_MIN_SCORE } from '../constants/thresholds';
+import { RECOMMEND_MIN_SCORE, SCORE_CAUTION, SCORE_MAX } from '../constants/thresholds';
 import type { SunsetStatus } from '../lib/scoreFactors';
 import type { HourlyWeather } from '../types';
 
@@ -61,6 +61,43 @@ function isTomorrow(hour: number, firstHour: number): boolean {
 /** 스크롤이 멈췄다고 보는 대기 시간(ms) */
 const SCROLL_IDLE_MS = 800;
 
+/** 막대 영역(점수 숫자 포함) 높이(px) */
+const CHART_HEIGHT = 128;
+/** 막대 최소·최대 높이(px). 최저점도 눈에 보이도록 최소 높이를 둔다 */
+const BAR_MIN_HEIGHT = 12;
+const BAR_MAX_HEIGHT = 96;
+/** 막대 높이 계산에서 0으로 보는 점수. 점수 차이가 잘 보이도록 바닥을 올린다 */
+const BAR_SCORE_FLOOR = 40;
+/** 선택되지 않은 막대의 불투명도 */
+const BAR_DIM_OPACITY = 0.45;
+
+/** 점수 등급별 막대·숫자 색 (Tailwind가 클래스를 찾도록 전체 이름으로 적는다) */
+const SCORE_TONES = {
+  good: { bar: 'bg-lime-pulse', text: 'text-lime-pulse' },
+  caution: { bar: 'bg-score-caution', text: 'text-score-caution' },
+  warn: { bar: 'bg-score-warn', text: 'text-score-warn' },
+} as const;
+
+/** 점수에 맞는 색 등급 */
+function scoreTone(score: number) {
+  if (score >= RECOMMEND_MIN_SCORE) return SCORE_TONES.good;
+  if (score >= SCORE_CAUTION) return SCORE_TONES.caution;
+  return SCORE_TONES.warn;
+}
+
+/** 점수에 비례한 막대 높이(px) */
+function barHeight(score: number): number {
+  const ratio = (score - BAR_SCORE_FLOOR) / (SCORE_MAX - BAR_SCORE_FLOOR);
+  const clamped = Math.min(Math.max(ratio, 0), 1);
+  return Math.round(BAR_MIN_HEIGHT + clamped * (BAR_MAX_HEIGHT - BAR_MIN_HEIGHT));
+}
+
+/** 함께 추천하는 시간대인지 (구간이 없으면 대표 시간대만) */
+function isRecommended(hour: number, best: HourScore | null, range: HourRange | null): boolean {
+  if (!range) return best?.hour === hour;
+  return hour >= range.startHour && hour <= range.endHour;
+}
+
 /** 가로 목록에서 화면에 보이는 마지막 항목의 인덱스 */
 function lastVisibleIndex(list: HTMLUListElement): number {
   const items = Array.from(list.children) as HTMLElement[];
@@ -69,23 +106,131 @@ function lastVisibleIndex(list: HTMLUListElement): number {
   return Math.max(items.length - hiddenCount - 1, 0);
 }
 
-/** 시간대별 날씨(현재 시각부터 24시간)와 최적 시간대 제안 */
-export default function HourlyForecast({
-  hourly,
-  scores,
-  best,
-  range,
-  activityLabel,
-  sunsetStatus,
-}: HourlyForecastProps) {
+interface BarColumnProps {
+  hour: number;
+  score: number;
+  isTomorrow: boolean;
+  isSelected: boolean;
+  isRecommended: boolean;
+  onSelect: () => void;
+}
+
+/** 시간대 하나의 점수 막대. 열 전체가 눌리는 버튼이라 낮은 막대도 쉽게 선택된다. */
+function BarColumn({
+  hour,
+  score,
+  isTomorrow: tomorrow,
+  isSelected,
+  isRecommended: recommended,
+  onSelect,
+}: BarColumnProps) {
+  const tone = scoreTone(score);
+  return (
+    <li className="w-12 shrink-0">
+      <button
+        type="button"
+        onClick={onSelect}
+        aria-pressed={isSelected}
+        aria-label={`${tomorrow ? '내일 ' : ''}${hourLabel(hour)} ${score}점`}
+        className={`flex w-full flex-col items-center gap-1 rounded-md px-1 py-1 ${
+          isSelected ? 'bg-white/10' : ''
+        }`}
+      >
+        <div
+          className="flex w-full flex-col items-center justify-end gap-1"
+          style={{ height: CHART_HEIGHT, opacity: isSelected ? 1 : BAR_DIM_OPACITY }}
+        >
+          <span className={`text-[11px] font-bold ${tone.text}`}>{score}</span>
+          <div
+            className={`w-6 rounded-sm ${tone.bar}`}
+            style={{ height: barHeight(score) }}
+          />
+        </div>
+        <div
+          className={`h-[3px] w-full rounded-full ${recommended ? 'bg-lime-pulse' : 'bg-transparent'}`}
+        />
+        <span className="text-[10px] text-steel-border">{tomorrow ? '내일' : '오늘'}</span>
+        <span className="text-xs font-medium">{hourLabel(hour)}</span>
+      </button>
+    </li>
+  );
+}
+
+/** 상세 패널에 보여줄 항목: [라벨, 값] */
+function detailItems(h: HourlyWeather): [string, string][] {
+  return [
+    ['강수', `${h.precipitation}mm`],
+    ['습도', `${h.humidity}%`],
+    ['풍속', `${h.windSpeed}m/s`],
+    ['미세먼지', `PM${h.pm10}`],
+    ['자외선', `UV${h.uvIndex}`],
+  ];
+}
+
+interface DetailPanelProps {
+  weather: HourlyWeather;
+  score: number;
+  isTomorrow: boolean;
+}
+
+/** 선택한 시간대의 기온·점수·세부 날씨 */
+function DetailPanel({ weather, score, isTomorrow: tomorrow }: DetailPanelProps) {
+  return (
+    <div className="mt-2 rounded-md border border-card-border-ink p-4">
+      <div className="flex items-end justify-between">
+        <div>
+          <p className="text-xs text-steel-border">
+            {tomorrow ? '내일' : '오늘'} {hourLabel(weather.hour)}
+          </p>
+          <p className="text-2xl font-bold">{weather.temp}°</p>
+        </div>
+        <p className={`text-2xl font-bold ${scoreTone(score).text}`}>{score}점</p>
+      </div>
+      <dl className="mt-3 grid grid-cols-3 gap-2 text-xs">
+        {detailItems(weather).map(([label, value]) => (
+          <div key={label} className="rounded-md bg-white/5 px-2 py-2">
+            <dt className="text-steel-border">{label}</dt>
+            <dd className="mt-1 text-sm font-bold">{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
+}
+
+/**
+ * 가로 목록의 처음 자리 잡기와 스크롤 분석 이벤트를 맡는다.
+ * 처음 한 번 선택된 막대를 가운데로 스크롤하고(이 스크롤은 사용자 스크롤로 세지 않는다),
+ * 사용자가 스크롤을 멈추면 도달한 시간대를 화면 진입당 1회만 전송한다.
+ * @param hourly 시간대별 날씨
+ * @param selectedIndex 처음 가운데에 둘 막대의 인덱스
+ */
+function useHourlyScroll(hourly: HourlyWeather[], selectedIndex: number) {
+  const listRef = useRef<HTMLUListElement>(null);
   const timerRef = useRef<number>();
   const hasSentRef = useRef(false);
-  const firstHour = hourly[0]?.hour ?? 0;
+  const skipScrollRef = useRef(false);
 
   useEffect(() => () => window.clearTimeout(timerRef.current), []);
 
-  /** 스크롤이 멈추면 도달한 시간대와 함께 화면 진입당 1회만 전송한다. */
+  useEffect(() => {
+    const list = listRef.current;
+    const target = list?.children[selectedIndex] as HTMLElement | undefined;
+    if (!list || !target) return;
+    const left = target.offsetLeft - list.offsetLeft - (list.clientWidth - target.clientWidth) / 2;
+    const next = Math.min(Math.max(left, 0), list.scrollWidth - list.clientWidth);
+    if (Math.abs(next - list.scrollLeft) < 1) return;
+    skipScrollRef.current = true;
+    list.scrollLeft = next;
+    // 처음 한 번만 자리를 잡는다 (이후 선택 변경으로는 스크롤하지 않는다)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleScroll = (e: UIEvent<HTMLUListElement>) => {
+    if (skipScrollRef.current) {
+      skipScrollRef.current = false;
+      return;
+    }
     if (hasSentRef.current) return;
     const list = e.currentTarget;
     window.clearTimeout(timerRef.current);
@@ -97,6 +242,25 @@ export default function HourlyForecast({
     }, SCROLL_IDLE_MS);
   };
 
+  return { listRef, handleScroll };
+}
+
+/** 시간대별 날씨(현재 시각부터 24시간)와 최적 시간대 제안 */
+export default function HourlyForecast({
+  hourly,
+  scores,
+  best,
+  range,
+  activityLabel,
+  sunsetStatus,
+}: HourlyForecastProps) {
+  const [pickedHour, setPickedHour] = useState<number | null>(null);
+  const firstHour = hourly[0]?.hour ?? 0;
+  const selectedHour = pickedHour ?? best?.hour ?? firstHour;
+  const selectedIndex = Math.max(hourly.findIndex((h) => h.hour === selectedHour), 0);
+  const { listRef, handleScroll } = useHourlyScroll(hourly, selectedIndex);
+  const selected = hourly[selectedIndex];
+
   return (
     <section className="rounded-panel border border-card-border-ink bg-card-charcoal p-6">
       <h2 className="mb-1 text-base font-bold">시간대별 날씨</h2>
@@ -106,33 +270,29 @@ export default function HourlyForecast({
         </p>
       )}
       <ul
+        ref={listRef}
         onScroll={handleScroll}
-        className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-2"
+        className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-2"
       >
-        {hourly.map((h, i) => {
-          const isBest = best?.hour === h.hour;
-          return (
-            <li
-              key={h.hour}
-              className={`flex w-16 shrink-0 flex-col items-center gap-1 rounded-md border px-2 py-3 text-xs ${
-                isBest ? 'border-lime-pulse' : 'border-card-border-ink'
-              }`}
-            >
-              <span className="text-[10px] text-steel-border">
-                {isTomorrow(h.hour, firstHour) ? '내일' : '오늘'}
-              </span>
-              <span className="font-medium">{hourLabel(h.hour)}</span>
-              <span className="text-base font-bold">{h.temp}°</span>
-              <span>{scores[i]?.score}점</span>
-              <span className="text-steel-border">💧{h.precipitation}</span>
-              <span className="text-steel-border">{h.humidity}%</span>
-              <span className="text-steel-border">{h.windSpeed}m/s</span>
-              <span className="text-steel-border">PM{h.pm10}</span>
-              <span className="text-steel-border">UV{h.uvIndex}</span>
-            </li>
-          );
-        })}
+        {hourly.map((h, i) => (
+          <BarColumn
+            key={h.hour}
+            hour={h.hour}
+            score={scores[i]?.score ?? 0}
+            isTomorrow={isTomorrow(h.hour, firstHour)}
+            isSelected={i === selectedIndex}
+            isRecommended={isRecommended(h.hour, best, range)}
+            onSelect={() => setPickedHour(h.hour)}
+          />
+        ))}
       </ul>
+      {selected && (
+        <DetailPanel
+          weather={selected}
+          score={scores[selectedIndex]?.score ?? 0}
+          isTomorrow={isTomorrow(selected.hour, firstHour)}
+        />
+      )}
     </section>
   );
 }
