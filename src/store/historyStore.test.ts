@@ -80,6 +80,21 @@ describe('setFeedback', () => {
     expect(a.feedbackAt).toBeDefined();
     expect(b.feedback).toBeUndefined();
   });
+
+  it('거리와 실제 복장을 함께 남긴다', () => {
+    useHistoryStore.getState().setFeedback('a', 'good', { distanceKm: 5.5, actualOutfit: '반팔' });
+    const [a, b] = useHistoryStore.getState().entries;
+    expect(a.distanceKm).toBe(5.5);
+    expect(a.actualOutfit).toBe('반팔');
+    expect(b.distanceKm).toBeUndefined();
+  });
+
+  it('선택 입력 없이 저장해도 거리·복장 필드를 만들지 않는다', () => {
+    useHistoryStore.getState().setFeedback('a', 'hot');
+    const [a] = useHistoryStore.getState().entries;
+    expect('distanceKm' in a).toBe(false);
+    expect('actualOutfit' in a).toBe(false);
+  });
 });
 
 describe('dropRemovedEntries', () => {

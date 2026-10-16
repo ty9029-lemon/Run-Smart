@@ -1,28 +1,171 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Chip } from '@/components/ui/chip';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { getActivityMeta } from '../constants/activities';
-import { FEEDBACK_LABELS, FEEDBACK_ORDER } from '../constants/feedback';
+import {
+  ACTUAL_OUTFIT_MAX_LENGTH,
+  FEEDBACK_LABELS,
+  FEEDBACK_ORDER,
+} from '../constants/feedback';
 import { useFeedbackPrompt } from '../hooks/useFeedbackPrompt';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
-import { formatTime } from '../lib/formatTime';
+import { parseDistanceKm } from '../lib/distance';
+import { formatDayPrefix, formatTime } from '../lib/formatTime';
 import { useHistoryStore } from '../store/historyStore';
 import { useProfileStore } from '../store/profileStore';
-import type { Feedback } from '../types';
+import type { Feedback, FeedbackDetail, HistoryEntry } from '../types';
+import DistanceStepper from './DistanceStepper';
 
-/** 피드백 선택지 */
-const OPTIONS: { value: Feedback; label: string }[] = FEEDBACK_ORDER.map((value) => ({
-  value,
-  label: FEEDBACK_LABELS[value],
-}));
+/** 바텀 시트 위치·모양 (화면 아래에 붙이고 위쪽 모서리만 둥글게) */
+const SHEET_CLASS =
+  'top-auto bottom-0 max-w-md translate-y-0 gap-7 rounded-b-none sm:max-w-md';
 
-const CARD = 'rounded-panel border border-card-border-ink bg-card-charcoal p-6';
+const SECTION_TITLE = 'text-base font-bold';
+
+/** 체감 선택지 칩. 하나만 고르므로 선택 상태(라임 외곽선)만 보여준다. */
+function FeedbackOptions({
+  selected,
+  onSelect,
+}: {
+  selected: Feedback | null;
+  onSelect: (feedback: Feedback) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2" role="group" aria-label="체감 선택">
+      {FEEDBACK_ORDER.map((value) => (
+        <Chip
+          key={value}
+          selected={selected === value}
+          onClick={() => onSelect(value)}
+        >
+          {FEEDBACK_LABELS[value]}
+        </Chip>
+      ))}
+    </div>
+  );
+}
+
+/** 실제 착용한 복장을 적는 입력 */
+function OutfitSection({ value, onChange }: { value: string; onChange: (text: string) => void }) {
+  return (
+    <section className="space-y-2">
+      <h3 className={SECTION_TITLE}>실제 착용한 복장 (선택)</h3>
+      <p className="text-sm text-muted-foreground">
+        러닝할 때 실제 입었던 복장을 기록해두면, 다음 러닝 시 어떻게 입었는지 참고할 수 있어요.
+      </p>
+      <Input
+        aria-label="실제 착용한 복장"
+        value={value}
+        maxLength={ACTUAL_OUTFIT_MAX_LENGTH}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="나이키 반팔, 언더아머 반바지, 호카 러닝화"
+      />
+    </section>
+  );
+}
+
+interface FeedbackFormProps {
+  entry: HistoryEntry;
+  /** 저장 버튼을 눌렀을 때 입력값을 알린다. */
+  onSave: (feedback: Feedback, detail: FeedbackDetail) => void;
+  onDismiss: () => void;
+}
+
+/** 입력값에서 저장할 선택 입력만 골라낸다. (거리는 올바른 숫자일 때만, 복장은 비어 있지 않을 때만) */
+function buildDetail(distanceText: string, outfitText: string): FeedbackDetail {
+  const distanceKm = parseDistanceKm(distanceText);
+  const actualOutfit = outfitText.trim();
+  return {
+    ...(distanceKm !== null && { distanceKm }),
+    ...(actualOutfit && { actualOutfit }),
+  };
+}
+
+/** 시트 제목과 체감 선택지 */
+function FeedbackHeader({
+  entry,
+  selected,
+  onSelect,
+}: {
+  entry: HistoryEntry;
+  selected: Feedback | null;
+  onSelect: (feedback: Feedback) => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <DialogTitle className="text-lg">
+        {[formatDayPrefix(entry.date), formatTime(entry.date), getActivityMeta(entry.activity).label]
+          .filter(Boolean)
+          .join(' ')}
+        , 어땠어요?
+      </DialogTitle>
+      <DialogDescription className="sr-only">
+        체감과 거리, 실제 착용한 복장을 기록하면 다음 추천에 반영돼요.
+      </DialogDescription>
+      <FeedbackOptions selected={selected} onSelect={onSelect} />
+    </div>
+  );
+}
+
+/** 저장 버튼과 '다음에 할게요' */
+function FeedbackActions({
+  canSave,
+  onSave,
+  onDismiss,
+}: {
+  canSave: boolean;
+  onSave: () => void;
+  onDismiss: () => void;
+}) {
+  return (
+    <div className="space-y-1">
+      <Button type="button" size="lg" disabled={!canSave} onClick={onSave} className="w-full">
+        저장
+      </Button>
+      <Button
+        type="button"
+        variant="link"
+        onClick={onDismiss}
+        className="w-full text-sm font-bold text-muted-foreground"
+      >
+        다음에 할게요
+      </Button>
+    </div>
+  );
+}
+
+/** 체감·거리·실제 복장을 입력받는 시트 내용 */
+function FeedbackForm({ entry, onSave, onDismiss }: FeedbackFormProps) {
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
+  const [distanceText, setDistanceText] = useState('');
+  const [outfitText, setOutfitText] = useState('');
+  const isDistanceInvalid = distanceText.trim() !== '' && parseDistanceKm(distanceText) === null;
+
+  return (
+    <>
+      <FeedbackHeader entry={entry} selected={feedback} onSelect={setFeedback} />
+      <section className="space-y-3">
+        <h3 className={SECTION_TITLE}>몇 키로 뛰었나요? (선택)</h3>
+        <DistanceStepper value={distanceText} invalid={isDistanceInvalid} onChange={setDistanceText} />
+      </section>
+      <OutfitSection value={outfitText} onChange={setOutfitText} />
+      <FeedbackActions
+        canSave={feedback !== null && !isDistanceInvalid}
+        onSave={() => feedback && onSave(feedback, buildDetail(distanceText, outfitText))}
+        onDismiss={onDismiss}
+      />
+    </>
+  );
+}
 
 interface FeedbackCardProps {
   /** '다음에 할게요'로 닫았을 때, 닫은 기록의 id와 함께 알린다. */
   onDismiss?: (id: string) => void;
 }
 
-/** 다녀온 뒤 체감을 묻는 카드. 답하면 다음 추천(복장·시간대)에 반영된다. */
+/** 다녀온 뒤 체감·거리·복장을 묻는 바텀 시트. 체감은 다음 추천(복장·시간대)에 반영된다. */
 export default function FeedbackCard({ onDismiss }: FeedbackCardProps) {
   const pending = useFeedbackPrompt();
   const setFeedback = useHistoryStore((s) => s.setFeedback);
@@ -33,53 +176,38 @@ export default function FeedbackCard({ onDismiss }: FeedbackCardProps) {
 
   if (submittedId && (!pending || pending.id === submittedId)) {
     return (
-      <p className={`${CARD} text-sm`} role="status">
+      <p className="rounded-panel border border-card-border-ink bg-card-charcoal p-6 text-sm" role="status">
         알려주셔서 고마워요. 다음 추천부터 반영할게요.
       </p>
     );
   }
   if (!pending || pending.id === dismissedId) return null;
 
-  /** 피드백을 기록하고 보정값에 누적한다. */
-  const handleSelect = (feedback: Feedback) => {
-    setFeedback(pending.id, feedback);
+  /** 피드백과 입력값을 기록하고 체감 보정값에 누적한다. */
+  const handleSave = (feedback: Feedback, detail: FeedbackDetail) => {
+    setFeedback(pending.id, feedback, detail);
     applyFeedback(feedback);
     trackEvent(ANALYTICS_EVENTS.feedbackSubmitted, {
       feedback,
       activity: pending.activity,
       feelsLike: pending.feelsLike ?? 0,
+      hasDistance: detail.distanceKm !== undefined,
+      hasActualOutfit: detail.actualOutfit !== undefined,
     });
     setSubmittedId(pending.id);
   };
 
+  /** 시트를 닫고 이 기록은 더 묻지 않는다. */
+  const handleDismiss = () => {
+    setDismissedId(pending.id);
+    onDismiss?.(pending.id);
+  };
+
   return (
-    <section className={`${CARD} space-y-4`} aria-label="운동 후 피드백">
-      <h2 className="text-base font-bold">
-        {formatTime(pending.date)} {getActivityMeta(pending.activity).label}, 어땠어요?
-      </h2>
-      <div className="grid grid-cols-3 gap-2">
-        {OPTIONS.map(({ value, label }) => (
-          <Button
-            key={value}
-            type="button"
-            variant="outline"
-            onClick={() => handleSelect(value)}
-            className="px-3 text-sm"
-          >
-            {label}
-          </Button>
-        ))}
-      </div>
-      <button
-        type="button"
-        onClick={() => {
-          setDismissedId(pending.id);
-          onDismiss?.(pending.id);
-        }}
-        className="w-full text-center text-sm text-steel-border"
-      >
-        다음에 할게요
-      </button>
-    </section>
+    <Dialog open onOpenChange={(open) => !open && handleDismiss()}>
+      <DialogContent className={SHEET_CLASS} showCloseButton={false}>
+        <FeedbackForm key={pending.id} entry={pending} onSave={handleSave} onDismiss={handleDismiss} />
+      </DialogContent>
+    </Dialog>
   );
 }
