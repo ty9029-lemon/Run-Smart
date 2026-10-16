@@ -9,6 +9,7 @@ import { FEEDBACK_LABELS } from '../constants/feedback';
 import { MESSAGES } from '../constants/messages';
 import { MS_PER_DAY } from '../constants/thresholds';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
+import { formatDistanceKm } from '../lib/distance';
 import { formatTime } from '../lib/formatTime';
 import { dayKey, groupEntriesByDay, type YearMonth } from '../lib/historyCalendar';
 import { useHistoryStore } from '../store/historyStore';
@@ -44,6 +45,18 @@ function HistoryHeader({ entry }: { entry: HistoryEntry }) {
         <p className="mt-3 text-sm">
           <span className="text-steel-border">체감 </span>
           <span className="font-medium">{FEEDBACK_LABELS[entry.feedback]}</span>
+        </p>
+      )}
+      {entry.distanceKm !== undefined && (
+        <p className="mt-1 text-sm">
+          <span className="text-muted-foreground">거리 </span>
+          <span className="font-medium">{formatDistanceKm(entry.distanceKm)}</span>
+        </p>
+      )}
+      {entry.actualOutfit && (
+        <p className="mt-1 text-sm">
+          <span className="text-muted-foreground">실제 복장 </span>
+          <span className="font-medium">{entry.actualOutfit}</span>
         </p>
       )}
     </div>

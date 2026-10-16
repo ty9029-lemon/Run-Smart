@@ -1,15 +1,15 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { HISTORY_DAYS, MS_PER_DAY } from '../constants/thresholds';
-import type { Feedback, HistoryEntry } from '../types';
+import type { Feedback, FeedbackDetail, HistoryEntry } from '../types';
 
 interface HistoryState {
   entries: HistoryEntry[];
   addEntry: (entry: HistoryEntry) => void;
   /** 기록을 삭제한다 (결정 취소) */
   removeEntry: (id: string) => void;
-  /** 기록에 체감 피드백을 남긴다 */
-  setFeedback: (id: string, feedback: Feedback) => void;
+  /** 기록에 체감 피드백과 선택 입력(거리·복장)을 남긴다 */
+  setFeedback: (id: string, feedback: Feedback, detail?: FeedbackDetail) => void;
 }
 
 /** 저장 데이터 버전 (1: '외출' 활동 제거, 2: 안 가기(skip) 기록 제거, 3: 더미 시드 기록 제거) */
@@ -64,10 +64,12 @@ export const useHistoryStore = create<HistoryState>()(
         }),
       removeEntry: (id) =>
         set((state) => ({ entries: state.entries.filter((e) => e.id !== id) })),
-      setFeedback: (id, feedback) =>
+      setFeedback: (id, feedback, detail = {}) =>
         set((state) => ({
           entries: state.entries.map((e) =>
-            e.id === id ? { ...e, feedback, feedbackAt: new Date().toISOString() } : e,
+            e.id === id
+              ? { ...e, ...detail, feedback, feedbackAt: new Date().toISOString() }
+              : e,
           ),
         })),
     }),
