@@ -73,7 +73,7 @@ const BAR_DIM_OPACITY = 0.45;
 
 /** 점수 등급별 막대·숫자 색 (Tailwind가 클래스를 찾도록 전체 이름으로 적는다) */
 const SCORE_TONES = {
-  good: { bar: 'bg-lime-pulse', text: 'text-lime-pulse' },
+  good: { bar: 'bg-lime-pulse', text: 'text-highlight' },
   caution: { bar: 'bg-score-caution', text: 'text-score-caution' },
   warn: { bar: 'bg-score-warn', text: 'text-score-warn' },
 } as const;
@@ -133,7 +133,7 @@ function BarColumn({
         aria-pressed={isSelected}
         aria-label={`${tomorrow ? '내일 ' : ''}${hourLabel(hour)} ${score}점`}
         className={`flex w-full flex-col items-center gap-1 rounded-md px-1 py-1 ${
-          isSelected ? 'bg-white/10' : ''
+          isSelected ? 'bg-foreground/10' : ''
         }`}
       >
         <div
@@ -149,7 +149,7 @@ function BarColumn({
         <div
           className={`h-[3px] w-full rounded-full ${recommended ? 'bg-lime-pulse' : 'bg-transparent'}`}
         />
-        <span className="text-[10px] text-steel-border">{tomorrow ? '내일' : '오늘'}</span>
+        <span className="text-[10px] text-muted-foreground">{tomorrow ? '내일' : '오늘'}</span>
         <span className="text-xs font-medium">{hourLabel(hour)}</span>
       </button>
     </li>
@@ -176,10 +176,10 @@ interface DetailPanelProps {
 /** 선택한 시간대의 기온·점수·세부 날씨 */
 function DetailPanel({ weather, score, isTomorrow: tomorrow }: DetailPanelProps) {
   return (
-    <div className="mt-2 rounded-md border border-card-border-ink p-4">
+    <div className="mt-2 rounded-md border border-border p-4">
       <div className="flex items-end justify-between">
         <div>
-          <p className="text-xs text-steel-border">
+          <p className="text-xs text-muted-foreground">
             {tomorrow ? '내일' : '오늘'} {hourLabel(weather.hour)}
           </p>
           <p className="text-2xl font-bold">{weather.temp}°</p>
@@ -188,8 +188,8 @@ function DetailPanel({ weather, score, isTomorrow: tomorrow }: DetailPanelProps)
       </div>
       <dl className="mt-3 grid grid-cols-3 gap-2 text-xs">
         {detailItems(weather).map(([label, value]) => (
-          <div key={label} className="rounded-md bg-white/5 px-2 py-2">
-            <dt className="text-steel-border">{label}</dt>
+          <div key={label} className="rounded-md bg-foreground/5 px-2 py-2">
+            <dt className="text-muted-foreground">{label}</dt>
             <dd className="mt-1 text-sm font-bold">{value}</dd>
           </div>
         ))}
@@ -262,10 +262,10 @@ export default function HourlyForecast({
   const selected = hourly[selectedIndex];
 
   return (
-    <section className="rounded-panel border border-card-border-ink bg-card-charcoal p-6">
+    <section className="rounded-panel border border-border bg-card p-6">
       <h2 className="mb-1 text-base font-bold">시간대별 날씨</h2>
       {best && (
-        <p className="mb-3 text-sm text-steel-border">
+        <p className="mb-3 text-sm text-muted-foreground">
           {buildRecommendText(best, range, activityLabel, sunsetStatus)}
         </p>
       )}

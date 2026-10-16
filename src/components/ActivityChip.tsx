@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Check } from 'lucide-react';
 import { COMING_SOON_MESSAGE } from '../constants/activities';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
@@ -11,10 +12,14 @@ interface ActivityChipProps {
   onDisabledClick?: () => void;
 }
 
-const BASE_CLASS = 'rounded-full border px-5 py-2 text-sm font-medium';
-const SELECTED_CLASS = 'border-primary bg-primary/10 text-primary';
-const DEFAULT_CLASS = 'border-steel-border bg-transparent text-pure-white';
-const DISABLED_CLASS = 'cursor-not-allowed border-steel-border bg-transparent text-pure-white opacity-40';
+const BASE_CLASS = 'inline-flex items-center gap-1.5 rounded-full border py-2 text-sm font-bold';
+/** 선택: 라임 면 + 선택 전과 같은 외곽선 + 앞쪽 체크 (좌 14 · 우 20, DESIGN.md) */
+const SELECTED_CLASS = 'border-chip-border-selected bg-selected pl-3.5 pr-5 text-highlight';
+const DEFAULT_CLASS = 'border-chip-border bg-transparent px-5 text-foreground';
+const DISABLED_CLASS = 'cursor-not-allowed border-chip-border bg-transparent px-5 text-foreground opacity-40';
+
+/** 선택 표시용 체크 아이콘 크기 클래스 (14px) */
+const CHECK_ICON_CLASS = 'size-3.5';
 
 /** 활동 칩. 비활성이면 흐리게 보이고 호버·클릭 시 "준비 중" 툴팁을 띄운다. */
 export default function ActivityChip({
@@ -34,6 +39,7 @@ export default function ActivityChip({
         onClick={onClick}
         className={`${BASE_CLASS} ${selected ? SELECTED_CLASS : DEFAULT_CLASS}`}
       >
+        {selected && <Check aria-hidden="true" strokeWidth={2.4} className={CHECK_ICON_CLASS} />}
         {label}
       </button>
     );

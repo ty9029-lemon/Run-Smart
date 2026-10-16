@@ -65,9 +65,9 @@ export default function Onboarding() {
       <StepIndicator current={stepIndex} total={ONBOARDING_STEPS.length} />
       <header className="space-y-1">
         <h1 className="text-2xl font-bold">{step.title}</h1>
-        <p className="text-sm text-steel-border">{step.description}</p>
+        <p className="text-sm text-muted-foreground">{step.description}</p>
       </header>
-      <section className="rounded-panel border border-card-border-ink bg-card-charcoal p-6">
+      <section className="rounded-panel border border-border bg-card p-6">
         <OnboardingStep step={step.id} draft={draft} error={error} onChange={onChange} />
       </section>
       <div className="grid grid-cols-2 gap-3">

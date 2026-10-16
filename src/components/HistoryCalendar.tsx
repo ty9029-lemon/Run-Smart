@@ -49,12 +49,12 @@ interface DayCellProps {
   onSelect: (date: Date) => void;
 }
 
-/** 날짜 숫자 스타일: 선택한 날은 흰 원 배경(오늘이면 라임 원 배경), 오늘은 라임색 숫자 */
+/** 날짜 숫자 스타일: 선택한 날은 반전색 원 배경(오늘이면 라임 원 배경), 오늘은 강조색 숫자 */
 function getNumberStyle(isToday: boolean, isSelected: boolean): string {
-  if (isSelected && isToday) return 'bg-lime-pulse font-bold text-carbon-black';
-  if (isSelected) return 'bg-pure-white font-bold text-carbon-black';
-  if (isToday) return 'font-bold text-lime-pulse';
-  return 'text-pure-white';
+  if (isSelected && isToday) return 'bg-primary font-bold text-primary-foreground';
+  if (isSelected) return 'bg-foreground font-bold text-background';
+  if (isToday) return 'font-bold text-highlight';
+  return 'text-foreground';
 }
 
 /** 달력의 하루 칸: 날짜 숫자와 그날의 활동 점 */
@@ -124,9 +124,9 @@ export default function HistoryCalendar({
 }: HistoryCalendarProps) {
   const weeks = buildMonthGrid(viewMonth.year, viewMonth.month);
   return (
-    <section className="space-y-3 rounded-panel border border-card-border-ink bg-card-charcoal p-4">
+    <section className="space-y-3 rounded-panel border border-border bg-card p-4">
       <MonthHeader viewMonth={viewMonth} today={today} onChangeMonth={onChangeMonth} />
-      <div className="grid grid-cols-7 text-center text-sm text-steel-border">
+      <div className="grid grid-cols-7 text-center text-sm text-muted-foreground">
         {WEEKDAY_LABELS.map((label) => (
           <span key={label}>{label}</span>
         ))}
