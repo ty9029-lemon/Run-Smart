@@ -1,3 +1,4 @@
+import { Checkbox } from '@/components/ui/checkbox';
 import { CONSTRAINTS } from '../constants/activities';
 import type { Constraint } from '../types';
 
@@ -10,19 +11,21 @@ interface ConstraintListProps {
 export default function ConstraintList({ selected, onToggle }: ConstraintListProps) {
   return (
     <ul className="space-y-3">
-      {CONSTRAINTS.map(({ id, label }) => (
-        <li key={id}>
-          <label className="flex items-center gap-3 text-base">
-            <input
-              type="checkbox"
+      {CONSTRAINTS.map(({ id, label }) => {
+        const inputId = `constraint-${id}`;
+        return (
+          <li key={id} className="flex items-center gap-3">
+            <Checkbox
+              id={inputId}
               checked={selected.includes(id)}
-              onChange={() => onToggle(id)}
-              className="size-5 accent-lime-pulse"
+              onCheckedChange={() => onToggle(id)}
             />
-            {label}
-          </label>
-        </li>
-      ))}
+            <label htmlFor={inputId} className="text-base">
+              {label}
+            </label>
+          </li>
+        );
+      })}
     </ul>
   );
 }

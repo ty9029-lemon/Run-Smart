@@ -45,14 +45,14 @@ export default function OutfitPanel({
   return (
     <section
       ref={sectionRef}
-      className="rounded-panel border border-card-border-ink bg-card-charcoal p-6"
+      className="rounded-panel border border-border bg-card p-6"
     >
       <h2 className="mb-3 text-base font-bold">{title}</h2>
       <ul className="grid grid-cols-3 gap-4">
         {orderedItems.map((item) => (
           <li
             key={item.label}
-            className="flex flex-col items-center gap-2 rounded-2xl border border-card-border-ink px-1 py-4 text-center"
+            className="flex flex-col items-center gap-2 rounded-2xl border border-border px-1 py-4 text-center"
           >
             <OutfitIcon icon={item.icon} className="size-16" />
             <span className="text-xs leading-tight">{item.label}</span>

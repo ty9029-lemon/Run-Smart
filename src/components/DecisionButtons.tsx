@@ -20,7 +20,7 @@ export default function DecisionButtons({
   if (departed) {
     return (
       <div className="flex flex-col items-center gap-1 py-2">
-        <p className="text-base font-medium text-pure-white" role="status">
+        <p className="text-base font-medium text-foreground" role="status">
           {formatDepartedNotice(activityLabel)}
         </p>
         <Button
@@ -28,7 +28,7 @@ export default function DecisionButtons({
           variant="link"
           size="sm"
           onClick={onCancel}
-          className="text-steel-border"
+          className="text-muted-foreground"
         >
           {MESSAGES.departureCancel}
         </Button>

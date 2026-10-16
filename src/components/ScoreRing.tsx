@@ -16,7 +16,7 @@ export default function ScoreRing({ score }: ScoreRingProps) {
   return (
     <section
       aria-label={`활동 지수 ${score}점`}
-      className="flex items-center justify-center rounded-panel border border-card-border-ink bg-card-charcoal p-6"
+      className="flex items-center justify-center rounded-panel border border-border bg-card p-6"
     >
       <div className="relative" style={{ width: SIZE, height: SIZE }}>
         <svg width={SIZE} height={SIZE} className="-rotate-90">
@@ -25,7 +25,7 @@ export default function ScoreRing({ score }: ScoreRingProps) {
             cy={SIZE / 2}
             r={RADIUS}
             fill="none"
-            stroke="var(--color-card-border-ink)"
+            stroke="var(--border)"
             strokeWidth={STROKE}
           />
           <circle
@@ -33,7 +33,7 @@ export default function ScoreRing({ score }: ScoreRingProps) {
             cy={SIZE / 2}
             r={RADIUS}
             fill="none"
-            stroke="var(--color-lime-pulse)"
+            stroke="var(--primary)"
             strokeWidth={STROKE}
             strokeLinecap="round"
             strokeDasharray={CIRCUMFERENCE}
@@ -42,7 +42,7 @@ export default function ScoreRing({ score }: ScoreRingProps) {
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-5xl font-bold leading-none">{score}</span>
-          <span className="text-xs text-steel-border">/ {SCORE_MAX}</span>
+          <span className="text-xs text-muted-foreground">/ {SCORE_MAX}</span>
         </div>
       </div>
     </section>

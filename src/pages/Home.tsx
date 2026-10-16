@@ -27,7 +27,7 @@ function resolveActivity(profile: Profile): Activity | null {
 /** 안내 박스 */
 function Notice({ children }: { children: React.ReactNode }) {
   return (
-    <p className="rounded-panel border border-card-border-ink bg-card-charcoal p-6 text-sm">
+    <p className="rounded-panel border border-border bg-card p-6 text-sm">
       {children}
     </p>
   );
@@ -88,7 +88,7 @@ export default function Home() {
       {!activity && (
         <Notice>
           {MESSAGES.noActivity}{' '}
-          <Link to="/settings" className="text-lime-pulse underline">
+          <Link to="/settings" className="text-highlight underline">
             설정으로 이동
           </Link>
         </Notice>

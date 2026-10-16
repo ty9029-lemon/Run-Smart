@@ -6,17 +6,13 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
-/* 다크 단일 테마: :root 값이 이미 다크이므로 dark: 변형은 쓰지 않는다 (OS 설정에 따라 켜지지 않게 고정) */
+/* 라이트/다크 전환: <html>의 .dark 클래스로 결정한다 (useTheme이 시스템 설정·사용자 선택을 반영).
+   색은 모드와 무관한 상수 토큰과, :root/.dark에서 값이 바뀌는 시맨틱 토큰으로 나눈다. */
 @custom-variant dark (&:is(.dark *));
 
-/* DESIGN.md 토큰: 검정 캔버스 + 라임 1색 */
+/* DESIGN.md 상수 토큰: 모드와 관계없이 값이 고정된 색 (라임 1색 + 반전 카드용 흑백) */
 @theme {
   --color-lime-pulse: #b7ff2c;
-  --color-midnight-canvas: #111111;
-  --color-card-charcoal: #1f1f21;
-  --color-card-border-ink: #28282a;
-  --color-footer-rule: #39393b;
-  --color-steel-border: #707072;
   --color-pure-white: #ffffff;
   --color-carbon-black: #000000;
 
@@ -34,6 +30,19 @@
 /* shadcn 시맨틱 색 → DESIGN.md 토큰 (--radius-md는 기존 6px 유지) */
 @theme inline {
   --font-heading: var(--font-sans);
+  --color-highlight: var(--highlight);
+  --color-selected: var(--selected);
+  --color-chip-border: var(--chip-border);
+  --color-switch-off: var(--switch-off);
+  --color-outline-border: var(--outline-border);
+  --color-outline-border-disabled: var(--outline-border-disabled);
+  --color-chip-border-selected: var(--chip-border-selected);
+  --color-toast: var(--toast);
+  --color-toast-foreground: var(--toast-foreground);
+  --color-toast-border: var(--toast-border);
+  --shadow-toast: var(--toast-shadow);
+  --color-score-caution: var(--score-caution);
+  --color-score-warn: var(--score-warn);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -61,8 +70,62 @@
   --radius-xl: calc(var(--radius) * 1.4);
 }
 
-/* 다크 단일 테마: 라임은 primary(액션)와 ring(포커스)에만 사용 */
+/* 라이트 테마(기본값): 흰 캔버스 + 진한 텍스트. 라임은 primary(채워진 액션) 배경에만 쓰고,
+   흰 배경에서 안 보이는 글자·아이콘·포커스 링은 진한 색(highlight, ring)으로 대신한다 */
 :root {
+  color-scheme: light;
+  --background: #ffffff;
+  --foreground: #111111;
+  /* 카드는 배경과 같은 흰색: 면 대신 --border 테두리로 구분해 라임 채움이 흰 면 위에 놓이게 한다 */
+  --card: #ffffff;
+  --card-foreground: #111111;
+  --popover: #ffffff;
+  --popover-foreground: #111111;
+  --primary: #b7ff2c;
+  --primary-foreground: #000000;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #111111;
+  --muted: #f4f4f5;
+  --muted-foreground: #66666a;
+  --accent: #ececee;
+  --accent-foreground: #111111;
+  /* 파괴적 액션은 붉은 글자 + 10% 붉은 면 (라임 외 유일한 예외 색, 점수 '경고'와 같은 값) */
+  --destructive: #c4301f;
+  --border: #e5e5e5;
+  --input: #8e8e91;
+  --ring: #111111;
+  /* 활성 상태 글자·아이콘 (다크에서는 라임, 라이트에서는 진한 색) */
+  --highlight: #111111;
+  /* 선택된 칩·민감도 원의 배경: 라이트는 라임 채움 (옅은 라임은 흰 카드 위에서 안 보임) */
+  --selected: #b7ff2c;
+  /* 선택 전 칩의 외곽선 (Figma 시안: fog-border) */
+  --chip-border: #e5e5e5;
+  /* 꺼진 스위치 트랙: --input보다 연해 '비활성'처럼 보이지 않게 한다 */
+  --switch-off: #d4d4d6;
+  /* outline 버튼 외곽선: 연한 회색(라임은 흰 배경에서 안 보임), 비활성은 투명도 40%가 겹쳐도 윤곽이 남게 한 단계 진하게 */
+  --outline-border: #dfdfdf;
+  --outline-border-disabled: #a1a1a3;
+  /* 선택된 칩의 외곽선: 선택 전(--chip-border)과 같은 색 */
+  --chip-border-selected: #e5e5e5;
+  /* 토스트: 배경과 반대 톤으로 눈에 띄게 (라이트는 어두운 면) */
+  --toast: #111111;
+  --toast-foreground: #ffffff;
+  --toast-border: #28282a;
+  --toast-shadow: 0 8px 24px -4px rgb(0 0 0 / 0.12);
+  /* 시간대별 점수 등급 글자·막대 색 (좋음은 라임 bg-lime-pulse 사용) */
+  --score-caution: #9a5b00;
+  --score-warn: #c4301f;
+  /* 차트: 진한 색 + 회색 단계 (라임은 흰 배경에서 선이 안 보임, 계열은 3개 이하 권장) */
+  --chart-1: #111111;
+  --chart-2: #66666a;
+  --chart-3: #a1a1a3;
+  --chart-4: #d4d4d6;
+  --radius: 20px;
+}
+
+/* 다크 테마: 검정 캔버스 + 라임 1색. 라임은 primary(액션)·ring(포커스)·highlight(활성)에 사용 */
+.dark {
+  color-scheme: dark;
   --background: #111111;
   --foreground: #ffffff;
   --card: #1f1f21;
@@ -77,17 +140,30 @@
   --muted-foreground: #707072;
   --accent: #28282a;
   --accent-foreground: #ffffff;
-  /* 두 번째 유채색 금지: destructive도 모노크롬 */
-  --destructive: #ffffff;
+  --destructive: #ff7a6b;
   --border: #28282a;
   --input: #707072;
   --ring: #b7ff2c;
-  /* 차트: 라임 1색 + 흰색·회색 단계 (두 번째 유채색 금지, 계열은 3개 이하 권장) */
+  --highlight: #b7ff2c;
+  /* 어두운 카드 위에서는 라임 10% 틴트로 충분하다 */
+  --selected: #b7ff2c1a;
+  /* 어두운 표면에서는 #e5e5e5가 너무 밝아 Steel Border를 유지한다 (DESIGN.md) */
+  --chip-border: #707072;
+  --switch-off: #707072;
+  --outline-border: #b7ff2c;
+  --outline-border-disabled: #b7ff2c;
+  --chip-border-selected: #b7ff2c;
+  /* 토스트: 다크는 흰 면 + 검정 글자 */
+  --toast: #ffffff;
+  --toast-foreground: #000000;
+  --toast-border: #e5e5e5;
+  --toast-shadow: 0 8px 24px -4px rgb(0 0 0 / 0.6);
+  --score-caution: #ffc24b;
+  --score-warn: #ff7a6b;
   --chart-1: #b7ff2c;
   --chart-2: #ffffff;
   --chart-3: #707072;
   --chart-4: #39393b;
-  --radius: 20px;
 }
 
 @layer base {

@@ -29,7 +29,12 @@ export default function DepartureToast({
       <Toast open={open} onOpenChange={onOpenChange}>
         <ToastDescription className="whitespace-pre-line">{formatDepartureToast(activityLabel)}</ToastDescription>
         <ToastAction asChild altText={MESSAGES.toastUndo} onClick={onUndo}>
-          <Button type="button" variant="secondary" size="sm" className="shrink-0">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="shrink-0 font-bold text-toast-foreground hover:bg-toast-foreground/10 hover:text-toast-foreground"
+          >
             {MESSAGES.toastUndo}
           </Button>
         </ToastAction>

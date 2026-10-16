@@ -15,7 +15,7 @@ export default function HomeHeader({ location }: HomeHeaderProps) {
   return (
     <header>
       <p className="text-2xl font-bold">{formatTime(now)}</p>
-      <p className="text-sm text-steel-border">📍 {location}</p>
+      <p className="text-sm text-muted-foreground">📍 {location}</p>
     </header>
   );
 }

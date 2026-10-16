@@ -15,7 +15,7 @@ const OPTIONS: { value: Feedback; label: string }[] = FEEDBACK_ORDER.map((value)
   label: FEEDBACK_LABELS[value],
 }));
 
-const CARD = 'rounded-panel border border-card-border-ink bg-card-charcoal p-6';
+const CARD = 'rounded-panel border border-border bg-card p-6';
 
 interface FeedbackCardProps {
   /** '다음에 할게요'로 닫았을 때, 닫은 기록의 id와 함께 알린다. */
@@ -76,7 +76,7 @@ export default function FeedbackCard({ onDismiss }: FeedbackCardProps) {
           setDismissedId(pending.id);
           onDismiss?.(pending.id);
         }}
-        className="w-full text-center text-sm text-steel-border"
+        className="w-full text-center text-sm text-muted-foreground"
       >
         다음에 할게요
       </button>

@@ -1,7 +1,7 @@
 # Home — 스타일 레퍼런스
 > 한밤중의 네온 게이밍 아레나 — 검은 바닥, 단 하나의 일렉트릭 라임, 그리고 벽에서 외치는 토너먼트 규모의 타이포그래피.
 
-**테마:** 다크
+**테마:** 다크 + 라이트. 기본은 기기 설정(시스템)을 따르고, 설정 화면에서 시스템/라이트/다크 중 직접 고를 수 있습니다. 아래 색상·표면·컴포넌트 설명은 다크를 기준으로 쓰였고, 라이트에서 값이 달라지는 부분은 '테마' 절에 모았습니다.
 
 원본 측정값은 정규화되었으며, 역할과 권장 사항은 해석을 거친 것입니다. 폰트 요약 목록은 서로 독립적이며 순서대로 짝지어지지 않습니다. HTML 예시는 원본 컴포넌트가 아니라 재구성한 것입니다.
 
@@ -20,6 +20,56 @@ Swoosh는 한밤중의 아레나 콘솔처럼 작동합니다. 거의 완전한 
 | Fog Border | `#e5e5e5` | `--color-fog-border` | 라이트 모드 헤어라인 테두리, 텍스트/제목 밑줄, 아이콘 스트로크 — 반전된 맥락(흰 카드, 밝은 표면)에서 등장 |
 | Pure White | `#ffffff` | `--color-pure-white` | 어두운 표면 위의 밝은 텍스트, 반전 라벨, 고대비 캡션. 기본 CTA 컬러로 승격하지 말 것 |
 | Carbon Black | `#000000` | `--color-carbon-black` | 밝은 표면 위의 주요 제목, 본문 텍스트, 아이콘 채움. 기본 CTA 컬러로 승격하지 말 것 |
+
+## 테마 (라이트 / 다크)
+
+위 색상 표는 원색 팔레트입니다. 화면에서는 모드에 따라 값이 바뀌는 **시맨틱 토큰**을 쓰고, 컴포넌트는 팔레트 이름(`bg-card-charcoal` 등) 대신 시맨틱 클래스(`bg-card`, `text-muted-foreground`, `border-border`)를 사용합니다. 다크 값은 `.dark`, 라이트 값은 `:root`에 두며, `<html>`의 `dark` 클래스로 전환합니다.
+
+| 토큰 | 다크 | 라이트 | 용도 |
+|------|------|--------|------|
+| `--background` | `#111111` Midnight Canvas | `#ffffff` | 페이지 배경 |
+| `--foreground` | `#ffffff` Pure White | `#111111` | 기본 텍스트 |
+| `--card` | `#1f1f21` Card Charcoal | `#ffffff` | 카드·패널 표면 (라이트는 배경과 같은 흰색, `--border` 테두리로 구분) |
+| `--muted`, `--secondary` | `#1f1f21` | `#f4f4f5` | 보조 버튼·호버 표면 |
+| `--popover` | `#1f1f21` | `#ffffff` | 모달·팝오버 표면 |
+| `--muted-foreground` | `#707072` Steel Border | `#66666a` | 보조 텍스트 |
+| `--accent` | `#28282a` Card Border Ink | `#ececee` | 호버·눌림 표면 |
+| `--border` | `#28282a` Card Border Ink | `#e5e5e5` Fog Border | 카드 테두리, 구분선 |
+| `--input` | `#707072` Steel Border | `#8e8e91` | 입력·칩·라디오의 윤곽선 |
+| `--primary` | `#b7ff2c` Lime Pulse | `#b7ff2c` | 채워진 CTA 배경 (양쪽 동일) |
+| `--primary-foreground` | `#000000` | `#000000` | 라임 위 글자 (양쪽 동일) |
+| `--highlight` | `#b7ff2c` | `#111111` | 활성 상태의 글자·아이콘·테두리 |
+| `--selected` | `#b7ff2c1a` (라임 10%) | `#b7ff2c` (라임 채움) | 선택된 칩·민감도 원의 배경 |
+| `--chip-border` | `#707072` Steel Border | `#e5e5e5` Fog Border | 선택 전 칩의 외곽선 |
+| `--switch-off` | `#707072` Steel Border | `#d4d4d6` | 꺼진 스위치의 트랙 |
+| `--outline-border` | `#b7ff2c` | `#dfdfdf` | outline 버튼 외곽선 (글자는 `--highlight`) |
+| `--outline-border-disabled` | `#b7ff2c` | `#a1a1a3` | 비활성 outline 버튼 외곽선 (투명도 40%가 겹쳐도 윤곽이 남도록 기본보다 진함) |
+| `--chip-border-selected` | `#b7ff2c` | `#e5e5e5` | 선택된 칩의 외곽선 (라이트는 선택 전과 같은 색) |
+| `--toast` | `#ffffff` | `#111111` | 토스트 면 (배경과 반대 톤) |
+| `--toast-foreground` | `#000000` | `#ffffff` | 토스트 글자 |
+| `--toast-border` | `#e5e5e5` | `#28282a` | 토스트 외곽선 |
+| `--toast-shadow` | `0 8px 24px -4px rgb(0 0 0 / 0.6)` | `0 8px 24px -4px rgb(0 0 0 / 0.12)` | 토스트 그림자 (내비게이션 바 외 유일한 그림자) |
+| `--ring` | `#b7ff2c` | `#111111` | 포커스 링 |
+| `--destructive` | `#ff7a6b` | `#c4301f` | 파괴적 액션. 붉은 글자 + 10% 붉은 면 (라임 외 유일한 예외 색, 점수 '경고'와 같은 값) |
+| `--score-caution` | `#ffc24b` | `#9a5b00` | 점수 '주의' 등급 글자·막대 |
+| `--score-warn` | `#ff7a6b` | `#c4301f` | 점수 '경고' 등급 글자·막대 |
+| `--chart-1` ~ `--chart-4` | `#b7ff2c`, `#ffffff`, `#707072`, `#39393b` | `#111111`, `#66666a`, `#a1a1a3`, `#d4d4d6` | 차트 계열 (3개 이하 권장) |
+
+### 라이트 모드 규칙
+
+- **라임은 면에만 씁니다.** `#b7ff2c`는 흰 배경에서 글자·아이콘·선으로 쓰면 대비가 1.1:1 수준이라 보이지 않습니다. 채워진 CTA(라임 배경 + 검정 글자 `17.35:1`)는 양쪽 모드가 같고, 활성 탭 글자나 선택된 칩의 글자·테두리처럼 라임을 글자·선으로 쓰던 곳은 `--highlight`(다크는 라임, 라이트는 `#111111`)를 씁니다.
+- **선택된 칩은 라임 면 + 선택 전과 같은 외곽선 + 왼쪽 체크 아이콘입니다.** 라이트에서는 라임으로 채우고 `--chip-border-selected`(`#e5e5e5`) 외곽선, `--highlight`(`#111111`) 글자·체크를 씁니다. 다크는 라임 10% 틴트 + 라임 외곽선·글자·체크입니다. 체크 아이콘은 14px, 글자와 간격 6, 왼쪽 패딩 14·오른쪽 패딩 20, 높이 35입니다(선택 전 칩과 오른쪽 패딩·높이가 같고, 체크가 들어가는 왼쪽만 6 좁음). 색뿐 아니라 아이콘으로도 선택을 알려 접근성에도 좋습니다. 이 모양은 **여러 개를 고르는 토글 전용**입니다(체크는 다중 선택 신호). 하나만 고르고 바로 제출하는 선택지(예: FeedbackCard의 추웠어요/적당했어요/더웠어요)는 칩이 아니라 outline 버튼을 씁니다. 라임 10% 틴트는 흰 카드 위에서 보이지 않으므로 라이트에서 쓰지 않습니다.
+- **민감도 원·체크박스는 라임 면 + 진한 테두리·체크입니다.** 선택되면 라이트에서 라임으로 채우고 `--highlight`(`#111111`) 테두리를 씁니다. 체크박스는 브라우저 기본 컨트롤 대신 `Checkbox` 컴포넌트를 씁니다(기본 컨트롤의 `accent-color`는 모드별 테두리를 줄 수 없음).
+- **outline 버튼은 연한 회색 외곽선 + 진한 글자입니다.** 외곽선은 `--outline-border`(라이트 `#dfdfdf`, 다크 라임), 글자는 `--highlight`입니다. 비활성은 `--outline-border-disabled`(라이트 `#a1a1a3`)에 투명도 40%를 적용합니다. 라이트에서는 outline이 secondary(옅은 회색 면)와 비슷한 무게가 되므로 한 화면에서 둘을 같이 쓰지 않는 것이 좋습니다.
+- **destructive는 붉은 글자 + 10% 붉은 면입니다.** `--destructive`를 쓰고, 값은 점수 '경고'와 같습니다(라이트 `#c4301f`, 다크 `#ff7a6b`). 채운 붉은 버튼은 쓰지 않아 화면의 유일한 채운 면은 라임 CTA로 남습니다.
+- **토스트는 배경과 반대 톤입니다.** 다크는 흰 면 + 검정 글자, 라이트는 `#111111` 면 + 흰 글자(`--toast*`)로 배경에 묻히지 않게 합니다. 안의 [실행 취소]는 알약 없는 ghost 버튼이고, 그림자는 `--toast-shadow`(토스트만 예외)입니다.
+- **'라임 하나' 원칙은 유지합니다.** 라이트에서 라임 대체용으로 진한 초록 등 두 번째 유채색을 만들지 않습니다. 단 destructive의 붉은색은 의미를 전달하는 예외입니다. 활성 구분이 약해지는 곳(하단 탭바)은 라임 막대를 더해 보강합니다.
+- **표면 단계는 뒤집힌 순서입니다.** 라이트는 카드(`--card`)를 배경과 같은 흰색으로 두고 `--border`로만 윤곽을 줍니다. 면 밝기 차이 대신 테두리로 단계를 나누므로, 라임 채움이 항상 흰 면 위에 놓여 더 선명합니다.
+- **보조 텍스트 대비를 지킵니다.** 라이트의 `--muted-foreground`(`#66666a`)는 흰 배경에서 `5.72:1`, 카드 위에서 `5.20:1`로 본문 기준 4.5:1을 넘깁니다. 이보다 연한 회색은 글자에 쓰지 않습니다.
+- **점수 등급 색은 모드별로 따로 둡니다.** 다크용 밝은 노랑·분홍은 흰 배경에서 읽히지 않아, 라이트는 `4.5:1` 이상이 나오는 어두운 값(`#9a5b00`, `#c4301f`)을 씁니다. 라임 '좋음' 막대는 라이트의 카드 위에서 대비가 낮으므로(`1.10:1`), 막대만으로 등급을 전하지 말고 점수 숫자를 함께 보여줍니다.
+- **White Floating Card는 양쪽 모드에서 흰 배경 + 검정 글자로 고정합니다.** 어두운 사진 위에 올리는 용도이기 때문에 모드에 따라 뒤집지 않습니다.
+- **색을 직접 쓰지 않습니다.** 컴포넌트에 `bg-white`, `text-black`, hex를 쓰지 말고 시맨틱 클래스를 씁니다. 반투명 오버레이는 `bg-foreground/5`처럼 `foreground`에 알파를 줍니다. SVG는 `var(--border)`, `var(--highlight)`처럼 변수를 참조합니다.
+- **`dark:` 변형은 쓰지 않습니다.** 값이 토큰에서 이미 모드별로 갈리므로, 컴포넌트에서 `dark:` 분기를 더하면 두 곳에서 색을 관리하게 됩니다. 라이트에서만 필요한 보강(탭 인디케이터 등)은 예외로 둘 수 있습니다.
 
 ## 토큰 — 타이포그래피
 
@@ -216,15 +266,20 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
 - 화면을 가득 채우는 어두운 사진을 Pure White(#ffffff) 플로팅 카드와 짝지어 포스터 스타일 레이어링을 만들 것
 - #e5e5e5 테두리는 반전된(흰 표면) 맥락에서만 사용하고, 어두운 표면에서는 #28282a 또는 #707072를 사용할 것
 - 어두운 표면의 본문 텍스트는 16px Plus Jakarta Sans / Pretendard 400, 줄 간격 1.50, Pure White로 설정할 것
+- 라이트 모드에서 라임을 글자·아이콘·선으로 쓰던 자리는 `--highlight`(`#111111`)로 바꿀 것 — 라임은 채워진 면에만 남긴다
+- 색은 시맨틱 클래스(`bg-card`, `text-foreground`, `border-border`)로 쓰고, 모드별 값은 토큰에서만 바꿀 것
 
 ### Don't
-- 두 번째 유채색을 도입하지 말 것 — 이 시스템은 모노크롬에 라임 하나다. 파랑, 빨강 등 어떤 색을 더해도 신호가 깨진다
+- 두 번째 유채색을 도입하지 말 것 — 이 시스템은 모노크롬에 라임 하나다. 파랑 등 어떤 색을 더해도 신호가 깨진다. 예외는 의미를 전달하는 `--destructive`(점수 '경고'와 같은 붉은색) 하나뿐이다
 - 컨테이너에 0px 또는 28px 이상의 border radius를 사용하지 말 것(버튼의 pill 제외) — 20px radius가 부드럽지만 느슨하지 않은 이 시스템의 정체성이다
 - 영문 디스플레이 헤드라인의 줄 간격을 1.2 이상으로 설정하지 말 것 — 0.85-1.00의 압축이 타입을 간판처럼 느끼게 한다. 한글 헤드라인은 예외로 1.4를 사용한다
 - 내비게이션 바의 2px 블러를 넘는 드롭 섀도를 사용하지 말 것 — 평평함은 의도된 것이다
 - 라임(#b7ff2c)을 제목, 서브헤딩, 본문 텍스트에 적용하지 말 것 — 액션 전용이다
 - 어두운 표면의 테두리에 #e5e5e5를 사용하지 말 것 — 너무 밝다. 흰 카드 맥락에 한정할 것
 - 표면 컨테이너 없이 버튼이나 카드를 사진 위에 바로 올리지 말 것 — 플로팅 카드는 흰색 또는 차콜 배경이 있어야 읽힌다
+- 라이트 모드의 흰 배경 위에 라임 글자·아이콘·얇은 선을 쓰지 말 것 — 대비가 1.1:1이라 보이지 않는다
+- 라이트용으로 진한 초록 같은 두 번째 유채색을 만들지 말 것 — 대체색은 `#111111`이다
+- 컴포넌트에서 `dark:` 변형이나 하드코딩 색(`bg-white`, `text-black`, hex)으로 모드를 분기하지 말 것
 
 ## 표면
 
@@ -233,6 +288,8 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
 | 0 | Midnight Canvas | `#111111` | 페이지 기반, 히어로 배경, 전체 폭 섹션 |
 | 1 | Card Charcoal | `#1f1f21` | 캔버스 위에 놓이는 카드, 모달, 콘텐츠 패널 |
 | 2 | Inverted White | `#ffffff` | 어두운 사진 위의 흰색 플로팅 카드, 반전 텍스트 패널 |
+
+라이트 모드에서는 레벨 0이 `#ffffff`(`--background`), 레벨 1도 `#ffffff`(`--card`)이며 `--border`(`#e5e5e5`)로 윤곽을 줍니다. 레벨 2(흰색 플로팅 카드)는 모드와 무관하게 `#ffffff`입니다.
 
 ## 엘리베이션
 
@@ -248,7 +305,7 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
 
 ## 에이전트 프롬프트 가이드
 
-**빠른 색상 참조**
+**빠른 색상 참조** (다크 기준. 라이트 값은 '테마' 절의 표를 따릅니다)
 - 텍스트: #ffffff
 - 배경: #111111
 - 테두리(어두운 표면): #28282a / #707072
@@ -427,3 +484,93 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
   --shadow-sm: rgba(17, 17, 17, 0.125) 0px 2px 6px 0px;
 }
 ```
+
+### 테마 토큰 (라이트 / 다크)
+
+위 블록은 원색 팔레트이고, 화면에 쓰는 시맨틱 토큰은 아래처럼 `:root`(라이트)와 `.dark`(다크)에 둡니다. 유틸리티 클래스는 `@theme inline`으로 이 변수에 연결합니다(`--color-card: var(--card)` 등). 실제 구현은 `src/index.css`입니다.
+
+```css
+:root {
+  color-scheme: light;
+  --background: #ffffff;
+  --foreground: #111111;
+  --card: #ffffff;
+  --card-foreground: #111111;
+  --popover: #ffffff;
+  --popover-foreground: #111111;
+  --primary: #b7ff2c;
+  --primary-foreground: #000000;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #111111;
+  --muted: #f4f4f5;
+  --muted-foreground: #66666a;
+  --accent: #ececee;
+  --accent-foreground: #111111;
+  --destructive: #c4301f;
+  --border: #e5e5e5;
+  --input: #8e8e91;
+  --ring: #111111;
+  --highlight: #111111;
+  --selected: #b7ff2c;
+  --chip-border: #e5e5e5;
+  --switch-off: #d4d4d6;
+  --outline-border: #dfdfdf;
+  --outline-border-disabled: #a1a1a3;
+  --chip-border-selected: #e5e5e5;
+  --toast: #111111;
+  --toast-foreground: #ffffff;
+  --toast-border: #28282a;
+  --toast-shadow: 0 8px 24px -4px rgb(0 0 0 / 0.12);
+  --score-caution: #9a5b00;
+  --score-warn: #c4301f;
+  --chart-1: #111111;
+  --chart-2: #66666a;
+  --chart-3: #a1a1a3;
+  --chart-4: #d4d4d6;
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #111111;
+  --foreground: #ffffff;
+  --card: #1f1f21;
+  --card-foreground: #ffffff;
+  --popover: #1f1f21;
+  --popover-foreground: #ffffff;
+  --primary: #b7ff2c;
+  --primary-foreground: #000000;
+  --secondary: #1f1f21;
+  --secondary-foreground: #ffffff;
+  --muted: #1f1f21;
+  --muted-foreground: #707072;
+  --accent: #28282a;
+  --accent-foreground: #ffffff;
+  --destructive: #ff7a6b;
+  --border: #28282a;
+  --input: #707072;
+  --ring: #b7ff2c;
+  --highlight: #b7ff2c;
+  --selected: #b7ff2c1a;
+  --chip-border: #707072;
+  --switch-off: #707072;
+  --outline-border: #b7ff2c;
+  --outline-border-disabled: #b7ff2c;
+  --chip-border-selected: #b7ff2c;
+  --toast: #ffffff;
+  --toast-foreground: #000000;
+  --toast-border: #e5e5e5;
+  --toast-shadow: 0 8px 24px -4px rgb(0 0 0 / 0.6);
+  --score-caution: #ffc24b;
+  --score-warn: #ff7a6b;
+  --chart-1: #b7ff2c;
+  --chart-2: #ffffff;
+  --chart-3: #707072;
+  --chart-4: #39393b;
+}
+```
+
+### 테마 전환
+
+- `<html>`의 `dark` 클래스로 전환합니다. 저장값(`run-smart-theme`)이 `system`이면 `prefers-color-scheme`을 따르고, 기기 설정이 바뀌면 즉시 반영합니다.
+- 첫 화면이 그려지기 전에 `index.html`의 인라인 스크립트가 저장값을 읽어 클래스를 붙여 깜빡임을 막습니다. 키·색 값은 `src/constants/theme.ts`와 맞춥니다.
+- 브라우저 주소창 색(`meta[name=theme-color]`)은 `--background`와 같은 값(`#ffffff` / `#111111`)으로 함께 바꿉니다.

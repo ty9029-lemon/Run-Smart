@@ -19,7 +19,7 @@ export default function WeatherCard({ weather, feelsLike }: WeatherCardProps) {
     { label: '자외선', value: `${weather.uvIndex}` },
   ];
   return (
-    <section className="rounded-panel border border-card-border-ink bg-card-charcoal p-6">
+    <section className="rounded-panel border border-border bg-card p-6">
       <div className="mb-4 flex items-baseline gap-3">
         <span className="text-4xl font-bold">{weather.temp}°C</span>
         {emoji ? (
@@ -32,13 +32,13 @@ export default function WeatherCard({ weather, feelsLike }: WeatherCardProps) {
             {emoji}
           </span>
         ) : (
-          <span className="text-base text-steel-border">{weather.condition}</span>
+          <span className="text-base text-muted-foreground">{weather.condition}</span>
         )}
       </div>
       <dl className="grid grid-cols-3 gap-x-3 gap-y-4">
         {cells.map((cell) => (
           <div key={cell.label}>
-            <dt className="text-sm text-steel-border">{cell.label}</dt>
+            <dt className="text-sm text-muted-foreground">{cell.label}</dt>
             <dd className="text-base font-medium">{cell.value}</dd>
           </div>
         ))}
