@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -5,9 +6,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { SCORE_REASON_MESSAGES } from '../constants/scoreReasons';
-import { BOTTOM_SHEET_CLASS } from '../constants/sheetStyles';
-import { describeRatio, formatFactorValue, type ScoreReason } from '../lib/scoreReasons';
+import { REASON_LEVEL_TEXT_CLASS, SCORE_REASON_MESSAGES } from '../constants/scoreReasons';
+import { BOTTOM_SHEET_CLASS, SHEET_HEADER_CLASS } from '../constants/sheetStyles';
+import {
+  describeRatio,
+  formatFactorValue,
+  ratioToLevel,
+  type ScoreReason,
+} from '../lib/scoreReasons';
 import type { Activity, Weather } from '../types';
 
 /** 항목이 많아 시트 안에서 스크롤하도록 높이와 간격을 더한다 */
@@ -45,7 +51,7 @@ function ReasonRow({ reason, value }: { reason: ScoreReason; value: string }) {
         <div className="h-full rounded-full bg-primary" style={{ width: `${earnedPercent}%` }} />
       </div>
       <p className="text-sm text-subtle-text">
-        {describeRatio(ratio)}
+        <span className={REASON_LEVEL_TEXT_CLASS[ratioToLevel(ratio)]}>{describeRatio(ratio)}</span>
         {sensitive && ` · ${SCORE_REASON_MESSAGES.sensitiveNote}`}
       </p>
     </li>
@@ -64,8 +70,8 @@ export default function ScoreBreakdownSheet({
 }: ScoreBreakdownSheetProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent showCloseButton={false} className={SHEET_CLASS}>
-        <DialogHeader>
+      <DialogContent className={SHEET_CLASS}>
+        <DialogHeader className={SHEET_HEADER_CLASS}>
           <DialogTitle className="text-subheading-sm">
             {SCORE_REASON_MESSAGES.sheetTitle} ({score}점)
           </DialogTitle>
@@ -80,6 +86,16 @@ export default function ScoreBreakdownSheet({
             />
           ))}
         </ul>
+        {/* 시트 배경(Card Charcoal)과 같은 Secondary 면이라 구분되도록 한 단계 밝은 면을 쓴다 */}
+        <Button
+          type="button"
+          variant="secondary"
+          size="lg"
+          className="w-full bg-card-border-ink"
+          onClick={() => onOpenChange(false)}
+        >
+          {SCORE_REASON_MESSAGES.close}
+        </Button>
       </DialogContent>
     </Dialog>
   );

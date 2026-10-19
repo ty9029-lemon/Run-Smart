@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { getActivityMeta } from '../constants/activities';
-import { BOTTOM_SHEET_CLASS } from '../constants/sheetStyles';
+import { BOTTOM_SHEET_CLASS, SHEET_HEADER_CLASS } from '../constants/sheetStyles';
 import {
   FEEDBACK_MESSAGES,
   FEEDBACK_SOURCES,
@@ -66,14 +66,14 @@ export default function FeedbackSheet({ entry, onDismiss, onSkip, onClose }: Fee
 
   return (
     <Dialog open onOpenChange={handleOpenChange}>
-      <DialogContent showCloseButton={false} className={BOTTOM_SHEET_CLASS}>
+      <DialogContent className={BOTTOM_SHEET_CLASS}>
         {answered ? (
           <p role="status" className="py-4 text-center text-base font-medium">
             {FEEDBACK_MESSAGES.thanks}
           </p>
         ) : (
           <>
-            <DialogHeader>
+            <DialogHeader className={SHEET_HEADER_CLASS}>
               <DialogTitle className="text-subheading-sm">{title}</DialogTitle>
               <DialogDescription>{FEEDBACK_MESSAGES.sheetDescription}</DialogDescription>
             </DialogHeader>
