@@ -3,6 +3,7 @@ import { GUIDE_API_PATH, GUIDE_RETRY_COUNT, GUIDE_TIMEOUT_MS } from '../constant
 import { getDustGrade, getUvGrade, shouldRecommendMask } from '../lib/airGrade';
 import { calcAppliedOffset, calcPersonalFeelsLike } from '../lib/feelsLike';
 import { readGuideCache, writeGuideCache } from '../lib/guideCache';
+import { recommendOutfit } from '../lib/outfit';
 import { calcRunScore, scoreToLevel, scoreToTier } from '../lib/runScore';
 import type { Activity, AiGuide, Constraint, GuideRequest, Sensitivity, Weather } from '../types';
 
@@ -20,6 +21,7 @@ export interface GuideInput {
 export function buildGuideRequest(input: GuideInput): GuideRequest {
   const { activity, sensitivity, constraints, weather, location } = input;
   const score = calcRunScore(weather, sensitivity, constraints, activity);
+  const feltTemp = calcPersonalFeelsLike(weather, sensitivity);
   return {
     activityLabel: getActivityMeta(activity).label,
     offset: calcAppliedOffset(weather, sensitivity),
@@ -27,7 +29,7 @@ export function buildGuideRequest(input: GuideInput): GuideRequest {
       (c) => c.label,
     ),
     weather,
-    feltTemp: calcPersonalFeelsLike(weather, sensitivity),
+    feltTemp,
     score,
     level: scoreToLevel(score),
     scoreTier: scoreToTier(score, activity) ?? undefined,
@@ -35,6 +37,8 @@ export function buildGuideRequest(input: GuideInput): GuideRequest {
     dustGrade: getDustGrade(weather.pm10),
     uvGrade: getUvGrade(weather.uvIndex),
     maskAllowed: shouldRecommendMask(constraints, weather.pm10),
+    // 화면의 복장 카드와 같은 계산이라 가이드가 다른 옷을 권하지 않는다
+    outfitLabels: recommendOutfit(feltTemp, weather, activity, constraints).map((item) => item.label),
   };
 }
 

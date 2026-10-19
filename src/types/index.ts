@@ -115,6 +115,8 @@ export interface GuideRequest {
   uvGrade?: UvGrade;
   /** AI 가이드가 마스크를 언급해도 되는지 (false면 언급하지 않는다. 없으면 기존 클라이언트) */
   maskAllowed?: boolean;
+  /** 앱이 화면에 추천한 복장 이름 목록. 가이드의 복장 팁이 화면과 어긋나지 않게 알려 준다 (없으면 기존 클라이언트) */
+  outfitLabels?: string[];
 }
 
 /** 복장 추천 항목 분류 (화면에서 그룹 소제목으로 쓴다) */

@@ -25,6 +25,8 @@ export const GUIDE_TIPS_MAX_COUNT = 6;
 /** 요청 필드 길이·범위 한도 (키 남용 방지) */
 const REQUEST_TEXT_MAX = 40;
 const REQUEST_CONSTRAINTS_MAX = 8;
+/** 복장 이름 목록 최대 개수 */
+const REQUEST_OUTFIT_MAX = 12;
 const TEMP_RANGE = 80;
 const OFFSET_RANGE = 5;
 const SCORE_MAX = 100;
@@ -55,6 +57,8 @@ export const SYSTEM_PROMPT = `당신은 사용자의 활동 능력과 기후 민
 - 체감온도와 활동 지수는 입력값을 그대로 쓰고 다시 계산하지 않습니다.
 - 의학적 진단이나 단정적 금지령을 쓰지 않습니다. "가면 안 됩니다" 대신 "위험 신호가 있으니 신중히 검토하세요"처럼 씁니다.
 - 활동과 제약사항에 맞는 구체적인 팁을 2~4개 줍니다. 복장 제안을 포함합니다.
+- recommended_outfit이 주어지면 앱이 화면에 보여 주는 복장입니다. 복장 팁과 guideMessage의 복장 설명은 이 목록과 일치해야 합니다. 목록에 없는 옷(예: 목록에 긴팔이 있는데 반팔)을 권하지 않고, 목록에 있는 옷을 말할 때는 목록의 이름을 그대로 씁니다.
+- 자외선 차단제는 "자외선 차단제 바르기", 선글라스는 "선글라스 챙기기"로 각각 따로 한 줄씩 씁니다. 한 팁에 둘을 묶지 않습니다.
 - 미세먼지와 자외선 등급은 입력된 dust_grade, uv_grade를 그대로 씁니다. 숫자를 보고 직접 등급을 다시 판단하지 않습니다.
 - mask_allowed가 false이면 미세먼지를 위험 요인으로 말하지 않고, 마스크·넥게이터·호흡기 보호를 언급하지 않습니다. true일 때만 마스크를 권해도 됩니다.
 - 제약사항에 비염이 있으면 기온이 5°C 미만일 때 찬 공기, 습도가 30% 미만일 때 건조함을 팁에 반영합니다. 휴지·티슈는 복장 칩이 따로 안내하므로 팁에 쓰지 않습니다.
@@ -93,6 +97,12 @@ export function parseGuideRequest(body: unknown): GuideRequest | null {
   }
   if (body.uvGrade !== undefined && !UV_GRADES.includes(body.uvGrade as UvGrade)) return null;
   if (body.maskAllowed !== undefined && typeof body.maskAllowed !== 'boolean') return null;
+  const outfit = body.outfitLabels;
+  if (outfit !== undefined) {
+    if (!Array.isArray(outfit) || outfit.length > REQUEST_OUTFIT_MAX || !outfit.every(isText)) {
+      return null;
+    }
+  }
   if (!isFiniteNumber(body.score) || body.score < 0 || body.score > SCORE_MAX) return null;
   if (!isLevel(body.level)) return null;
   if (body.scoreTier !== undefined && !isScoreTier(body.scoreTier)) return null;
@@ -110,6 +120,7 @@ export function buildUserPrompt(req: GuideRequest): string {
     user_temp_offset: req.offset,
     constraints: req.constraintLabels,
     mask_allowed: req.maskAllowed,
+    recommended_outfit: req.outfitLabels,
     current_weather: {
       temp: w.temp,
       humidity: w.humidity,
