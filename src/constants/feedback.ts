@@ -7,6 +7,13 @@ export const FEEDBACK_LABELS: Record<Feedback, string> = {
   hot: '더웠어요',
 };
 
+/** 기록 카드에서 체감 결과를 보여줄 글자 색 (적당=파랑, 춥거나 더우면 주황) */
+export const FEEDBACK_TEXT_CLASS: Record<Feedback, string> = {
+  cold: 'text-level-normal',
+  good: 'text-level-good',
+  hot: 'text-level-normal',
+};
+
 /** 피드백 선택지 표시 순서 */
 export const FEEDBACK_ORDER: Feedback[] = ['cold', 'good', 'hot'];
 

@@ -41,6 +41,7 @@ export const ANALYTICS_EVENTS = {
   historyOpened: 'history_opened',
   tabClicked: 'tab_clicked',
   historyEntryViewed: 'history_entry_viewed',
+  historyRecommendationOpened: 'history_recommendation_opened',
   outfitViewed: 'outfit_viewed',
   feedbackSubmitted: 'feedback_submitted',
   feedbackSheetDismissed: 'feedback_sheet_dismissed',

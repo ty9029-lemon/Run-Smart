@@ -1,16 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import GuideBox from '../components/GuideBox';
 import HistoryCalendar from '../components/HistoryCalendar';
 import HistoryEntryStatus from '../components/HistoryEntryStatus';
-import OutfitPanel from '../components/OutfitPanel';
-import { getActivityMeta } from '../constants/activities';
-import { OUTFIT_SOURCES } from '../constants/analytics';
-import { MESSAGES } from '../constants/messages';
+import HistoryRecommendation from '../components/HistoryRecommendation';
+import { chipVariants } from '@/components/ui/chip';
+import { HISTORY_MESSAGES, MESSAGES } from '../constants/messages';
 import { MS_PER_DAY } from '../constants/thresholds';
 import { useActiveSession } from '../hooks/useActiveSession';
 import { useNow } from '../hooks/useNow';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
-import { formatDistanceKm } from '../lib/distance';
 import { isFeedbackAskable } from '../lib/feedback';
 import { dayKey, groupEntriesByDay, type YearMonth } from '../lib/historyCalendar';
 import { useHistoryStore } from '../store/historyStore';
@@ -32,41 +29,36 @@ function daysAgoOf(iso: string): number {
   return Math.round(diff / MS_PER_DAY);
 }
 
-/** 기록 카드 상단 (시작 시각·활동 시간, 활동, 날씨 요약, 체감 피드백) */
+/** 기록 카드 (시각·활동·체감·거리/페이스/시간, 날씨 요약, 실제 복장) */
 function HistoryHeader({ entry }: { entry: HistoryEntry }) {
-  const meta = getActivityMeta(entry.activity);
   const session = useActiveSession();
   const now = useNow();
   const runningStartedAt = session?.entryId === entry.id ? session.startedAt : null;
   const askFeedback = isFeedbackAskable(entry, now.getTime(), session?.entryId ?? null);
   return (
-    <div className="rounded-panel border border-card-border-ink bg-card-charcoal p-6">
+    <div className="rounded-panel bg-card-charcoal p-6">
       <HistoryEntryStatus
         entry={entry}
         runningStartedAt={runningStartedAt}
         askFeedback={askFeedback}
       />
-      <p className="mt-3 text-base font-medium">
-        {meta.emoji} {meta.label}
-      </p>
-      <p className="text-sm text-subtle-text">{entry.weatherSummary}</p>
-      {entry.distanceKm !== undefined && (
-        <p className="mt-1 text-sm">
-          <span className="text-muted-foreground">거리 </span>
-          <span className="font-medium">{formatDistanceKm(entry.distanceKm)}</span>
+      <div className="mt-5 space-y-1 text-base">
+        <p>
+          <span className="text-subtle-text">{HISTORY_MESSAGES.weatherLabel} </span>
+          {entry.weatherSummary}
         </p>
-      )}
-      {entry.actualOutfit && (
-        <p className="mt-1 text-sm">
-          <span className="text-muted-foreground">실제 복장 </span>
-          <span className="font-medium">{entry.actualOutfit}</span>
-        </p>
-      )}
+        {entry.actualOutfit && (
+          <p>
+            <span className="text-subtle-text">{HISTORY_MESSAGES.actualOutfitLabel} </span>
+            {entry.actualOutfit}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
 
-/** 히스토리 한 건 (날씨 가이드와 추천 복장을 처음부터 모두 보여준다) */
+/** 히스토리 한 건 (기록 카드 + 접어 둔 그날의 추천) */
 function HistoryItem({ entry }: { entry: HistoryEntry }) {
   // 날짜를 선택해 카드가 보일 때 열람 이벤트를 한 번 보낸다.
   useEffect(() => {
@@ -78,17 +70,9 @@ function HistoryItem({ entry }: { entry: HistoryEntry }) {
   }, [entry.date, entry.decision, entry.activity]);
 
   return (
-    <li className="space-y-2">
+    <li className="space-y-1">
       <HistoryHeader entry={entry} />
-      <GuideBox guide={{ state: 'ready', data: entry.guide }} rawWeather={entry.weatherSummary} />
-      {entry.outfit && entry.outfit.length > 0 && (
-        <OutfitPanel
-          items={entry.outfit}
-          title="추천 복장"
-          source={OUTFIT_SOURCES.history}
-          activity={entry.activity}
-        />
-      )}
+      <HistoryRecommendation entry={entry} daysAgo={daysAgoOf(entry.date)} />
     </li>
   );
 }
@@ -123,10 +107,19 @@ export default function History() {
   });
   const entriesByDay = useMemo(() => groupEntriesByDay(entries), [entries]);
 
+  /** 오늘 날짜와 이번 달로 돌아온다. */
+  const goToday = () => {
+    setSelected(today);
+    setViewMonth({ year: today.getFullYear(), month: today.getMonth() });
+  };
+
   return (
     <main className="mx-auto max-w-md space-y-4 px-4 py-6">
-      <header>
+      <header className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">활동 기록</h1>
+        <button type="button" className={chipVariants()} onClick={goToday}>
+          {HISTORY_MESSAGES.today}
+        </button>
       </header>
       <HistoryCalendar
         viewMonth={viewMonth}

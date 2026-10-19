@@ -1,11 +1,18 @@
-import { FEEDBACK_LABELS, FEEDBACK_MESSAGES, FEEDBACK_SOURCES } from '../constants/feedback';
+import {
+  FEEDBACK_LABELS,
+  FEEDBACK_MESSAGES,
+  FEEDBACK_SOURCES,
+  FEEDBACK_TEXT_CLASS,
+} from '../constants/feedback';
+import { getActivityMeta } from '../constants/activities';
 import { HISTORY_MESSAGES } from '../constants/messages';
 import { useStopwatch } from '../hooks/useStopwatch';
 import { useSubmitFeedback } from '../hooks/useSubmitFeedback';
-import { formatDurationText, formatElapsed } from '../lib/formatElapsed';
+import { formatElapsed } from '../lib/formatElapsed';
 import { formatTime } from '../lib/formatTime';
 import type { Feedback, HistoryEntry } from '../types';
 import FeedbackChoices from './FeedbackChoices';
+import HistoryStats from './HistoryStats';
 
 interface HistoryEntryStatusProps {
   entry: HistoryEntry;
@@ -25,9 +32,21 @@ function RunningLabel({ startedAt }: { startedAt: number }) {
   );
 }
 
+/** 체감을 남긴 기록의 체감 결과 (적당=파랑, 춥거나 더우면 주황) */
+function FeedbackResult({ feedback }: { feedback: Feedback }) {
+  return (
+    <p className="shrink-0 text-base">
+      <span className="text-subtle-text">{HISTORY_MESSAGES.feedbackLabel} </span>
+      <span className={`font-bold ${FEEDBACK_TEXT_CLASS[feedback]}`}>
+        {FEEDBACK_LABELS[feedback]}
+      </span>
+    </p>
+  );
+}
+
 /**
- * 기록 카드의 시각·활동 시간·체감 영역.
- * 시작 시각 옆에 활동 시간(또는 진행 중 경과 시간)을 붙이고, 체감을 아직 못 남겼으면 바로 남길 수 있게 한다.
+ * 기록 카드 상단: 시작 시각(진행 중이면 경과 시간), 활동 이름과 체감 결과, 거리·페이스·시간.
+ * 체감을 아직 못 남겼으면 바로 남길 수 있게 한다.
  */
 export default function HistoryEntryStatus({
   entry,
@@ -43,7 +62,7 @@ export default function HistoryEntryStatus({
 
   return (
     <>
-      <p className="text-sm text-subtle-text">
+      <p className="text-base text-subtle-text">
         {formatTime(entry.date)}
         {runningStartedAt !== null && (
           <>
@@ -51,18 +70,14 @@ export default function HistoryEntryStatus({
             <RunningLabel startedAt={runningStartedAt} />
           </>
         )}
-        {runningStartedAt === null && entry.durationSec !== undefined && (
-          <> · {formatDurationText(entry.durationSec)}</>
-        )}
       </p>
-      {entry.feedback && (
-        <p className="mt-3 text-sm">
-          <span className="text-subtle-text">체감 </span>
-          <span className="font-medium">{FEEDBACK_LABELS[entry.feedback]}</span>
-        </p>
-      )}
+      <div className="mt-3 flex items-baseline justify-between gap-3">
+        <p className="text-xl font-bold">{getActivityMeta(entry.activity).label}</p>
+        {entry.feedback && <FeedbackResult feedback={entry.feedback} />}
+      </div>
+      {runningStartedAt === null && <HistoryStats entry={entry} />}
       {!entry.feedback && askFeedback && (
-        <div className="mt-4 space-y-3" role="group" aria-label={FEEDBACK_MESSAGES.historyPrompt}>
+        <div className="mt-5 space-y-3" role="group" aria-label={FEEDBACK_MESSAGES.historyPrompt}>
           <p className="text-sm font-medium">{FEEDBACK_MESSAGES.historyPrompt}</p>
           <FeedbackChoices onSelect={handleSelect} />
         </div>

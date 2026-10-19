@@ -124,7 +124,7 @@ export default function HistoryCalendar({
 }: HistoryCalendarProps) {
   const weeks = buildMonthGrid(viewMonth.year, viewMonth.month);
   return (
-    <section className="space-y-3 rounded-panel border border-card-border-ink bg-card-charcoal p-4">
+    <section className="space-y-3 rounded-panel bg-card-charcoal p-4">
       <MonthHeader viewMonth={viewMonth} today={today} onChangeMonth={onChangeMonth} />
       <div className="grid grid-cols-7 text-center text-sm text-subtle-text">
         {WEEKDAY_LABELS.map((label) => (
