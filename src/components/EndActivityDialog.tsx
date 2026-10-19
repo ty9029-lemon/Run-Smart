@@ -40,7 +40,7 @@ export default function EndActivityDialog({
           <DialogTitle>{formatEndDialogTitle(activityLabel)}</DialogTitle>
           <DialogDescription>{formatEndDialogDescription(elapsedText)}</DialogDescription>
         </DialogHeader>
-        <DialogFooter className="grid grid-cols-2 gap-2">
+        <DialogFooter className="grid grid-cols-2 gap-2 border-t-0">
           <Button type="button" variant="outline" onClick={onContinue}>
             {MESSAGES.endContinue}
           </Button>
