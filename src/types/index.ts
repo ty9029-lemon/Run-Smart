@@ -6,6 +6,7 @@ export type Activity = 'running' | 'hiking' | 'walking' | 'cycling';
 /** 제약사항 종류 */
 export type Constraint =
   | 'kneeIssue'
+  | 'footIssue'
   | 'uvSensitive'
   | 'dustSensitive'
   | 'asthma'

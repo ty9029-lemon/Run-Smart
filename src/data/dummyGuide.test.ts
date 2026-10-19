@@ -63,6 +63,16 @@ describe('buildDummyGuide - 제약사항 팁', () => {
     expect(tips('hiking', weatherWith(), ['kneeIssue'])).toContain('무릎 보호대 체크');
   });
 
+  it('발 문제를 체크하면 모든 활동에 신발 팁을 보여 준다', () => {
+    ['running', 'hiking', 'walking', 'cycling'].forEach((activity) => {
+      expect(tips(activity as Activity, weatherWith(), ['footIssue'])).toContain('쿠션 좋은 신발 신기');
+    });
+  });
+
+  it('발 문제를 체크하지 않으면 신발 팁을 보여 주지 않는다', () => {
+    expect(tips('running', weatherWith(), [])).not.toContain('쿠션 좋은 신발 신기');
+  });
+
   it('상세 근거에 날씨 카드와 같은 미세먼지 등급을 적는다', () => {
     const guide = buildDummyGuide('running', weatherWith({ pm10: 17 }), SENSITIVITY, []);
     expect(guide.detailedReason).toContain('미세먼지 좋음(17㎍/㎥)');

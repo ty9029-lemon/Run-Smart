@@ -11,4 +11,10 @@ describe('온보딩 제약사항 단계', () => {
   it('선택지에 비염이 포함된다', () => {
     expect(CONSTRAINTS.map((c) => c.label)).toContain('비염');
   });
+
+  it('발 문제가 무릎 문제 바로 다음에 포함된다', () => {
+    const labels = CONSTRAINTS.map((c) => c.label);
+    expect(labels).toContain('발 문제 (족저근막염 등)');
+    expect(labels.indexOf('발 문제 (족저근막염 등)')).toBe(labels.indexOf('무릎 문제') + 1);
+  });
 });

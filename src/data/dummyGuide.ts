@@ -38,6 +38,7 @@ const ACTIVITY_TIPS: Record<Activity, string[]> = {
 /** 제약사항별 팁 */
 const CONSTRAINT_TIPS: Partial<Record<Constraint, string>> = {
   kneeIssue: '무릎 보호대 체크',
+  footIssue: '쿠션 좋은 신발 신기',
   uvSensitive: '자외선 차단제 바르기',
   asthma: '흡입기 등 개인 약 챙기기',
 };

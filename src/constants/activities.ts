@@ -25,6 +25,7 @@ export const ACTIVITIES: ActivityMeta[] = [
 /** 제약사항 표시 정보 */
 export const CONSTRAINTS: { id: Constraint; label: string }[] = [
   { id: 'kneeIssue', label: '무릎 문제' },
+  { id: 'footIssue', label: '발 문제 (족저근막염 등)' },
   { id: 'uvSensitive', label: '자외선 민감' },
   { id: 'dustSensitive', label: '미세먼지 민감' },
   { id: 'asthma', label: '천식' },
