@@ -9,6 +9,14 @@ const EXERCISE_WARMUP_OFFSET = 6;
 const WARMUP_ACTIVITIES: Activity[] = ['running', 'cycling'];
 
 /**
+ * 운동 중 체온 상승을 반영해 더 가볍게 추천하는 활동인지.
+ * @param activity 활동
+ */
+export function isWarmupActivity(activity: Activity): boolean {
+  return WARMUP_ACTIVITIES.includes(activity);
+}
+
+/**
  * 개인 체감온도·날씨·활동에 맞는 복장을 추천한다. (M1은 이모지 기반)
  * 러닝·자전거는 운동 중 체온이 오르므로 같은 체감온도에서 더 가볍게 추천한다.
  * 활동마다 전용 구간표를 쓰고, 바람·비·어두움·자외선 같은 날씨 조건에 따라 장비를 더한다.
@@ -23,7 +31,7 @@ export function recommendOutfit(
   activity: Activity,
   constraints: Constraint[] = [],
 ): OutfitItem[] {
-  const warmup = WARMUP_ACTIVITIES.includes(activity) ? EXERCISE_WARMUP_OFFSET : 0;
+  const warmup = isWarmupActivity(activity) ? EXERCISE_WARMUP_OFFSET : 0;
   const tiers = TIERS_BY_ACTIVITY[activity];
   const tier = tiers.find((t) => feelsLike + warmup <= t.max) ?? tiers[0];
   const items = [...tier.items, ...BASE_ITEMS_BY_ACTIVITY[activity]];

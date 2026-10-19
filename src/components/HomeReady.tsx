@@ -38,6 +38,7 @@ import { elapsedSeconds } from '../lib/formatElapsed';
 import { formatTime } from '../lib/formatTime';
 import { buildBestTimeCards } from '../lib/bestTimes';
 import { recommendOutfit } from '../lib/outfit';
+import { buildOutfitReason } from '../lib/outfitReasons';
 import { calcRunScore, scoreToHeadline, scoreToLevel } from '../lib/runScore';
 import { getSunsetStatus } from '../lib/scoreFactors';
 import { useActiveSessionStore } from '../store/activeSessionStore';
@@ -142,6 +143,7 @@ export default function HomeReady({
   );
   const rawWeather = formatRawWeather(current.temp, current.condition, current.windSpeed);
   const outfit = recommendOutfit(feelsLike, current, activity, profile.constraints);
+  const outfitReason = buildOutfitReason(feelsLike, current, activity, outfit);
 
   // 활동이나 점수가 바뀌어 새 결과가 보일 때마다 전송
   useEffect(() => {
@@ -246,6 +248,7 @@ export default function HomeReady({
       <HomeOutfitSection
         activity={activity}
         outfit={outfit}
+        outfitReason={outfitReason}
         guide={guide}
         rawWeather={rawWeather}
         location={location}

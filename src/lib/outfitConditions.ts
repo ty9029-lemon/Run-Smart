@@ -118,7 +118,7 @@ export function applyConstraintGear(
 }
 
 /** 일몰이 임박했거나 이미 어두운지 */
-function isDarkSoon(weather: Weather): boolean {
+export function isDarkSoon(weather: Weather): boolean {
   if (!weather.isDay) return true;
   return weather.hoursUntilSunset !== undefined && weather.hoursUntilSunset <= OUTFIT_DARK_SOON_HOURS;
 }
@@ -129,7 +129,7 @@ function isSunnyDaytime(weather: Weather): boolean {
 }
 
 /** 자외선이 강하거나 맑은 낮이라 눈 보호 장비가 필요한지 */
-function needsSunglasses(weather: Weather): boolean {
+export function needsSunglasses(weather: Weather): boolean {
   return weather.uvIndex >= OUTFIT_UV_HIGH_MIN || isSunnyDaytime(weather);
 }
 
