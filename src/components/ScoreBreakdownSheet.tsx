@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { SCORE_REASON_MESSAGES } from '../constants/scoreReasons';
-import { BOTTOM_SHEET_CLASS } from '../constants/sheetStyles';
+import { BOTTOM_SHEET_CLASS, SHEET_HEADER_CLASS } from '../constants/sheetStyles';
 import { describeRatio, formatFactorValue, type ScoreReason } from '../lib/scoreReasons';
 import type { Activity, Weather } from '../types';
 
@@ -64,8 +64,8 @@ export default function ScoreBreakdownSheet({
 }: ScoreBreakdownSheetProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent showCloseButton={false} className={SHEET_CLASS}>
-        <DialogHeader>
+      <DialogContent className={SHEET_CLASS}>
+        <DialogHeader className={SHEET_HEADER_CLASS}>
           <DialogTitle className="text-subheading-sm">
             {SCORE_REASON_MESSAGES.sheetTitle} ({score}점)
           </DialogTitle>

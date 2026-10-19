@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { HISTORY_MENU_MESSAGES } from '../constants/messages';
-import { BOTTOM_SHEET_CLASS } from '../constants/sheetStyles';
+import { BOTTOM_SHEET_CLASS, SHEET_HEADER_CLASS } from '../constants/sheetStyles';
 import { parseDistanceKm } from '../lib/distance';
 import type { FeedbackDetail, HistoryEntry } from '../types';
 import FeedbackDetailFields from './FeedbackDetailFields';
@@ -30,8 +30,8 @@ export default function HistoryEditSheet({ entry, onSave, onClose }: HistoryEdit
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent showCloseButton={false} className={BOTTOM_SHEET_CLASS}>
-        <DialogHeader>
+      <DialogContent className={BOTTOM_SHEET_CLASS}>
+        <DialogHeader className={SHEET_HEADER_CLASS}>
           <DialogTitle className="text-subheading-sm">{HISTORY_MENU_MESSAGES.editTitle}</DialogTitle>
           <DialogDescription>{HISTORY_MENU_MESSAGES.editDescription}</DialogDescription>
         </DialogHeader>
