@@ -5,6 +5,8 @@ import {
   formatEndDialogDescription,
   formatEndDialogTitle,
   formatEndedNotice,
+  formatPreviousDeparture,
+  formatRecommendSummary,
   formatTimerButtonLabel,
 } from './messages';
 
@@ -20,6 +22,24 @@ describe('formatDepartedNotice', () => {
   it('받침 유무에 맞는 조사로 출발 안내 문구를 만든다', () => {
     expect(formatDepartedNotice('러닝')).toBe('러닝을 출발했어요. 잠시 뒤에 다시 만나요.');
     expect(formatDepartedNotice('자전거')).toBe('자전거를 출발했어요. 잠시 뒤에 다시 만나요.');
+  });
+});
+
+describe('formatRecommendSummary', () => {
+  it('연속 구간이 있으면 구간과 최고 시각을 보여준다', () => {
+    expect(
+      formatRecommendSummary({ hour: 19, score: 92 }, { startHour: 18, endHour: 20 }),
+    ).toBe('추천 시간대 18~20시 (최고 19시 92점)');
+  });
+
+  it('구간이 없으면 대표 시각만 보여준다', () => {
+    expect(formatRecommendSummary({ hour: 7, score: 85 }, null)).toBe('추천 시간대 7시 (85점)');
+  });
+
+  it('추천 기준에 못 미치면 조심 안내로 바꾼다', () => {
+    expect(formatRecommendSummary({ hour: 6, score: 61 }, null)).toBe(
+      '오늘은 전반적으로 조심하세요. 그나마 6시(61점)가 가장 나아요.',
+    );
   });
 });
 
@@ -46,5 +66,22 @@ describe('종료 확인 팝업 문구', () => {
 
   it('경과 시간을 넣어 설명을 만든다', () => {
     expect(formatEndDialogDescription('00:07')).toBe('지금까지 00:07 동안 기록했어요.');
+  });
+});
+
+describe('formatPreviousDeparture', () => {
+  it('오늘 출발한 시각과 활동을 알린다', () => {
+    expect(formatPreviousDeparture('오전 7:30', '러닝', false)).toBe(
+      '오늘 오전 7:30에 러닝을 출발한 기록이 있어요.',
+    );
+    expect(formatPreviousDeparture('오후 6:10', '자전거', false)).toBe(
+      '오늘 오후 6:10에 자전거를 출발한 기록이 있어요.',
+    );
+  });
+
+  it('피드백 카드가 열려 있으면 카드로 안내한다', () => {
+    expect(formatPreviousDeparture('오전 7:30', '러닝', true)).toBe(
+      '오늘 오전 7:30에 러닝을 출발한 기록이 있어요. 위 카드에서 어땠는지 남겨 주세요.',
+    );
   });
 });

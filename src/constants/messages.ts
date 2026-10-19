@@ -1,5 +1,7 @@
+import type { HourRange, HourScore } from '../lib/bestHour';
 import { withObjectParticle } from '../lib/koreanParticle';
-import type { WarningLevel } from '../types';
+import type { ScoreTier, WarningLevel } from '../types';
+import { RECOMMEND_MIN_SCORE } from './thresholds';
 
 /** PRD 6장 실패 처리 문구 */
 export const MESSAGES = {
@@ -24,6 +26,11 @@ export const MESSAGES = {
   // 사이트 설정이 허용이어도 기기(시스템) 설정이 꺼져 있으면 위치를 읽을 수 없다.
   locationSystemGuide:
     '기기의 위치 서비스도 확인해 주세요. iPhone은 설정 → 개인정보 보호 및 보안 → 위치 서비스 → Safari 웹사이트에서 "앱을 사용하는 동안"으로, Android는 설정의 위치 기능과 브라우저 앱의 위치 권한을 확인해 주세요.',
+} as const;
+
+/** 기록 화면 문구 */
+export const HISTORY_MESSAGES = {
+  running: '진행 중',
 } as const;
 
 /** 앱 만족도 팝업 문구 */
@@ -71,6 +78,36 @@ export function formatDepartedNotice(activityLabel: string): string {
 }
 
 /**
+ * 다시 출발할 수 있게 된 뒤에도 오늘 이미 출발한 기록이 있음을 알리는 문구
+ * @param timeLabel 출발 시각 (예: 오전 7:30)
+ * @param activityLabel 활동명 (예: 러닝)
+ * @param feedbackPending 위쪽에 체감 피드백 카드가 열려 있는지
+ */
+export function formatPreviousDeparture(
+  timeLabel: string,
+  activityLabel: string,
+  feedbackPending: boolean,
+): string {
+  const base = `오늘 ${timeLabel}에 ${withObjectParticle(activityLabel)} 출발한 기록이 있어요.`;
+  return feedbackPending ? `${base} 위 카드에서 어땠는지 남겨 주세요.` : base;
+}
+
+/**
+ * 첫 화면 점수 근처에 보여줄 추천 시간대 한 줄 요약
+ * @param best 대표 시간대
+ * @param range 함께 좋은 연속 구간 (없으면 null)
+ */
+export function formatRecommendSummary(best: HourScore, range: HourRange | null): string {
+  if (best.score < RECOMMEND_MIN_SCORE) {
+    return `오늘은 전반적으로 조심하세요. 그나마 ${best.hour}시(${best.score}점)가 가장 나아요.`;
+  }
+  if (range) {
+    return `추천 시간대 ${range.startHour}~${range.endHour}시 (최고 ${best.hour}시 ${best.score}점)`;
+  }
+  return `추천 시간대 ${best.hour}시 (${best.score}점)`;
+}
+
+/**
  * 활동을 마친 뒤 CTA 자리에 보여주는 안내 문구
  * @param activityLabel 활동명 (예: 러닝)
  */
@@ -108,6 +145,15 @@ export const LEVEL_LABEL: Record<WarningLevel, string> = {
   good: '활동하기 좋아요',
   caution: '주의가 필요해요',
   careful: '신중히 검토하세요',
+};
+
+/** 러닝 점수 5단계별 헤드라인 문구 */
+export const RUNNING_TIER_LABEL: Record<ScoreTier, string> = {
+  excellent: '지금 러닝하기 딱 좋아요',
+  good: '기분 좋게 달리기 좋아요',
+  fair: '가볍게 뛰기 괜찮아요',
+  caution: '컨디션을 살피며 가볍게 달려요',
+  careful: '오늘은 푹 쉬어가는 걸 추천해요',
 };
 
 /** 위치를 알 수 없을 때 사용하는 기준 위치 */

@@ -2,6 +2,7 @@ import type {
   AiGuide,
   DustGrade,
   GuideRequest,
+  ScoreTier,
   UvGrade,
   WarningLevel,
 } from '../../src/types/index.js';
@@ -59,6 +60,7 @@ export const SYSTEM_PROMPT = `당신은 사용자의 활동 능력과 기후 민
 - uv_grade가 "높음"이 아니면 자외선이 강하다고 쓰지 않습니다.
 - 활동이 산책이면 무릎 보호대 팁을 쓰지 않습니다.
 - 각 팁은 20자 이내의 짧은 구절로 씁니다. 괄호 설명과 부연은 붙이지 않습니다. 예: "긴팔 상의 입기", "무릎 보호대 착용", "수분 챙기기"
+- score_tier가 주어지면 그 단계에 맞춰 어조를 조절합니다. excellent=가볍고 긍정적으로, good=긍정적으로, fair=담백하게, caution=확인할 점을 중심으로 차분하게, careful=위험 신호와 쉬어가는 선택지를 부드럽게 제안합니다. 단계와 어긋나는 표현(careful인데 달리기 좋다고 말하는 것 등)은 쓰지 않습니다.
 - 한국어로 답합니다.
 
 반드시 아래 JSON 객체 하나만 출력하고, 다른 글자는 쓰지 않습니다.
@@ -91,6 +93,7 @@ export function parseGuideRequest(body: unknown): GuideRequest | null {
   if (body.maskAllowed !== undefined && typeof body.maskAllowed !== 'boolean') return null;
   if (!isFiniteNumber(body.score) || body.score < 0 || body.score > SCORE_MAX) return null;
   if (!isLevel(body.level)) return null;
+  if (body.scoreTier !== undefined && !isScoreTier(body.scoreTier)) return null;
   return body as unknown as GuideRequest;
 }
 
@@ -120,6 +123,7 @@ export function buildUserPrompt(req: GuideRequest): string {
     location: req.location,
     personal_feels_like: req.feltTemp,
     run_score: req.score,
+    score_tier: req.scoreTier,
   });
 }
 
@@ -211,6 +215,13 @@ function isText(v: unknown): v is string {
 
 function isBounded(v: unknown, max: number): v is string {
   return typeof v === 'string' && v.trim().length > 0 && v.length <= max;
+}
+
+/** 러닝 5단계 키 */
+const SCORE_TIERS: readonly ScoreTier[] = ['excellent', 'good', 'fair', 'caution', 'careful'];
+
+function isScoreTier(v: unknown): v is ScoreTier {
+  return SCORE_TIERS.includes(v as ScoreTier);
 }
 
 function isLevel(v: unknown): v is WarningLevel {

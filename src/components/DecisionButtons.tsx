@@ -22,6 +22,8 @@ interface DecisionButtonsProps {
   activity: Activity;
   /** 진행 중인 활동의 시작 시각(ms). 진행 중이 아니면 null */
   startedAt: number | null;
+  /** 다시 출발할 수 있어도 오늘 이미 출발했다면 그 기록을 알리는 문구 (없으면 표시하지 않음) */
+  previousNotice?: string;
   onDecide: () => void;
   /** 종료 확인 후 호출. 타이머 버튼을 누른 시각(ms)을 종료 시각으로 넘긴다 */
   onEnd: (endedAtMs: number) => void;
@@ -110,6 +112,7 @@ export default function DecisionButtons({
   activityLabel,
   activity,
   startedAt,
+  previousNotice,
   onDecide,
   onEnd,
   onCancel,
@@ -142,6 +145,16 @@ export default function DecisionButtons({
           {formatDepartedNotice(activityLabel)}
         </p>
         <CancelLink onCancel={onCancel} />
+      </div>
+    );
+  }
+  if (previousNotice) {
+    return (
+      <div className="space-y-2">
+        <p className="text-center text-sm text-steel-border" role="status">
+          {previousNotice}
+        </p>
+        <StartButton onDecide={onDecide} />
       </div>
     );
   }

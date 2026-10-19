@@ -15,7 +15,7 @@ import { useAppReview } from '../hooks/useAppReview';
 import { useElapsedSinceMount } from '../hooks/useElapsedSinceMount';
 import { useFeedbackPrompt } from '../hooks/useFeedbackPrompt';
 import { useNow } from '../hooks/useNow';
-import { formatRawWeather } from '../constants/messages';
+import { formatPreviousDeparture, formatRawWeather, formatRecommendSummary } from '../constants/messages';
 import { ACTIVITY_DAYLIGHT_BUFFER_HOURS } from '../constants/scoring';
 import {
   findBestHourToday,
@@ -29,8 +29,9 @@ import { decisionTimingProps, recordDecisionAndCheckChange } from '../lib/decisi
 import { getDepartureStatus } from '../lib/departureStatus';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
 import { elapsedSeconds } from '../lib/formatElapsed';
+import { formatTime } from '../lib/formatTime';
 import { recommendOutfit } from '../lib/outfit';
-import { calcRunScore, scoreToLevel } from '../lib/runScore';
+import { calcRunScore, scoreToHeadline, scoreToLevel } from '../lib/runScore';
 import { getSunsetStatus } from '../lib/scoreFactors';
 import { useActiveSessionStore } from '../store/activeSessionStore';
 import { useHistoryStore } from '../store/historyStore';
@@ -93,6 +94,15 @@ export default function HomeReady({
   });
   // 활동을 마친 뒤(종료 기록이 없으면 출발 후) 일정 시간이 지나면 다시 출발할 수 있게 한다
   const status = getDepartureStatus(todayEntry, isRunning, now.getTime());
+  // 다시 출발할 수 있게 된 뒤에도 오늘 출발한 기록이 있으면 CTA 위에 알려 기록이 사라진 것으로 오해하지 않게 한다
+  const previousNotice =
+    status === 'ready' && todayEntry !== null
+      ? formatPreviousDeparture(
+          formatTime(todayEntry.date),
+          getActivityMeta(activity).label,
+          hasPendingFeedback,
+        )
+      : undefined;
   const { current, hourly } = weather;
   const { coldLevel, heatLevel, feedbackOffset } = profile;
   const sensitivity = useMemo(
@@ -201,8 +211,9 @@ export default function HomeReady({
       <HomeSummary
         activity={activity}
         score={score}
-        level={scoreToLevel(score)}
+        headline={scoreToHeadline(score, activity)}
         outfit={outfit}
+        recommendSummary={best ? formatRecommendSummary(best, range) : undefined}
         onSelectActivity={handleSelectActivity}
       />
       <WeatherCard weather={current} feelsLike={feelsLike} />
@@ -225,6 +236,7 @@ export default function HomeReady({
           activityLabel={getActivityMeta(activity).label}
           activity={activity}
           startedAt={isRunning ? session.startedAt : null}
+          previousNotice={previousNotice}
           onDecide={handleDecide}
           onEnd={handleEnd}
           onCancel={handleCancel}

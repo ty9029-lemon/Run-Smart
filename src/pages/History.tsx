@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import GuideBox from '../components/GuideBox';
 import HistoryCalendar from '../components/HistoryCalendar';
+import HistoryEntryStatus from '../components/HistoryEntryStatus';
 import OutfitPanel from '../components/OutfitPanel';
 import { getActivityMeta } from '../constants/activities';
 import { OUTFIT_SOURCES } from '../constants/analytics';
-import { FEEDBACK_LABELS } from '../constants/feedback';
 import { MESSAGES } from '../constants/messages';
-import { MS_PER_DAY, MS_PER_SECOND } from '../constants/thresholds';
+import { MS_PER_DAY } from '../constants/thresholds';
+import { useActiveSession } from '../hooks/useActiveSession';
+import { useNow } from '../hooks/useNow';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
-import { formatElapsed } from '../lib/formatElapsed';
 import { formatDistanceKm } from '../lib/distance';
-import { formatTime } from '../lib/formatTime';
+import { isFeedbackAskable } from '../lib/feedback';
 import { dayKey, groupEntriesByDay, type YearMonth } from '../lib/historyCalendar';
 import { useHistoryStore } from '../store/historyStore';
 import type { HistoryEntry } from '../types';
@@ -32,30 +32,24 @@ function daysAgoOf(iso: string): number {
   return Math.round(diff / MS_PER_DAY);
 }
 
-/** 기록 카드 상단 (시간, 활동, 날씨 요약, 체감 피드백) */
+/** 기록 카드 상단 (시작 시각·활동 시간, 활동, 날씨 요약, 체감 피드백) */
 function HistoryHeader({ entry }: { entry: HistoryEntry }) {
   const meta = getActivityMeta(entry.activity);
+  const session = useActiveSession();
+  const now = useNow();
+  const runningStartedAt = session?.entryId === entry.id ? session.startedAt : null;
+  const askFeedback = isFeedbackAskable(entry, now.getTime(), session?.entryId ?? null);
   return (
     <div className="rounded-panel border border-card-border-ink bg-card-charcoal p-6">
-      <p className="text-sm text-steel-border">{formatTime(entry.date)}</p>
-      <p className="text-base font-medium">
+      <HistoryEntryStatus
+        entry={entry}
+        runningStartedAt={runningStartedAt}
+        askFeedback={askFeedback}
+      />
+      <p className="mt-3 text-base font-medium">
         {meta.emoji} {meta.label}
       </p>
       <p className="text-sm text-steel-border">{entry.weatherSummary}</p>
-      {entry.durationSec !== undefined && (
-        <p className="mt-3 text-sm">
-          <span className="text-steel-border">활동 시간 </span>
-          <span className="font-medium tabular-nums">
-            {formatElapsed(entry.durationSec * MS_PER_SECOND)}
-          </span>
-        </p>
-      )}
-      {entry.feedback && (
-        <p className="mt-3 text-sm">
-          <span className="text-steel-border">체감 </span>
-          <span className="font-medium">{FEEDBACK_LABELS[entry.feedback]}</span>
-        </p>
-      )}
       {entry.distanceKm !== undefined && (
         <p className="mt-1 text-sm">
           <span className="text-muted-foreground">거리 </span>
@@ -131,11 +125,8 @@ export default function History() {
 
   return (
     <main className="mx-auto max-w-md space-y-4 px-4 py-6">
-      <header className="flex items-center justify-between">
+      <header>
         <h1 className="text-2xl font-bold">활동 기록</h1>
-        <Link to="/" className="text-sm text-steel-border">
-          ← 홈
-        </Link>
       </header>
       <HistoryCalendar
         viewMonth={viewMonth}
