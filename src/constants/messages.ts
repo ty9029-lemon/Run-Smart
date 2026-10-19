@@ -73,6 +73,21 @@ export function formatDepartedNotice(activityLabel: string): string {
 }
 
 /**
+ * 다시 출발할 수 있게 된 뒤에도 오늘 이미 출발한 기록이 있음을 알리는 문구
+ * @param timeLabel 출발 시각 (예: 오전 7:30)
+ * @param activityLabel 활동명 (예: 러닝)
+ * @param feedbackPending 위쪽에 체감 피드백 카드가 열려 있는지
+ */
+export function formatPreviousDeparture(
+  timeLabel: string,
+  activityLabel: string,
+  feedbackPending: boolean,
+): string {
+  const base = `오늘 ${timeLabel}에 ${withObjectParticle(activityLabel)} 출발한 기록이 있어요.`;
+  return feedbackPending ? `${base} 위 카드에서 어땠는지 남겨 주세요.` : base;
+}
+
+/**
  * 첫 화면 점수 근처에 보여줄 추천 시간대 한 줄 요약
  * @param best 대표 시간대
  * @param range 함께 좋은 연속 구간 (없으면 null)
