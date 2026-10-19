@@ -12,6 +12,15 @@ export type Constraint =
   | 'asthma'
   | 'rhinitis';
 
+/** 주로 활동하는 시간대 */
+export type ActivityTimeSlot =
+  | 'beforeWork'
+  | 'afterWork'
+  | 'weekdayDaytime'
+  | 'weekendMorning'
+  | 'weekendEvening'
+  | 'irregular';
+
 /** 가기 결정 */
 export type Decision = 'go';
 
@@ -38,6 +47,8 @@ export interface Profile extends Sensitivity {
   selectedActivities: Activity[];
   lastActivity: Activity | null;
   constraints: Constraint[];
+  /** 주로 활동하는 시간대 (비어 있어도 된다) */
+  activityTimeSlots: ActivityTimeSlot[];
   /** 현재 위치로 날씨를 볼지 여부 (false면 서울 기준) */
   useCurrentLocation: boolean;
 }

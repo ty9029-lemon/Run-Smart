@@ -1,4 +1,4 @@
-import type { Activity, Constraint, Profile } from '../types';
+import type { Activity, ActivityTimeSlot, Constraint, Profile } from '../types';
 
 /**
  * 활동 선택을 토글한다.
@@ -20,6 +20,20 @@ export function toggleConstraint(profile: Profile, id: Constraint): Profile {
     ? profile.constraints.filter((c) => c !== id)
     : [...profile.constraints, id];
   return { ...profile, constraints };
+}
+
+/**
+ * 활동 시간대를 토글한다.
+ * '항상 다름'은 특정 시간대와 함께 고를 수 없어서, 하나를 고르면 상대편은 해제한다.
+ */
+export function toggleActivityTimeSlot(profile: Profile, id: ActivityTimeSlot): Profile {
+  const { activityTimeSlots } = profile;
+  if (activityTimeSlots.includes(id)) {
+    return { ...profile, activityTimeSlots: activityTimeSlots.filter((slot) => slot !== id) };
+  }
+  if (id === 'irregular') return { ...profile, activityTimeSlots: [id] };
+  const specific = activityTimeSlots.filter((slot) => slot !== 'irregular');
+  return { ...profile, activityTimeSlots: [...specific, id] };
 }
 
 /** 마지막 활동이 선택 목록에 없으면 첫 번째 선택 활동으로 맞춘다. */

@@ -14,7 +14,7 @@ interface ActivityChipProps {
 const BASE_CLASS = 'rounded-full border px-5 py-2 text-sm font-medium';
 const SELECTED_CLASS = 'border-primary bg-primary/10 text-primary';
 const DEFAULT_CLASS = 'border-steel-border bg-transparent text-pure-white';
-const DISABLED_CLASS = 'cursor-not-allowed border-steel-border bg-transparent text-pure-white opacity-40';
+const DISABLED_CLASS = 'cursor-not-allowed border-steel-border bg-transparent text-steel-border';
 
 /** 활동 칩. 비활성이면 흐리게 보이고 호버·클릭 시 "준비 중" 툴팁을 띄운다. */
 export default function ActivityChip({
