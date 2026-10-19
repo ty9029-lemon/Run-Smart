@@ -21,6 +21,7 @@ import { useElapsedSinceMount } from '../hooks/useElapsedSinceMount';
 import { useFeedbackPrompt } from '../hooks/useFeedbackPrompt';
 import { useNow } from '../hooks/useNow';
 import { formatPreviousDeparture, formatRawWeather } from '../constants/messages';
+import { FEEDBACK_SOURCES } from '../constants/feedback';
 import { CTA_CLEARANCE, CTA_GAP, TAB_BAR_OFFSET } from '../constants/navigation';
 import { ACTIVITY_DAYLIGHT_BUFFER_HOURS } from '../constants/scoring';
 import {
@@ -36,6 +37,7 @@ import { getDepartureStatus } from '../lib/departureStatus';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
 import { elapsedSeconds } from '../lib/formatElapsed';
 import { formatTime } from '../lib/formatTime';
+import { skipFeedback } from '../lib/skipFeedback';
 import { buildBestTimeCards } from '../lib/bestTimes';
 import { recommendOutfit } from '../lib/outfit';
 import { buildOutfitReason } from '../lib/outfitReasons';
@@ -89,7 +91,7 @@ export default function HomeReady({
   const now = useNow();
   // 결과가 화면에 준비된 시점부터 결정까지 걸린 시간을 재기 위한 경과 시간 읽기
   const getElapsedMs = useElapsedSinceMount();
-  // 만족도 팝업은 토스트와 체감 카드가 끝난 뒤에 띄운다 ('다음에 할게요'로 닫은 카드는 막지 않는다)
+  // 만족도 팝업은 토스트와 체감 카드가 끝난 뒤에 띄운다 (시트를 바깥 탭으로 닫은 기록의 카드는 막지 않는다)
   const entryCount = useHistoryStore((s) => s.entries.length);
   const pendingFeedback = useFeedbackPrompt();
   const [feedbackDismissedId, setFeedbackDismissedId] = useState<string | null>(null);
@@ -218,6 +220,12 @@ export default function HomeReady({
     setSheetEntry(null);
   };
 
+  /** '저장 안 할래요'를 눌러 기록을 지우고 시트를 닫는다. */
+  const handleSheetSkip = (entry: HistoryEntry) => {
+    skipFeedback(entry, FEEDBACK_SOURCES.sheet);
+    setSheetEntry(null);
+  };
+
   /** 토스트의 '실행 취소'와 CTA의 '출발 취소'가 함께 쓰는 취소 처리 */
   const handleCancel = () => {
     const targetId = session?.entryId ?? todayEntry?.id;
@@ -230,10 +238,7 @@ export default function HomeReady({
 
   return (
     <div className="space-y-10" style={{ paddingBottom: CTA_CLEARANCE }}>
-      <FeedbackCard
-        onDismiss={setFeedbackDismissedId}
-        hiddenEntryIds={[sheetEntry?.id ?? null, feedbackDismissedId]}
-      />
+      <FeedbackCard hiddenEntryIds={[sheetEntry?.id ?? null, feedbackDismissedId]} />
       <HomeSummary
         activity={activity}
         score={score}
@@ -304,6 +309,7 @@ export default function HomeReady({
       <FeedbackSheet
         entry={sheetEntry}
         onDismiss={handleSheetDismiss}
+        onSkip={handleSheetSkip}
         onClose={handleSheetClose}
       />
       <ScoreBreakdownSheet

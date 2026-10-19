@@ -14,11 +14,11 @@ describe('FeedbackForm', () => {
     expect(hot).toBeGreaterThan(good);
   });
 
-  it('거리·복장 입력과 저장, 다음에 할게요를 보여준다', () => {
+  it('거리·복장 입력과 저장, 저장 안 할래요를 보여준다', () => {
     expect(html).toContain('몇 키로 뛰었나요?');
     expect(html).toContain('실제 착용한 복장');
     expect(html).toContain('저장');
-    expect(html).toContain('다음에 할게요');
+    expect(html).toContain('저장 안 할래요');
   });
 
   it('체감을 고르기 전에는 저장 버튼이 비활성이다', () => {

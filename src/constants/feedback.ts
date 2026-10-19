@@ -22,7 +22,7 @@ export type FeedbackSource = (typeof FEEDBACK_SOURCES)[keyof typeof FEEDBACK_SOU
 /** 체감 피드백 카드·시트 문구 */
 export const FEEDBACK_MESSAGES = {
   ariaLabel: '운동 후 피드백',
-  later: '다음에 할게요',
+  later: '저장 안 할래요',
   save: '저장',
   thanks: '알려주셔서 고마워요. 다음 추천부터 반영할게요.',
   sheetDescription: '답해 주시면 다음 추천에 반영돼요.',

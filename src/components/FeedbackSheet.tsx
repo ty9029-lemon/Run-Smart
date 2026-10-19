@@ -29,14 +29,16 @@ const SHEET_CLASS = [
 interface FeedbackSheetProps {
   /** 방금 마친 활동의 기록. 없으면 시트를 닫아 둔다 */
   entry: HistoryEntry | null;
-  /** 답하지 않고 닫았을 때 */
+  /** 바깥 탭·ESC로 답하지 않고 닫았을 때 (기록은 남기고 앱을 다시 열면 상단 카드가 묻는다) */
   onDismiss: (entry: HistoryEntry) => void;
+  /** '저장 안 할래요'를 눌렀을 때 (기록을 지운다) */
+  onSkip: (entry: HistoryEntry) => void;
   /** 답하고 감사 문구까지 보여준 뒤 닫을 때 */
   onClose: () => void;
 }
 
 /** 활동을 마친 직후 체감·거리·복장을 묻는 바텀 시트. 답하지 않고 넘어가면 앱 재방문 때 상단 카드가 이어서 묻는다. */
-export default function FeedbackSheet({ entry, onDismiss, onClose }: FeedbackSheetProps) {
+export default function FeedbackSheet({ entry, onDismiss, onSkip, onClose }: FeedbackSheetProps) {
   const submitFeedback = useSubmitFeedback();
   const [answeredId, setAnsweredId] = useState<string | null>(null);
   const answered = entry !== null && answeredId === entry.id;
@@ -82,7 +84,7 @@ export default function FeedbackSheet({ entry, onDismiss, onClose }: FeedbackShe
               <DialogTitle className="text-subheading-sm">{title}</DialogTitle>
               <DialogDescription>{FEEDBACK_MESSAGES.sheetDescription}</DialogDescription>
             </DialogHeader>
-            <FeedbackForm key={entry.id} onSave={handleSave} onLater={() => onDismiss(entry)} />
+            <FeedbackForm key={entry.id} onSave={handleSave} onLater={() => onSkip(entry)} />
           </>
         )}
       </DialogContent>

@@ -62,7 +62,7 @@ function OutfitSection({ value, onChange }: { value: string; onChange: (text: st
   );
 }
 
-/** 저장 버튼과 '다음에 할게요' */
+/** 저장 버튼과 '저장 안 할래요' */
 function FeedbackActions({
   canSave,
   onSave,
@@ -92,7 +92,7 @@ function FeedbackActions({
 interface FeedbackFormProps {
   /** 저장 버튼을 눌렀을 때 체감과 선택 입력(거리·복장)을 알린다. */
   onSave: (feedback: Feedback, detail: FeedbackDetail) => void;
-  /** '다음에 할게요'를 눌렀을 때 */
+  /** '저장 안 할래요'를 눌렀을 때 */
   onLater: () => void;
 }
 
