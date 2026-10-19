@@ -17,7 +17,7 @@ export default function StepIndicator({ current, total }: StepIndicatorProps) {
           />
         ))}
       </div>
-      <p className="text-sm text-steel-border">
+      <p className="text-sm text-subtle-text">
         {current + 1} / {total}
       </p>
     </div>

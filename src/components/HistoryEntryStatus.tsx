@@ -43,7 +43,7 @@ export default function HistoryEntryStatus({
 
   return (
     <>
-      <p className="text-sm text-steel-border">
+      <p className="text-sm text-subtle-text">
         {formatTime(entry.date)}
         {runningStartedAt !== null && (
           <>
@@ -57,7 +57,7 @@ export default function HistoryEntryStatus({
       </p>
       {entry.feedback && (
         <p className="mt-3 text-sm">
-          <span className="text-steel-border">체감 </span>
+          <span className="text-subtle-text">체감 </span>
           <span className="font-medium">{FEEDBACK_LABELS[entry.feedback]}</span>
         </p>
       )}

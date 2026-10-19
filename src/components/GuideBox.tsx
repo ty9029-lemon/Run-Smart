@@ -41,17 +41,17 @@ export function LocationNotice({ error, onRequest, isOff = false }: LocationNoti
   };
   return (
     <div className="space-y-3">
-      <p className="text-sm text-steel-border">
+      <p className="text-sm text-subtle-text">
         📍 {isOff ? MESSAGES.locationOffNotice : MESSAGES.locationDenied}
       </p>
       <Button type="button" variant="outline" size="sm" onClick={handleClick}>
         {MESSAGES.useCurrentLocation}
       </Button>
       {showGuide && (
-        <p className="text-sm text-steel-border">{MESSAGES.locationSettingsGuide}</p>
+        <p className="text-sm text-subtle-text">{MESSAGES.locationSettingsGuide}</p>
       )}
       {!isOff && error && DEVICE_GUIDE_ERROR_CODES.includes(error.code) && (
-        <p className="text-sm text-steel-border">{MESSAGES.locationSystemGuide}</p>
+        <p className="text-sm text-subtle-text">{MESSAGES.locationSystemGuide}</p>
       )}
     </div>
   );
@@ -70,7 +70,7 @@ function GuideContent({ guide }: { guide: AiGuide }) {
           <li key={tip}>{tip}</li>
         ))}
       </ul>
-      <p className="text-sm text-steel-border">{guide.detailedReason}</p>
+      <p className="text-sm text-subtle-text">{guide.detailedReason}</p>
     </>
   );
 }
@@ -80,7 +80,7 @@ function GuideBody({ guide, rawWeather }: Pick<GuideBoxProps, 'guide' | 'rawWeat
   if (guide.state === 'ready') return <GuideContent guide={guide.data} />;
   if (guide.state === 'loading') {
     return (
-      <p role="status" className="animate-pulse text-base text-steel-border">
+      <p role="status" className="animate-pulse text-base text-subtle-text">
         {MESSAGES.guideLoading}
       </p>
     );

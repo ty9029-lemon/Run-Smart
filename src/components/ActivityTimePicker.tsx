@@ -12,7 +12,7 @@ export default function ActivityTimePicker({ selected, onToggle }: ActivityTimeP
   return (
     <div>
       <h2 className="mb-1 text-base font-bold">시간대 선택</h2>
-      <p className="mb-3 text-sm text-steel-border">여러 개 고를 수 있어요.</p>
+      <p className="mb-3 text-sm text-subtle-text">여러 개 고를 수 있어요.</p>
       <div className="flex flex-wrap gap-2">
         {ACTIVITY_TIME_SLOTS.map(({ id, label }) => (
           <ActivityChip

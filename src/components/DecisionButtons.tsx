@@ -42,7 +42,7 @@ function StartButton({ onDecide }: Pick<DecisionButtonsProps, 'onDecide'>) {
 /** [출발 취소] 링크 버튼 */
 function CancelLink({ onCancel }: { onCancel: () => void }) {
   return (
-    <Button type="button" variant="link" size="sm" onClick={onCancel} className="text-steel-border">
+    <Button type="button" variant="link" size="sm" onClick={onCancel} className="text-subtle-text">
       {MESSAGES.departureCancel}
     </Button>
   );
@@ -151,7 +151,7 @@ export default function DecisionButtons({
   if (previousNotice) {
     return (
       <div className="space-y-2">
-        <p className="text-center text-sm text-steel-border" role="status">
+        <p className="text-center text-sm text-subtle-text" role="status">
           {previousNotice}
         </p>
         <StartButton onDecide={onDecide} />

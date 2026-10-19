@@ -43,7 +43,7 @@ export default function ScoreRing({ score }: ScoreRingProps) {
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-4xl font-bold leading-none">{score}</span>
-        <span className="-mt-0.5 text-xs font-medium text-steel-border">/{SCORE_MAX}점</span>
+        <span className="-mt-0.5 text-xs font-medium text-subtle-text">/{SCORE_MAX}점</span>
       </div>
     </div>
   );

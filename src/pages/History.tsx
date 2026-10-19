@@ -49,7 +49,7 @@ function HistoryHeader({ entry }: { entry: HistoryEntry }) {
       <p className="mt-3 text-base font-medium">
         {meta.emoji} {meta.label}
       </p>
-      <p className="text-sm text-steel-border">{entry.weatherSummary}</p>
+      <p className="text-sm text-subtle-text">{entry.weatherSummary}</p>
       {entry.distanceKm !== undefined && (
         <p className="mt-1 text-sm">
           <span className="text-muted-foreground">거리 </span>
@@ -99,7 +99,7 @@ function DayPanel({ date, entries }: { date: Date; entries: HistoryEntry[] }) {
     <section className="space-y-3">
       <h2 className="text-base font-bold">{formatDate(date)}</h2>
       {entries.length === 0 ? (
-        <p className="text-sm text-steel-border">{MESSAGES.historyEmptyDay}</p>
+        <p className="text-sm text-subtle-text">{MESSAGES.historyEmptyDay}</p>
       ) : (
         <ul className="space-y-3">
           {entries.map((entry) => (

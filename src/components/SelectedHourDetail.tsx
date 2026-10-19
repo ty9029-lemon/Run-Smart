@@ -58,7 +58,7 @@ export default function SelectedHourDetail({ weather, score, feelsLike }: Select
     <section aria-label="선택한 시간 상세" className="space-y-3">
       <div className="space-y-2">
         <p className="flex items-center gap-1.5 text-sm">
-          <span className="text-steel-border">선택한 시간</span>
+          <span className="text-subtle-text">선택한 시간</span>
           <span className="font-bold">{formatHourLabel(weather.hour)}</span>
         </p>
         <div className="flex items-end justify-between">
@@ -78,7 +78,7 @@ export default function SelectedHourDetail({ weather, score, feelsLike }: Select
       <dl className="grid grid-cols-3 gap-3">
         {buildTiles(weather, feelsLike).map(({ label, value, icon: Icon, valueClass }) => (
           <div key={label} className="rounded-[12px] bg-card-charcoal p-3">
-            <dt className="flex items-center gap-1 text-sm text-steel-border">
+            <dt className="flex items-center gap-1 text-sm text-subtle-text">
               <Icon aria-hidden="true" className="size-4" />
               {label}
             </dt>

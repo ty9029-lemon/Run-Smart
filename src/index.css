@@ -17,6 +17,8 @@
   --color-card-border-ink: #28282a;
   --color-footer-rule: #39393b;
   --color-steel-border: #707072;
+  /* 서브 텍스트 전용 회색: 어두운 카드·캔버스 위에서 대비 4.5:1 이상 (테두리는 steel-border) */
+  --color-subtle-text: #8e8e90;
   --color-pure-white: #ffffff;
   --color-carbon-black: #000000;
 
@@ -81,7 +83,7 @@
   --secondary: #1f1f21;
   --secondary-foreground: #ffffff;
   --muted: #1f1f21;
-  --muted-foreground: #707072;
+  --muted-foreground: #8e8e90;
   --accent: #28282a;
   --accent-foreground: #ffffff;
   /* 두 번째 유채색 금지: destructive도 모노크롬 */
