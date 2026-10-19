@@ -29,6 +29,7 @@ type FirstTouchProps = Record<string, string>;
 export const ANALYTICS_EVENTS = {
   onboardingCompleted: 'onboarding_completed',
   runScoreViewed: 'run_score_viewed',
+  scoreReasonSheetOpened: 'score_reason_sheet_opened',
   decisionMade: 'decision_made',
   decisionCancelled: 'decision_cancelled',
   activityEnded: 'activity_ended',
