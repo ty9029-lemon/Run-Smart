@@ -121,6 +121,8 @@ export default function HomeReady({
   const best = findBestHourToday(scores, nowHour);
   const range = findGoodRange(sliceToday(scores, nowHour), best);
   const bestTimeCards = buildBestTimeCards(scores, now, profile.activityTimeSlots);
+  // 오늘 추천이 없으면 차트 제목이 안내할 다음 추천 시간 (내일 카드)
+  const nextRecommendation = bestTimeCards.find((card) => card.label.startsWith('내일'));
   const [pickedHour, setPickedHour] = useState<number | null>(null);
   // 직접 고른 시각이 없으면 추천 시각, 그것도 없으면 지금 시각을 보여준다
   const selectedHour = pickedHour ?? best?.hour ?? upcomingHourly[0]?.hour ?? null;
@@ -241,6 +243,7 @@ export default function HomeReady({
           onSelectHour={setPickedHour}
           best={best}
           range={range}
+          nextRecommendation={nextRecommendation}
           activityLabel={getActivityMeta(activity).label}
           sunsetStatus={getSunsetStatus(
             current.hoursUntilSunset,

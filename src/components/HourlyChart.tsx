@@ -20,6 +20,8 @@ interface HourlyChartProps {
   activityLabel: string;
   /** 일몰 상태 (등산·자전거는 일몰 3시간 전부터 '임박', 해가 지면 '지남') */
   sunsetStatus: SunsetStatus;
+  /** 오늘 추천 시간이 없을 때 안내할 다음 추천 시간 (예: 내일 오전 7시) */
+  nextRecommendation?: { label: string; hour: number };
 }
 
 /** 시간 표기 (예: 7시) */
@@ -45,13 +47,19 @@ const BAR_AREA_HEIGHT = 138;
 /**
  * 연속 구간이 없을 때의 안내 문구를 만든다.
  * @param best 대표 시간대 (없으면 추천 가능한 시간이 없는 것)
+ * @param nextRecommendation 오늘 추천이 없을 때 안내할 다음 추천 시간
  */
 function buildFallbackText(
   best: HourScore | null,
   activityLabel: string,
   sunsetStatus: SunsetStatus,
+  nextRecommendation?: { label: string; hour: number },
 ): string {
-  if (!best) return `오늘은 추천할 ${activityLabel} 시간이 없어요.`;
+  if (!best) {
+    const base = `오늘은 추천할 ${activityLabel} 시간이 없어요.`;
+    if (!nextRecommendation) return base;
+    return `${base} ${nextRecommendation.label} ${hourLabel(nextRecommendation.hour)}가 가장 좋아요.`;
+  }
   const base = `오늘 ${activityLabel}은 ${hourLabel(best.hour)}(${best.score}점)이 가장 좋아요.`;
   if (sunsetStatus) return `${base} ${SUNSET_NOTICES[sunsetStatus]}`;
   return best.score < RECOMMEND_MIN_SCORE ? `${base} ${CAUTION_NOTICE}` : base;
@@ -63,11 +71,15 @@ function ChartTitle({
   range,
   activityLabel,
   sunsetStatus,
-}: Pick<HourlyChartProps, 'best' | 'range' | 'activityLabel' | 'sunsetStatus'>) {
+  nextRecommendation,
+}: Pick<
+  HourlyChartProps,
+  'best' | 'range' | 'activityLabel' | 'sunsetStatus' | 'nextRecommendation'
+>) {
   if (!range) {
     return (
       <h2 className="px-4 text-xl font-bold leading-snug">
-        {buildFallbackText(best, activityLabel, sunsetStatus)}
+        {buildFallbackText(best, activityLabel, sunsetStatus, nextRecommendation)}
       </h2>
     );
   }
@@ -105,7 +117,7 @@ function CutoffMarker() {
         aria-hidden="true"
         className="pointer-events-none absolute left-0 top-0 h-35 w-px bg-chart-4"
       />
-      <span className="pointer-events-none absolute left-1.5 top-0.5 whitespace-nowrap text-[11px] leading-[14px] text-steel-border">
+      <span className="pointer-events-none absolute left-1.5 top-0.5 whitespace-nowrap text-xs leading-4 text-steel-border">
         {RECOMMEND_CUTOFF_HOUR}시 이후
         <br />
         추천 제외
@@ -158,6 +170,7 @@ export default function HourlyChart({
   range,
   activityLabel,
   sunsetStatus,
+  nextRecommendation,
 }: HourlyChartProps) {
   const timerRef = useRef<number>();
   const hasSentRef = useRef(false);
@@ -180,7 +193,13 @@ export default function HourlyChart({
 
   return (
     <div className="-mx-4 space-y-4">
-      <ChartTitle best={best} range={range} activityLabel={activityLabel} sunsetStatus={sunsetStatus} />
+      <ChartTitle
+        best={best}
+        range={range}
+        activityLabel={activityLabel}
+        sunsetStatus={sunsetStatus}
+        nextRecommendation={nextRecommendation}
+      />
       <ul onScroll={handleScroll} className="flex overflow-x-auto pl-4">
         {hourly.map((h, i) => (
           <li key={h.hour} className="relative shrink-0">
