@@ -1,4 +1,9 @@
-import { MINUTES_PER_HOUR, MS_PER_SECOND, SECONDS_PER_MINUTE } from '../constants/thresholds';
+import {
+  MIN_RECORD_DURATION_SEC,
+  MINUTES_PER_HOUR,
+  MS_PER_SECOND,
+  SECONDS_PER_MINUTE,
+} from '../constants/thresholds';
 
 /** 숫자를 두 자리로 맞춘다. (예: 7 → '07') */
 function pad2(value: number): string {
@@ -27,6 +32,14 @@ export function formatElapsed(elapsedMs: number): string {
  */
 export function elapsedSeconds(startedAtMs: number, endedAtMs: number): number {
   return Math.floor(Math.max(0, endedAtMs - startedAtMs) / MS_PER_SECOND);
+}
+
+/**
+ * 기록으로 남기기엔 너무 짧은 활동인지 확인한다. (출발 직후 바로 종료한 경우)
+ * @param durationSec 활동 시간(초)
+ */
+export function isTooShortToRecord(durationSec: number): boolean {
+  return durationSec < MIN_RECORD_DURATION_SEC;
 }
 
 /**

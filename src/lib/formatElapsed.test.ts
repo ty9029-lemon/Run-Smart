@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { elapsedSeconds, formatDurationText, formatElapsed } from './formatElapsed';
+import {
+  elapsedSeconds,
+  formatDurationText,
+  formatElapsed,
+  isTooShortToRecord,
+} from './formatElapsed';
 
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
@@ -59,5 +64,17 @@ describe('formatDurationText', () => {
 
   it('음수는 0초로 본다', () => {
     expect(formatDurationText(-3)).toBe('0초');
+  });
+});
+
+describe('isTooShortToRecord', () => {
+  it('1분 미만은 기록하기엔 짧다', () => {
+    expect(isTooShortToRecord(0)).toBe(true);
+    expect(isTooShortToRecord(59)).toBe(true);
+  });
+
+  it('1분부터는 기록한다', () => {
+    expect(isTooShortToRecord(60)).toBe(false);
+    expect(isTooShortToRecord(1800)).toBe(false);
   });
 });

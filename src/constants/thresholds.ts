@@ -19,6 +19,8 @@ export const FORECAST_DAYS = 2;
 export const DAYLIGHT_BUFFER_HOURS = 3;
 /** 히스토리 보관 일수 (1년) */
 export const HISTORY_DAYS = 365;
+/** 활동 시간이 이보다 짧으면(초) 출발 직후 바로 끝낸 것으로 보고 기록을 남기지 않는다 */
+export const MIN_RECORD_DURATION_SEC = 60;
 /** 한 주의 일수 (달력 열 개수) */
 export const DAYS_PER_WEEK = 7;
 /** 1시간의 분 */

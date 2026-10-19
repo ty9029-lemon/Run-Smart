@@ -35,7 +35,7 @@ import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { decisionTimingProps, recordDecisionAndCheckChange } from '../lib/decisionTracking';
 import { getDepartureStatus } from '../lib/departureStatus';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
-import { elapsedSeconds } from '../lib/formatElapsed';
+import { elapsedSeconds, isTooShortToRecord } from '../lib/formatElapsed';
 import { formatTime } from '../lib/formatTime';
 import { skipFeedback } from '../lib/skipFeedback';
 import { buildBestTimeCards } from '../lib/bestTimes';
@@ -197,14 +197,18 @@ export default function HomeReady({
     setToastOpen(true);
   };
 
-  /** 타이머 버튼으로 활동을 마치고 활동 시간을 기록한다. (종료 시각은 타이머 버튼을 누른 시각) */
+  /** 타이머 버튼으로 활동을 마치고 활동 시간을 기록한다. 1분 미만이면 기록을 지운다. (종료 시각은 타이머 버튼을 누른 시각) */
   const handleEnd = (endedAtMs: number) => {
     if (!session) return;
     const durationSec = elapsedSeconds(session.startedAt, endedAtMs);
-    setDuration(session.entryId, durationSec);
+    // 출발 직후 바로 종료한 활동은 기록으로 남기지 않는다 (체감 시트도 묻지 않는다)
+    const isDiscarded = isTooShortToRecord(durationSec);
+    if (isDiscarded) removeEntry(session.entryId);
+    else setDuration(session.entryId, durationSec);
     clearSession();
     setToastOpen(false);
-    trackEvent(ANALYTICS_EVENTS.activityEnded, { activity, durationSec });
+    trackEvent(ANALYTICS_EVENTS.activityEnded, { activity, durationSec, discarded: isDiscarded });
+    if (isDiscarded) return;
     // 방금 마친 기록을 체감 시트로 바로 묻는다
     const ended = useHistoryStore.getState().entries.find((e) => e.id === session.entryId);
     setSheetEntry(ended ?? null);
