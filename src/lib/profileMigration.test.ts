@@ -38,6 +38,7 @@ describe('migrateProfileState', () => {
       selectedActivities: ['running'],
       lastActivity: 'running',
       constraints: [],
+      activityTimeSlots: [],
       coldLevel: 5,
       heatLevel: 3,
       feedbackOffset: 0,
@@ -105,5 +106,16 @@ describe('v4 → v5', () => {
     const result = migrateProfileState(v4, 4) as V5;
     expect(result.profile.selectedActivities).toEqual(['running']);
     expect(result.profile.lastActivity).toBe('running');
+  });
+});
+
+describe('v5 → v6', () => {
+  it('활동 시간대를 빈 목록으로 추가한다', () => {
+    const v5 = {
+      hasOnboarded: true,
+      profile: { selectedActivities: ['running'], lastActivity: 'running', constraints: [] },
+    };
+    const result = migrateProfileState(v5, 5) as { profile: { activityTimeSlots: string[] } };
+    expect(result.profile.activityTimeSlots).toEqual([]);
   });
 });
