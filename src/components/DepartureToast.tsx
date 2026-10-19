@@ -17,7 +17,10 @@ interface DepartureToastProps {
   onUndo: () => void;
 }
 
-/** 출발을 기록한 직후 보여주는 토스트 (우측 [실행 취소]로 방금 기록을 되돌린다) */
+/**
+ * 출발을 기록한 직후 보여주는 토스트 (우측 [실행 취소]로 방금 기록을 되돌린다).
+ * 가장 가까운 relative 조상(출발 버튼 영역) 바로 위에 8px(mb-2) 간격을 두고 뜬다.
+ */
 export default function DepartureToast({
   open,
   activityLabel,
@@ -34,7 +37,7 @@ export default function DepartureToast({
           </Button>
         </ToastAction>
       </Toast>
-      <ToastViewport className="bottom-[calc(5.5rem+env(safe-area-inset-bottom))]" />
+      <ToastViewport className="absolute bottom-full mb-2 max-w-none px-0" />
     </ToastProvider>
   );
 }
