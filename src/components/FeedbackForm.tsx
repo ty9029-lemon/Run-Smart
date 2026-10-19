@@ -12,7 +12,7 @@ import { parseDistanceKm } from '../lib/distance';
 import type { Feedback, FeedbackDetail } from '../types';
 import DistanceStepper from './DistanceStepper';
 
-const SECTION_TITLE = 'text-base font-bold';
+const SECTION_TITLE = 'text-subheading-sm font-bold';
 
 /** 입력값에서 저장할 선택 입력만 골라낸다. (거리는 올바른 숫자일 때만, 복장은 비어 있지 않을 때만) */
 export function buildFeedbackDetail(distanceText: string, outfitText: string): FeedbackDetail {
@@ -56,7 +56,7 @@ function OutfitSection({ value, onChange }: { value: string; onChange: (text: st
         value={value}
         maxLength={ACTUAL_OUTFIT_MAX_LENGTH}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="나이키 반팔, 언더아머 반바지, 호카 러닝화"
+        placeholder="예: 나이키 반팔, 언더아머 반바지, 호카 러닝화"
       />
     </section>
   );
@@ -104,7 +104,7 @@ export default function FeedbackForm({ onSave, onLater }: FeedbackFormProps) {
   const isDistanceInvalid = distanceText.trim() !== '' && parseDistanceKm(distanceText) === null;
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-9">
       <FeedbackOptions selected={feedback} onSelect={setFeedback} />
       <section className="space-y-3">
         <h3 className={SECTION_TITLE}>몇 키로 뛰었나요? (선택)</h3>

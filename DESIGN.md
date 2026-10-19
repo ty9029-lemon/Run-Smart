@@ -17,7 +17,8 @@ Swoosh는 한밤중의 아레나 콘솔처럼 작동합니다. 거의 완전한 
 | Card Border Ink | `#28282a` | `--color-card-border-ink` | 카드 외곽 테두리 — 모노크롬을 깨지 않으면서 컨테이너를 정의하는 거의 보이지 않는 윤곽선 |
 | Footer Rule | `#39393b` | `--color-footer-rule` | 푸터 상단 테두리, 페이지 영역 사이의 구조적 구분선 |
 | Steel Border | `#707072` | `--color-steel-border` | 카드 윤곽 테두리, 이미지 프레임 가장자리, 칩·슬라이더 테두리 — 눈에 띄되 조용한 구분을 위한 중간 대비의 중성색. 글자에는 쓰지 않음(Subtle Text 사용) |
-| Subtle Text | `#8e8e90` | `--color-subtle-text`, `--muted-foreground` | 서브 텍스트(지표 이름, 보조 설명, placeholder) — 어두운 카드·캔버스 위에서 대비 4.5:1 이상. 테두리에는 쓰지 않음 |
+| Subtle Text | `#8e8e90` | `--color-subtle-text`, `--muted-foreground` | 서브 텍스트(지표 이름, 보조 설명) — 어두운 카드·캔버스 위에서 대비 4.5:1 이상. 테두리에는 쓰지 않음 |
+| Placeholder | `#636366` | `--color-placeholder` | 입력창 placeholder 전용 — 입력한 글자(Pure White)와 한눈에 구분되도록 Subtle Text보다 옅은 회색 |
 | Fog Border | `#e5e5e5` | `--color-fog-border` | 라이트 모드 헤어라인 테두리, 텍스트/제목 밑줄, 아이콘 스트로크 — 반전된 맥락(흰 카드, 밝은 표면)에서 등장 |
 | Pure White | `#ffffff` | `--color-pure-white` | 어두운 표면 위의 밝은 텍스트, 반전 라벨, 고대비 캡션. 기본 CTA 컬러로 승격하지 말 것 |
 | Carbon Black | `#000000` | `--color-carbon-black` | 밝은 표면 위의 주요 제목, 본문 텍스트, 아이콘 채움. 기본 CTA 컬러로 승격하지 말 것 |
@@ -58,6 +59,7 @@ Swoosh는 한밤중의 아레나 콘솔처럼 작동합니다. 거의 완전한 
 |------|--------|--------|------|-------------|----------------|-------|
 | body-sm | — | — | 14px | 1.5 | — | `--text-body-sm` |
 | body | — | — | 16px | 1.5 | — | `--text-body` |
+| subheading-sm | — | — | 18px | 1.4 | — | `--text-subheading-sm` |
 | subheading | — | — | 20px | 1.4 | — | `--text-subheading` |
 | heading-sm | — | — | 24px | 1.2 | — | `--text-heading-sm` |
 | heading-lg | — | — | 64px | 1 | — | `--text-heading-lg` |
@@ -69,7 +71,7 @@ Swoosh는 한밤중의 아레나 콘솔처럼 작동합니다. 거의 완전한 
 |------|-----------|-------|
 | display | −0.01em | `--tracking-ko-display` |
 | heading-lg, heading-sm | +0.02em | `--tracking-ko-heading` |
-| subheading | −0.01em | `--tracking-ko-subheading` |
+| subheading, subheading-sm | −0.01em | `--tracking-ko-subheading` |
 | body | 0 | `--tracking-ko-body` |
 | body-sm, 버튼 | +0.01em | `--tracking-ko-small` |
 
@@ -136,7 +138,7 @@ Swoosh는 한밤중의 아레나 콘솔처럼 작동합니다. 거의 완전한 
 ### Primary CTA Button
 **역할:** 채워진 액션 트리거
 
-Lime Pulse(#b7ff2c) 배경, Carbon Black(#000000) 텍스트, 9999px border radius(pill), 높이 40px(default) / 가로 20px 패딩, Plus Jakarta Sans / Pretendard 500 16px, 줄 간격 1.20. 채움색과 같은 1px solid #b7ff2c 테두리. 어느 페이지에서든 가장 채도가 높은 단 하나의 요소이며, 전기가 켜진 듯한 느낌이어야 합니다.
+Lime Pulse(#b7ff2c) 배경, Carbon Black(#000000) 텍스트, 9999px border radius(pill), 높이 40px(default) / 가로 20px 패딩, Plus Jakarta Sans / Pretendard 700 16px, 줄 간격 1.20. 채움색과 같은 1px solid #b7ff2c 테두리. 어느 페이지에서든 가장 채도가 높은 단 하나의 요소이며, 전기가 켜진 듯한 느낌이어야 합니다.
 
 ### Button 사이즈
 텍스트 버튼은 아이콘 버튼과 같은 높이 체계(48/40/32/24px)를 씁니다.
@@ -153,7 +155,7 @@ Lime Pulse(#b7ff2c) 배경, Carbon Black(#000000) 텍스트, 9999px border radiu
 ### Secondary Navigation Button
 **역할:** 내비게이션의 보조 액션 (예: 기록, 설정)
 
-Card Charcoal(#1f1f21) 배경, Pure White(#ffffff) 텍스트, 테두리 없음, 9999px radius(pill), 높이 32px(sm) / 가로 20px의 컴팩트한 패딩, Plus Jakarta Sans / Pretendard 500 14px. 구현은 `Button`의 `variant="secondary" size="sm"`입니다. 라임을 쓰지 않으므로 같은 내비게이션 안의 채워진 CTA와 경쟁하지 않고 공존할 수 있습니다.
+Card Charcoal(#1f1f21) 배경, Pure White(#ffffff) 텍스트, 테두리 없음, 9999px radius(pill), 높이 32px(sm) / 가로 20px의 컴팩트한 패딩, Plus Jakarta Sans / Pretendard 700 14px. 구현은 `Button`의 `variant="secondary" size="sm"`입니다. 라임을 쓰지 않으므로 같은 내비게이션 안의 채워진 CTA와 경쟁하지 않고 공존할 수 있습니다.
 
 ### Icon Button
 **역할:** 텍스트 없이 아이콘만으로 동작하는 정사각형 액션 (예: 설정)
@@ -172,24 +174,24 @@ Card Charcoal(#1f1f21) 배경, Pure White(#ffffff) 텍스트, 테두리 없음, 
 ### Input
 **역할:** 한 줄 텍스트·숫자 입력 (예: 주소, 거리, 실제 착용 복장)
 
-높이 48px, 가로 16px·세로 12px 패딩, **8px radius**(`--radius-input`), 1px Steel Border(`--input`) 외곽선, 투명 배경. 글자는 Pretendard 16px, placeholder는 `--muted-foreground`입니다. 상태는 default / filled / focus(라임 외곽선) / disabled / invalid(`aria-invalid`, destructive 외곽선)입니다. 컨테이너 radius(20px)와 달리 입력창은 8px로 둡니다. 구현은 `Input`, Figma는 `Input` 컴포넌트(변수 `radius/input`)입니다. 여러 줄은 `Textarea`를 씁니다.
+높이 48px, 가로 16px·세로 12px 패딩, **8px radius**(`--radius-input`), 1px Steel Border(`--input`) 외곽선, 투명 배경. 글자는 Pretendard 16px, placeholder는 `--color-placeholder`(#636366)입니다. 상태는 default / filled / focus(라임 외곽선) / disabled / invalid(`aria-invalid`, destructive 외곽선)입니다. 컨테이너 radius(20px)와 달리 입력창은 8px로 둡니다. 구현은 `Input`, Figma는 `Input` 컴포넌트(변수 `radius/input`)입니다. 여러 줄은 `Textarea`를 씁니다.
 
 ### Distance Input
 **역할:** 거리(km)를 숫자로 직접 입력하거나 -/+로 조절
 
-`Input`을 가운데 정렬로 쓰고, 오른쪽 안쪽(16px)에 단위 "km"를 얹습니다. 좌우에 Icon Button(`size="icon"`, default, 40px, Lucide Minus/Plus)을 12px 간격으로 둡니다. 입력 전에는 기본값(5)을 placeholder로 흐리게 보여주고 저장하지 않습니다. -/+는 0.5km씩, 0.5~100km 범위이며 범위를 벗어나는 글자는 `aria-invalid`로 알립니다. 구현은 `DistanceStepper`입니다.
+`Input`을 가운데 정렬로 쓰고, 오른쪽 안쪽(16px)에 단위 "km"를 얹습니다. 좌우에 Icon Button(`size="icon"`, default, 40px, Lucide Minus/Plus)을 12px 간격으로 둡니다. 입력 전에는 기본값(5)을 placeholder로 보여주되 입력한 값과 같은 흰색(`--foreground`)으로 써서 기본값이 들어 있는 것처럼 읽히게 하고, 거리 값으로 저장하지는 않습니다(단위 "km"도 항상 흰색). -/+는 0.5km씩, 0.5~100km 범위이며 범위를 벗어나는 글자는 `aria-invalid`로 알립니다. 구현은 `DistanceStepper`입니다.
 
 ### Feedback Sheet
 **역할:** 다녀온 뒤 체감·거리·실제 복장을 한 번에 기록하는 바텀 시트
 
-Card Charcoal(`--card`) 배경, 위쪽 모서리 20px radius, 가로 24px·위 28px 패딩, 아래 34px(홈 인디케이터 여백), 섹션 간격 28px. 위에서부터 ① 제목(Pretendard 700 20px, "오전 7:34 러닝, 어땠어요?" — 같은 날이면 날짜 말머리 없이, 지난 날이면 "어제 오전 7:34 러닝, 어땠어요?"처럼 "어제"(그보다 전이면 "10월 15일"처럼 월/일)를 앞에 붙임)과 체감 칩 3개(간격 8, 하나만 선택, 체크 없음) ② "몇 키로 뛰었나요? (선택)" + Distance Input ③ "실제 착용한 복장 (선택)" + 설명 + `Input` ④ 저장(Button lg, 체감을 고르기 전에는 비활성) ⑤ "다음에 할게요"(link, 회색) 순서입니다. 뒤 화면은 검정 60% 오버레이로 덮습니다. 거리·복장은 선택 입력이라 비워 두고 저장할 수 있습니다. 구현은 `FeedbackForm`(입력 폼)을 종료 직후 `FeedbackSheet`(Dialog 기반)와 재방문 `FeedbackCard`가 함께 쓰는 구조이고 Figma는 개선안 페이지의 `Feedback Sheet / …` 프레임입니다.
+Card Charcoal(`--card`) 배경, 위쪽 모서리 20px radius, 가로 24px·위 28px 패딩, 아래 34px(홈 인디케이터 여백), 섹션 간격 36px. 위에서부터 ① 제목(Pretendard 700 18px `subheading-sm`, "오전 7:34 러닝, 어땠어요?" — 같은 날이면 날짜 말머리 없이, 지난 날이면 "어제 오전 7:34 러닝, 어땠어요?"처럼 "어제"(그보다 전이면 "10월 15일"처럼 월/일)를 앞에 붙임)과 체감 칩 3개(간격 8, 하나만 선택, 체크 없음) ② "몇 키로 뛰었나요? (선택)" + Distance Input ③ "실제 착용한 복장 (선택)" + 설명 + `Input` (②·③ 섹션 제목은 Pretendard 700 18px, `--text-subheading-sm`) ④ 저장(Button lg, 체감을 고르기 전에는 비활성) ⑤ "다음에 할게요"(link, 회색) 순서입니다. 뒤 화면은 검정 60% 오버레이로 덮습니다. 거리·복장은 선택 입력이라 비워 두고 저장할 수 있습니다. 구현은 `FeedbackForm`(입력 폼)을 종료 직후 `FeedbackSheet`(Dialog 기반)와 재방문 `FeedbackCard`가 함께 쓰는 구조이고 Figma는 개선안 페이지의 `Feedback Sheet / …` 프레임입니다.
 
 ### Score Breakdown Sheet
 **역할:** 점수가 왜 그렇게 나왔는지 항목별로 보여주는 바텀 시트 (UT 인사이트: 점수 산정 근거 부족)
 
 **점수 카드의 이유 한 줄:** 카드 맨 아래, 1px Card Border Ink 구분선 위 12px 간격. 왼쪽에 이유 문구(14px 500, Pure White)를, 오른쪽 끝에 "왜 이 점수예요?" 링크(14px, Subtle Text, 밑줄 오프셋 4px, 위아래 4px 패딩)를 둡니다. 이유 문구는 감점이 3점 이상인 항목을 큰 순서로 최대 2개까지 "미세먼지 −9점 · 바람 −5점"처럼 쓰고, 해당하는 항목이 없으면 "점수를 깎는 요인이 없어요"로 대신합니다. 질환·민감도 설정 때문에 더 엄격하게 본 항목이 있으면 그 아래에 "내 설정을 반영해 더 엄격하게 봤어요"를 Subtle Text 14px로 붙입니다.
 
-**시트:** Feedback Sheet와 같은 모양(Card Charcoal, 위쪽 모서리 20px radius, 아래에서 올라옴, 닫기 버튼 없이 바깥 탭·ESC로 닫음)이고 높이는 화면의 85%까지, 넘치면 안에서 스크롤합니다. 위에서부터 ① 제목 "점수는 이렇게 계산돼요 (N점)"(18px)과 설명(100점 만점 합산, 활동·설정에 따라 비중이 달라진다는 안내) ② 항목 목록(간격 16px)입니다. 항목은 감점이 큰 순서이며, 한 줄에 이름과 현재 값(단위 포함, Subtle Text)·받은 점수/배점(숫자는 tabular)·깎인 점수(−N, 나쁨 레벨 색)를 두고, 그 아래에 6px 높이 pill 막대(받은 비율만큼 라임, 나머지는 Card Border Ink)와 한 줄 해석("좋아요" / "보통이에요" / "점수를 많이 깎았어요", 14px Subtle Text)을 둡니다. 항목 이름은 체감온도·기온·강수·바람·습도·미세먼지·일조 시간·자외선이고, 일조 시간의 값은 러닝·산책이 "해 떠 있음"/"해 짐", 등산·자전거는 "일몰까지 2.5시간"처럼 일몰까지 남은 시간입니다(한낮에도 일몰이 가까우면 감점되는 이유를 설명하기 위해서). 막대의 라임은 '채워진 상태'를 뜻하므로 활성 표시 규칙의 범위 안입니다. **선택한 시간 상세의 비교 한 줄:** 시간대 막대로 고른 시각의 `N점 좋음` 줄 바로 아래에 "지금보다 바람 +4점 · 미세먼지 −3점"처럼 지금과 항목 점수가 3점 이상 달라진 항목을 큰 순서로 최대 2개 보여줍니다(14px, Subtle Text, 올라가면 좋음 레벨 색 +, 내려가면 나쁨 레벨 색 −). 차이가 모두 3점 미만이면 "지금과 비슷한 조건이에요"로 대신하고, 지금 시각을 고른 경우에는 비교할 대상이 같아 표시하지 않습니다. 구현은 `ScoreDeltaLine`이고 계산은 `buildScoreDeltas`입니다.
+**시트:** Feedback Sheet와 같은 모양(Card Charcoal, 위쪽 모서리 20px radius, 아래에서 올라옴, 닫기 버튼 없이 바깥 탭·ESC로 닫음)이고 높이는 화면의 85%까지, 넘치면 안에서 스크롤합니다. 위에서부터 ① 제목 "점수는 이렇게 계산돼요 (N점)"(18px, `subheading-sm`)과 설명(100점 만점 합산, 활동·설정에 따라 비중이 달라진다는 안내) ② 항목 목록(간격 16px)입니다. 항목은 감점이 큰 순서이며, 한 줄에 이름과 현재 값(단위 포함, Subtle Text)·받은 점수/배점(숫자는 tabular)·깎인 점수(−N, 나쁨 레벨 색)를 두고, 그 아래에 6px 높이 pill 막대(받은 비율만큼 라임, 나머지는 Card Border Ink)와 한 줄 해석("좋아요" / "보통이에요" / "점수를 많이 깎았어요", 14px Subtle Text)을 둡니다. 항목 이름은 체감온도·기온·강수·바람·습도·미세먼지·일조 시간·자외선이고, 일조 시간의 값은 러닝·산책이 "해 떠 있음"/"해 짐", 등산·자전거는 "일몰까지 2.5시간"처럼 일몰까지 남은 시간입니다(한낮에도 일몰이 가까우면 감점되는 이유를 설명하기 위해서). 막대의 라임은 '채워진 상태'를 뜻하므로 활성 표시 규칙의 범위 안입니다. **선택한 시간 상세의 비교 한 줄:** 시간대 막대로 고른 시각의 `N점 좋음` 줄 바로 아래에 "지금보다 바람 +4점 · 미세먼지 −3점"처럼 지금과 항목 점수가 3점 이상 달라진 항목을 큰 순서로 최대 2개 보여줍니다(14px, Subtle Text, 올라가면 좋음 레벨 색 +, 내려가면 나쁨 레벨 색 −). 차이가 모두 3점 미만이면 "지금과 비슷한 조건이에요"로 대신하고, 지금 시각을 고른 경우에는 비교할 대상이 같아 표시하지 않습니다. 구현은 `ScoreDeltaLine`이고 계산은 `buildScoreDeltas`입니다.
 
 구현은 `ScoreReasonLine`(이유 한 줄), `ScoreBreakdownSheet`(시트)이고 항목 계산은 `src/lib/scoreReasons.ts`, 문구와 기준값은 `src/constants/scoreReasons.ts`에 있습니다.
 
@@ -256,7 +258,7 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
 - 화면을 가득 채우는 어두운 사진을 Pure White(#ffffff) 플로팅 카드와 짝지어 포스터 스타일 레이어링을 만들 것
 - #e5e5e5 테두리는 반전된(흰 표면) 맥락에서만 사용하고, 어두운 표면에서는 #28282a 또는 #707072를 사용할 것
 - 어두운 표면의 본문 텍스트는 16px Plus Jakarta Sans / Pretendard 400, 줄 간격 1.50, Pure White로 설정할 것
-- 지표 이름, 보조 설명, placeholder 같은 서브 텍스트는 Subtle Text(#8e8e90, `text-subtle-text`)를 사용할 것 — 어두운 카드 위에서 대비 4.5:1 이상을 확보한다. Steel Border(#707072)는 대비가 약 3.4:1이라 글자에 쓰지 않는다
+- 지표 이름, 보조 설명 같은 서브 텍스트는 Subtle Text(#8e8e90, `text-subtle-text`)를 사용할 것 — 어두운 카드 위에서 대비 4.5:1 이상을 확보한다. Steel Border(#707072)는 대비가 약 3.4:1이라 글자에 쓰지 않는다
 
 ### Don't
 - 두 번째 유채색을 도입하지 말 것 — 이 시스템은 모노크롬에 라임 하나다. 파랑, 빨강 등 어떤 색을 더해도 신호가 깨진다. 유일한 예외는 등급 표시용 '상태 레벨 색'이다
@@ -302,7 +304,7 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
 
 1. Primary Action Button 만들기: #b7ff2c 배경, #000000 텍스트, 9999px radius, 컴팩트한 알약형 패딩. 메인 CTA에 이 채워진 처리를 사용합니다.
 
-2. *Primary CTA 버튼*: 9999px border radius(pill), 세로 패딩 16px, 가로 패딩 20px, 배경 #b7ff2c, 1px solid #b7ff2c 테두리, 텍스트 #000000, Plus Jakarta Sans / Pretendard 500 16px, 줄 간격 1.20. 그림자 없음. 페이지에서 유일하게 채도가 높은 요소이며 시각적 초점이 되어야 합니다.
+2. *Primary CTA 버튼*: 9999px border radius(pill), 세로 패딩 16px, 가로 패딩 20px, 배경 #b7ff2c, 1px solid #b7ff2c 테두리, 텍스트 #000000, Plus Jakarta Sans / Pretendard 700 16px, 줄 간격 1.20. 그림자 없음. 페이지에서 유일하게 채도가 높은 요소이며 시각적 초점이 되어야 합니다.
 
 3. *어두운 사진 위의 흰색 플로팅 카드*: 배경 #ffffff, 20px border radius, 24px 패딩. 제목은 Plus Jakarta Sans / Pretendard 700 24px, 줄 간격 1.20, 색상 #000000. 본문은 Plus Jakarta Sans / Pretendard 400 16px, 줄 간격 1.50, 색상 #000000. 스크림 없이 화면을 가득 채우는 어두운 이미지 위에 떠 있습니다.
 
@@ -336,6 +338,7 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
   --color-footer-rule: #39393b;
   --color-steel-border: #707072;
   --color-subtle-text: #8e8e90;
+  --color-placeholder: #636366;
   --color-fog-border: #e5e5e5;
   --color-pure-white: #ffffff;
   --color-carbon-black: #000000;
@@ -355,6 +358,8 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
   --leading-body-sm: 1.5;
   --text-body: 16px;
   --leading-body: 1.5;
+  --text-subheading-sm: 18px;
+  --leading-subheading-sm: 1.4;
   --text-subheading: 20px;
   --leading-subheading: 1.4;
   --text-heading-sm: 24px;
@@ -428,6 +433,7 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
   --color-footer-rule: #39393b;
   --color-steel-border: #707072;
   --color-subtle-text: #8e8e90;
+  --color-placeholder: #636366;
   --color-fog-border: #e5e5e5;
   --color-pure-white: #ffffff;
   --color-carbon-black: #000000;
@@ -447,6 +453,8 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
   --leading-body-sm: 1.5;
   --text-body: 16px;
   --leading-body: 1.5;
+  --text-subheading-sm: 18px;
+  --leading-subheading-sm: 1.4;
   --text-subheading: 20px;
   --leading-subheading: 1.4;
   --text-heading-sm: 24px;

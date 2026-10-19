@@ -19,6 +19,8 @@
   --color-steel-border: #707072;
   /* 서브 텍스트 전용 회색: 어두운 카드·캔버스 위에서 대비 4.5:1 이상 (테두리는 steel-border) */
   --color-subtle-text: #8e8e90;
+  /* placeholder 전용 회색: 입력한 글자와 구분되도록 서브 텍스트보다 옅게 */
+  --color-placeholder: #636366;
   --color-pure-white: #ffffff;
   --color-carbon-black: #000000;
 
@@ -31,6 +33,10 @@
   --font-sans: 'Plus Jakarta Sans', 'Pretendard Variable', Pretendard,
     'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', ui-sans-serif,
     system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* 서브헤딩 18px: 시트·폼의 섹션 제목 */
+  --text-subheading-sm: 18px;
+  --text-subheading-sm--line-height: 1.4;
 
   --radius-md: 6px;
   /* 카드/패널 전용 반경 (버튼·칩은 rounded-full pill) */
