@@ -26,18 +26,32 @@ function render(
   askFeedback = false,
 ): string {
   return renderToStaticMarkup(
-    <HistoryEntryStatus entry={entry} runningStartedAt={runningStartedAt} askFeedback={askFeedback} />,
+    <HistoryEntryStatus
+      entry={entry}
+      runningStartedAt={runningStartedAt}
+      askFeedback={askFeedback}
+    />,
   );
 }
 
 describe('HistoryEntryStatus', () => {
-  it('활동을 마친 기록은 시작 시각 옆에 활동 시간을 붙인다', () => {
-    expect(render(makeEntry({ durationSec: 21 * 60 + 5 }))).toContain('21분 5초');
+  it('활동을 마친 기록은 거리·페이스·시간을 큰 숫자로 보여준다', () => {
+    const html = render(makeEntry({ distanceKm: 4.1, durationSec: 27 * 60 + 24 }));
+    expect(html).toContain('4.1km');
+    expect(html).toContain('6′41″');
+    expect(html).toContain('27:24');
   });
 
-  it('종료하지 않은 기록은 시각만 보여준다', () => {
+  it('거리가 없으면 거리와 페이스는 빼고 시간만 보여준다', () => {
+    const html = render(makeEntry({ durationSec: 21 * 60 + 5 }));
+    expect(html).toContain('21:05');
+    expect(html).not.toContain('페이스');
+    expect(html).not.toContain('거리');
+  });
+
+  it('종료하지 않은 기록은 숫자 칸을 보여주지 않는다', () => {
     const html = render(makeEntry());
-    expect(html).not.toContain('분');
+    expect(html).not.toContain('시간');
     expect(html).not.toContain('진행 중');
   });
 

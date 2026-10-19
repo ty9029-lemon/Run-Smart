@@ -29,6 +29,14 @@ export const MESSAGES = {
 /** 기록 화면 문구 */
 export const HISTORY_MESSAGES = {
   running: '진행 중',
+  today: '오늘',
+  feedbackLabel: '체감',
+  weatherLabel: '날씨',
+  actualOutfitLabel: '실제 복장',
+  distanceLabel: '거리',
+  paceLabel: '페이스',
+  durationLabel: '시간',
+  recommendation: '그날의 추천 보기',
 } as const;
 
 /** 앱 만족도 팝업 문구 */
