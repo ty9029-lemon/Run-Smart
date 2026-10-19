@@ -14,9 +14,9 @@ Swoosh는 한밤중의 아레나 콘솔처럼 작동합니다. 거의 완전한 
 | Lime Pulse | `#b7ff2c` | `--color-lime-pulse` | 채워진 버튼, 선택된 내비게이션 상태, 집중해야 할 전환 순간에 쓰는 초록색 액션 컬러 |
 | Midnight Canvas | `#111111` | `--color-midnight-canvas` | 페이지 배경, 히어로 캔버스, 내비게이션 표면, 본문 기반 — 나머지 모든 것이 놓이는 구조적 바닥 |
 | Card Charcoal | `#1f1f21` | `--color-card-charcoal` | 떠 있는 카드 표면, 모달 배경, 패널 기반 — 레이어드 컨테이너를 위해 Midnight Canvas보다 한 단계 위 |
-| Card Border Ink | `#28282a` | `--color-card-border-ink` | 카드 외곽 테두리 — 모노크롬을 깨지 않으면서 컨테이너를 정의하는 거의 보이지 않는 윤곽선 |
+| Card Border Ink | `#28282a` | `--color-card-border-ink` | 구분선, 진행 막대 트랙, 드롭다운 메뉴 면 — 카드에는 테두리로 쓰지 않음(카드는 면 대비로 구분) |
 | Footer Rule | `#39393b` | `--color-footer-rule` | 푸터 상단 테두리, 페이지 영역 사이의 구조적 구분선 |
-| Steel Border | `#707072` | `--color-steel-border` | 카드 윤곽 테두리, 이미지 프레임 가장자리, 칩·슬라이더 테두리 — 눈에 띄되 조용한 구분을 위한 중간 대비의 중성색. 글자에는 쓰지 않음(Subtle Text 사용) |
+| Steel Border | `#707072` | `--color-steel-border` | 이미지 프레임 가장자리, 칩·슬라이더·입력창 테두리 — 눈에 띄되 조용한 구분을 위한 중간 대비의 중성색. 글자에는 쓰지 않음(Subtle Text 사용) |
 | Subtle Text | `#8e8e90` | `--color-subtle-text`, `--muted-foreground` | 서브 텍스트(지표 이름, 보조 설명) — 어두운 카드·캔버스 위에서 대비 4.5:1 이상. 테두리에는 쓰지 않음 |
 | Placeholder | `#636366` | `--color-placeholder` | 입력창 placeholder 전용 — 입력한 글자(Pure White)와 한눈에 구분되도록 Subtle Text보다 옅은 회색 |
 | Fog Border | `#e5e5e5` | `--color-fog-border` | 라이트 모드 헤어라인 테두리, 텍스트/제목 밑줄, 아이콘 스트로크 — 반전된 맥락(흰 카드, 밝은 표면)에서 등장 |
@@ -275,6 +275,7 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
 - #111111을 기본 페이지 배경으로, #1f1f21을 카드와 모달의 한 단계 높은 표면으로 사용할 것
 - 화면을 가득 채우는 어두운 사진을 Pure White(#ffffff) 플로팅 카드와 짝지어 포스터 스타일 레이어링을 만들 것
 - #e5e5e5 테두리는 반전된(흰 표면) 맥락에서만 사용하고, 어두운 표면에서는 #28282a 또는 #707072를 사용할 것
+- 카드(점수·복장·베스트 시간 같은 정보 패널, 설정·온보딩·피드백 카드, 가이드 박스 모두)는 테두리 없이 Card Charcoal 면 대비로 구분할 것 — 테두리가 있는 것은 팝업(Dialog)과 입력창뿐이다
 - 어두운 표면의 본문 텍스트는 16px Plus Jakarta Sans / Pretendard 400, 줄 간격 1.50, Pure White로 설정할 것
 - 지표 이름, 보조 설명 같은 서브 텍스트는 Subtle Text(#8e8e90, `text-subtle-text`)를 사용할 것 — 어두운 카드 위에서 대비 4.5:1 이상을 확보한다. Steel Border(#707072)는 대비가 약 3.4:1이라 글자에 쓰지 않는다
 

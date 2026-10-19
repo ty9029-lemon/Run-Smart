@@ -91,7 +91,7 @@ function GuideBody({ guide, rawWeather }: Pick<GuideBoxProps, 'guide' | 'rawWeat
 /** AI 가이드 메시지 박스. 불러오는 동안은 안내를, 실패하면 원시 날씨 문구를 보여준다. */
 export default function GuideBox({ guide, rawWeather, location }: GuideBoxProps) {
   return (
-    <section className="space-y-3 rounded-panel border border-card-border-ink bg-card-charcoal p-6">
+    <section className="space-y-3 rounded-panel bg-card-charcoal p-6">
       <GuideBody guide={guide} rawWeather={rawWeather} />
       {location && <LocationNotice {...location} />}
     </section>
