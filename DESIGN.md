@@ -20,6 +20,12 @@ Swoosh는 한밤중의 아레나 콘솔처럼 작동합니다. 거의 완전한 
 | Fog Border | `#e5e5e5` | `--color-fog-border` | 라이트 모드 헤어라인 테두리, 텍스트/제목 밑줄, 아이콘 스트로크 — 반전된 맥락(흰 카드, 밝은 표면)에서 등장 |
 | Pure White | `#ffffff` | `--color-pure-white` | 어두운 표면 위의 밝은 텍스트, 반전 라벨, 고대비 캡션. 기본 CTA 컬러로 승격하지 말 것 |
 | Carbon Black | `#000000` | `--color-carbon-black` | 밝은 표면 위의 주요 제목, 본문 텍스트, 아이콘 채움. 기본 CTA 컬러로 승격하지 말 것 |
+| Level Good | `#4da3ff` | `--color-level-good` | 등급 표시 전용: 미세먼지 '좋음', 자외선 '낮음' |
+| Level Normal | `#ff9a3c` | `--color-level-normal` | 등급 표시 전용: '보통', 점수 '보통' 막대 |
+| Level Bad | `#ff7a6b` | `--color-level-bad` | 등급 표시 전용: '나쁨'·'높음', 점수 '나쁨' 막대 |
+
+### 상태 레벨 색
+홈의 등급 지표(미세먼지, 자외선)와 시간대 막대·점수 단계에만 쓰는 예외 색입니다. 글자·아이콘·작은 막대에만 쓰고, 면 배경이나 버튼·강조에는 쓰지 않습니다. 색만으로 구분하지 않도록 항상 등급 문구(좋음·보통·나쁨 등)를 함께 적습니다. 점수의 '좋음'은 이 색이 아니라 라임을 씁니다. 코드는 `src/constants/levelStyles.ts`가 등급·점수 단계와 색 클래스를 한 곳에서 연결합니다.
 
 ## 토큰 — 타이포그래피
 
@@ -195,7 +201,7 @@ Pure White(#ffffff) 배경, 20px radius, 20-24px 패딩. Carbon Black의 heading
 ### Dark Card
 **역할:** 떠 있는 콘텐츠 패널
 
-Card Charcoal(#1f1f21) 배경, 1px Card Border Ink(#28282a) 테두리, 20px radius, 20px 패딩. Midnight Canvas보다 한 단계 위에 놓이며, 같은 표면처럼 느껴질 만큼 은은하면서도 콘텐츠 블록을 담을 만큼 분명합니다.
+Card Charcoal(#1f1f21) 배경, 테두리 없음(면 대비로 구분), 20px radius, 20px 패딩. Midnight Canvas보다 한 단계 위에 놓이며, 같은 표면처럼 느껴질 만큼 은은하면서도 콘텐츠 블록을 담을 만큼 분명합니다.
 
 ### Cookie Settings Modal
 **역할:** 오버레이 환경설정 패널
@@ -222,6 +228,9 @@ Card Charcoal(#1f1f21) 배경, 20px radius, 24px 패딩, 1px Card Border Ink 테
 
 Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50의 Pure White 작은 텍스트 링크, 넉넉한 세로 패딩(48-64px). 미니멀하게 — 무거운 카드 처리나 이미지는 쓰지 않습니다.
 
+## 홈 화면 구성
+위에서 아래로: 위치·현재 시각 → 활동 칩 → 헤드라인(24px) → 점수·날씨 카드(링 88px, 지표 6칸) → 베스트 시간 → 현재 날씨 추천 복장(가이드 문단 + 복장 카드와 팁 불릿) → 시간대 막대 차트 → 선택한 시간 상세(지표 6칸). 섹션 사이는 32px, 차트와 상세 사이는 24px입니다. 차트는 점수 단계로 막대 색을 정하고(좋음 라임, 보통·나쁨 레벨 색), 선택한 막대만 불투명, 나머지는 40%, 22시 이후와 내일은 15%로 흐리게 그립니다. 22시 이후는 추천에서 제외한다는 구분선과 안내를 차트에 표시합니다. [이대로 출발하기]는 탭바 위 12px에 고정하고, 본문은 CTA에 가리지 않도록 아래 여백을 둡니다. 정보 패널(점수 카드, 복장 카드, 지표 타일, 베스트 시간 카드)은 테두리 없이 면 대비로 구분합니다.
+
 ## Do와 Don't
 
 ### Do
@@ -234,7 +243,7 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
 - 어두운 표면의 본문 텍스트는 16px Plus Jakarta Sans / Pretendard 400, 줄 간격 1.50, Pure White로 설정할 것
 
 ### Don't
-- 두 번째 유채색을 도입하지 말 것 — 이 시스템은 모노크롬에 라임 하나다. 파랑, 빨강 등 어떤 색을 더해도 신호가 깨진다
+- 두 번째 유채색을 도입하지 말 것 — 이 시스템은 모노크롬에 라임 하나다. 파랑, 빨강 등 어떤 색을 더해도 신호가 깨진다. 유일한 예외는 등급 표시용 '상태 레벨 색'이다
 - 컨테이너에 0px 또는 28px 이상의 border radius를 사용하지 말 것(버튼의 pill, 입력창의 8px 제외) — 20px radius가 부드럽지만 느슨하지 않은 이 시스템의 정체성이다
 - 영문 디스플레이 헤드라인의 줄 간격을 1.2 이상으로 설정하지 말 것 — 0.85-1.00의 압축이 타입을 간판처럼 느끼게 한다. 한글 헤드라인은 예외로 1.4를 사용한다
 - 내비게이션 바의 2px 블러를 넘는 드롭 섀도를 사용하지 말 것 — 평평함은 의도된 것이다
@@ -312,6 +321,11 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
   --color-fog-border: #e5e5e5;
   --color-pure-white: #ffffff;
   --color-carbon-black: #000000;
+
+  /* 상태 레벨 색 (등급 표시 전용) */
+  --color-level-good: #4da3ff;
+  --color-level-normal: #ff9a3c;
+  --color-level-bad: #ff7a6b;
 
   /* Typography — Font Families */
   --font-plus-jakarta-sans: 'Plus Jakarta Sans', 'Pretendard Variable', Pretendard, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -398,6 +412,11 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
   --color-fog-border: #e5e5e5;
   --color-pure-white: #ffffff;
   --color-carbon-black: #000000;
+
+  /* 상태 레벨 색 (등급 표시 전용) */
+  --color-level-good: #4da3ff;
+  --color-level-normal: #ff9a3c;
+  --color-level-bad: #ff7a6b;
 
   /* Typography */
   --font-plus-jakarta-sans: 'Plus Jakarta Sans', 'Pretendard Variable', Pretendard, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;

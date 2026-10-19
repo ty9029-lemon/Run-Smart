@@ -1,5 +1,5 @@
-import { OUTFIT_UV_HIGH_MIN, PM10_GOOD, PM10_NORMAL } from '../constants/thresholds';
-import type { Constraint, DustGrade, UvGrade } from '../types';
+import { OUTFIT_UV_HIGH_MIN, PM10_GOOD, PM10_NORMAL, UV_LOW_MAX } from '../constants/thresholds';
+import type { Constraint, DustGrade, UvGrade, UvLevel } from '../types';
 
 /**
  * 미세먼지(PM10) 농도를 등급으로 바꾼다. 날씨 카드·복장·AI 가이드가 같은 기준을 쓴다.
@@ -16,6 +16,15 @@ export function getDustGrade(pm10: number): DustGrade {
  * @param uvIndex 자외선 지수
  */
 export function getUvGrade(uvIndex: number): UvGrade {
+  return uvIndex >= OUTFIT_UV_HIGH_MIN ? '높음' : '보통';
+}
+
+/**
+ * 자외선 지수를 화면 표시용 3단계로 바꾼다. 높음의 기준은 복장(getUvGrade)과 같다.
+ * @param uvIndex 자외선 지수
+ */
+export function getUvLevel(uvIndex: number): UvLevel {
+  if (uvIndex <= UV_LOW_MAX) return '낮음';
   return uvIndex >= OUTFIT_UV_HIGH_MIN ? '높음' : '보통';
 }
 

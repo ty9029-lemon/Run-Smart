@@ -33,7 +33,7 @@ const DEVICE_GUIDE_ERROR_CODES: readonly number[] = [1, 2];
  * 차단(denied)으로 보여도 일단 읽어 보고, 실패하면 설정 안내를 펼친다.
  * (사이트 설정을 바꿨는데 앱이 이전 상태를 들고 있을 수 있다.)
  */
-function LocationNotice({ error, onRequest, isOff = false }: LocationNoticeProps) {
+export function LocationNotice({ error, onRequest, isOff = false }: LocationNoticeProps) {
   const [showGuide, setShowGuide] = useState(false);
   const handleClick = async () => {
     const succeeded = await onRequest();

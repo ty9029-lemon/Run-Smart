@@ -344,10 +344,27 @@ describe('findBestHourToday', () => {
   });
 
   it('오늘 칸이 하나뿐이어도 고른다', () => {
-    expect(findBestHourToday([{ hour: 23, score: 70 }, { hour: 0, score: 90 }], 23)).toEqual({
-      hour: 23,
-      score: 70,
-    });
+    const lateScores = [
+      { hour: 21, score: 70 },
+      { hour: 22, score: 50 },
+      { hour: 23, score: 50 },
+      { hour: 0, score: 90 },
+    ];
+    expect(findBestHourToday(lateScores, 21)).toEqual({ hour: 21, score: 70 });
+  });
+
+  it('22시 이후(22시 정각 포함)는 점수가 높아도 추천하지 않는다', () => {
+    const night = [
+      { hour: 20, score: 60 },
+      { hour: 21, score: 61 },
+      { hour: 22, score: 99 },
+      { hour: 23, score: 98 },
+    ];
+    expect(findBestHourToday(night, 20)).toEqual({ hour: 21, score: 61 });
+  });
+
+  it('남은 오늘 칸이 모두 22시 이후면 null', () => {
+    expect(findBestHourToday([{ hour: 22, score: 90 }, { hour: 23, score: 90 }], 22)).toBeNull();
   });
 
   it('빈 목록이면 null', () => {
@@ -485,5 +502,17 @@ describe('비염 점수', () => {
   it('미세먼지는 미세먼지 민감과 같은 감점을 준다', () => {
     const dusty = { ...IDEAL, pm10: 100 };
     expect(score(dusty, ['rhinitis'])).toBe(score(dusty, ['dustSensitive']));
+  });
+});
+
+describe('findGoodRange 22시 제외', () => {
+  it('좋은 구간이 22시를 넘어 이어져도 21시에서 끊는다', () => {
+    const scores = [
+      { hour: 20, score: 90 },
+      { hour: 21, score: 90 },
+      { hour: 22, score: 90 },
+      { hour: 23, score: 90 },
+    ];
+    expect(findGoodRange(scores, scores[0])).toEqual({ startHour: 20, endHour: 21 });
   });
 });

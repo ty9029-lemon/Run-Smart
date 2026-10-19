@@ -91,6 +91,9 @@ export type GuideState =
 /** 미세먼지 등급 (날씨 카드·복장·AI 가이드 공통) */
 export type DustGrade = '좋음' | '보통' | '나쁨';
 
+/** 자외선 표시 등급 (낮음·보통·높음) */
+export type UvLevel = '낮음' | '보통' | '높음';
+
 /** 자외선 등급 (복장의 선글라스·선크림 기준과 같다) */
 export type UvGrade = '보통' | '높음';
 

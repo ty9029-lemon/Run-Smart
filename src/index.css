@@ -20,6 +20,11 @@
   --color-pure-white: #ffffff;
   --color-carbon-black: #000000;
 
+  /* 상태 레벨 색 (DESIGN.md '상태 레벨 색'): 등급 표시 글자·아이콘·작은 막대 전용 */
+  --color-level-good: #4da3ff;
+  --color-level-normal: #ff9a3c;
+  --color-level-bad: #ff7a6b;
+
   /* 라틴 글리프는 Plus Jakarta Sans가 먼저 받고, 한글은 Pretendard로 넘어간다 */
   --font-sans: 'Plus Jakarta Sans', 'Pretendard Variable', Pretendard,
     'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', ui-sans-serif,
