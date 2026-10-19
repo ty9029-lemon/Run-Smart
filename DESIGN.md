@@ -145,7 +145,7 @@ Tailwind 기본 radius 클래스는 `--radius: 20px` 기준으로 계산되어 `
 Lime Pulse(#b7ff2c) 배경, Carbon Black(#000000) 텍스트, 9999px border radius(pill), 높이 40px(default) / 가로 20px 패딩, Plus Jakarta Sans / Pretendard 700 16px, 줄 간격 1.20. 채움색과 같은 1px solid #b7ff2c 테두리. 어느 페이지에서든 가장 채도가 높은 단 하나의 요소이며, 전기가 켜진 듯한 느낌이어야 합니다.
 
 ### Button 사이즈
-텍스트 버튼은 아이콘 버튼과 같은 높이 체계(48/40/32/24px)를 씁니다. 글자 굵기는 xs만 500(Medium)이고 나머지 크기는 700(Bold)입니다.
+텍스트 버튼은 아이콘 버튼과 같은 높이 체계(48/40/32/24px)를 씁니다. 글자 굵기는 xs만 500(Medium)이고 나머지 크기는 700(Bold)입니다. 아이콘과 글자 사이 간격은 lg·default·sm이 8px, xs가 4px입니다.
 
 | size | 높이 | 폰트 | 용도 |
 |------|------|------|------|
