@@ -33,6 +33,7 @@ import { getDepartureStatus } from '../lib/departureStatus';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
 import { elapsedSeconds } from '../lib/formatElapsed';
 import { formatTime } from '../lib/formatTime';
+import { buildBestTimeCards } from '../lib/bestTimes';
 import { recommendOutfit } from '../lib/outfit';
 import { calcRunScore, scoreToHeadline, scoreToLevel } from '../lib/runScore';
 import { getSunsetStatus } from '../lib/scoreFactors';
@@ -119,6 +120,7 @@ export default function HomeReady({
   const scores = scoreHours(upcomingHourly, sensitivity, profile.constraints, activity);
   const best = findBestHourToday(scores, nowHour);
   const range = findGoodRange(sliceToday(scores, nowHour), best);
+  const bestTimeCards = buildBestTimeCards(scores, now, profile.activityTimeSlots);
   const [pickedHour, setPickedHour] = useState<number | null>(null);
   // 직접 고른 시각이 없으면 추천 시각, 그것도 없으면 지금 시각을 보여준다
   const selectedHour = pickedHour ?? best?.hour ?? upcomingHourly[0]?.hour ?? null;
@@ -223,7 +225,7 @@ export default function HomeReady({
         feelsLike={feelsLike}
         onSelectActivity={handleSelectActivity}
       />
-      <BestTimeSection best={best} />
+      <BestTimeSection cards={bestTimeCards} />
       <HomeOutfitSection
         activity={activity}
         outfit={outfit}

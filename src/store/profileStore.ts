@@ -17,6 +17,15 @@ export const DEFAULT_PROFILE: Profile = {
   useCurrentLocation: true,
 };
 
+/**
+ * 저장·서버에서 읽은 프로필에 빠진 필드를 기본값으로 채운다.
+ * 필드를 추가하기 전에 저장된 프로필(서버 동기화 포함)이 새 필드 때문에 화면을 멈추게 하지 않는다.
+ * @param stored 저장돼 있던 프로필 (일부 필드가 없을 수 있다)
+ */
+export function withProfileDefaults(stored: Partial<Profile>): Profile {
+  return { ...DEFAULT_PROFILE, ...stored };
+}
+
 interface ProfileState {
   profile: Profile;
   /** 첫 진입 입력(온보딩)을 마쳤는지 여부 */
@@ -64,6 +73,11 @@ export const useProfileStore = create<ProfileState>()(
       name: 'run-smart-profile',
       version: PROFILE_STORE_VERSION,
       migrate: (persisted, version) => migrateProfileState(persisted, version) as ProfileState,
+      // 저장본에 빠진 프로필 필드는 기본값으로 채운다 (기본 병합은 프로필을 통째로 덮어쓴다)
+      merge: (persisted, current) => {
+        const saved = persisted as Partial<ProfileState> | undefined;
+        return { ...current, ...saved, profile: withProfileDefaults(saved?.profile ?? {}) };
+      },
     },
   ),
 );

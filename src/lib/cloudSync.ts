@@ -1,5 +1,5 @@
 import { useHistoryStore } from '../store/historyStore';
-import { useProfileStore } from '../store/profileStore';
+import { useProfileStore, withProfileDefaults } from '../store/profileStore';
 import type { HistoryEntry } from '../types';
 import { deleteHistory, fetchHistory, upsertHistory } from './historyRepo';
 import { fetchProfile, upsertProfile } from './profileRepo';
@@ -55,7 +55,10 @@ async function hydrateProfile(): Promise<void> {
   const remote = await fetchProfile();
   const local = useProfileStore.getState();
   if (remote) {
-    useProfileStore.setState({ profile: remote.profile, hasOnboarded: remote.hasOnboarded });
+    useProfileStore.setState({
+      profile: withProfileDefaults(remote.profile),
+      hasOnboarded: remote.hasOnboarded,
+    });
   } else if (local.hasOnboarded) {
     await upsertProfile({ profile: local.profile, hasOnboarded: local.hasOnboarded });
   }
