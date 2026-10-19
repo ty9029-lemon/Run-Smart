@@ -210,7 +210,7 @@ export default function HomeReady({
   };
 
   return (
-    <div className="space-y-8" style={{ paddingBottom: CTA_CLEARANCE }}>
+    <div className="space-y-10" style={{ paddingBottom: CTA_CLEARANCE }}>
       <FeedbackCard
         onDismiss={setFeedbackDismissedId}
         hiddenEntryIds={[sheetEntry?.id ?? null, feedbackDismissedId]}
