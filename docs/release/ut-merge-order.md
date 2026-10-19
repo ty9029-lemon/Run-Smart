@@ -22,12 +22,14 @@ UT 도중에는 화면과 지표가 바뀌지 않도록 개선안 PR을 머지�
 | 8 | #65 | `fix/previous-departure-notice` | 재출발 가능 시점의 이전 출발 기록 안내 | `HomeReady.tsx`, `messages.test.ts` | #62 머지 완료 |
 | 9 | #68 | `feat/history-activity-info` | 기록 화면: 진행 중 표시·활동 시간·체감 남기기 | 없음 | #62 머지 완료 |
 | 10 | #72 | `feat/run-feedback-sheet` | 종료 직후 시트·재방문 카드에 거리·실제 복장 입력, 저장 버튼 방식 | `FeedbackChoices.tsx`, `History.tsx` (#68과) | #62 머지 완료, **Supabase 거리·복장 컬럼 확인** |
+| 11 | #70 | `feat/onboarding-rhinitis` | 온보딩에 비염 항목 추가, 질문 문구 변경 | `outfit.test.ts` (#66과) | - |
 
 ### 순서를 이렇게 정한 이유
 - **충돌이 없는 작은 PR을 먼저** 머지해 위험을 줄이고, 변경이 큰 #62를 중간에 둔다.
 - **#60보다 #62를 뒤에** 둔다. 두 PR이 `DepartureToast.tsx`의 같은 줄(토스트 위치)을 바꾸는데, #62의 방식(버튼 기준 배치)이 탭바 높이와 무관하게 동작하므로 #62 쪽을 채택한다.
 - **#65, #68은 #62 위에 쌓은 PR**이라 반드시 #62 이후에 머지한다(base가 `feat/activity-timer`).
 - **#72는 #68 뒤**에 머지한다. #72는 #62 위에 쌓은 PR이고, #68과 같은 파일(`FeedbackChoices.tsx`, `History.tsx`)을 고쳐서 충돌하는데, #68을 먼저 넣고 #72에서 푸는 쪽이 해결 범위가 작다(4-6).
+- **#70은 #66과 같은 테스트 파일**(`outfit.test.ts`)의 같은 위치에 `describe`를 추가한다. 그래서 어느 쪽이 먼저든 나중에 머지하는 PR에서 한 번 충돌한다(4-7). 코드 충돌은 없고 테스트 파일뿐이라 마지막에 두었다.
 - **#64는 #62 이후**에 머지한다. 둘 다 `messages.ts`에 함수를 추가해 충돌하므로, #62를 먼저 넣고 #64의 충돌을 해결하는 편이 쉽다.
 
 ## 2. 머지 전 사전 조치
@@ -76,6 +78,7 @@ alter table public.history_entries
 | #65 | 종료 30분 뒤(또는 종료 기록 없이 30분 뒤) `오늘 N시에 …출발한 기록이 있어요.` 안내 |
 | #68 | 기록 화면의 `진행 중 · 00:21`, `오후 10:07 · 21분`, 체감 남기기 |
 | #72 | 종료 직후 시트와 상단 카드에 거리·복장 입력, 체감만 골라도 저장됨, 지난 날 기록은 제목에 `어제`, 기록 화면에 거리·실제 복장 표시, 저장 후 서버 동기화 성공 |
+| #70 | 온보딩에 비염 항목이 나오고 선택이 저장됨, 비염이면 찬 공기(5°C 미만)에 티슈, 미세먼지에는 스포츠 마스크 추천 |
 
 ## 4. 충돌 해결 가이드
 
@@ -132,7 +135,12 @@ import { formatPreviousDeparture, formatRawWeather, formatRecommendSummary } fro
 
 3. 알아 둘 점: 기록 화면의 "체감 남기기"는 거리·복장 입력 없이 체감만 저장한다. 같은 입력 폼을 쓰게 바꿀지는 아직 정하지 않았다(결정 대기).
 
-### 4-7. 충돌 해결 후
+### 4-7. #70 머지 시: `src/lib/outfit.test.ts` (#66과 충돌)
+#66이 추가한 `describe('recommendOutfit - 반바지가 처음 나오는 체감온도')`(헬퍼 함수 `hasShorts`, `bottomLabel` 포함)와 #70이 추가한 `describe('비염 복장')`이 파일 끝의 같은 위치에서 충돌한다. 두 블록은 서로 독립이므로 **둘 다 남긴다.**
+
+충돌 경계가 `it` 본문 중간에 걸려 공통 꼬리 `});`, `});`가 한 번만 남는다. #66 쪽 마지막 `it` 끝에 `  });`, 그 `describe` 끝에 `});`와 빈 줄을 붙여 먼저 닫고, 그 뒤에 #70 쪽 블록을 이어 붙인다(꼬리의 `  });`, `});`가 #70 쪽을 닫는다).
+
+### 4-8. 충돌 해결 후
 충돌을 푼 뒤 반드시 `npm run lint`, `npx tsc --noEmit`, `npm run test`, `npm run build`를 돌린다.
 
 ## 5. PR base 주의 (#65, #68, #72)
@@ -161,7 +169,7 @@ import { formatPreviousDeparture, formatRawWeather, formatRecommendSummary } fro
 
 문제가 생기면 **머지의 역순**으로 되돌린다. PR 단위로 revert하면 된다.
 
-- #72 → #68 → #65 → #64 → #62 → #60 → #67 → …
+- #70 → #72 → #68 → #65 → #64 → #62 → #60 → #67 → …
 - #72를 되돌려도 DB의 `distance_km`, `actual_outfit` 컬럼은 `null`로 남을 뿐이라 안전하다(컬럼 삭제는 필요 없다).
 - #62를 되돌려도 DB의 `duration_sec` 컬럼은 `null`로 남을 뿐이라 안전하다(컬럼 삭제는 필요 없다).
 - 되돌린 뒤 `localStorage`의 `run-smart-active-session` 키는 무시된다(코드가 읽지 않는다).
@@ -171,7 +179,7 @@ import { formatPreviousDeparture, formatRawWeather, formatRecommendSummary } fro
 - **병합 시뮬레이션**: 위 순서대로 9개 PR을 임시 worktree에서 실제로 머지하고 충돌을 4장처럼 해결했다.
 - **최종 상태 검증**: `npm run lint`, `npx tsc --noEmit`, `npm run test`(440개), `npm run build` 통과.
 - **브라우저 스모크(390px)**: 탭바, 점수 단위, 5단계 헤드라인, 추천 시간대 요약, 타이머, 토스트(버튼 위 8px, 흰색), 종료 후 피드백 시트, 기록 화면 활동 시간·체감 선택지, 페이지 오류 없음.
-- **#72 추가 검토 (2026-10-19)**: 위 시뮬레이션 이후에 #72를 #62 위로 다시 만들었다. 이번에는 #72 헤드에 다른 PR을 하나씩 시험 병합해 충돌 파일만 확인했고(4-6), 9개 PR을 전부 이어 붙인 전체 시뮬레이션과 브라우저 스모크는 하지 않았다. #72 단독으로는 `npm run lint`, `npm run test`(427개), `npm run build`를 통과했다. 머지 전에 전체 순서를 다시 돌려 보는 편이 안전하다.
+- **전체 순서 재시뮬레이션 (2026-10-19)**: #72와 #70을 더해 11개 PR을 위 순서대로 임시 worktree에서 실제로 머지했다. 충돌은 4-1~4-7로 해결했다(#62, #64, #65, #72, #70). #68은 충돌이 없었다. 최종 상태에서 `npm run lint`, `npx tsc --noEmit`, `npm run test`(41개 파일, 479개), `npm run build` 통과. 마이그레이션 `0001`~`0004` 번호 중복 없음. 이번에는 브라우저 스모크를 하지 않았다.
 - **한계**: 위 확인은 `main` `7d13037` 기준이다. 그 사이 `main`이 바뀌면 다시 확인한다. 로컬 개발 서버에서는 `/api/guide`가 동작하지 않아 AI 가이드의 `scoreTier` 어조는 배포 후 확인이 필요하다.
 
 ## 9. 폐기·정리된 브랜치
@@ -197,3 +205,4 @@ import { formatPreviousDeparture, formatRawWeather, formatRecommendSummary } fro
 | #65 | | | |
 | #68 | | | |
 | #72 | | | |
+| #70 | | | |
