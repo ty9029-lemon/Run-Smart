@@ -453,3 +453,37 @@ describe('findGoodRange', () => {
     expect(findGoodRange([], null)).toBeNull();
   });
 });
+
+describe('비염 점수', () => {
+  const score = (weather: typeof IDEAL, constraints: Parameters<typeof calcRunScore>[2]) =>
+    calcRunScore(weather, NEUTRAL_SENSITIVITY, constraints, 'running');
+
+  it('쾌적한 날씨에서는 비염을 체크해도 점수가 같다', () => {
+    expect(score(IDEAL, ['rhinitis'])).toBe(score(IDEAL, []));
+  });
+
+  it('건조한 공기(습도 20%)에서는 비염이면 점수가 더 낮다', () => {
+    const dry = { ...IDEAL, humidity: 20 };
+    expect(score(dry, ['rhinitis'])).toBeLessThan(score(dry, []));
+  });
+
+  it('습한 공기(습도 80%)에서는 비염이어도 점수가 같다', () => {
+    const wet = { ...IDEAL, humidity: 80 };
+    expect(score(wet, ['rhinitis'])).toBe(score(wet, []));
+  });
+
+  it('찬 공기(0°C)에서는 비염이면 점수가 더 낮다', () => {
+    const cold = { ...IDEAL, temp: 0 };
+    expect(score(cold, ['rhinitis'])).toBeLessThan(score(cold, []));
+  });
+
+  it('더운 날씨(30°C)에서는 비염이어도 점수가 같다', () => {
+    const hot = { ...IDEAL, temp: 30 };
+    expect(score(hot, ['rhinitis'])).toBe(score(hot, []));
+  });
+
+  it('미세먼지는 미세먼지 민감과 같은 감점을 준다', () => {
+    const dusty = { ...IDEAL, pm10: 100 };
+    expect(score(dusty, ['rhinitis'])).toBe(score(dusty, ['dustSensitive']));
+  });
+});

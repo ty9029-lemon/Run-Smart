@@ -22,7 +22,7 @@ export const ONBOARDING_STEPS: OnboardingStepMeta[] = [
   },
   {
     id: 'constraint',
-    title: '신경 쓸 점이 있나요?',
+    title: '활동할 때 신경 쓸 점이 있나요?',
     description: '해당하는 항목을 모두 체크해 주세요. 없으면 건너뛰어도 돼요.',
   },
   {

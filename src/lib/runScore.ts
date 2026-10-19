@@ -28,6 +28,8 @@ import {
   dustQuality,
   feelsLikeQuality,
   humidityQuality,
+  isColdAir,
+  isDryAir,
   rainQuality,
   tempQuality,
   uvQuality,
@@ -51,15 +53,20 @@ export function calcScoreBreakdown(
   activity: Activity,
 ): ScoreBreakdown {
   const felt = calcPersonalFeelsLike(weather, sensitivity);
+  const rhinitis = constraints.includes('rhinitis');
   const dustSensitive =
-    constraints.includes('dustSensitive') || constraints.includes('asthma');
+    constraints.includes('dustSensitive') || constraints.includes('asthma') || rhinitis;
   const w = ACTIVITY_SCORE_WEIGHTS[activity];
   return {
     feelsLike: w.feelsLike * feelsLikeQuality(felt, ACTIVITY_COMFORT[activity]),
-    temp: w.temp * tempQuality(weather.temp),
+    // 비염은 찬 공기에서만 기온 감점을 키운다
+    temp: w.temp * applySensitivity(tempQuality(weather.temp), rhinitis && isColdAir(weather.temp)),
     precipitation: w.precipitation * rainQuality(weather.precipitation),
     wind: w.wind * windQuality(weather.windSpeed),
-    humidity: w.humidity * humidityQuality(weather.humidity),
+    // 비염은 건조한 공기에서만 습도 감점을 키운다 (습한 쪽은 제외)
+    humidity:
+      w.humidity *
+      applySensitivity(humidityQuality(weather.humidity), rhinitis && isDryAir(weather.humidity)),
     dust: w.dust * applySensitivity(dustQuality(weather.pm10), dustSensitive),
     daylight:
       w.daylight *

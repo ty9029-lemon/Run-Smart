@@ -6,9 +6,11 @@ export type Activity = 'running' | 'hiking' | 'walking' | 'cycling';
 /** 제약사항 종류 */
 export type Constraint =
   | 'kneeIssue'
+  | 'footIssue'
   | 'uvSensitive'
   | 'dustSensitive'
-  | 'asthma';
+  | 'asthma'
+  | 'rhinitis';
 
 /** 가기 결정 */
 export type Decision = 'go';

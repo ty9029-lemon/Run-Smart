@@ -93,6 +93,22 @@ export function humidityQuality(humidity: number): number {
   );
 }
 
+/**
+ * 찬 공기인지 판단한다. (비염 감점·티슈 추천·가이드 팁이 같은 기준을 쓴다)
+ * @param temp 실제 기온(°C)
+ */
+export function isColdAir(temp: number): boolean {
+  return temp < TEMP_IDEAL_MIN;
+}
+
+/**
+ * 건조한 공기인지 판단한다. (비염 감점·가이드 팁이 같은 기준을 쓴다)
+ * @param humidity 습도(%)
+ */
+export function isDryAir(humidity: number): boolean {
+  return humidity < HUMIDITY_IDEAL_MIN;
+}
+
 /** 미세먼지(PM10)의 품질(0~1) */
 export function dustQuality(pm10: number): number {
   return interpolate(DUST_CURVE, pm10);

@@ -32,4 +32,5 @@ export const OUTFIT_ICON_KEYS = [
   'crampons',
   'mask',
   'kneeBrace',
+  'tissue',
 ] as const;
