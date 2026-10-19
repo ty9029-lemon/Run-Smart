@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import AnalyticsInit from './components/AnalyticsInit';
+import AppLayout from './components/AppLayout';
 import { TooltipProvider } from './components/ui/tooltip';
 import DesignSystem from './pages/DesignSystem';
 import History from './pages/History';
@@ -30,9 +31,11 @@ export default function App() {
           <Route path="/design-system" element={<DesignSystem />} />
           <Route path="/onboarding" element={<OnboardingOnly />} />
           <Route element={<RequireOnboarding />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/history" element={<History />} />
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/history" element={<History />} />
+            </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

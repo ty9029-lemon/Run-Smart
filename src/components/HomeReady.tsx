@@ -1,21 +1,22 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import AppReviewDialog from './AppReviewDialog';
 import DecisionButtons from './DecisionButtons';
 import DepartureToast from './DepartureToast';
 import FeedbackCard from './FeedbackCard';
+import FeedbackSheet from './FeedbackSheet';
 import GuideBox, { type LocationNoticeProps } from './GuideBox';
 import HomeSummary from './HomeSummary';
 import HourlyForecast from './HourlyForecast';
 import WeatherCard from './WeatherCard';
 import { buildDummyGuide } from '../data/dummyGuide';
 import { getActivityMeta } from '../constants/activities';
+import { useActiveSession } from '../hooks/useActiveSession';
 import { useAppReview } from '../hooks/useAppReview';
 import { useElapsedSinceMount } from '../hooks/useElapsedSinceMount';
 import { useFeedbackPrompt } from '../hooks/useFeedbackPrompt';
 import { useNow } from '../hooks/useNow';
-import { formatRawWeather } from '../constants/messages';
+import { formatPreviousDeparture, formatRawWeather, formatRecommendSummary } from '../constants/messages';
 import { ACTIVITY_DAYLIGHT_BUFFER_HOURS } from '../constants/scoring';
-import { REDEPARTURE_DELAY_MS } from '../constants/thresholds';
 import {
   findBestHourToday,
   findGoodRange,
@@ -25,10 +26,14 @@ import {
 } from '../lib/bestHour';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { decisionTimingProps, recordDecisionAndCheckChange } from '../lib/decisionTracking';
+import { getDepartureStatus } from '../lib/departureStatus';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
+import { elapsedSeconds } from '../lib/formatElapsed';
+import { formatTime } from '../lib/formatTime';
 import { recommendOutfit } from '../lib/outfit';
-import { calcRunScore, scoreToLevel } from '../lib/runScore';
+import { calcRunScore, scoreToHeadline, scoreToLevel } from '../lib/runScore';
 import { getSunsetStatus } from '../lib/scoreFactors';
+import { useActiveSessionStore } from '../store/activeSessionStore';
 import { useHistoryStore } from '../store/historyStore';
 import { useProfileStore } from '../store/profileStore';
 import type { WeatherResult } from '../services/weatherService';
@@ -66,6 +71,11 @@ export default function HomeReady({
   const setLastActivity = useProfileStore((s) => s.setLastActivity);
   const addEntry = useHistoryStore((s) => s.addEntry);
   const removeEntry = useHistoryStore((s) => s.removeEntry);
+  const setDuration = useHistoryStore((s) => s.setDuration);
+  const startSession = useActiveSessionStore((s) => s.start);
+  const clearSession = useActiveSessionStore((s) => s.clear);
+  const session = useActiveSession();
+  const isRunning = session !== null && session.activity === activity;
   const todayEntry = useTodayEntry(activity);
   const [toastOpen, setToastOpen] = useState(false);
   const now = useNow();
@@ -75,15 +85,24 @@ export default function HomeReady({
   const entryCount = useHistoryStore((s) => s.entries.length);
   const pendingFeedback = useFeedbackPrompt();
   const [feedbackDismissedId, setFeedbackDismissedId] = useState<string | null>(null);
+  // 방금 마친 활동의 기록. 있으면 종료 직후 체감 시트를 띄운다
+  const [sheetEntry, setSheetEntry] = useState<HistoryEntry | null>(null);
   const hasPendingFeedback = pendingFeedback !== null && pendingFeedback.id !== feedbackDismissedId;
   const appReview = useAppReview({
     entryCount,
-    isBlocked: toastOpen || hasPendingFeedback,
+    isBlocked: toastOpen || hasPendingFeedback || isRunning || sheetEntry !== null,
   });
-  // 출발 후 일정 시간(활동이 끝났을 시점)이 지나면 다시 출발할 수 있게 한다
-  const departed =
-    todayEntry !== null &&
-    now.getTime() - new Date(todayEntry.date).getTime() < REDEPARTURE_DELAY_MS;
+  // 활동을 마친 뒤(종료 기록이 없으면 출발 후) 일정 시간이 지나면 다시 출발할 수 있게 한다
+  const status = getDepartureStatus(todayEntry, isRunning, now.getTime());
+  // 다시 출발할 수 있게 된 뒤에도 오늘 출발한 기록이 있으면 CTA 위에 알려 기록이 사라진 것으로 오해하지 않게 한다
+  const previousNotice =
+    status === 'ready' && todayEntry !== null
+      ? formatPreviousDeparture(
+          formatTime(todayEntry.date),
+          getActivityMeta(activity).label,
+          hasPendingFeedback,
+        )
+      : undefined;
   const { current, hourly } = weather;
   const { coldLevel, heatLevel, feedbackOffset } = profile;
   const sensitivity = useMemo(
@@ -130,8 +149,9 @@ export default function HomeReady({
       isChange,
       ...decisionTimingProps(isChange, getElapsedMs()),
     });
+    const entryId = `${decidedAt.getTime()}`;
     addEntry({
-      id: `${decidedAt.getTime()}`,
+      id: entryId,
       date: decidedAt.toISOString(),
       activity,
       decision: 'go',
@@ -145,25 +165,55 @@ export default function HomeReady({
           ? guide.data
           : buildDummyGuide(activity, current, sensitivity, profile.constraints),
     });
+    startSession({ entryId, activity, startedAt: decidedAt.getTime() });
     setToastOpen(true);
+  };
+
+  /** 타이머 버튼으로 활동을 마치고 활동 시간을 기록한다. (종료 시각은 타이머 버튼을 누른 시각) */
+  const handleEnd = (endedAtMs: number) => {
+    if (!session) return;
+    const durationSec = elapsedSeconds(session.startedAt, endedAtMs);
+    setDuration(session.entryId, durationSec);
+    clearSession();
+    setToastOpen(false);
+    trackEvent(ANALYTICS_EVENTS.activityEnded, { activity, durationSec });
+    // 방금 마친 기록을 체감 시트로 바로 묻는다
+    const ended = useHistoryStore.getState().entries.find((e) => e.id === session.entryId);
+    setSheetEntry(ended ?? null);
+  };
+
+  /** 시트에 답하고 감사 문구까지 보여준 뒤 닫는다. */
+  const handleSheetClose = useCallback(() => setSheetEntry(null), []);
+
+  /** 시트를 답하지 않고 닫는다. 이번 방문에는 다시 묻지 않고, 앱을 다시 열면 상단 카드가 묻는다. */
+  const handleSheetDismiss = (entry: HistoryEntry) => {
+    trackEvent(ANALYTICS_EVENTS.feedbackSheetDismissed, { activity: entry.activity });
+    setFeedbackDismissedId(entry.id);
+    setSheetEntry(null);
   };
 
   /** 토스트의 '실행 취소'와 CTA의 '출발 취소'가 함께 쓰는 취소 처리 */
   const handleCancel = () => {
-    if (!todayEntry) return;
+    const targetId = session?.entryId ?? todayEntry?.id;
+    if (!targetId) return;
     trackEvent(ANALYTICS_EVENTS.decisionCancelled, { decision: 'go', activity });
-    removeEntry(todayEntry.id);
+    removeEntry(targetId);
+    clearSession();
     setToastOpen(false);
   };
 
   return (
     <div className="space-y-6">
-      <FeedbackCard onDismiss={setFeedbackDismissedId} />
+      <FeedbackCard
+        onDismiss={setFeedbackDismissedId}
+        hiddenEntryIds={[sheetEntry?.id ?? null, feedbackDismissedId]}
+      />
       <HomeSummary
         activity={activity}
         score={score}
-        level={scoreToLevel(score)}
+        headline={scoreToHeadline(score, activity)}
         outfit={outfit}
+        recommendSummary={best ? formatRecommendSummary(best, range) : undefined}
         onSelectActivity={handleSelectActivity}
       />
       <WeatherCard weather={current} feelsLike={feelsLike} />
@@ -179,17 +229,29 @@ export default function HomeReady({
           ACTIVITY_DAYLIGHT_BUFFER_HOURS[activity],
         )}
       />
-      <DecisionButtons
-        departed={departed}
-        activityLabel={getActivityMeta(activity).label}
-        onDecide={handleDecide}
-        onCancel={handleCancel}
-      />
-      <DepartureToast
-        open={toastOpen}
-        activityLabel={getActivityMeta(activity).label}
-        onOpenChange={setToastOpen}
-        onUndo={handleCancel}
+      {/* 토스트가 버튼 바로 위에 뜨도록 버튼과 같은 기준(relative) 안에 둔다 */}
+      <div className="relative">
+        <DecisionButtons
+          status={status}
+          activityLabel={getActivityMeta(activity).label}
+          activity={activity}
+          startedAt={isRunning ? session.startedAt : null}
+          previousNotice={previousNotice}
+          onDecide={handleDecide}
+          onEnd={handleEnd}
+          onCancel={handleCancel}
+        />
+        <DepartureToast
+          open={toastOpen}
+          activityLabel={getActivityMeta(activity).label}
+          onOpenChange={setToastOpen}
+          onUndo={handleCancel}
+        />
+      </div>
+      <FeedbackSheet
+        entry={sheetEntry}
+        onDismiss={handleSheetDismiss}
+        onClose={handleSheetClose}
       />
       <AppReviewDialog
         open={appReview.open}

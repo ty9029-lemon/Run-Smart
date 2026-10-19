@@ -11,7 +11,13 @@ import {
   sliceFromHour,
 } from './bestHour';
 import { NEUTRAL_SENSITIVITY } from './feelsLike';
-import { calcRunScore, calcScoreBreakdown, scoreToLevel } from './runScore';
+import {
+  calcRunScore,
+  calcScoreBreakdown,
+  scoreToHeadline,
+  scoreToLevel,
+  scoreToTier,
+} from './runScore';
 
 /** 러닝 기준 모든 항목이 이상적인 낮 날씨 (체감 11°C) */
 const IDEAL: Weather = {
@@ -166,6 +172,40 @@ describe('calcRunScore', () => {
     expect(scoreToLevel(90)).toBe('good');
     expect(scoreToLevel(50)).toBe('caution');
     expect(scoreToLevel(10)).toBe('careful');
+  });
+});
+
+describe('러닝 점수 5단계', () => {
+  it('경계 점수에서 단계가 바뀐다', () => {
+    expect(scoreToTier(100, 'running')).toBe('excellent');
+    expect(scoreToTier(80, 'running')).toBe('excellent');
+    expect(scoreToTier(79, 'running')).toBe('good');
+    expect(scoreToTier(70, 'running')).toBe('good');
+    expect(scoreToTier(69, 'running')).toBe('fair');
+    expect(scoreToTier(60, 'running')).toBe('fair');
+    expect(scoreToTier(59, 'running')).toBe('caution');
+    expect(scoreToTier(45, 'running')).toBe('caution');
+    expect(scoreToTier(44, 'running')).toBe('careful');
+    expect(scoreToTier(0, 'running')).toBe('careful');
+  });
+
+  it('5단계는 기존 3단계 경고 단계 안에 포함된다', () => {
+    const upperLevel = { excellent: 'good', good: 'good', fair: 'caution', caution: 'caution', careful: 'careful' };
+    for (let score = 0; score <= SCORE_MAX; score += 1) {
+      const tier = scoreToTier(score, 'running');
+      expect(upperLevel[tier!]).toBe(scoreToLevel(score));
+    }
+  });
+
+  it('러닝이 아닌 활동은 단계를 나누지 않고 기존 헤드라인을 쓴다', () => {
+    expect(scoreToTier(90, 'walking')).toBeNull();
+    expect(scoreToHeadline(90, 'walking')).toBe('활동하기 좋아요');
+    expect(scoreToHeadline(50, 'cycling')).toBe('주의가 필요해요');
+  });
+
+  it('러닝은 단계별 헤드라인을 보여준다', () => {
+    expect(scoreToHeadline(85, 'running')).toBe('지금 러닝하기 딱 좋아요');
+    expect(scoreToHeadline(30, 'running')).toBe('오늘은 푹 쉬어가는 걸 추천해요');
   });
 });
 

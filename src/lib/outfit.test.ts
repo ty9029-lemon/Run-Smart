@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { OUTFIT_ICON_KEYS } from '../constants/outfitIcons';
 import type { Activity, Weather } from '../types';
+import { calcFeelsLike } from './feelsLike';
 import { groupOutfitByCategory, recommendOutfit } from './outfit';
 import { listOutfitIconFileKeys, outfitIconUrl } from './outfitIconUrls';
 
@@ -428,5 +429,70 @@ describe('비염 복장', () => {
     const result = rhinitisLabels(15, 50);
     expect(result).toContain('스포츠 마스크');
     expect(result).not.toContain('티슈');
+  });
+});
+
+/** 하의가 짧은 바지(shorts)로 추천되는지 */
+function hasShorts(feelsLike: number, activity: Activity): boolean {
+  return recommendOutfit(feelsLike, weatherWith(), activity).some(
+    (i) => i.category === 'bottom' && i.icon === 'shorts',
+  );
+}
+
+/** 추천된 하의 라벨 (경계에서 라벨이 어떻게 바뀌는지 확인용) */
+function bottomLabel(feelsLike: number, activity: Activity): string | undefined {
+  return recommendOutfit(feelsLike, weatherWith(), activity).find((i) => i.category === 'bottom')
+    ?.label;
+}
+
+/**
+ * UT 응답("추운 것 같았는데 반바지를 추천해줌") 재현용 특성화 테스트.
+ * 현재 규칙에서 하의가 반바지로 바뀌는 체감온도 경계를 고정해 두어,
+ * 규칙을 조정할 때 어느 값이 바뀌는지 바로 드러나게 한다.
+ * (러닝 하의 규칙은 #59에서 한파 구간 기모 바지, 선선한 날 반바지/러닝 레깅스로 조정되었다)
+ */
+describe('recommendOutfit - 반바지가 처음 나오는 체감온도', () => {
+  it('산책은 체감 23°C부터 반바지다', () => {
+    expect(hasShorts(22, 'walking')).toBe(false);
+    expect(hasShorts(23, 'walking')).toBe(true);
+  });
+
+  it('러닝은 체온 상승 보정 때문에 체감 11°C부터 반바지/러닝 레깅스(짧은 하의)다', () => {
+    expect(hasShorts(10, 'running')).toBe(false);
+    expect(bottomLabel(10, 'running')).toBe('긴바지/러닝 레깅스');
+    expect(hasShorts(11, 'running')).toBe(true);
+    expect(bottomLabel(11, 'running')).toBe('반바지/러닝 레깅스');
+  });
+
+  it('러닝은 체감 17°C부터 러닝 쇼츠로 바뀐다', () => {
+    expect(bottomLabel(16, 'running')).toBe('반바지/러닝 레깅스');
+    expect(bottomLabel(17, 'running')).toBe('러닝 쇼츠');
+  });
+
+  it('러닝은 체감 -2°C 이하에서 기모 바지/레깅스다', () => {
+    expect(bottomLabel(-2, 'running')).toBe('기모 바지/레깅스');
+    expect(bottomLabel(-1, 'running')).toBe('긴바지/러닝 레깅스');
+  });
+
+  it('자전거는 체감 6°C부터 짧은 하의(빕숏)다', () => {
+    expect(hasShorts(5, 'cycling')).toBe(false);
+    expect(hasShorts(6, 'cycling')).toBe(true);
+  });
+
+  it('등산은 체감 28°C부터 반바지다 (22°C 이하에서는 반바지가 아니다)', () => {
+    expect(hasShorts(22, 'hiking')).toBe(false);
+    expect(hasShorts(27, 'hiking')).toBe(false);
+    expect(hasShorts(28, 'hiking')).toBe(true);
+  });
+
+  it('기온 18°C에 바람 3m/s여도 러닝은 반바지로 나온다 (체감 약 17°C)', () => {
+    const windy = weatherWith({ temp: 18, windSpeed: 3 });
+    const feelsLike = Math.round(calcFeelsLike(windy));
+    expect(feelsLike).toBe(17);
+    expect(
+      recommendOutfit(feelsLike, windy, 'running').some(
+        (i) => i.category === 'bottom' && i.icon === 'shorts',
+      ),
+    ).toBe(true);
   });
 });

@@ -95,6 +95,24 @@ describe('buildUserPrompt', () => {
   });
 });
 
+describe('러닝 점수 단계(scoreTier)', () => {
+  it('올바른 단계는 통과하고 프롬프트에 담긴다', () => {
+    const req = parseGuideRequest({ ...VALID_REQUEST, scoreTier: 'good' });
+    expect(req).not.toBeNull();
+    expect(JSON.parse(buildUserPrompt(req!)).score_tier).toBe('good');
+  });
+
+  it('없으면(기존 클라이언트) 그대로 통과하고 프롬프트에 단계가 없다', () => {
+    const req = parseGuideRequest(VALID_REQUEST);
+    expect(req).not.toBeNull();
+    expect(JSON.parse(buildUserPrompt(req!)).score_tier).toBeUndefined();
+  });
+
+  it('알 수 없는 단계는 거절한다', () => {
+    expect(parseGuideRequest({ ...VALID_REQUEST, scoreTier: 'great' })).toBeNull();
+  });
+});
+
 describe('buildUserPrompt - 등급', () => {
   it('앱이 정한 미세먼지·자외선 등급을 담는다', () => {
     const graded = { ...VALID_REQUEST, dustGrade: '좋음', uvGrade: '보통', maskAllowed: false };

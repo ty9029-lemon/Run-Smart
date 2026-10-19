@@ -108,6 +108,7 @@ Swoosh는 한밤중의 아레나 콘솔처럼 작동합니다. 거의 완전한 
 | 카드 | 20px |
 | 이미지 | 20px |
 | 모달 | 20px |
+| 입력창 | 8px (`--radius-input`) |
 | 버튼 | 9999px (pill) |
 
 ### 그림자
@@ -160,6 +161,21 @@ Card Charcoal(#1f1f21) 배경, Pure White(#ffffff) 텍스트, 테두리 없음, 
 | icon-xs | 24px | 12px | 칩·인라인 보조 액션 |
 
 허용 variant는 secondary(내비게이션), ghost(보조), default(주요 단독 액션)입니다.
+
+### Input
+**역할:** 한 줄 텍스트·숫자 입력 (예: 주소, 거리, 실제 착용 복장)
+
+높이 48px, 가로 16px·세로 12px 패딩, **8px radius**(`--radius-input`), 1px Steel Border(`--input`) 외곽선, 투명 배경. 글자는 Pretendard 16px, placeholder는 `--muted-foreground`입니다. 상태는 default / filled / focus(라임 외곽선) / disabled / invalid(`aria-invalid`, destructive 외곽선)입니다. 컨테이너 radius(20px)와 달리 입력창은 8px로 둡니다. 구현은 `Input`, Figma는 `Input` 컴포넌트(변수 `radius/input`)입니다. 여러 줄은 `Textarea`를 씁니다.
+
+### Distance Input
+**역할:** 거리(km)를 숫자로 직접 입력하거나 -/+로 조절
+
+`Input`을 가운데 정렬로 쓰고, 오른쪽 안쪽(16px)에 단위 "km"를 얹습니다. 좌우에 Icon Button(`size="icon"`, default, 40px, Lucide Minus/Plus)을 12px 간격으로 둡니다. 입력 전에는 기본값(5)을 placeholder로 흐리게 보여주고 저장하지 않습니다. -/+는 0.5km씩, 0.5~100km 범위이며 범위를 벗어나는 글자는 `aria-invalid`로 알립니다. 구현은 `DistanceStepper`입니다.
+
+### Feedback Sheet
+**역할:** 다녀온 뒤 체감·거리·실제 복장을 한 번에 기록하는 바텀 시트
+
+Card Charcoal(`--card`) 배경, 위쪽 모서리 20px radius, 가로 24px·위 28px 패딩, 아래 34px(홈 인디케이터 여백), 섹션 간격 28px. 위에서부터 ① 제목(Pretendard 700 20px, "오전 7:34 러닝, 어땠어요?" — 같은 날이면 날짜 말머리 없이, 지난 날이면 "어제 오전 7:34 러닝, 어땠어요?"처럼 "어제"(그보다 전이면 "10월 15일"처럼 월/일)를 앞에 붙임)과 체감 칩 3개(간격 8, 하나만 선택, 체크 없음) ② "몇 키로 뛰었나요? (선택)" + Distance Input ③ "실제 착용한 복장 (선택)" + 설명 + `Input` ④ 저장(Button lg, 체감을 고르기 전에는 비활성) ⑤ "다음에 할게요"(link, 회색) 순서입니다. 뒤 화면은 검정 60% 오버레이로 덮습니다. 거리·복장은 선택 입력이라 비워 두고 저장할 수 있습니다. 구현은 `FeedbackForm`(입력 폼)을 종료 직후 `FeedbackSheet`(Dialog 기반)와 재방문 `FeedbackCard`가 함께 쓰는 구조이고 Figma는 개선안 페이지의 `Feedback Sheet / …` 프레임입니다.
 
 ### Navigation Bar
 **역할:** 최상위 사이트 내비게이션
@@ -219,7 +235,7 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
 
 ### Don't
 - 두 번째 유채색을 도입하지 말 것 — 이 시스템은 모노크롬에 라임 하나다. 파랑, 빨강 등 어떤 색을 더해도 신호가 깨진다
-- 컨테이너에 0px 또는 28px 이상의 border radius를 사용하지 말 것(버튼의 pill 제외) — 20px radius가 부드럽지만 느슨하지 않은 이 시스템의 정체성이다
+- 컨테이너에 0px 또는 28px 이상의 border radius를 사용하지 말 것(버튼의 pill, 입력창의 8px 제외) — 20px radius가 부드럽지만 느슨하지 않은 이 시스템의 정체성이다
 - 영문 디스플레이 헤드라인의 줄 간격을 1.2 이상으로 설정하지 말 것 — 0.85-1.00의 압축이 타입을 간판처럼 느끼게 한다. 한글 헤드라인은 예외로 1.4를 사용한다
 - 내비게이션 바의 2px 블러를 넘는 드롭 섀도를 사용하지 말 것 — 평평함은 의도된 것이다
 - 라임(#b7ff2c)을 제목, 서브헤딩, 본문 텍스트에 적용하지 말 것 — 액션 전용이다
@@ -355,6 +371,7 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
   --radius-cards: 20px;
   --radius-images: 20px;
   --radius-modals: 20px;
+  --radius-input: 8px;
   --radius-buttons: 9999px;
 
   /* Shadows */
@@ -422,6 +439,7 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
 
   /* Border Radius */
   --radius-md: 20px;
+  --radius-input: 8px;
 
   /* Shadows */
   --shadow-sm: rgba(17, 17, 17, 0.125) 0px 2px 6px 0px;
