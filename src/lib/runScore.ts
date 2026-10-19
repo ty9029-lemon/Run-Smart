@@ -5,12 +5,22 @@ import {
   type SCORE_WEIGHTS,
 } from '../constants/scoring';
 import {
+  RECOMMEND_MIN_SCORE,
   SCORE_CAUTION,
+  SCORE_FAIR,
   SCORE_GOOD,
   SCORE_MAX,
   SCORE_MIN,
 } from '../constants/thresholds';
-import type { Activity, Constraint, Sensitivity, Weather, WarningLevel } from '../types';
+import { LEVEL_LABEL, RUNNING_TIER_LABEL } from '../constants/messages';
+import type {
+  Activity,
+  Constraint,
+  ScoreTier,
+  Sensitivity,
+  Weather,
+  WarningLevel,
+} from '../types';
 import { calcPersonalFeelsLike } from './feelsLike';
 import {
   applySensitivity,
@@ -85,4 +95,29 @@ export function scoreToLevel(score: number): WarningLevel {
   if (score >= SCORE_GOOD) return 'good';
   if (score >= SCORE_CAUTION) return 'caution';
   return 'careful';
+}
+
+/**
+ * 러닝 점수를 5단계로 나눈다. 러닝이 아닌 활동은 단계를 나누지 않는다.
+ * 각 단계는 경고 단계(scoreToLevel)를 쪼갠 것이라 서로 어긋나지 않는다.
+ * @param score 활동 지수
+ * @param activity 활동
+ */
+export function scoreToTier(score: number, activity: Activity): ScoreTier | null {
+  if (activity !== 'running') return null;
+  if (score >= RECOMMEND_MIN_SCORE) return 'excellent';
+  if (score >= SCORE_GOOD) return 'good';
+  if (score >= SCORE_FAIR) return 'fair';
+  if (score >= SCORE_CAUTION) return 'caution';
+  return 'careful';
+}
+
+/**
+ * 점수 링 위에 보여줄 헤드라인을 고른다. 러닝은 5단계, 그 밖의 활동은 기존 3단계 문구를 쓴다.
+ * @param score 활동 지수
+ * @param activity 활동
+ */
+export function scoreToHeadline(score: number, activity: Activity): string {
+  const tier = scoreToTier(score, activity);
+  return tier ? RUNNING_TIER_LABEL[tier] : LEVEL_LABEL[scoreToLevel(score)];
 }

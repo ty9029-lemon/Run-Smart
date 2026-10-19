@@ -1,5 +1,7 @@
+import type { HourRange, HourScore } from '../lib/bestHour';
 import { withObjectParticle } from '../lib/koreanParticle';
-import type { WarningLevel } from '../types';
+import type { ScoreTier, WarningLevel } from '../types';
+import { RECOMMEND_MIN_SCORE } from './thresholds';
 
 /** PRD 6장 실패 처리 문구 */
 export const MESSAGES = {
@@ -86,6 +88,21 @@ export function formatPreviousDeparture(
 }
 
 /**
+ * 첫 화면 점수 근처에 보여줄 추천 시간대 한 줄 요약
+ * @param best 대표 시간대
+ * @param range 함께 좋은 연속 구간 (없으면 null)
+ */
+export function formatRecommendSummary(best: HourScore, range: HourRange | null): string {
+  if (best.score < RECOMMEND_MIN_SCORE) {
+    return `오늘은 전반적으로 조심하세요. 그나마 ${best.hour}시(${best.score}점)가 가장 나아요.`;
+  }
+  if (range) {
+    return `추천 시간대 ${range.startHour}~${range.endHour}시 (최고 ${best.hour}시 ${best.score}점)`;
+  }
+  return `추천 시간대 ${best.hour}시 (${best.score}점)`;
+}
+
+/**
  * 활동을 마친 뒤 CTA 자리에 보여주는 안내 문구
  * @param activityLabel 활동명 (예: 러닝)
  */
@@ -123,6 +140,15 @@ export const LEVEL_LABEL: Record<WarningLevel, string> = {
   good: '활동하기 좋아요',
   caution: '주의가 필요해요',
   careful: '신중히 검토하세요',
+};
+
+/** 러닝 점수 5단계별 헤드라인 문구 */
+export const RUNNING_TIER_LABEL: Record<ScoreTier, string> = {
+  excellent: '지금 러닝하기 딱 좋아요',
+  good: '기분 좋게 달리기 좋아요',
+  fair: '가볍게 뛰기 괜찮아요',
+  caution: '컨디션을 살피며 가볍게 달려요',
+  careful: '오늘은 푹 쉬어가는 걸 추천해요',
 };
 
 /** 위치를 알 수 없을 때 사용하는 기준 위치 */
