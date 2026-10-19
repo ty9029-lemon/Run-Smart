@@ -62,7 +62,7 @@ export const APP_REVIEW_MESSAGES = {
   messagePlaceholderLow: '어떤 점이 아쉬웠나요? (선택)',
   submit: '보내기',
   submitting: '보내는 중…',
-  later: '저장 안 할래요',
+  later: '다음에 할게요',
   failed: '지금은 보내지 못했어요. 잠시 후 다시 시도해 주세요.',
 } as const;
 
