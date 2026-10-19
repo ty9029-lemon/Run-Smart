@@ -121,3 +121,23 @@
     cursor: pointer;
   }
 }
+
+/* 시간대 차트처럼 가로로 스크롤하는 목록의 스크롤바: 항상 보이는 6px 막대 (트랙 Footer Rule, 썸 Subtle Text) */
+@utility chart-scrollbar {
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: var(--color-footer-rule);
+    border-radius: 9999px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--color-subtle-text);
+    border-radius: 9999px;
+  }
+  /* Chrome 121+는 표준 속성이 있으면 ::-webkit-scrollbar를 무시하므로 Firefox에서만 지정한다 */
+  @supports (-moz-appearance: none) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-subtle-text) var(--color-footer-rule);
+  }
+}

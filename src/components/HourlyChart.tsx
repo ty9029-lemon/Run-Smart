@@ -200,7 +200,7 @@ export default function HourlyChart({
         sunsetStatus={sunsetStatus}
         nextRecommendation={nextRecommendation}
       />
-      <ul onScroll={handleScroll} className="flex overflow-x-auto pl-4">
+      <ul onScroll={handleScroll} className="chart-scrollbar flex overflow-x-auto pb-3 pl-4">
         {hourly.map((h, i) => (
           <li key={h.hour} className="relative shrink-0">
             {h.hour === RECOMMEND_CUTOFF_HOUR && <CutoffMarker />}
