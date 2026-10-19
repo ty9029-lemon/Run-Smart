@@ -11,6 +11,7 @@ import HomeSummary from './HomeSummary';
 import HourlyChart from './HourlyChart';
 import ScoreBreakdownSheet from './ScoreBreakdownSheet';
 import SelectedHourDetail from './SelectedHourDetail';
+import { useHourScoreDeltas } from '../hooks/useHourScoreDeltas';
 import { useScoreReasons } from '../hooks/useScoreReasons';
 import { buildDummyGuide } from '../data/dummyGuide';
 import { getActivityMeta } from '../constants/activities';
@@ -130,6 +131,15 @@ export default function HomeReady({
   // 직접 고른 시각이 없으면 추천 시각, 그것도 없으면 지금 시각을 보여준다
   const selectedHour = pickedHour ?? best?.hour ?? upcomingHourly[0]?.hour ?? null;
   const selectedIndex = upcomingHourly.findIndex((h) => h.hour === selectedHour);
+  const selectedWeather = selectedIndex >= 0 ? upcomingHourly[selectedIndex] : null;
+  // 지금 시각을 고른 경우는 비교할 대상이 같아 비교하지 않는다
+  const hourDeltas = useHourScoreDeltas(
+    selectedHour === nowHour ? null : selectedWeather,
+    current,
+    sensitivity,
+    profile.constraints,
+    activity,
+  );
   const rawWeather = formatRawWeather(current.temp, current.condition, current.windSpeed);
   const outfit = recommendOutfit(feelsLike, current, activity, profile.constraints);
 
@@ -260,6 +270,7 @@ export default function HomeReady({
             weather={upcomingHourly[selectedIndex]}
             score={scores[selectedIndex]?.score ?? 0}
             feelsLike={calcPersonalFeelsLike(upcomingHourly[selectedIndex], sensitivity)}
+            deltas={hourDeltas}
           />
         )}
       </div>
@@ -299,6 +310,7 @@ export default function HomeReady({
         reasons={scoreReasons.reasons}
         weather={current}
         feelsLike={feelsLike}
+        activity={activity}
       />
       <AppReviewDialog
         open={appReview.open}
