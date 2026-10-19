@@ -5,7 +5,7 @@ import { filterTipsNotInOutfit } from './guideTips';
 /** 테스트용 복장 항목 */
 const item = (label: string): OutfitItem => ({ category: 'top', icon: 'tshirt', label });
 
-const OUTFIT = [item('기능성 얇은 긴팔'), item('반바지/러닝 레깅스'), item('러닝화')];
+const OUTFIT = [item('기능성 얇은 긴팔'), item('반바지 또는 레깅스'), item('러닝화')];
 
 describe('filterTipsNotInOutfit', () => {
   it('복장 카드에 있는 항목을 말하는 팁은 뺀다', () => {
