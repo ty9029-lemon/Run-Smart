@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { getActivityMeta } from '../constants/activities';
+import { BOTTOM_SHEET_CLASS } from '../constants/sheetStyles';
 import {
   FEEDBACK_MESSAGES,
   FEEDBACK_SOURCES,
@@ -17,14 +18,6 @@ import { useSubmitFeedback } from '../hooks/useSubmitFeedback';
 import { formatDayPrefix, formatTime } from '../lib/formatTime';
 import type { Feedback, FeedbackDetail, HistoryEntry } from '../types';
 import FeedbackForm from './FeedbackForm';
-
-/** 화면 아래에서 올라오는 시트 모양 (드래그 없이 버튼·바깥 탭·ESC로 닫는다) */
-const SHEET_CLASS = [
-  'top-auto bottom-0 translate-y-0 max-w-full sm:max-w-md rounded-b-none',
-  'pb-[calc(1.5rem+env(safe-area-inset-bottom))]',
-  'data-open:zoom-in-100 data-open:slide-in-from-bottom',
-  'data-closed:zoom-out-100 data-closed:slide-out-to-bottom',
-].join(' ');
 
 interface FeedbackSheetProps {
   /** 방금 마친 활동의 기록. 없으면 시트를 닫아 둔다 */
@@ -73,7 +66,7 @@ export default function FeedbackSheet({ entry, onDismiss, onSkip, onClose }: Fee
 
   return (
     <Dialog open onOpenChange={handleOpenChange}>
-      <DialogContent showCloseButton={false} className={SHEET_CLASS}>
+      <DialogContent showCloseButton={false} className={BOTTOM_SHEET_CLASS}>
         {answered ? (
           <p role="status" className="py-4 text-center text-base font-medium">
             {FEEDBACK_MESSAGES.thanks}

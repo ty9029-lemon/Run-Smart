@@ -39,6 +39,19 @@ export const HISTORY_MESSAGES = {
   recommendation: '그날의 추천 보기',
 } as const;
 
+/** 기록 카드의 더보기 메뉴·수정 시트·삭제 확인 팝업 문구 */
+export const HISTORY_MENU_MESSAGES = {
+  trigger: '기록 더보기',
+  edit: '거리·복장 수정',
+  remove: '삭제',
+  editTitle: '기록 수정',
+  editDescription: '거리와 실제 복장을 고치거나 채울 수 있어요.',
+  save: '저장',
+  cancel: '취소',
+  deleteTitle: '이 기록을 삭제할까요?',
+  deleteDescription: '삭제한 기록은 되돌릴 수 없어요.',
+} as const;
+
 /** 앱 만족도 팝업 문구 */
 export const APP_REVIEW_MESSAGES = {
   title: 'Run Smart, 어떠셨나요?',
