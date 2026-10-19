@@ -6,7 +6,7 @@ import { ACTIVITY_SCREENS } from '../constants/analytics';
 import { toggleActivity, toggleConstraint } from '../lib/profileDraft';
 import type { Profile } from '../types';
 
-const SECTION = 'rounded-panel border border-card-border-ink bg-card-charcoal p-6';
+const SECTION = 'rounded-panel bg-card-charcoal p-6';
 
 interface ProfileFormProps {
   draft: Profile;

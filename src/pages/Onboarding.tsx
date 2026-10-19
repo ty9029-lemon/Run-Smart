@@ -45,7 +45,7 @@ function StepSection({ title, description, isMain = false, children }: StepSecti
         <Heading className="text-2xl font-bold">{title}</Heading>
         <p className="text-sm text-subtle-text">{description}</p>
       </header>
-      <section className="rounded-panel border border-card-border-ink bg-card-charcoal p-6">
+      <section className="rounded-panel bg-card-charcoal p-6">
         {children}
       </section>
     </>

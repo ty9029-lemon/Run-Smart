@@ -36,7 +36,7 @@ export default function Settings() {
         <h1 className="text-2xl font-bold">설정</h1>
       </header>
       <ProfileForm draft={draft} error={error} onChange={onChange} />
-      <section className="rounded-panel border border-card-border-ink bg-card-charcoal p-6">
+      <section className="rounded-panel bg-card-charcoal p-6">
         <LocationStatus
           status={locationStatus}
           enabled={draft.useCurrentLocation}
