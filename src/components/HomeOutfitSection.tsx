@@ -2,6 +2,7 @@ import { LocationNotice, type LocationNoticeProps } from './GuideBox';
 import OutfitPanel from './OutfitPanel';
 import { MESSAGES } from '../constants/messages';
 import { OUTFIT_SOURCES } from '../constants/analytics';
+import { filterTipsNotInOutfit } from '../lib/guideTips';
 import type { Activity, GuideState, OutfitItem } from '../types';
 
 interface HomeOutfitSectionProps {
@@ -37,7 +38,8 @@ export default function HomeOutfitSection({
   rawWeather,
   location,
 }: HomeOutfitSectionProps) {
-  const tips = guide.state === 'ready' ? guide.data.activityTips : [];
+  // 복장 카드에 이미 보이는 항목을 말하는 팁은 뺀다
+  const tips = guide.state === 'ready' ? filterTipsNotInOutfit(guide.data.activityTips, outfit) : [];
   return (
     <section className="space-y-4">
       <div className="space-y-3">
