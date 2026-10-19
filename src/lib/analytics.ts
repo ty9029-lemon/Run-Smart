@@ -44,6 +44,7 @@ export const ANALYTICS_EVENTS = {
   outfitViewed: 'outfit_viewed',
   feedbackSubmitted: 'feedback_submitted',
   feedbackSheetDismissed: 'feedback_sheet_dismissed',
+  feedbackSkipped: 'feedback_skipped',
   ctaClicked: 'cta_clicked',
   settingsSaved: 'settings_saved',
   appReviewShown: 'app_review_shown',

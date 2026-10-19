@@ -14,7 +14,7 @@ describe('FeedbackChoices', () => {
     expect(hot).toBeGreaterThan(good);
   });
 
-  it("'다음에 할게요'를 보여준다", () => {
-    expect(html).toContain('다음에 할게요');
+  it("'저장 안 할래요'를 보여준다", () => {
+    expect(html).toContain('저장 안 할래요');
   });
 });

@@ -184,7 +184,7 @@ Card Charcoal(#1f1f21) 배경, Pure White(#ffffff) 텍스트, 테두리 없음, 
 ### Feedback Sheet
 **역할:** 다녀온 뒤 체감·거리·실제 복장을 한 번에 기록하는 바텀 시트
 
-Card Charcoal(`--card`) 배경, 위쪽 모서리 20px radius, 가로 24px·위 28px 패딩, 아래 34px(홈 인디케이터 여백), 섹션 간격 36px. 위에서부터 ① 제목(Pretendard 700 18px `subheading-sm`, "오전 7:34 러닝, 어땠어요?" — 같은 날이면 날짜 말머리 없이, 지난 날이면 "어제 오전 7:34 러닝, 어땠어요?"처럼 "어제"(그보다 전이면 "10월 15일"처럼 월/일)를 앞에 붙임)과 체감 칩 3개(간격 8, 하나만 선택, 체크 없음) ② "몇 키로 뛰었나요? (선택)" + Distance Input ③ "실제 착용한 복장 (선택)" + 설명 + `Input` (②·③ 섹션 제목은 Pretendard 700 18px, `--text-subheading-sm`) ④ 저장(Button lg, 체감을 고르기 전에는 비활성) ⑤ "다음에 할게요"(link, 회색) 순서입니다. 뒤 화면은 검정 60% 오버레이로 덮습니다. 거리·복장은 선택 입력이라 비워 두고 저장할 수 있습니다. 구현은 `FeedbackForm`(입력 폼)을 종료 직후 `FeedbackSheet`(Dialog 기반)와 재방문 `FeedbackCard`가 함께 쓰는 구조이고 Figma는 개선안 페이지의 `Feedback Sheet / …` 프레임입니다.
+Card Charcoal(`--card`) 배경, 위쪽 모서리 20px radius, 가로 24px·위 28px 패딩, 아래 34px(홈 인디케이터 여백), 섹션 간격 36px. 위에서부터 ① 제목(Pretendard 700 18px `subheading-sm`, "오전 7:34 러닝, 어땠어요?" — 같은 날이면 날짜 말머리 없이, 지난 날이면 "어제 오전 7:34 러닝, 어땠어요?"처럼 "어제"(그보다 전이면 "10월 15일"처럼 월/일)를 앞에 붙임)과 체감 칩 3개(간격 8, 하나만 선택, 체크 없음) ② "몇 키로 뛰었나요? (선택)" + Distance Input ③ "실제 착용한 복장 (선택)" + 설명 + `Input` (②·③ 섹션 제목은 Pretendard 700 18px, `--text-subheading-sm`) ④ 저장(Button lg, 체감을 고르기 전에는 비활성) ⑤ "저장 안 할래요"(link, 회색) 순서입니다. "저장 안 할래요"를 누르면 이 활동 기록을 기록 화면에서 지웁니다(나중에 다시 묻지 않음). 바깥 탭·ESC로 닫으면 기록을 남기고, 앱을 다시 열 때 홈 상단 카드가 이어서 묻습니다. 뒤 화면은 검정 60% 오버레이로 덮습니다. 거리·복장은 선택 입력이라 비워 두고 저장할 수 있습니다. 구현은 `FeedbackForm`(입력 폼)을 종료 직후 `FeedbackSheet`(Dialog 기반)와 재방문 `FeedbackCard`가 함께 쓰는 구조이고 Figma는 개선안 페이지의 `Feedback Sheet / …` 프레임입니다.
 
 ### Score Breakdown Sheet
 **역할:** 점수가 왜 그렇게 나왔는지 항목별로 보여주는 바텀 시트 (UT 인사이트: 점수 산정 근거 부족)
