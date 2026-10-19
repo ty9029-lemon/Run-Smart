@@ -71,7 +71,7 @@ export default function ScoreBreakdownSheet({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent showCloseButton={false} className={SHEET_CLASS}>
         <DialogHeader>
-          <DialogTitle className="text-lg">
+          <DialogTitle className="text-subheading-sm">
             {SCORE_REASON_MESSAGES.sheetTitle} ({score}점)
           </DialogTitle>
           <DialogDescription>{SCORE_REASON_MESSAGES.sheetDescription}</DialogDescription>

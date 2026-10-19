@@ -79,7 +79,7 @@ export default function FeedbackSheet({ entry, onDismiss, onClose }: FeedbackShe
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle className="text-lg">{title}</DialogTitle>
+              <DialogTitle className="text-subheading-sm">{title}</DialogTitle>
               <DialogDescription>{FEEDBACK_MESSAGES.sheetDescription}</DialogDescription>
             </DialogHeader>
             <FeedbackForm key={entry.id} onSave={handleSave} onLater={() => onDismiss(entry)} />

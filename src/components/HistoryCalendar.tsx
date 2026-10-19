@@ -97,7 +97,7 @@ function MonthHeader({
       >
         <ChevronLeft />
       </Button>
-      <h2 className="text-lg font-bold">
+      <h2 className="text-subheading-sm font-bold">
         {viewMonth.year}년 {viewMonth.month + 1}월
       </h2>
       <Button

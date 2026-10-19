@@ -10,7 +10,7 @@ import {
 import { parseDistanceKm, stepDistanceKm } from '../lib/distance';
 
 interface DistanceStepperProps {
-  /** 입력창에 적힌 글자. 아직 입력하지 않았으면 빈 문자열 (기본값을 흐리게 보여준다) */
+  /** 입력창에 적힌 글자. 아직 입력하지 않았으면 빈 문자열 (기본값을 placeholder로 보여준다) */
   value: string;
   /** 글자가 올바른 거리가 아닐 때 true */
   invalid: boolean;
@@ -42,13 +42,11 @@ export default function DistanceStepper({ value, invalid, onChange }: DistanceSt
           placeholder={String(DEFAULT_DISTANCE_KM)}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="text-center"
+          className="text-center placeholder:text-foreground"
         />
         <span
           aria-hidden="true"
-          className={`pointer-events-none absolute inset-y-0 right-4 flex items-center text-base ${
-            value === '' ? 'text-muted-foreground' : 'text-foreground'
-          }`}
+          className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-base text-foreground"
         >
           km
         </span>
