@@ -3,7 +3,7 @@ import { GUIDE_API_PATH, GUIDE_RETRY_COUNT, GUIDE_TIMEOUT_MS } from '../constant
 import { getDustGrade, getUvGrade, shouldRecommendMask } from '../lib/airGrade';
 import { calcAppliedOffset, calcPersonalFeelsLike } from '../lib/feelsLike';
 import { readGuideCache, writeGuideCache } from '../lib/guideCache';
-import { calcRunScore, scoreToLevel } from '../lib/runScore';
+import { calcRunScore, scoreToLevel, scoreToTier } from '../lib/runScore';
 import type { Activity, AiGuide, Constraint, GuideRequest, Sensitivity, Weather } from '../types';
 
 /** 가이드 요청 입력 (PRD 6장 입력 형식) */
@@ -30,6 +30,7 @@ export function buildGuideRequest(input: GuideInput): GuideRequest {
     feltTemp: calcPersonalFeelsLike(weather, sensitivity),
     score,
     level: scoreToLevel(score),
+    scoreTier: scoreToTier(score, activity) ?? undefined,
     location,
     dustGrade: getDustGrade(weather.pm10),
     uvGrade: getUvGrade(weather.uvIndex),
