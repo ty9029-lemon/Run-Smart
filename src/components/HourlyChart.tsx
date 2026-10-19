@@ -1,6 +1,11 @@
 import { useEffect, useRef, type UIEvent } from 'react';
 import { SCORE_LEVEL_BAR_CLASS } from '../constants/levelStyles';
-import { RECOMMEND_CUTOFF_HOUR, RECOMMEND_MIN_SCORE } from '../constants/thresholds';
+import {
+  RECOMMEND_CUTOFF_HOUR,
+  RECOMMEND_MIN_SCORE,
+  SCROLLBAR_HIDE_DELAY_MS,
+} from '../constants/thresholds';
+import { useIsScrolling } from '../hooks/useIsScrolling';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { isRecommendableHour, type HourRange, type HourScore } from '../lib/bestHour';
 import { scoreToLevel } from '../lib/runScore';
@@ -175,11 +180,13 @@ export default function HourlyChart({
   const timerRef = useRef<number>();
   const hasSentRef = useRef(false);
   const firstHour = hourly[0]?.hour ?? 0;
+  const { isScrolling, onScroll: showScrollbar } = useIsScrolling(SCROLLBAR_HIDE_DELAY_MS);
 
   useEffect(() => () => window.clearTimeout(timerRef.current), []);
 
   /** 스크롤이 멈추면 도달한 시간대와 함께 화면 진입당 1회만 전송한다. */
   const handleScroll = (e: UIEvent<HTMLUListElement>) => {
+    showScrollbar();
     if (hasSentRef.current) return;
     const list = e.currentTarget;
     window.clearTimeout(timerRef.current);
@@ -200,7 +207,11 @@ export default function HourlyChart({
         sunsetStatus={sunsetStatus}
         nextRecommendation={nextRecommendation}
       />
-      <ul onScroll={handleScroll} className="chart-scrollbar flex overflow-x-auto pb-3 pl-4">
+      <ul
+        onScroll={handleScroll}
+        data-scrolling={isScrolling}
+        className="chart-scrollbar flex overflow-x-auto pb-3 pl-4"
+      >
         {hourly.map((h, i) => (
           <li key={h.hour} className="relative shrink-0">
             {h.hour === RECOMMEND_CUTOFF_HOUR && <CutoffMarker />}
