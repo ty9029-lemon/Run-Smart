@@ -10,15 +10,18 @@ interface HomeSummaryProps {
   /** 점수 링 위의 헤드라인 문구 */
   headline: string;
   outfit: OutfitItem[];
+  /** 추천 시간대 한 줄 요약 (계산할 수 없으면 표시하지 않음) */
+  recommendSummary?: string;
   onSelectActivity: (activity: Activity) => void;
 }
 
-/** 첫 화면 요약: 활동 칩 → 가이드 헤드라인 → 러닝 지수 → 오늘 추천 복장(1단) */
+/** 첫 화면 요약: 활동 칩 → 가이드 헤드라인 → 러닝 지수 → 추천 시간대 요약 → 오늘 추천 복장(1단) */
 export default function HomeSummary({
   activity,
   score,
   headline,
   outfit,
+  recommendSummary,
   onSelectActivity,
 }: HomeSummaryProps) {
   return (
@@ -29,6 +32,9 @@ export default function HomeSummary({
       />
       <h1 className="text-3xl font-bold leading-tight">{headline}</h1>
       <ScoreRing score={score} />
+      {recommendSummary && (
+        <p className="text-center text-sm font-medium text-pure-white">{recommendSummary}</p>
+      )}
       <OutfitPanel items={outfit} source={OUTFIT_SOURCES.home} activity={activity} />
     </div>
   );
