@@ -25,3 +25,16 @@ export function formatDayPrefix(iso: string, now: Date = new Date()): string {
   if (daysAgo === 1) return '어제';
   return target.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
 }
+
+/** 낮 12시와 자정을 12시로 표기하는 12시간제 기준 */
+const HOURS_IN_HALF_DAY = 12;
+
+/**
+ * 시(0~23)를 오전/오후 표기로 바꾼다. (예: 19 → 오후 7시, 0 → 오전 12시)
+ * @param hour 시(0~23)
+ */
+export function formatHourLabel(hour: number): string {
+  const period = hour < HOURS_IN_HALF_DAY ? '오전' : '오후';
+  const hour12 = hour % HOURS_IN_HALF_DAY === 0 ? HOURS_IN_HALF_DAY : hour % HOURS_IN_HALF_DAY;
+  return `${period} ${hour12}시`;
+}

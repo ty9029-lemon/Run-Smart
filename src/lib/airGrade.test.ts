@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   getDustGrade,
   getUvGrade,
+  getUvLevel,
   isMaskNeededFor,
   shouldRecommendMask,
 } from './airGrade';
@@ -50,5 +51,21 @@ describe('비염 마스크 기준', () => {
   it('천식과 같이 PM10이 보통 이상이면 추천한다', () => {
     expect(isMaskNeededFor('rhinitis', 30)).toBe(false);
     expect(isMaskNeededFor('rhinitis', 31)).toBe(true);
+  });
+});
+
+describe('getUvLevel', () => {
+  it('2 이하는 낮음, 3~5는 보통, 6 이상은 높음이다', () => {
+    expect(getUvLevel(0)).toBe('낮음');
+    expect(getUvLevel(2)).toBe('낮음');
+    expect(getUvLevel(3)).toBe('보통');
+    expect(getUvLevel(5)).toBe('보통');
+    expect(getUvLevel(6)).toBe('높음');
+  });
+
+  it('높음 기준이 복장의 getUvGrade와 같다', () => {
+    for (const uv of [0, 3, 5, 6, 9]) {
+      expect(getUvLevel(uv) === '높음').toBe(getUvGrade(uv) === '높음');
+    }
   });
 });

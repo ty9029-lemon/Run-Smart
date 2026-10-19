@@ -51,6 +51,9 @@ export const OUTFIT_STRONG_WIND_MIN = 8;
 export const OUTFIT_DARK_SOON_HOURS = 1;
 /** 복장: 자외선 지수가 이 값 이상이면 모자·선크림·선글라스/고글을 더한다 */
 export const OUTFIT_UV_HIGH_MIN = 6;
+/** 자외선 등급: 이 값(지수) 이하면 '낮음' (WHO 기준 0~2) */
+export const UV_LOW_MAX = 2;
+
 /** 복장: 등산 시 체감온도가 이 값(°C) 이하면 빙판 대비 아이젠을 챙기도록 안내한다 */
 export const OUTFIT_ICE_RISK_MAX = 0;
 
@@ -64,6 +67,8 @@ export const SCORE_CAUTION = 45;
 export const SCORE_FAIR = 60;
 /** 추천 시간대를 구간으로 묶을 때의 최소 점수 */
 export const RECOMMEND_MIN_SCORE = 80;
+/** 이 시각(시) 이후는 추천 시간대에서 제외한다 (22시 정각 포함) */
+export const RECOMMEND_CUTOFF_HOUR = 22;
 /** 최고점과 이 점수 이내로 차이 나는 시간대를 함께 추천한다 */
 export const RECOMMEND_SCORE_MARGIN = 3;
 

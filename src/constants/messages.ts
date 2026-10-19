@@ -1,7 +1,5 @@
-import type { HourRange, HourScore } from '../lib/bestHour';
 import { withObjectParticle } from '../lib/koreanParticle';
 import type { ScoreTier, WarningLevel } from '../types';
-import { RECOMMEND_MIN_SCORE } from './thresholds';
 
 /** PRD 6장 실패 처리 문구 */
 export const MESSAGES = {
@@ -90,21 +88,6 @@ export function formatPreviousDeparture(
 ): string {
   const base = `오늘 ${timeLabel}에 ${withObjectParticle(activityLabel)} 출발한 기록이 있어요.`;
   return feedbackPending ? `${base} 위 카드에서 어땠는지 남겨 주세요.` : base;
-}
-
-/**
- * 첫 화면 점수 근처에 보여줄 추천 시간대 한 줄 요약
- * @param best 대표 시간대
- * @param range 함께 좋은 연속 구간 (없으면 null)
- */
-export function formatRecommendSummary(best: HourScore, range: HourRange | null): string {
-  if (best.score < RECOMMEND_MIN_SCORE) {
-    return `오늘은 전반적으로 조심하세요. 그나마 ${best.hour}시(${best.score}점)가 가장 나아요.`;
-  }
-  if (range) {
-    return `추천 시간대 ${range.startHour}~${range.endHour}시 (최고 ${best.hour}시 ${best.score}점)`;
-  }
-  return `추천 시간대 ${best.hour}시 (${best.score}점)`;
 }
 
 /**

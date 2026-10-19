@@ -91,6 +91,9 @@ export type GuideState =
 /** 미세먼지 등급 (날씨 카드·복장·AI 가이드 공통) */
 export type DustGrade = '좋음' | '보통' | '나쁨';
 
+/** 자외선 표시 등급 (낮음·보통·높음) */
+export type UvLevel = '낮음' | '보통' | '높음';
+
 /** 자외선 등급 (복장의 선글라스·선크림 기준과 같다) */
 export type UvGrade = '보통' | '높음';
 
@@ -112,6 +115,8 @@ export interface GuideRequest {
   uvGrade?: UvGrade;
   /** AI 가이드가 마스크를 언급해도 되는지 (false면 언급하지 않는다. 없으면 기존 클라이언트) */
   maskAllowed?: boolean;
+  /** 앱이 화면에 추천한 복장 이름 목록. 가이드의 복장 팁이 화면과 어긋나지 않게 알려 준다 (없으면 기존 클라이언트) */
+  outfitLabels?: string[];
 }
 
 /** 복장 추천 항목 분류 (화면에서 그룹 소제목으로 쓴다) */

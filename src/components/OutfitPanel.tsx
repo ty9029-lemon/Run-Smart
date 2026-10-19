@@ -12,8 +12,10 @@ import OutfitIcon from './outfit/OutfitIcon';
 
 interface OutfitPanelProps {
   items: OutfitItem[];
-  /** 영역 제목 (기본: 오늘 추천 복장) */
-  title?: string;
+  /** 영역 제목 (기본: 오늘 추천 복장, null이면 제목 없이 보여준다) */
+  title?: string | null;
+  /** 복장 아래에 불릿으로 보여줄 활동 팁 */
+  tips?: string[];
   /** 어느 화면에서 보여주는지 (노출 이벤트 구분용) */
   source: OutfitSource;
   /** 복장이 추천된 활동 (노출 이벤트 속성) */
@@ -24,6 +26,7 @@ interface OutfitPanelProps {
 export default function OutfitPanel({
   items,
   title = '오늘 추천 복장',
+  tips = [],
   source,
   activity,
 }: OutfitPanelProps) {
@@ -45,20 +48,27 @@ export default function OutfitPanel({
   return (
     <section
       ref={sectionRef}
-      className="rounded-panel border border-card-border-ink bg-card-charcoal p-6"
+      className="rounded-panel bg-card-charcoal px-6 py-5"
     >
-      <h2 className="mb-3 text-base font-bold">{title}</h2>
+      {title && <h2 className="mb-3 text-base font-bold">{title}</h2>}
       <ul className="grid grid-cols-3 gap-4">
         {orderedItems.map((item) => (
           <li
             key={item.label}
-            className="flex flex-col items-center gap-2 rounded-2xl border border-card-border-ink px-1 py-4 text-center"
+            className="flex flex-col items-center gap-2 rounded-2xl px-1 py-3 text-center"
           >
             <OutfitIcon icon={item.icon} className="size-16" />
             <span className="text-xs leading-tight">{item.label}</span>
           </li>
         ))}
       </ul>
+      {tips.length > 0 && (
+        <ul className="mt-4 list-disc space-y-0.5 pl-6 text-base">
+          {tips.map((tip) => (
+            <li key={tip}>{tip}</li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

@@ -4,10 +4,12 @@ import DecisionButtons from './DecisionButtons';
 import DepartureToast from './DepartureToast';
 import FeedbackCard from './FeedbackCard';
 import FeedbackSheet from './FeedbackSheet';
-import GuideBox, { type LocationNoticeProps } from './GuideBox';
+import BestTimeSection from './BestTimeSection';
+import { type LocationNoticeProps } from './GuideBox';
+import HomeOutfitSection from './HomeOutfitSection';
 import HomeSummary from './HomeSummary';
-import HourlyForecast from './HourlyForecast';
-import WeatherCard from './WeatherCard';
+import HourlyChart from './HourlyChart';
+import SelectedHourDetail from './SelectedHourDetail';
 import { buildDummyGuide } from '../data/dummyGuide';
 import { getActivityMeta } from '../constants/activities';
 import { useActiveSession } from '../hooks/useActiveSession';
@@ -15,7 +17,8 @@ import { useAppReview } from '../hooks/useAppReview';
 import { useElapsedSinceMount } from '../hooks/useElapsedSinceMount';
 import { useFeedbackPrompt } from '../hooks/useFeedbackPrompt';
 import { useNow } from '../hooks/useNow';
-import { formatPreviousDeparture, formatRawWeather, formatRecommendSummary } from '../constants/messages';
+import { formatPreviousDeparture, formatRawWeather } from '../constants/messages';
+import { CTA_CLEARANCE, CTA_GAP, TAB_BAR_OFFSET } from '../constants/navigation';
 import { ACTIVITY_DAYLIGHT_BUFFER_HOURS } from '../constants/scoring';
 import {
   findBestHourToday,
@@ -30,6 +33,7 @@ import { getDepartureStatus } from '../lib/departureStatus';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
 import { elapsedSeconds } from '../lib/formatElapsed';
 import { formatTime } from '../lib/formatTime';
+import { buildBestTimeCards } from '../lib/bestTimes';
 import { recommendOutfit } from '../lib/outfit';
 import { calcRunScore, scoreToHeadline, scoreToLevel } from '../lib/runScore';
 import { getSunsetStatus } from '../lib/scoreFactors';
@@ -116,6 +120,11 @@ export default function HomeReady({
   const scores = scoreHours(upcomingHourly, sensitivity, profile.constraints, activity);
   const best = findBestHourToday(scores, nowHour);
   const range = findGoodRange(sliceToday(scores, nowHour), best);
+  const bestTimeCards = buildBestTimeCards(scores, now, profile.activityTimeSlots);
+  const [pickedHour, setPickedHour] = useState<number | null>(null);
+  // 직접 고른 시각이 없으면 추천 시각, 그것도 없으면 지금 시각을 보여준다
+  const selectedHour = pickedHour ?? best?.hour ?? upcomingHourly[0]?.hour ?? null;
+  const selectedIndex = upcomingHourly.findIndex((h) => h.hour === selectedHour);
   const rawWeather = formatRawWeather(current.temp, current.condition, current.windSpeed);
   const outfit = recommendOutfit(feelsLike, current, activity, profile.constraints);
 
@@ -203,7 +212,7 @@ export default function HomeReady({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10" style={{ paddingBottom: CTA_CLEARANCE }}>
       <FeedbackCard
         onDismiss={setFeedbackDismissedId}
         hiddenEntryIds={[sheetEntry?.id ?? null, feedbackDismissedId]}
@@ -212,41 +221,63 @@ export default function HomeReady({
         activity={activity}
         score={score}
         headline={scoreToHeadline(score, activity)}
-        outfit={outfit}
-        recommendSummary={best ? formatRecommendSummary(best, range) : undefined}
+        weather={current}
+        feelsLike={feelsLike}
         onSelectActivity={handleSelectActivity}
       />
-      <WeatherCard weather={current} feelsLike={feelsLike} />
-      <GuideBox guide={guide} rawWeather={rawWeather} location={location} />
-      <HourlyForecast
-        hourly={upcomingHourly}
-        scores={scores}
-        best={best}
-        range={range}
-        activityLabel={getActivityMeta(activity).label}
-        sunsetStatus={getSunsetStatus(
-          current.hoursUntilSunset,
-          ACTIVITY_DAYLIGHT_BUFFER_HOURS[activity],
-        )}
+      <BestTimeSection cards={bestTimeCards} />
+      <HomeOutfitSection
+        activity={activity}
+        outfit={outfit}
+        guide={guide}
+        rawWeather={rawWeather}
+        location={location}
       />
-      {/* 토스트가 버튼 바로 위에 뜨도록 버튼과 같은 기준(relative) 안에 둔다 */}
-      <div className="relative">
-        <DecisionButtons
-          status={status}
+      <div className="space-y-6">
+        <HourlyChart
+          hourly={upcomingHourly}
+          scores={scores}
+          selectedHour={selectedHour}
+          onSelectHour={setPickedHour}
+          best={best}
+          range={range}
           activityLabel={getActivityMeta(activity).label}
-          activity={activity}
-          startedAt={isRunning ? session.startedAt : null}
-          previousNotice={previousNotice}
-          onDecide={handleDecide}
-          onEnd={handleEnd}
-          onCancel={handleCancel}
+          sunsetStatus={getSunsetStatus(
+            current.hoursUntilSunset,
+            ACTIVITY_DAYLIGHT_BUFFER_HOURS[activity],
+          )}
         />
-        <DepartureToast
-          open={toastOpen}
-          activityLabel={getActivityMeta(activity).label}
-          onOpenChange={setToastOpen}
-          onUndo={handleCancel}
-        />
+        {selectedIndex >= 0 && (
+          <SelectedHourDetail
+            weather={upcomingHourly[selectedIndex]}
+            score={scores[selectedIndex]?.score ?? 0}
+            feelsLike={calcPersonalFeelsLike(upcomingHourly[selectedIndex], sensitivity)}
+          />
+        )}
+      </div>
+      {/* 탭바 바로 위에 고정한다. 토스트가 버튼 바로 위에 뜨도록 버튼과 같은 기준(relative) 안에 둔다 */}
+      <div
+        className="fixed inset-x-0 z-30 bg-linear-to-t from-background from-70% to-transparent px-4 pt-6"
+        style={{ bottom: TAB_BAR_OFFSET, paddingBottom: CTA_GAP }}
+      >
+        <div className="relative mx-auto max-w-md">
+          <DecisionButtons
+            status={status}
+            activityLabel={getActivityMeta(activity).label}
+            activity={activity}
+            startedAt={isRunning ? session.startedAt : null}
+            previousNotice={previousNotice}
+            onDecide={handleDecide}
+            onEnd={handleEnd}
+            onCancel={handleCancel}
+          />
+          <DepartureToast
+            open={toastOpen}
+            activityLabel={getActivityMeta(activity).label}
+            onOpenChange={setToastOpen}
+            onUndo={handleCancel}
+          />
+        </div>
       </div>
       <FeedbackSheet
         entry={sheetEntry}

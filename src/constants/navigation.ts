@@ -27,5 +27,11 @@ export const TAB_ITEMS: readonly TabItem[] = [
 /** 하단 탭바 본문 높이 (safe-area 제외) */
 export const TAB_BAR_HEIGHT = '4rem';
 
+/** 홈의 고정 CTA와 탭바 사이 간격 */
+export const CTA_GAP = '0.75rem';
+
+/** 고정 CTA가 가리지 않도록 홈 본문 아래에 비워 둘 높이 (CTA 버튼 + 안내 문구 + 여유) */
+export const CTA_CLEARANCE = '8rem';
+
 /** 하단 탭바 높이 + 기기 하단 safe-area. 콘텐츠 하단 여백 계산에 쓴다. */
 export const TAB_BAR_OFFSET = `calc(${TAB_BAR_HEIGHT} + env(safe-area-inset-bottom))`;
