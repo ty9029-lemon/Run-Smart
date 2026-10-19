@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { OUTFIT_ICON_KEYS } from '../constants/outfitIcons';
 import type { Activity, Weather } from '../types';
+import { calcFeelsLike } from './feelsLike';
 import { groupOutfitByCategory, recommendOutfit } from './outfit';
 import { listOutfitIconFileKeys, outfitIconUrl } from './outfitIconUrls';
 
@@ -73,12 +74,18 @@ describe('recommendOutfit - 러닝', () => {
     expect(labels(15, 'running')).not.toContain('기능성 반팔 티셔츠');
   });
 
-  it('추우면 러닝 타이츠와 경량 바람막이, 더우면 민소매를 추천한다', () => {
+  it('추우면 기모 바지와 경량 바람막이, 더우면 민소매를 추천한다', () => {
     expect(labels(-2, 'running')).toEqual(
-      expect.arrayContaining(['기모 러닝 타이츠', '경량 바람막이', '러닝 장갑·넥워머']),
+      expect.arrayContaining(['기모 바지/레깅스', '경량 바람막이', '러닝 장갑·넥워머']),
     );
-    expect(labels(5, 'running')).toEqual(expect.arrayContaining(['러닝 타이츠', '경량 바람막이']));
+    expect(labels(-2, 'running')).not.toContain('기모 러닝 타이츠');
+    expect(labels(5, 'running')).toEqual(expect.arrayContaining(['긴바지/러닝 레깅스', '경량 바람막이']));
     expect(labels(25, 'running')).toContain('러닝 민소매');
+  });
+
+  it('선선한 날에는 러닝 7부 타이츠 대신 반바지/러닝 레깅스를 추천한다', () => {
+    expect(labels(15, 'running')).toContain('반바지/러닝 레깅스');
+    expect(labels(15, 'running')).not.toContain('러닝 7부 타이츠');
   });
 
   it('신발은 러닝화다', () => {
@@ -97,11 +104,10 @@ describe('recommendOutfit - 러닝', () => {
     expect(labels(15, 'running', { windSpeed: 9 })).toContain('경량 바람막이');
   });
 
-  it('밤이거나 일몰이 임박하면 반사 소재 옷을 더한다 (헤드랜턴은 제외)', () => {
-    expect(labels(15, 'running')).not.toContain('반사 소재 옷');
-    expect(labels(15, 'running', { isDay: false })).toContain('반사 소재 옷');
+  it('밤이거나 일몰이 임박해도 반사 소재 옷과 헤드랜턴은 추천하지 않는다 (AI 가이드가 안내)', () => {
+    expect(labels(15, 'running', { isDay: false })).not.toContain('반사 소재 옷');
     expect(labels(15, 'running', { isDay: false })).not.toContain('헤드랜턴');
-    expect(labels(15, 'running', { hoursUntilSunset: 0.5 })).toContain('반사 소재 옷');
+    expect(labels(15, 'running', { hoursUntilSunset: 0.5 })).not.toContain('반사 소재 옷');
   });
 
   it('자외선이 강하면 러닝 캡과 선글라스를 더한다', () => {
@@ -402,5 +408,70 @@ describe('복장 일러스트 에셋', () => {
 
   it('키 목록에 없는 이미지 파일이 에셋 폴더에 남아 있지 않다', () => {
     expect([...listOutfitIconFileKeys()].sort()).toEqual([...OUTFIT_ICON_KEYS].sort());
+  });
+});
+
+/** 하의가 짧은 바지(shorts)로 추천되는지 */
+function hasShorts(feelsLike: number, activity: Activity): boolean {
+  return recommendOutfit(feelsLike, weatherWith(), activity).some(
+    (i) => i.category === 'bottom' && i.icon === 'shorts',
+  );
+}
+
+/** 추천된 하의 라벨 (경계에서 라벨이 어떻게 바뀌는지 확인용) */
+function bottomLabel(feelsLike: number, activity: Activity): string | undefined {
+  return recommendOutfit(feelsLike, weatherWith(), activity).find((i) => i.category === 'bottom')
+    ?.label;
+}
+
+/**
+ * UT 응답("추운 것 같았는데 반바지를 추천해줌") 재현용 특성화 테스트.
+ * 현재 규칙에서 하의가 반바지로 바뀌는 체감온도 경계를 고정해 두어,
+ * 규칙을 조정할 때 어느 값이 바뀌는지 바로 드러나게 한다.
+ * (러닝 하의 규칙은 #59에서 한파 구간 기모 바지, 선선한 날 반바지/러닝 레깅스로 조정되었다)
+ */
+describe('recommendOutfit - 반바지가 처음 나오는 체감온도', () => {
+  it('산책은 체감 23°C부터 반바지다', () => {
+    expect(hasShorts(22, 'walking')).toBe(false);
+    expect(hasShorts(23, 'walking')).toBe(true);
+  });
+
+  it('러닝은 체온 상승 보정 때문에 체감 11°C부터 반바지/러닝 레깅스(짧은 하의)다', () => {
+    expect(hasShorts(10, 'running')).toBe(false);
+    expect(bottomLabel(10, 'running')).toBe('긴바지/러닝 레깅스');
+    expect(hasShorts(11, 'running')).toBe(true);
+    expect(bottomLabel(11, 'running')).toBe('반바지/러닝 레깅스');
+  });
+
+  it('러닝은 체감 17°C부터 러닝 쇼츠로 바뀐다', () => {
+    expect(bottomLabel(16, 'running')).toBe('반바지/러닝 레깅스');
+    expect(bottomLabel(17, 'running')).toBe('러닝 쇼츠');
+  });
+
+  it('러닝은 체감 -2°C 이하에서 기모 바지/레깅스다', () => {
+    expect(bottomLabel(-2, 'running')).toBe('기모 바지/레깅스');
+    expect(bottomLabel(-1, 'running')).toBe('긴바지/러닝 레깅스');
+  });
+
+  it('자전거는 체감 6°C부터 짧은 하의(빕숏)다', () => {
+    expect(hasShorts(5, 'cycling')).toBe(false);
+    expect(hasShorts(6, 'cycling')).toBe(true);
+  });
+
+  it('등산은 체감 28°C부터 반바지다 (22°C 이하에서는 반바지가 아니다)', () => {
+    expect(hasShorts(22, 'hiking')).toBe(false);
+    expect(hasShorts(27, 'hiking')).toBe(false);
+    expect(hasShorts(28, 'hiking')).toBe(true);
+  });
+
+  it('기온 18°C에 바람 3m/s여도 러닝은 반바지로 나온다 (체감 약 17°C)', () => {
+    const windy = weatherWith({ temp: 18, windSpeed: 3 });
+    const feelsLike = Math.round(calcFeelsLike(windy));
+    expect(feelsLike).toBe(17);
+    expect(
+      recommendOutfit(feelsLike, windy, 'running').some(
+        (i) => i.category === 'bottom' && i.icon === 'shorts',
+      ),
+    ).toBe(true);
   });
 });

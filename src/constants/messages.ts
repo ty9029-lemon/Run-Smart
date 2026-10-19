@@ -1,6 +1,6 @@
 import type { HourRange, HourScore } from '../lib/bestHour';
 import { withObjectParticle } from '../lib/koreanParticle';
-import type { WarningLevel } from '../types';
+import type { ScoreTier, WarningLevel } from '../types';
 import { RECOMMEND_MIN_SCORE } from './thresholds';
 
 /** PRD 6장 실패 처리 문구 */
@@ -20,6 +20,9 @@ export const MESSAGES = {
   historyEmptyDay: '이 날은 기록이 없어요.',
   toastUndo: '실행 취소',
   departureCancel: '출발 취소',
+  elapsedLabel: '경과 시간',
+  endContinue: '계속하기',
+  endConfirm: '종료하기',
   // 사이트 설정이 허용이어도 기기(시스템) 설정이 꺼져 있으면 위치를 읽을 수 없다.
   locationSystemGuide:
     '기기의 위치 서비스도 확인해 주세요. iPhone은 설정 → 개인정보 보호 및 보안 → 위치 서비스 → Safari 웹사이트에서 "앱을 사용하는 동안"으로, Android는 설정의 위치 기능과 브라우저 앱의 위치 권한을 확인해 주세요.',
@@ -58,7 +61,7 @@ export function formatRawWeather(
  * @param activityLabel 활동명 (예: 러닝)
  */
 export function formatDepartureToast(activityLabel: string): string {
-  return `즐거운 ${activityLabel} 되세요!\n돌아오시면 착장 피드백을 반영해 드릴게요.`;
+  return `즐거운 ${activityLabel} 되세요!\n끝나고 더웠는지 추웠는지 알려주세요.`;
 }
 
 /**
@@ -84,11 +87,53 @@ export function formatRecommendSummary(best: HourScore, range: HourRange | null)
   return `추천 시간대 ${best.hour}시 (${best.score}점)`;
 }
 
+/**
+ * 활동을 마친 뒤 CTA 자리에 보여주는 안내 문구
+ * @param activityLabel 활동명 (예: 러닝)
+ */
+export function formatEndedNotice(activityLabel: string): string {
+  return `${withObjectParticle(activityLabel)} 마쳤어요. 수고하셨어요!`;
+}
+
+/**
+ * 진행 중인 활동의 타이머 버튼 접근성 라벨 (누르면 종료 확인 팝업이 열린다)
+ * @param activityLabel 활동명 (예: 러닝)
+ * @param elapsedText 경과 시간 표기 (예: 00:07)
+ */
+export function formatTimerButtonLabel(activityLabel: string, elapsedText: string): string {
+  return `${activityLabel} ${MESSAGES.elapsedLabel} ${elapsedText}, 누르면 종료 확인`;
+}
+
+/**
+ * 활동 종료 확인 팝업 제목
+ * @param activityLabel 활동명 (예: 러닝)
+ */
+export function formatEndDialogTitle(activityLabel: string): string {
+  return `${withObjectParticle(activityLabel)} 종료할까요?`;
+}
+
+/**
+ * 활동 종료 확인 팝업 설명
+ * @param elapsedText 경과 시간 표기 (예: 00:07)
+ */
+export function formatEndDialogDescription(elapsedText: string): string {
+  return `지금까지 ${elapsedText} 동안 기록했어요.`;
+}
+
 /** 경고 단계별 헤드라인 문구 */
 export const LEVEL_LABEL: Record<WarningLevel, string> = {
   good: '활동하기 좋아요',
   caution: '주의가 필요해요',
   careful: '신중히 검토하세요',
+};
+
+/** 러닝 점수 5단계별 헤드라인 문구 */
+export const RUNNING_TIER_LABEL: Record<ScoreTier, string> = {
+  excellent: '지금 러닝하기 딱 좋아요',
+  good: '기분 좋게 달리기 좋아요',
+  fair: '가볍게 뛰기 괜찮아요',
+  caution: '컨디션을 살피며 가볍게 달려요',
+  careful: '오늘은 푹 쉬어가는 걸 추천해요',
 };
 
 /** 위치를 알 수 없을 때 사용하는 기준 위치 */

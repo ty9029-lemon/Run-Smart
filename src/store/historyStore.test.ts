@@ -82,6 +82,19 @@ describe('setFeedback', () => {
   });
 });
 
+describe('setDuration', () => {
+  beforeEach(() => {
+    useHistoryStore.setState({ entries: [makeEntry('a'), makeEntry('b')] });
+  });
+
+  it('지정한 기록에만 활동 시간을 남긴다', () => {
+    useHistoryStore.getState().setDuration('a', 125);
+    const [a, b] = useHistoryStore.getState().entries;
+    expect(a.durationSec).toBe(125);
+    expect(b.durationSec).toBeUndefined();
+  });
+});
+
 describe('dropRemovedEntries', () => {
   it('안 가기(skip)와 외출 기록은 버리고 나머지는 남긴다', () => {
     const skip = { ...makeEntry('skip'), decision: 'skip' } as unknown as HistoryEntry;

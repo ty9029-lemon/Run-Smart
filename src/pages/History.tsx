@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import GuideBox from '../components/GuideBox';
 import HistoryCalendar from '../components/HistoryCalendar';
 import OutfitPanel from '../components/OutfitPanel';
@@ -7,8 +6,9 @@ import { getActivityMeta } from '../constants/activities';
 import { OUTFIT_SOURCES } from '../constants/analytics';
 import { FEEDBACK_LABELS } from '../constants/feedback';
 import { MESSAGES } from '../constants/messages';
-import { MS_PER_DAY } from '../constants/thresholds';
+import { MS_PER_DAY, MS_PER_SECOND } from '../constants/thresholds';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
+import { formatElapsed } from '../lib/formatElapsed';
 import { formatTime } from '../lib/formatTime';
 import { dayKey, groupEntriesByDay, type YearMonth } from '../lib/historyCalendar';
 import { useHistoryStore } from '../store/historyStore';
@@ -40,6 +40,14 @@ function HistoryHeader({ entry }: { entry: HistoryEntry }) {
         {meta.emoji} {meta.label}
       </p>
       <p className="text-sm text-steel-border">{entry.weatherSummary}</p>
+      {entry.durationSec !== undefined && (
+        <p className="mt-3 text-sm">
+          <span className="text-steel-border">활동 시간 </span>
+          <span className="font-medium tabular-nums">
+            {formatElapsed(entry.durationSec * MS_PER_SECOND)}
+          </span>
+        </p>
+      )}
       {entry.feedback && (
         <p className="mt-3 text-sm">
           <span className="text-steel-border">체감 </span>
@@ -109,11 +117,8 @@ export default function History() {
 
   return (
     <main className="mx-auto max-w-md space-y-4 px-4 py-6">
-      <header className="flex items-center justify-between">
+      <header>
         <h1 className="text-2xl font-bold">활동 기록</h1>
-        <Link to="/" className="text-sm text-steel-border">
-          ← 홈
-        </Link>
       </header>
       <HistoryCalendar
         viewMonth={viewMonth}
