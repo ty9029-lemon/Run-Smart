@@ -1,4 +1,4 @@
-import { useEffect, useRef, type UIEvent } from 'react';
+import { Fragment, useEffect, useRef, type UIEvent } from 'react';
 import { SCORE_LEVEL_BAR_CLASS } from '../constants/levelStyles';
 import {
   RECOMMEND_CUTOFF_HOUR,
@@ -49,28 +49,39 @@ const SCROLL_IDLE_MS = 800;
 /** 막대 영역 높이(px). 막대 높이는 점수 비율로 정한다. */
 const BAR_AREA_HEIGHT = 138;
 
+/** 차트 제목 조각. highlight면 라임색으로 강조한다. */
+interface TitlePart {
+  text: string;
+  highlight?: boolean;
+}
+
 /**
- * 연속 구간이 없을 때의 안내 문구를 만든다.
+ * 연속 구간이 없을 때의 안내 문구를 조각으로 만든다. (추천 시각은 라임색 조각으로 나눈다)
  * @param best 대표 시간대 (없으면 추천 가능한 시간이 없는 것)
  * @param nextRecommendation 오늘 추천이 없을 때 안내할 다음 추천 시간
  */
-function buildFallbackText(
+function buildFallbackParts(
   best: HourScore | null,
   activityLabel: string,
   sunsetStatus: SunsetStatus,
   nextRecommendation?: { label: string; hour: number },
-): string {
+): TitlePart[] {
   if (!best) {
-    const base = `오늘은 추천할 ${activityLabel} 시간이 없어요.`;
-    if (!nextRecommendation) return base;
-    return `${base} ${nextRecommendation.label} ${hourLabel(nextRecommendation.hour)}가 가장 좋아요.`;
+    const base: TitlePart = { text: `오늘은 추천할 ${activityLabel} 시간이 없어요.` };
+    if (!nextRecommendation) return [base];
+    const next = `${nextRecommendation.label} ${hourLabel(nextRecommendation.hour)}`;
+    return [base, { text: ' ' }, { text: next, highlight: true }, { text: '가 가장 좋아요.' }];
   }
-  const base = `오늘 ${activityLabel}은 ${hourLabel(best.hour)}(${best.score}점)이 가장 좋아요.`;
-  if (sunsetStatus) return `${base} ${SUNSET_NOTICES[sunsetStatus]}`;
-  return best.score < RECOMMEND_MIN_SCORE ? `${base} ${CAUTION_NOTICE}` : base;
+  const parts: TitlePart[] = [
+    { text: `오늘 ${activityLabel}은 ` },
+    { text: hourLabel(best.hour), highlight: true },
+    { text: '가 가장 좋아요.' },
+  ];
+  if (sunsetStatus) return [...parts, { text: ` ${SUNSET_NOTICES[sunsetStatus]}` }];
+  return best.score < RECOMMEND_MIN_SCORE ? [...parts, { text: ` ${CAUTION_NOTICE}` }] : parts;
 }
 
-/** 차트 제목: 연속 구간이 있으면 구간을 라임색으로 강조한다. */
+/** 차트 제목: 연속 구간이 있으면 구간을, 없으면 추천 시각을 라임색으로 강조한다. */
 function ChartTitle({
   best,
   range,
@@ -84,7 +95,15 @@ function ChartTitle({
   if (!range) {
     return (
       <h2 className="px-4 text-xl font-bold leading-snug">
-        {buildFallbackText(best, activityLabel, sunsetStatus, nextRecommendation)}
+        {buildFallbackParts(best, activityLabel, sunsetStatus, nextRecommendation).map((part, i) =>
+          part.highlight ? (
+            <span key={i} className="text-primary">
+              {part.text}
+            </span>
+          ) : (
+            <Fragment key={i}>{part.text}</Fragment>
+          ),
+        )}
       </h2>
     );
   }

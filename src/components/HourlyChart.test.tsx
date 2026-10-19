@@ -21,7 +21,19 @@ describe('HourlyChart 제목', () => {
       <HourlyChart {...BASE} nextRecommendation={{ label: '내일 오전', hour: 7 }} />,
     );
     expect(html).toContain('오늘은 추천할 러닝 시간이 없어요.');
-    expect(html).toContain('내일 오전 7시가 가장 좋아요');
+    expect(html).toContain('<span class="text-primary">내일 오전 7시</span>가 가장 좋아요.');
+  });
+
+  it('구간이 없으면 점수 없이 대표 시각만 라임색으로 강조한다', () => {
+    const html = renderToStaticMarkup(<HourlyChart {...BASE} best={{ hour: 21, score: 93 }} />);
+    expect(html).toContain('오늘 러닝은 <span class="text-primary">21시</span>가 가장 좋아요.');
+    expect(html).not.toContain('93점');
+  });
+
+  it('최고점이 기준에 못 미치면 조심 안내를 덧붙인다', () => {
+    const html = renderToStaticMarkup(<HourlyChart {...BASE} best={{ hour: 14, score: 60 }} />);
+    expect(html).toContain('<span class="text-primary">14시</span>가 가장 좋아요.');
+    expect(html).toContain('오늘은 전반적으로 조심하세요.');
   });
 
   it('다음 추천이 없으면 없다는 안내만 한다', () => {
