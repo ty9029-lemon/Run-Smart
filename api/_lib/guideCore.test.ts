@@ -183,11 +183,11 @@ describe('parseGuideResponse', () => {
 });
 
 describe('복장 목록(outfitLabels)', () => {
-  const withOutfit = { ...VALID_REQUEST, outfitLabels: ['기능성 얇은 긴팔', '반바지/러닝 레깅스', '러닝화'] };
+  const withOutfit = { ...VALID_REQUEST, outfitLabels: ['기능성 얇은 긴팔', '반바지 또는 레깅스', '러닝화'] };
 
   it('올바른 복장 목록은 통과하고 프롬프트에 담긴다', () => {
     const parsed = JSON.parse(buildUserPrompt(parseGuideRequest(withOutfit)!));
-    expect(parsed.recommended_outfit).toEqual(['기능성 얇은 긴팔', '반바지/러닝 레깅스', '러닝화']);
+    expect(parsed.recommended_outfit).toEqual(['기능성 얇은 긴팔', '반바지 또는 레깅스', '러닝화']);
   });
 
   it('없으면(기존 클라이언트) 통과하고 프롬프트에도 없다', () => {

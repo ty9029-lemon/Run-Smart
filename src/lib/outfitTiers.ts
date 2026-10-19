@@ -86,7 +86,7 @@ const RUNNING_TIERS: OutfitTier[] = [
     max: MILD_MAX,
     items: [
       outfitItem('top', 'longSleeve', '기능성 얇은 긴팔'),
-      outfitItem('bottom', 'shorts', '반바지/러닝 레깅스'),
+      outfitItem('bottom', 'shorts', '반바지 또는 레깅스'),
     ],
   },
   {
