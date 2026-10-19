@@ -28,6 +28,8 @@
   --radius-md: 6px;
   /* 카드/패널 전용 반경 (버튼·칩은 rounded-full pill) */
   --radius-panel: 20px;
+  /* 입력창 전용 반경 (Figma radius/input) */
+  --radius-input: 8px;
   --shadow-sm: rgba(17, 17, 17, 0.125) 0px 2px 6px 0px;
 }
 

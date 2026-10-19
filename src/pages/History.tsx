@@ -10,6 +10,7 @@ import { MS_PER_DAY } from '../constants/thresholds';
 import { useActiveSession } from '../hooks/useActiveSession';
 import { useNow } from '../hooks/useNow';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
+import { formatDistanceKm } from '../lib/distance';
 import { isFeedbackAskable } from '../lib/feedback';
 import { dayKey, groupEntriesByDay, type YearMonth } from '../lib/historyCalendar';
 import { useHistoryStore } from '../store/historyStore';
@@ -49,6 +50,18 @@ function HistoryHeader({ entry }: { entry: HistoryEntry }) {
         {meta.emoji} {meta.label}
       </p>
       <p className="text-sm text-steel-border">{entry.weatherSummary}</p>
+      {entry.distanceKm !== undefined && (
+        <p className="mt-1 text-sm">
+          <span className="text-muted-foreground">거리 </span>
+          <span className="font-medium">{formatDistanceKm(entry.distanceKm)}</span>
+        </p>
+      )}
+      {entry.actualOutfit && (
+        <p className="mt-1 text-sm">
+          <span className="text-muted-foreground">실제 복장 </span>
+          <span className="font-medium">{entry.actualOutfit}</span>
+        </p>
+      )}
     </div>
   );
 }

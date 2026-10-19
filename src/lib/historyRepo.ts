@@ -18,6 +18,8 @@ interface HistoryRow {
   feedback: Feedback | null;
   feedback_at: string | null;
   duration_sec: number | null;
+  distance_km: number | null;
+  actual_outfit: string | null;
 }
 
 /** 앱의 기록 한 건을 DB 행으로 바꾼다. */
@@ -35,6 +37,8 @@ export function toHistoryRow(entry: HistoryEntry, userId: string): HistoryRow {
     feedback: entry.feedback ?? null,
     feedback_at: entry.feedbackAt ?? null,
     duration_sec: entry.durationSec ?? null,
+    distance_km: entry.distanceKm ?? null,
+    actual_outfit: entry.actualOutfit ?? null,
   };
 }
 
@@ -52,6 +56,8 @@ export function fromHistoryRow(row: HistoryRow): HistoryEntry {
     ...(row.feedback !== null && { feedback: row.feedback }),
     ...(row.feedback_at !== null && { feedbackAt: new Date(row.feedback_at).toISOString() }),
     ...(row.duration_sec !== null && { durationSec: row.duration_sec }),
+    ...(row.distance_km !== null && { distanceKm: Number(row.distance_km) }),
+    ...(row.actual_outfit !== null && { actualOutfit: row.actual_outfit }),
   };
 }
 
