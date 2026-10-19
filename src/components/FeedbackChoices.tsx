@@ -30,7 +30,7 @@ export default function FeedbackChoices({ onSelect, onLater }: FeedbackChoicesPr
         <button
           type="button"
           onClick={onLater}
-          className="w-full text-center text-sm text-steel-border"
+          className="w-full text-center text-sm text-subtle-text"
         >
           {FEEDBACK_MESSAGES.later}
         </button>

@@ -1,4 +1,6 @@
+import ScoreReasonLine from './ScoreReasonLine';
 import ScoreRing from './ScoreRing';
+import type { ScoreReason } from '../lib/scoreReasons';
 import { GRADE_TEXT_CLASS } from '../constants/levelStyles';
 import { getWeatherEmoji } from '../constants/weatherEmoji';
 import { getDustGrade, getUvLevel } from '../lib/airGrade';
@@ -9,6 +11,9 @@ interface HomeScoreCardProps {
   weather: Weather;
   /** 개인 체감온도 */
   feelsLike: number;
+  /** 항목별 점수 근거 */
+  reasons: ScoreReason[];
+  onOpenBreakdown: () => void;
 }
 
 /** 지표 한 칸 (등급 색을 줄 값은 valueClass로 넘긴다) */
@@ -33,7 +38,13 @@ function buildMetrics(weather: Weather, feelsLike: number): Metric[] {
 }
 
 /** 활동 지수 링과 지금 날씨(기온, 이모지, 지표 6칸)를 한 카드로 보여준다. */
-export default function HomeScoreCard({ score, weather, feelsLike }: HomeScoreCardProps) {
+export default function HomeScoreCard({
+  score,
+  weather,
+  feelsLike,
+  reasons,
+  onOpenBreakdown,
+}: HomeScoreCardProps) {
   const emoji = getWeatherEmoji(weather.condition, weather.isDay);
   return (
     <section className="space-y-4 rounded-panel bg-card-charcoal p-6">
@@ -46,18 +57,19 @@ export default function HomeScoreCard({ score, weather, feelsLike }: HomeScoreCa
               {emoji}
             </span>
           ) : (
-            <span className="text-base font-normal text-steel-border">{weather.condition}</span>
+            <span className="text-base font-normal text-subtle-text">{weather.condition}</span>
           )}
         </div>
       </div>
       <dl className="grid grid-cols-3 gap-x-5 gap-y-3 pl-2">
         {buildMetrics(weather, feelsLike).map(({ label, value, valueClass }) => (
           <div key={label}>
-            <dt className="text-sm text-steel-border">{label}</dt>
+            <dt className="text-sm text-subtle-text">{label}</dt>
             <dd className={`text-base font-bold ${valueClass ?? ''}`}>{value}</dd>
           </div>
         ))}
       </dl>
+      <ScoreReasonLine reasons={reasons} onOpenBreakdown={onOpenBreakdown} />
     </section>
   );
 }

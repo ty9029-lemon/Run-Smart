@@ -17,7 +17,7 @@ export default function ActivityPicker({ selected, error, screen, onToggle }: Ac
   return (
     <div>
       <h2 className="mb-1 text-base font-bold">활동 선택</h2>
-      <p className="mb-3 text-sm text-steel-border">
+      <p className="mb-3 text-sm text-subtle-text">
         여러 개 고를 수 있어요.
       </p>
       <div className="flex flex-wrap gap-2">

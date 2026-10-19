@@ -32,7 +32,7 @@ export default function BottomTabBar() {
               className={({ isActive }) =>
                 cn(
                   'flex h-full flex-col items-center justify-center gap-1 text-xs font-medium',
-                  isActive ? 'text-lime-pulse' : 'text-steel-border',
+                  isActive ? 'text-lime-pulse' : 'text-subtle-text',
                 )
               }
             >

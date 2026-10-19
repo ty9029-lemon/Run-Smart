@@ -25,6 +25,9 @@ export const OUTFIT_SOURCES = {
 
 export type OutfitSource = (typeof OUTFIT_SOURCES)[keyof typeof OUTFIT_SOURCES];
 
+/** 점수 근거 시트를 열었을 때 상위 감점 항목이 없으면 넣는 값 */
+export const SCORE_TOP_FACTOR_NONE = 'none';
+
 /** 복장 패널을 "봤다"고 인정하는 최소 가시 비율 */
 export const OUTFIT_VIEW_RATIO = 0.5;
 

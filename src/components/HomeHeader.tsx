@@ -14,7 +14,7 @@ export default function HomeHeader({ location }: HomeHeaderProps) {
   const now = useNow();
   return (
     <header className="space-y-1">
-      <p className="text-xs font-medium text-steel-border">📍 {location}</p>
+      <p className="text-xs font-medium text-subtle-text">📍 {location}</p>
       <p className="text-2xl font-bold">{formatTime(now)}</p>
     </header>
   );

@@ -48,7 +48,7 @@ export default function SensitivityScale({ question, value, onChange }: Sensitiv
                   }`}
                 />
               </div>
-              <span className="h-4 whitespace-nowrap text-xs text-steel-border">
+              <span className="h-4 whitespace-nowrap text-xs text-subtle-text">
                 {LEVEL_LABEL[level] ?? ''}
               </span>
             </div>

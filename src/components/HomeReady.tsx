@@ -9,7 +9,9 @@ import { type LocationNoticeProps } from './GuideBox';
 import HomeOutfitSection from './HomeOutfitSection';
 import HomeSummary from './HomeSummary';
 import HourlyChart from './HourlyChart';
+import ScoreBreakdownSheet from './ScoreBreakdownSheet';
 import SelectedHourDetail from './SelectedHourDetail';
+import { useScoreReasons } from '../hooks/useScoreReasons';
 import { buildDummyGuide } from '../data/dummyGuide';
 import { getActivityMeta } from '../constants/activities';
 import { useActiveSession } from '../hooks/useActiveSession';
@@ -115,6 +117,7 @@ export default function HomeReady({
   );
   const score = calcRunScore(current, sensitivity, profile.constraints, activity);
   const feelsLike = calcPersonalFeelsLike(current, sensitivity);
+  const scoreReasons = useScoreReasons(current, sensitivity, profile.constraints, activity, score);
   const nowHour = now.getHours();
   const upcomingHourly = sliceFromHour(hourly, nowHour);
   const scores = scoreHours(upcomingHourly, sensitivity, profile.constraints, activity);
@@ -225,6 +228,8 @@ export default function HomeReady({
         headline={scoreToHeadline(score, activity)}
         weather={current}
         feelsLike={feelsLike}
+        reasons={scoreReasons.reasons}
+        onOpenBreakdown={scoreReasons.openSheet}
         onSelectActivity={handleSelectActivity}
       />
       <BestTimeSection cards={bestTimeCards} />
@@ -286,6 +291,14 @@ export default function HomeReady({
         entry={sheetEntry}
         onDismiss={handleSheetDismiss}
         onClose={handleSheetClose}
+      />
+      <ScoreBreakdownSheet
+        open={scoreReasons.sheetOpen}
+        onOpenChange={scoreReasons.setSheetOpen}
+        score={score}
+        reasons={scoreReasons.reasons}
+        weather={current}
+        feelsLike={feelsLike}
       />
       <AppReviewDialog
         open={appReview.open}

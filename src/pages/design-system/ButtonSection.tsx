@@ -61,7 +61,7 @@ export default function ButtonSection() {
         ))}
       </div>
       <div className="mt-10 flex flex-col gap-6">
-        <p className="text-sm text-steel-border">
+        <p className="text-sm text-subtle-text">
           Icon Button: 정사각형 pill, Lucide 아이콘만 사용하고 aria-label 필수.
         </p>
         {ICON_BUTTON_VARIANTS.map((variant) => (

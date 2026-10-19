@@ -20,7 +20,7 @@ interface HomeOutfitSectionProps {
 function GuideParagraph({ guide, rawWeather }: Pick<HomeOutfitSectionProps, 'guide' | 'rawWeather'>) {
   if (guide.state === 'loading') {
     return (
-      <p role="status" className="animate-pulse text-base text-steel-border">
+      <p role="status" className="animate-pulse text-base text-subtle-text">
         {MESSAGES.guideLoading}
       </p>
     );

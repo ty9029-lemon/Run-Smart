@@ -41,7 +41,7 @@ function StarRating({ value, disabled, onChange }: StarRatingProps) {
           className="p-1"
         >
           <Star
-            className={`size-8 ${rating <= value ? 'fill-lime-pulse text-lime-pulse' : 'text-steel-border'}`}
+            className={`size-8 ${rating <= value ? 'fill-lime-pulse text-lime-pulse' : 'text-subtle-text'}`}
           />
         </button>
       ))}
@@ -108,7 +108,7 @@ export default function AppReviewDialog({ open, onSubmit, onDismiss }: AppReview
           type="button"
           disabled={submitting}
           onClick={onDismiss}
-          className="text-center text-sm text-steel-border"
+          className="text-center text-sm text-subtle-text"
         >
           {APP_REVIEW_MESSAGES.later}
         </button>

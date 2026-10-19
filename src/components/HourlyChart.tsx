@@ -117,7 +117,7 @@ function CutoffMarker() {
         aria-hidden="true"
         className="pointer-events-none absolute left-0 top-0 h-35 w-px bg-chart-4"
       />
-      <span className="pointer-events-none absolute left-1.5 top-0.5 whitespace-nowrap text-xs leading-4 text-steel-border">
+      <span className="pointer-events-none absolute left-1.5 top-0.5 whitespace-nowrap text-xs leading-4 text-subtle-text">
         {RECOMMEND_CUTOFF_HOUR}시 이후
         <br />
         추천 제외
@@ -152,7 +152,7 @@ function HourBar({ label, score, isSelected, isExcluded, onSelect }: HourBarProp
         />
       </span>
       <span
-        className={`whitespace-nowrap text-xs tracking-tight ${isSelected ? 'font-bold text-foreground' : 'font-medium text-steel-border'}`}
+        className={`whitespace-nowrap text-xs tracking-tight ${isSelected ? 'font-bold text-foreground' : 'font-medium text-subtle-text'}`}
       >
         {label}
       </span>
