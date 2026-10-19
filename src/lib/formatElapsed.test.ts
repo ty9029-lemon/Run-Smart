@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { elapsedSeconds, formatElapsed } from './formatElapsed';
+import { elapsedSeconds, formatDurationText, formatElapsed } from './formatElapsed';
 
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
@@ -37,5 +37,27 @@ describe('elapsedSeconds', () => {
 
   it('종료가 시작보다 앞서면 0이다', () => {
     expect(elapsedSeconds(5000, 1000)).toBe(0);
+  });
+});
+
+describe('formatDurationText', () => {
+  it('1분 미만은 초로 표시한다', () => {
+    expect(formatDurationText(0)).toBe('0초');
+    expect(formatDurationText(42)).toBe('42초');
+  });
+
+  it('1시간 미만은 분과 초로 표시한다', () => {
+    expect(formatDurationText(21 * 60)).toBe('21분');
+    expect(formatDurationText(21 * 60 + 5)).toBe('21분 5초');
+    expect(formatDurationText(59 * 60 + 59)).toBe('59분 59초');
+  });
+
+  it('1시간 이상은 시간과 분으로 표시한다', () => {
+    expect(formatDurationText(3600)).toBe('1시간');
+    expect(formatDurationText(3600 + 5 * 60 + 30)).toBe('1시간 5분');
+  });
+
+  it('음수는 0초로 본다', () => {
+    expect(formatDurationText(-3)).toBe('0초');
   });
 });

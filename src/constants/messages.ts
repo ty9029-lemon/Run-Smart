@@ -28,6 +28,11 @@ export const MESSAGES = {
     '기기의 위치 서비스도 확인해 주세요. iPhone은 설정 → 개인정보 보호 및 보안 → 위치 서비스 → Safari 웹사이트에서 "앱을 사용하는 동안"으로, Android는 설정의 위치 기능과 브라우저 앱의 위치 권한을 확인해 주세요.',
 } as const;
 
+/** 기록 화면 문구 */
+export const HISTORY_MESSAGES = {
+  running: '진행 중',
+} as const;
+
 /** 앱 만족도 팝업 문구 */
 export const APP_REVIEW_MESSAGES = {
   title: 'Run Smart, 어떠셨나요?',
