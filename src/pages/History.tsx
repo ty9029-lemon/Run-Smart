@@ -51,12 +51,12 @@ function HistoryHeader({ entry }: { entry: HistoryEntry }) {
       />
       <div className="mt-5 space-y-1 text-base">
         <p>
-          <span className="text-subtle-text">{HISTORY_MESSAGES.weatherLabel} </span>
+          <span className="mr-2 text-subtle-text">{HISTORY_MESSAGES.weatherLabel}</span>
           {entry.weatherSummary}
         </p>
         {entry.actualOutfit && (
           <p>
-            <span className="text-subtle-text">{HISTORY_MESSAGES.actualOutfitLabel} </span>
+            <span className="mr-2 text-subtle-text">{HISTORY_MESSAGES.actualOutfitLabel}</span>
             {entry.actualOutfit}
           </p>
         )}

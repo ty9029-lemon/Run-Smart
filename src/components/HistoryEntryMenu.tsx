@@ -58,7 +58,7 @@ export default function HistoryEntryMenu({ entry, daysAgo }: HistoryEntryMenuPro
           <DropdownMenu.Content
             align="end"
             sideOffset={4}
-            className="z-50 min-w-40 rounded-xl bg-card-border-ink p-1 text-foreground"
+            className="z-50 min-w-40 rounded-[12px] bg-card-border-ink p-1 text-foreground"
           >
             <DropdownMenu.Item className={ITEM_CLASS} onSelect={() => setDialog('edit')}>
               {HISTORY_MENU_MESSAGES.edit}
