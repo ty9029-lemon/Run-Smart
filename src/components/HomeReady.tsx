@@ -30,7 +30,7 @@ import { getDepartureStatus } from '../lib/departureStatus';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
 import { elapsedSeconds } from '../lib/formatElapsed';
 import { recommendOutfit } from '../lib/outfit';
-import { calcRunScore, scoreToLevel } from '../lib/runScore';
+import { calcRunScore, scoreToHeadline, scoreToLevel } from '../lib/runScore';
 import { getSunsetStatus } from '../lib/scoreFactors';
 import { useActiveSessionStore } from '../store/activeSessionStore';
 import { useHistoryStore } from '../store/historyStore';
@@ -201,7 +201,7 @@ export default function HomeReady({
       <HomeSummary
         activity={activity}
         score={score}
-        level={scoreToLevel(score)}
+        headline={scoreToHeadline(score, activity)}
         outfit={outfit}
         onSelectActivity={handleSelectActivity}
       />

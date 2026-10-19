@@ -38,6 +38,7 @@ export const ANALYTICS_EVENTS = {
   dataLoadFailed: 'data_load_failed',
   hourlyForecastScrolled: 'hourly_forecast_scrolled',
   historyOpened: 'history_opened',
+  tabClicked: 'tab_clicked',
   historyEntryViewed: 'history_entry_viewed',
   outfitViewed: 'outfit_viewed',
   feedbackSubmitted: 'feedback_submitted',

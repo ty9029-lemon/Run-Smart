@@ -1,5 +1,5 @@
 import { withObjectParticle } from '../lib/koreanParticle';
-import type { WarningLevel } from '../types';
+import type { ScoreTier, WarningLevel } from '../types';
 
 /** PRD 6장 실패 처리 문구 */
 export const MESSAGES = {
@@ -108,6 +108,15 @@ export const LEVEL_LABEL: Record<WarningLevel, string> = {
   good: '활동하기 좋아요',
   caution: '주의가 필요해요',
   careful: '신중히 검토하세요',
+};
+
+/** 러닝 점수 5단계별 헤드라인 문구 */
+export const RUNNING_TIER_LABEL: Record<ScoreTier, string> = {
+  excellent: '지금 러닝하기 딱 좋아요',
+  good: '기분 좋게 달리기 좋아요',
+  fair: '가볍게 뛰기 괜찮아요',
+  caution: '컨디션을 살피며 가볍게 달려요',
+  careful: '오늘은 푹 쉬어가는 걸 추천해요',
 };
 
 /** 위치를 알 수 없을 때 사용하는 기준 위치 */

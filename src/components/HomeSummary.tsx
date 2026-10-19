@@ -2,13 +2,13 @@ import ActivityChips from './ActivityChips';
 import OutfitPanel from './OutfitPanel';
 import ScoreRing from './ScoreRing';
 import { OUTFIT_SOURCES } from '../constants/analytics';
-import { LEVEL_LABEL } from '../constants/messages';
-import type { Activity, OutfitItem, WarningLevel } from '../types';
+import type { Activity, OutfitItem } from '../types';
 
 interface HomeSummaryProps {
   activity: Activity;
   score: number;
-  level: WarningLevel;
+  /** 점수 링 위의 헤드라인 문구 */
+  headline: string;
   outfit: OutfitItem[];
   onSelectActivity: (activity: Activity) => void;
 }
@@ -17,7 +17,7 @@ interface HomeSummaryProps {
 export default function HomeSummary({
   activity,
   score,
-  level,
+  headline,
   outfit,
   onSelectActivity,
 }: HomeSummaryProps) {
@@ -27,7 +27,7 @@ export default function HomeSummary({
         selected={activity}
         onSelect={onSelectActivity}
       />
-      <h1 className="text-3xl font-bold leading-tight">{LEVEL_LABEL[level]}</h1>
+      <h1 className="text-3xl font-bold leading-tight">{headline}</h1>
       <ScoreRing score={score} />
       <OutfitPanel items={outfit} source={OUTFIT_SOURCES.home} activity={activity} />
     </div>
