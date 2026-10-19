@@ -23,7 +23,7 @@ const buttonVariants = cva(
         lg: "h-12 gap-2 px-5 text-base leading-[1.2] has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4",
         default:
           "h-10 gap-2 px-5 text-base leading-[1.2] has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4",
-        sm: "h-8 gap-1.5 px-5 text-sm leading-[1.2] has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4 [&_svg:not([class*='size-'])]:size-3.5",
+        sm: "h-8 gap-2 px-5 text-sm leading-[1.2] has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4 [&_svg:not([class*='size-'])]:size-3.5",
         xs: "h-6 gap-1 px-3 text-xs font-medium has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 [&_svg:not([class*='size-'])]:size-3",
         icon: "size-10",
         "icon-xs":
