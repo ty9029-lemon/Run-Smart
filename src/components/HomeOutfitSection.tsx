@@ -40,8 +40,10 @@ export default function HomeOutfitSection({
   const tips = guide.state === 'ready' ? guide.data.activityTips : [];
   return (
     <section className="space-y-4">
-      <h2 className="-mb-1 text-xl font-bold">현재 날씨 추천 복장</h2>
-      <GuideParagraph guide={guide} rawWeather={rawWeather} />
+      <div className="space-y-3">
+        <h2 className="text-xl font-bold">현재 날씨 추천 복장</h2>
+        <GuideParagraph guide={guide} rawWeather={rawWeather} />
+      </div>
       {location && <LocationNotice {...location} />}
       <OutfitPanel
         items={outfit}
