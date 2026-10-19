@@ -63,7 +63,7 @@ export default function OutfitPanel({
             className="flex flex-col items-center gap-2 rounded-2xl px-1 py-3 text-center"
           >
             <OutfitIcon icon={item.icon} className="size-16" />
-            <span className="text-xs leading-tight">{item.label}</span>
+            <span className="break-keep text-xs leading-tight">{item.label}</span>
           </li>
         ))}
       </ul>

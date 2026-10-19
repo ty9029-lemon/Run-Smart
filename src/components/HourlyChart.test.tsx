@@ -42,3 +42,11 @@ describe('HourlyChart 제목', () => {
     expect(html).toContain('러닝하기 좋아요');
   });
 });
+
+describe('HourlyChart 스크롤바', () => {
+  it('처음에는 스크롤 중이 아니라 스크롤바를 숨긴다', () => {
+    const html = renderToStaticMarkup(<HourlyChart {...BASE} />);
+    expect(html).toContain('data-scrolling="false"');
+    expect(html).toContain('chart-scrollbar');
+  });
+});

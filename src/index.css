@@ -121,3 +121,32 @@
     cursor: pointer;
   }
 }
+
+/* 시간대 차트처럼 가로로 스크롤하는 목록의 스크롤바: 4px 막대를 스크롤하는 동안에만 보인다 (data-scrolling) */
+@utility chart-scrollbar {
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 9999px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 9999px;
+  }
+  &[data-scrolling='true']::-webkit-scrollbar-track {
+    background: var(--color-card-border-ink);
+  }
+  &[data-scrolling='true']::-webkit-scrollbar-thumb {
+    background: var(--color-steel-border);
+  }
+  /* Chrome 121+는 표준 속성이 있으면 ::-webkit-scrollbar를 무시하므로 Firefox에서만 지정한다 */
+  @supports (-moz-appearance: none) {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    &[data-scrolling='true'] {
+      scrollbar-color: var(--color-steel-border) var(--color-card-border-ink);
+    }
+  }
+}
