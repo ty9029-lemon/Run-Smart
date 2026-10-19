@@ -8,7 +8,9 @@ import { getWeatherEmoji } from '../constants/weatherEmoji';
 import { getDustGrade, getUvLevel } from '../lib/airGrade';
 import { formatHourLabel } from '../lib/formatTime';
 import { scoreToLevel } from '../lib/runScore';
+import type { ScoreDelta } from '../lib/scoreReasons';
 import type { HourlyWeather } from '../types';
+import ScoreDeltaLine from './ScoreDeltaLine';
 
 interface SelectedHourDetailProps {
   weather: HourlyWeather;
@@ -16,6 +18,8 @@ interface SelectedHourDetailProps {
   score: number;
   /** 그 시각의 개인 체감온도 */
   feelsLike: number;
+  /** 지금과 비교한 항목별 점수 차이. 지금 시각이면 null(비교하지 않는다) */
+  deltas?: ScoreDelta[] | null;
 }
 
 /** 지표 타일 한 칸 */
@@ -51,7 +55,12 @@ function buildTiles(weather: HourlyWeather, feelsLike: number): Tile[] {
 }
 
 /** 차트에서 고른 시각의 기온·날씨·점수와 지표 6칸 */
-export default function SelectedHourDetail({ weather, score, feelsLike }: SelectedHourDetailProps) {
+export default function SelectedHourDetail({
+  weather,
+  score,
+  feelsLike,
+  deltas = null,
+}: SelectedHourDetailProps) {
   const level = scoreToLevel(score);
   const emoji = getWeatherEmoji(weather.condition, weather.isDay);
   return (
@@ -74,6 +83,7 @@ export default function SelectedHourDetail({ weather, score, feelsLike }: Select
             {score}점 {SCORE_LEVEL_NAME[level]}
           </p>
         </div>
+        {deltas && <ScoreDeltaLine deltas={deltas} />}
       </div>
       <dl className="grid grid-cols-3 gap-3">
         {buildTiles(weather, feelsLike).map(({ label, value, icon: Icon, valueClass }) => (

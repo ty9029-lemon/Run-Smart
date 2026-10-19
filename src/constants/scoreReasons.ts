@@ -8,9 +8,12 @@ export const SCORE_FACTOR_LABEL: Record<keyof ScoreWeights, string> = {
   wind: '바람',
   humidity: '습도',
   dust: '미세먼지',
-  daylight: '낮/밤',
+  daylight: '일조 시간',
   uv: '자외선',
 };
+
+/** 일몰까지 남은 시간을 보여줄 때 소수 첫째 자리까지 맞추는 배수 */
+export const SUNSET_HOURS_ROUND_UNIT = 10;
 
 /** 이 점수 이상 깎인 항목만 "이유"로 보여준다 */
 export const MIN_REASON_PENALTY = 3;
@@ -35,6 +38,8 @@ export const SCORE_REASON_MESSAGES = {
   good: '좋아요',
   normal: '보통이에요',
   bad: '점수를 많이 깎았어요',
-  day: '낮',
-  night: '밤',
+  day: '해 떠 있음',
+  night: '해 짐',
+  compareLead: '지금보다',
+  compareSame: '지금과 비슷한 조건이에요',
 } as const;

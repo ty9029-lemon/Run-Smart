@@ -4,6 +4,7 @@ import type { Weather } from '../types';
 import { NEUTRAL_SENSITIVITY } from './feelsLike';
 import { calcScoreBreakdown } from './runScore';
 import {
+  buildScoreDeltas,
   buildScoreReasons,
   describeRatio,
   formatFactorValue,
@@ -80,8 +81,53 @@ describe('describeRatio / formatFactorValue', () => {
   });
 
   it('값에 단위를 붙인다', () => {
-    expect(formatFactorValue('wind', IDEAL, 11)).toBe('2m/s');
-    expect(formatFactorValue('feelsLike', IDEAL, 11)).toBe('11°C');
-    expect(formatFactorValue('daylight', { ...IDEAL, isDay: false }, 11)).toBe('밤');
+    expect(formatFactorValue('wind', IDEAL, 11, 'running')).toBe('2m/s');
+    expect(formatFactorValue('feelsLike', IDEAL, 11, 'running')).toBe('11°C');
+  });
+
+  it('일조 시간은 해 떠 있음과 해 짐으로 보여준다', () => {
+    expect(formatFactorValue('daylight', IDEAL, 11, 'running')).toBe('해 떠 있음');
+    expect(formatFactorValue('daylight', { ...IDEAL, isDay: false }, 11, 'running')).toBe('해 짐');
+  });
+
+  it('등산·자전거는 일몰까지 남은 시간을 보여준다', () => {
+    const afternoon = { ...IDEAL, hoursUntilSunset: 2.46 };
+    expect(formatFactorValue('daylight', afternoon, 11, 'hiking')).toBe('일몰까지 2.5시간');
+    expect(formatFactorValue('daylight', afternoon, 11, 'running')).toBe('해 떠 있음');
+    expect(formatFactorValue('daylight', IDEAL, 11, 'hiking')).toBe('해 떠 있음');
+  });
+});
+
+describe('buildScoreDeltas', () => {
+  const breakdownOf = (weather: Weather) =>
+    calcScoreBreakdown(weather, NEUTRAL_SENSITIVITY, [], 'running');
+
+  it('같은 날씨면 차이가 없다', () => {
+    expect(buildScoreDeltas(breakdownOf(IDEAL), breakdownOf(IDEAL))).toEqual([]);
+  });
+
+  it('지금보다 나아진 항목은 양수, 나빠진 항목은 음수다', () => {
+    const better = buildScoreDeltas(breakdownOf(IDEAL), breakdownOf(DUSTY));
+    expect(better[0].key).toBe('dust');
+    expect(better[0].diff).toBeGreaterThan(0);
+    const worse = buildScoreDeltas(breakdownOf(DUSTY), breakdownOf(IDEAL));
+    expect(worse[0].diff).toBeLessThan(0);
+  });
+
+  it('기준보다 작은 차이는 뺀다', () => {
+    const slightlyWindy: Weather = { ...IDEAL, windSpeed: 3.5 };
+    expect(buildScoreDeltas(breakdownOf(slightlyWindy), breakdownOf(IDEAL))).toEqual([]);
+  });
+
+  it('차이가 큰 항목 최대 2개만 큰 순서로 고른다', () => {
+    const bad: Weather = {
+      ...IDEAL,
+      pm10: 150,
+      windSpeed: 10,
+      precipitation: 3,
+    };
+    const deltas = buildScoreDeltas(breakdownOf(bad), breakdownOf(IDEAL));
+    expect(deltas).toHaveLength(2);
+    expect(Math.abs(deltas[0].diff)).toBeGreaterThanOrEqual(Math.abs(deltas[1].diff));
   });
 });

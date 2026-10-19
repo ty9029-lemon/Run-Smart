@@ -7,12 +7,12 @@ import {
 } from '@/components/ui/dialog';
 import { SCORE_REASON_MESSAGES } from '../constants/scoreReasons';
 import { describeRatio, formatFactorValue, type ScoreReason } from '../lib/scoreReasons';
-import type { Weather } from '../types';
+import type { Activity, Weather } from '../types';
 
 /** 화면 아래에서 올라오는 시트 모양 (FeedbackSheet와 같다) */
 const SHEET_CLASS = [
   'top-auto bottom-0 translate-y-0 max-w-full sm:max-w-md rounded-b-none',
-  'max-h-[85vh] overflow-y-auto',
+  'max-h-[85vh] gap-6 overflow-y-auto',
   'pb-[calc(1.5rem+env(safe-area-inset-bottom))]',
   'data-open:zoom-in-100 data-open:slide-in-from-bottom',
   'data-closed:zoom-out-100 data-closed:slide-out-to-bottom',
@@ -28,6 +28,7 @@ interface ScoreBreakdownSheetProps {
   reasons: ScoreReason[];
   weather: Weather;
   feelsLike: number;
+  activity: Activity;
 }
 
 /** 항목 한 줄: 이름·현재 값·해석, 받은 점수 막대, 깎인 점수 */
@@ -38,11 +39,11 @@ function ReasonRow({ reason, value }: { reason: ScoreReason; value: string }) {
     <li className="space-y-1.5">
       <div className="flex items-baseline justify-between gap-3">
         <span className="font-medium">
-          {label} <span className="font-normal text-subtle-text">{value}</span>
+          {label}
+          <span className="ml-2 font-normal text-subtle-text">{value}</span>
         </span>
         <span className="shrink-0 text-sm tabular-nums">
-          {points}/{max}점
-          {penalty > 0 && <span className="ml-1.5 text-level-bad">−{penalty}</span>}
+          {points}/{max}점{penalty > 0 && <span className="ml-2 text-level-bad">−{penalty}</span>}
         </span>
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-card-border-ink" aria-hidden="true">
@@ -64,6 +65,7 @@ export default function ScoreBreakdownSheet({
   reasons,
   weather,
   feelsLike,
+  activity,
 }: ScoreBreakdownSheetProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -79,7 +81,7 @@ export default function ScoreBreakdownSheet({
             <ReasonRow
               key={reason.key}
               reason={reason}
-              value={formatFactorValue(reason.key, weather, feelsLike)}
+              value={formatFactorValue(reason.key, weather, feelsLike, activity)}
             />
           ))}
         </ul>
