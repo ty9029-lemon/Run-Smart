@@ -6,9 +6,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { SCORE_REASON_MESSAGES } from '../constants/scoreReasons';
+import { REASON_LEVEL_TEXT_CLASS, SCORE_REASON_MESSAGES } from '../constants/scoreReasons';
 import { BOTTOM_SHEET_CLASS, SHEET_HEADER_CLASS } from '../constants/sheetStyles';
-import { describeRatio, formatFactorValue, type ScoreReason } from '../lib/scoreReasons';
+import {
+  describeRatio,
+  formatFactorValue,
+  ratioToLevel,
+  type ScoreReason,
+} from '../lib/scoreReasons';
 import type { Activity, Weather } from '../types';
 
 /** 항목이 많아 시트 안에서 스크롤하도록 높이와 간격을 더한다 */
@@ -46,7 +51,7 @@ function ReasonRow({ reason, value }: { reason: ScoreReason; value: string }) {
         <div className="h-full rounded-full bg-primary" style={{ width: `${earnedPercent}%` }} />
       </div>
       <p className="text-sm text-subtle-text">
-        {describeRatio(ratio)}
+        <span className={REASON_LEVEL_TEXT_CLASS[ratioToLevel(ratio)]}>{describeRatio(ratio)}</span>
         {sensitive && ` · ${SCORE_REASON_MESSAGES.sensitiveNote}`}
       </p>
     </li>

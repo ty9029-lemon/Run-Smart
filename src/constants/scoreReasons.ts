@@ -1,3 +1,4 @@
+import type { WarningLevel } from '../types';
 import type { ScoreWeights } from './scoring';
 
 /** 점수 항목별 화면 이름 */
@@ -26,6 +27,13 @@ export const REASON_GOOD_RATIO = 0.15;
 
 /** 깎인 비율이 이 값 미만이면 "보통이에요", 이상이면 "점수를 많이 깎았어요" */
 export const REASON_NORMAL_RATIO = 0.5;
+
+/** 해석 문구의 글자 색: 좋으면 서브 텍스트 그대로, 보통·나쁨만 레벨 색으로 눈에 띄게 한다 */
+export const REASON_LEVEL_TEXT_CLASS: Record<WarningLevel, string> = {
+  good: 'text-subtle-text',
+  caution: 'text-level-normal',
+  careful: 'text-level-bad',
+};
 
 /** 점수 근거 화면 문구 */
 export const SCORE_REASON_MESSAGES = {

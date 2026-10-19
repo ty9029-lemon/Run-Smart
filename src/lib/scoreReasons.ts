@@ -8,9 +8,16 @@ import {
   SUNSET_HOURS_ROUND_UNIT,
 } from '../constants/scoreReasons';
 import { ACTIVITY_DAYLIGHT_BUFFER_HOURS, ACTIVITY_SCORE_WEIGHTS } from '../constants/scoring';
-import type { Activity, Constraint, Weather } from '../types';
+import type { Activity, Constraint, WarningLevel, Weather } from '../types';
 import type { ScoreBreakdown } from './runScore';
 import { isColdAir, isDryAir } from './scoreFactors';
+
+/** 단계별 해석 문구 */
+const RATIO_MESSAGES: Record<WarningLevel, string> = {
+  good: SCORE_REASON_MESSAGES.good,
+  caution: SCORE_REASON_MESSAGES.normal,
+  careful: SCORE_REASON_MESSAGES.bad,
+};
 
 /** 점수 항목 하나의 근거 */
 export interface ScoreReason {
@@ -90,13 +97,21 @@ export function pickTopReasons(reasons: ScoreReason[]): ScoreReason[] {
 }
 
 /**
+ * 깎인 비율을 좋음·보통·나쁨 단계로 나눈다.
+ * @param ratio 깎인 비율 (0~1)
+ */
+export function ratioToLevel(ratio: number): WarningLevel {
+  if (ratio < REASON_GOOD_RATIO) return 'good';
+  if (ratio < REASON_NORMAL_RATIO) return 'caution';
+  return 'careful';
+}
+
+/**
  * 깎인 비율을 한 줄 해석으로 바꾼다.
  * @param ratio 깎인 비율 (0~1)
  */
 export function describeRatio(ratio: number): string {
-  if (ratio < REASON_GOOD_RATIO) return SCORE_REASON_MESSAGES.good;
-  if (ratio < REASON_NORMAL_RATIO) return SCORE_REASON_MESSAGES.normal;
-  return SCORE_REASON_MESSAGES.bad;
+  return RATIO_MESSAGES[ratioToLevel(ratio)];
 }
 
 /**

@@ -7,6 +7,7 @@ import {
   buildScoreDeltas,
   buildScoreReasons,
   describeRatio,
+  ratioToLevel,
   formatFactorValue,
   pickTopReasons,
 } from './scoreReasons';
@@ -70,6 +71,14 @@ describe('buildScoreReasons', () => {
   it('상위 이유는 최대 2개다', () => {
     const bad: Weather = { ...DUSTY, windSpeed: 10, precipitation: 3 };
     expect(pickTopReasons(reasonsOf(bad)).length).toBe(2);
+  });
+});
+
+describe('ratioToLevel', () => {
+  it('깎인 비율에 따라 좋음·보통·나쁨으로 나눈다', () => {
+    expect(ratioToLevel(0)).toBe('good');
+    expect(ratioToLevel(0.3)).toBe('caution');
+    expect(ratioToLevel(0.9)).toBe('careful');
   });
 });
 
