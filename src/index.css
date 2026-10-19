@@ -92,8 +92,8 @@
   --muted-foreground: #8e8e90;
   --accent: #28282a;
   --accent-foreground: #ffffff;
-  /* 두 번째 유채색 금지: destructive도 모노크롬 */
-  --destructive: #ffffff;
+  /* 오류·위험(destructive)은 상태 레벨 색의 '나쁨'과 같은 코랄을 쓴다 (Figma feedback/destructive) */
+  --destructive: var(--color-level-bad);
   --border: #28282a;
   --input: #707072;
   --ring: #b7ff2c;
