@@ -14,9 +14,9 @@ import {
 } from '../constants/feedback';
 import { FEEDBACK_SHEET_THANKS_MS } from '../constants/thresholds';
 import { useSubmitFeedback } from '../hooks/useSubmitFeedback';
-import { formatTime } from '../lib/formatTime';
-import type { Feedback, HistoryEntry } from '../types';
-import FeedbackChoices from './FeedbackChoices';
+import { formatDayPrefix, formatTime } from '../lib/formatTime';
+import type { Feedback, FeedbackDetail, HistoryEntry } from '../types';
+import FeedbackForm from './FeedbackForm';
 
 /** 화면 아래에서 올라오는 시트 모양 (드래그 없이 버튼·바깥 탭·ESC로 닫는다) */
 const SHEET_CLASS = [
@@ -35,7 +35,7 @@ interface FeedbackSheetProps {
   onClose: () => void;
 }
 
-/** 활동을 마친 직후 체감을 묻는 바텀 시트. 답하지 않고 넘어가면 앱 재방문 때 상단 카드가 이어서 묻는다. */
+/** 활동을 마친 직후 체감·거리·복장을 묻는 바텀 시트. 답하지 않고 넘어가면 앱 재방문 때 상단 카드가 이어서 묻는다. */
 export default function FeedbackSheet({ entry, onDismiss, onClose }: FeedbackSheetProps) {
   const submitFeedback = useSubmitFeedback();
   const [answeredId, setAnsweredId] = useState<string | null>(null);
@@ -57,15 +57,16 @@ export default function FeedbackSheet({ entry, onDismiss, onClose }: FeedbackShe
     else onDismiss(entry);
   };
 
-  /** 답을 저장하고 감사 문구로 바꾼다. 저장은 선택 즉시 끝난다. */
-  const handleSelect = (feedback: Feedback) => {
-    submitFeedback(entry, feedback, FEEDBACK_SOURCES.sheet);
+  /** 체감과 선택 입력(거리·복장)을 저장하고 감사 문구로 바꾼다. */
+  const handleSave = (feedback: Feedback, detail: FeedbackDetail) => {
+    submitFeedback(entry, feedback, FEEDBACK_SOURCES.sheet, detail);
     setAnsweredId(entry.id);
   };
 
   const title = formatFeedbackTitle(
     formatTime(entry.date),
     getActivityMeta(entry.activity).label,
+    formatDayPrefix(entry.date),
   );
 
   return (
@@ -81,10 +82,7 @@ export default function FeedbackSheet({ entry, onDismiss, onClose }: FeedbackShe
               <DialogTitle className="text-lg">{title}</DialogTitle>
               <DialogDescription>{FEEDBACK_MESSAGES.sheetDescription}</DialogDescription>
             </DialogHeader>
-            <FeedbackChoices
-              onSelect={handleSelect}
-              onLater={() => onDismiss(entry)}
-            />
+            <FeedbackForm key={entry.id} onSave={handleSave} onLater={() => onDismiss(entry)} />
           </>
         )}
       </DialogContent>

@@ -3,9 +3,9 @@ import { getActivityMeta } from '../constants/activities';
 import { FEEDBACK_MESSAGES, FEEDBACK_SOURCES, formatFeedbackTitle } from '../constants/feedback';
 import { useFeedbackPrompt } from '../hooks/useFeedbackPrompt';
 import { useSubmitFeedback } from '../hooks/useSubmitFeedback';
-import { formatTime } from '../lib/formatTime';
-import type { Feedback } from '../types';
-import FeedbackChoices from './FeedbackChoices';
+import { formatDayPrefix, formatTime } from '../lib/formatTime';
+import type { Feedback, FeedbackDetail } from '../types';
+import FeedbackForm from './FeedbackForm';
 
 const CARD = 'rounded-panel border border-card-border-ink bg-card-charcoal p-6';
 
@@ -16,7 +16,7 @@ interface FeedbackCardProps {
   hiddenEntryIds?: (string | null)[];
 }
 
-/** 다녀온 뒤 체감을 묻는 카드. 답하면 다음 추천(복장·시간대)에 반영된다. */
+/** 다녀온 뒤 체감·거리·복장을 묻는 카드. 답하면 다음 추천(복장·시간대)에 반영된다. */
 export default function FeedbackCard({ onDismiss, hiddenEntryIds = [] }: FeedbackCardProps) {
   const pending = useFeedbackPrompt();
   const submitFeedback = useSubmitFeedback();
@@ -33,9 +33,9 @@ export default function FeedbackCard({ onDismiss, hiddenEntryIds = [] }: Feedbac
   }
   if (!pending || pending.id === dismissedId || hiddenEntryIds.includes(pending.id)) return null;
 
-  /** 피드백을 기록하고 보정값에 누적한다. */
-  const handleSelect = (feedback: Feedback) => {
-    submitFeedback(pending, feedback, FEEDBACK_SOURCES.card);
+  /** 피드백과 선택 입력(거리·복장)을 기록하고 보정값에 누적한다. */
+  const handleSave = (feedback: Feedback, detail: FeedbackDetail) => {
+    submitFeedback(pending, feedback, FEEDBACK_SOURCES.card, detail);
     setSubmittedId(pending.id);
   };
 
@@ -48,9 +48,13 @@ export default function FeedbackCard({ onDismiss, hiddenEntryIds = [] }: Feedbac
   return (
     <section className={`${CARD} space-y-4`} aria-label={FEEDBACK_MESSAGES.ariaLabel}>
       <h2 className="text-base font-bold">
-        {formatFeedbackTitle(formatTime(pending.date), getActivityMeta(pending.activity).label)}
+        {formatFeedbackTitle(
+          formatTime(pending.date),
+          getActivityMeta(pending.activity).label,
+          formatDayPrefix(pending.date),
+        )}
       </h2>
-      <FeedbackChoices onSelect={handleSelect} onLater={handleLater} />
+      <FeedbackForm key={pending.id} onSave={handleSave} onLater={handleLater} />
     </section>
   );
 }

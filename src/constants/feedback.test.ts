@@ -15,4 +15,8 @@ describe('formatFeedbackTitle', () => {
   it('시각과 활동명으로 질문 제목을 만든다', () => {
     expect(formatFeedbackTitle('오후 10:07', '러닝')).toBe('오후 10:07 러닝, 어땠어요?');
   });
+
+  it('지난 날이면 말머리를 앞에 붙인다', () => {
+    expect(formatFeedbackTitle('오전 7:34', '러닝', '어제')).toBe('어제 오전 7:34 러닝, 어땠어요?');
+  });
 });

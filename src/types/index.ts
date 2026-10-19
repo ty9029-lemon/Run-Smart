@@ -127,4 +127,14 @@ export interface HistoryEntry {
   feedbackAt?: string;
   /** 활동 시간(초). 종료 버튼을 눌러 활동을 마친 기록에만 있다 */
   durationSec?: number;
+  /** 사용자가 입력한 실제 이동 거리(km) */
+  distanceKm?: number;
+  /** 사용자가 입력한 실제 착용 복장 */
+  actualOutfit?: string;
+}
+
+/** 운동 후 피드백과 함께 남기는 선택 입력 */
+export interface FeedbackDetail {
+  distanceKm?: number;
+  actualOutfit?: string;
 }
