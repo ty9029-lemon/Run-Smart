@@ -6,17 +6,12 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { SCORE_REASON_MESSAGES } from '../constants/scoreReasons';
+import { BOTTOM_SHEET_CLASS } from '../constants/sheetStyles';
 import { describeRatio, formatFactorValue, type ScoreReason } from '../lib/scoreReasons';
 import type { Activity, Weather } from '../types';
 
-/** 화면 아래에서 올라오는 시트 모양 (FeedbackSheet와 같다) */
-const SHEET_CLASS = [
-  'top-auto bottom-0 translate-y-0 max-w-full sm:max-w-md rounded-b-none',
-  'max-h-[85vh] gap-6 overflow-y-auto',
-  'pb-[calc(1.5rem+env(safe-area-inset-bottom))]',
-  'data-open:zoom-in-100 data-open:slide-in-from-bottom',
-  'data-closed:zoom-out-100 data-closed:slide-out-to-bottom',
-].join(' ');
+/** 항목이 많아 시트 안에서 스크롤하도록 높이와 간격을 더한다 */
+const SHEET_CLASS = `${BOTTOM_SHEET_CLASS} max-h-[85vh] gap-6 overflow-y-auto`;
 
 /** 비율(0~1)을 백분율로 바꿀 때 곱하는 값 */
 const PERCENT = 100;

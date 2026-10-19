@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import HistoryCalendar from '../components/HistoryCalendar';
+import HistoryEntryMenu from '../components/HistoryEntryMenu';
 import HistoryEntryStatus from '../components/HistoryEntryStatus';
 import HistoryRecommendation from '../components/HistoryRecommendation';
 import { chipVariants } from '@/components/ui/chip';
@@ -36,7 +37,13 @@ function HistoryHeader({ entry }: { entry: HistoryEntry }) {
   const runningStartedAt = session?.entryId === entry.id ? session.startedAt : null;
   const askFeedback = isFeedbackAskable(entry, now.getTime(), session?.entryId ?? null);
   return (
-    <div className="rounded-panel bg-card-charcoal p-6">
+    <div className="relative rounded-panel bg-card-charcoal p-6">
+      {/* 진행 중인 기록은 수정·삭제하지 않는다 */}
+      {runningStartedAt === null && (
+        <div className="absolute right-3 top-3">
+          <HistoryEntryMenu entry={entry} daysAgo={daysAgoOf(entry.date)} />
+        </div>
+      )}
       <HistoryEntryStatus
         entry={entry}
         runningStartedAt={runningStartedAt}
@@ -44,12 +51,12 @@ function HistoryHeader({ entry }: { entry: HistoryEntry }) {
       />
       <div className="mt-5 space-y-1 text-base">
         <p>
-          <span className="text-subtle-text">{HISTORY_MESSAGES.weatherLabel} </span>
+          <span className="mr-2 text-subtle-text">{HISTORY_MESSAGES.weatherLabel}</span>
           {entry.weatherSummary}
         </p>
         {entry.actualOutfit && (
           <p>
-            <span className="text-subtle-text">{HISTORY_MESSAGES.actualOutfitLabel} </span>
+            <span className="mr-2 text-subtle-text">{HISTORY_MESSAGES.actualOutfitLabel}</span>
             {entry.actualOutfit}
           </p>
         )}

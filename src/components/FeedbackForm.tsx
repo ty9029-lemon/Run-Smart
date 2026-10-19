@@ -1,18 +1,14 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Chip } from '@/components/ui/chip';
-import { Input } from '@/components/ui/input';
 import {
-  ACTUAL_OUTFIT_MAX_LENGTH,
   FEEDBACK_LABELS,
   FEEDBACK_MESSAGES,
   FEEDBACK_ORDER,
 } from '../constants/feedback';
 import { parseDistanceKm } from '../lib/distance';
 import type { Feedback, FeedbackDetail } from '../types';
-import DistanceStepper from './DistanceStepper';
-
-const SECTION_TITLE = 'text-subheading-sm font-bold';
+import FeedbackDetailFields from './FeedbackDetailFields';
 
 /** 입력값에서 저장할 선택 입력만 골라낸다. (거리는 올바른 숫자일 때만, 복장은 비어 있지 않을 때만) */
 export function buildFeedbackDetail(distanceText: string, outfitText: string): FeedbackDetail {
@@ -40,25 +36,6 @@ function FeedbackOptions({
         </Chip>
       ))}
     </div>
-  );
-}
-
-/** 실제 착용한 복장을 적는 입력 */
-function OutfitSection({ value, onChange }: { value: string; onChange: (text: string) => void }) {
-  return (
-    <section className="space-y-2">
-      <h3 className={SECTION_TITLE}>실제 착용한 복장 (선택)</h3>
-      <p className="text-sm text-muted-foreground">
-        러닝할 때 실제 입었던 복장을 기록해두면, 다음 러닝 시 어떻게 입었는지 참고할 수 있어요.
-      </p>
-      <Input
-        aria-label="실제 착용한 복장"
-        value={value}
-        maxLength={ACTUAL_OUTFIT_MAX_LENGTH}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="예: 나이키 반팔, 언더아머 반바지, 호카 러닝화"
-      />
-    </section>
   );
 }
 
@@ -106,11 +83,13 @@ export default function FeedbackForm({ onSave, onLater }: FeedbackFormProps) {
   return (
     <div className="space-y-9">
       <FeedbackOptions selected={feedback} onSelect={setFeedback} />
-      <section className="space-y-3">
-        <h3 className={SECTION_TITLE}>몇 키로 뛰었나요? (선택)</h3>
-        <DistanceStepper value={distanceText} invalid={isDistanceInvalid} onChange={setDistanceText} />
-      </section>
-      <OutfitSection value={outfitText} onChange={setOutfitText} />
+      <FeedbackDetailFields
+        distanceText={distanceText}
+        outfitText={outfitText}
+        isDistanceInvalid={isDistanceInvalid}
+        onDistanceChange={setDistanceText}
+        onOutfitChange={setOutfitText}
+      />
       <FeedbackActions
         canSave={feedback !== null && !isDistanceInvalid}
         onSave={() => feedback && onSave(feedback, buildFeedbackDetail(distanceText, outfitText))}

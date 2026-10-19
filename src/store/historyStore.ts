@@ -12,6 +12,8 @@ interface HistoryState {
   setFeedback: (id: string, feedback: Feedback, detail?: FeedbackDetail) => void;
   /** 활동을 마친 기록에 활동 시간(초)을 남긴다 */
   setDuration: (id: string, durationSec: number) => void;
+  /** 기록의 거리·실제 복장을 detail 그대로 바꾼다 (detail에 없는 값은 지운다) */
+  updateEntryDetail: (id: string, detail: FeedbackDetail) => void;
 }
 
 /** 저장 데이터 버전 (1: '외출' 활동 제거, 2: 안 가기(skip) 기록 제거, 3: 더미 시드 기록 제거) */
@@ -73,6 +75,16 @@ export const useHistoryStore = create<HistoryState>()(
               ? { ...e, ...detail, feedback, feedbackAt: new Date().toISOString() }
               : e,
           ),
+        })),
+      updateEntryDetail: (id, detail) =>
+        set((state) => ({
+          entries: state.entries.map((e) => {
+            if (e.id !== id) return e;
+            const next = { ...e, ...detail };
+            if (detail.distanceKm === undefined) delete next.distanceKm;
+            if (detail.actualOutfit === undefined) delete next.actualOutfit;
+            return next;
+          }),
         })),
       setDuration: (id, durationSec) =>
         set((state) => ({

@@ -125,3 +125,40 @@ describe('dropSeedEntries', () => {
     expect(dropSeedEntries(entries).map((e) => e.id)).toEqual(['1735689600000']);
   });
 });
+
+describe('updateEntryDetail', () => {
+  beforeEach(() => {
+    useHistoryStore.setState({
+      entries: [
+        { ...makeEntry('a'), distanceKm: 5, actualOutfit: '반팔', feedback: 'good' },
+        makeEntry('b'),
+      ],
+    });
+  });
+
+  it('거리와 복장을 새 값으로 바꾼다', () => {
+    useHistoryStore.getState().updateEntryDetail('a', { distanceKm: 7.5, actualOutfit: '긴팔' });
+    const entry = useHistoryStore.getState().entries[0];
+    expect(entry.distanceKm).toBe(7.5);
+    expect(entry.actualOutfit).toBe('긴팔');
+  });
+
+  it('비워 둔 값은 지운다', () => {
+    useHistoryStore.getState().updateEntryDetail('a', {});
+    const entry = useHistoryStore.getState().entries[0];
+    expect(entry.distanceKm).toBeUndefined();
+    expect(entry.actualOutfit).toBeUndefined();
+  });
+
+  it('체감 같은 다른 값과 다른 기록은 그대로 둔다', () => {
+    useHistoryStore.getState().updateEntryDetail('a', { distanceKm: 3 });
+    const [a, b] = useHistoryStore.getState().entries;
+    expect(a.feedback).toBe('good');
+    expect(b.distanceKm).toBeUndefined();
+  });
+
+  it('거리 없던 기록에 거리를 채울 수 있다', () => {
+    useHistoryStore.getState().updateEntryDetail('b', { distanceKm: 4.2 });
+    expect(useHistoryStore.getState().entries[1].distanceKm).toBe(4.2);
+  });
+});
