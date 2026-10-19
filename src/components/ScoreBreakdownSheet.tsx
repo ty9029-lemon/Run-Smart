@@ -12,7 +12,7 @@ import type { Activity, Weather } from '../types';
 /** 화면 아래에서 올라오는 시트 모양 (FeedbackSheet와 같다) */
 const SHEET_CLASS = [
   'top-auto bottom-0 translate-y-0 max-w-full sm:max-w-md rounded-b-none',
-  'max-h-[85vh] overflow-y-auto',
+  'max-h-[85vh] gap-6 overflow-y-auto',
   'pb-[calc(1.5rem+env(safe-area-inset-bottom))]',
   'data-open:zoom-in-100 data-open:slide-in-from-bottom',
   'data-closed:zoom-out-100 data-closed:slide-out-to-bottom',
@@ -39,10 +39,11 @@ function ReasonRow({ reason, value }: { reason: ScoreReason; value: string }) {
     <li className="space-y-1.5">
       <div className="flex items-baseline justify-between gap-3">
         <span className="font-medium">
-          {label} <span className="font-normal text-subtle-text">{value}</span>
+          {label}
+          <span className="ml-2 font-normal text-subtle-text">{value}</span>
         </span>
         <span className="shrink-0 text-sm tabular-nums">
-          {points}/{max}점{penalty > 0 && <span className="ml-1.5 text-level-bad">−{penalty}</span>}
+          {points}/{max}점{penalty > 0 && <span className="ml-2 text-level-bad">−{penalty}</span>}
         </span>
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-card-border-ink" aria-hidden="true">
