@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import GuideBox from '../components/GuideBox';
 import HistoryCalendar from '../components/HistoryCalendar';
 import OutfitPanel from '../components/OutfitPanel';
@@ -109,11 +108,8 @@ export default function History() {
 
   return (
     <main className="mx-auto max-w-md space-y-4 px-4 py-6">
-      <header className="flex items-center justify-between">
+      <header>
         <h1 className="text-2xl font-bold">활동 기록</h1>
-        <Link to="/" className="text-sm text-steel-border">
-          ← 홈
-        </Link>
       </header>
       <HistoryCalendar
         viewMonth={viewMonth}
