@@ -31,6 +31,7 @@ export const REASON_NORMAL_RATIO = 0.5;
 export const SCORE_REASON_MESSAGES = {
   noPenalty: '점수를 깎는 요인이 없어요',
   openSheet: '왜 이 점수예요?',
+  close: '닫기',
   sheetTitle: '점수는 이렇게 계산돼요',
   sheetDescription:
     '8개 항목을 합쳐 100점 만점으로 계산해요. 활동과 내 설정(추위·더위, 질환)에 따라 항목별 비중이 달라져요.',
