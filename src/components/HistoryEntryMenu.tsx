@@ -11,7 +11,7 @@ import HistoryEditSheet from './HistoryEditSheet';
 
 /** 메뉴 항목 공통 모양 */
 const ITEM_CLASS =
-  'flex w-full cursor-default items-center rounded-lg px-3 py-2.5 text-sm outline-none data-highlighted:bg-card-charcoal';
+  'flex w-full cursor-default items-center rounded-[12px] px-3 py-2.5 text-sm outline-none data-highlighted:bg-card-charcoal';
 
 interface HistoryEntryMenuProps {
   entry: HistoryEntry;
