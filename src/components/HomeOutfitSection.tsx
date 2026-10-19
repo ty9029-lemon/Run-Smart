@@ -3,11 +3,14 @@ import OutfitPanel from './OutfitPanel';
 import { MESSAGES } from '../constants/messages';
 import { OUTFIT_SOURCES } from '../constants/analytics';
 import { filterTipsNotInOutfit } from '../lib/guideTips';
+import type { OutfitReason } from '../lib/outfitReasons';
 import type { Activity, GuideState, OutfitItem } from '../types';
 
 interface HomeOutfitSectionProps {
   activity: Activity;
   outfit: OutfitItem[];
+  /** 복장 추천 근거 */
+  outfitReason: OutfitReason;
   /** AI 가이드 상태 (불러오는 중 / 실패 / 완료) */
   guide: GuideState;
   /** 가이드가 실패했을 때 대신 보여주는 원시 날씨 문구 */
@@ -34,6 +37,7 @@ function GuideParagraph({ guide, rawWeather }: Pick<HomeOutfitSectionProps, 'gui
 export default function HomeOutfitSection({
   activity,
   outfit,
+  outfitReason,
   guide,
   rawWeather,
   location,
@@ -50,6 +54,7 @@ export default function HomeOutfitSection({
       <OutfitPanel
         items={outfit}
         title={null}
+        reason={outfitReason}
         tips={tips}
         source={OUTFIT_SOURCES.home}
         activity={activity}

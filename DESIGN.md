@@ -193,6 +193,11 @@ Card Charcoal(`--card`) 배경, 위쪽 모서리 20px radius, 가로 24px·위 2
 
 구현은 `ScoreReasonLine`(이유 한 줄), `ScoreBreakdownSheet`(시트)이고 항목 계산은 `src/lib/scoreReasons.ts`, 문구와 기준값은 `src/constants/scoreReasons.ts`에 있습니다.
 
+### Outfit Reason Line
+**역할:** 복장을 왜 이렇게 추천했는지 홈의 복장 카드 안에서 바로 알려주는 근거 문구 (UT 인사이트: 옷차림 근거 부족)
+
+복장 카드(Card Charcoal) 안, 아이콘 그리드 아래에 1px Card Border Ink 구분선(위 16px 간격, 구분선 아래 12px 패딩)을 두고 14px Subtle Text로 씁니다. 첫 줄은 기본 근거("체감 7°C 구간이라 기능성 긴팔 · 긴바지 차림으로 맞췄어요.")이고, 러닝·자전거는 "운동하면 체온이 올라 한 단계 가볍게 맞췄어요."를 이어 붙입니다. 둘째 줄은 비·강풍·어두움·자외선·미세먼지·찬 공기(비염)·무릎·빙판 때문에 더해진 장비를 "비가 와서 방수 바람막이 · 자외선이 강해 러닝 캡"처럼 우선순위 순서로 최대 2개까지 보여주며, 해당하는 장비가 없으면 줄 자체를 두지 않습니다. 추천 결과에 실제로 있는 장비만 설명하고, 같은 장비를 기본 근거에서 또 부르지 않습니다. AI 가이드 문단과 달리 규칙으로 만든 문구라 로딩·실패와 상관없이 아이콘과 항상 일치합니다. 구현은 `OutfitReasonLine`, 계산은 `src/lib/outfitReasons.ts`, 문구는 `src/constants/outfitReasons.ts`입니다.
+
 ### Navigation Bar
 **역할:** 최상위 사이트 내비게이션
 
