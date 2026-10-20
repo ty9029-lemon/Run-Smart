@@ -17,6 +17,7 @@ export const MESSAGES = {
   locationAskOnStartHint: '시작하면 위치 권한을 물어봐요.',
   historyEmptyDay: '이 날은 기록이 없어요.',
   toastUndo: '실행 취소',
+  settingsSaved: '설정을 저장했어요.',
   departureCancel: '출발 취소',
   elapsedLabel: '경과 시간',
   endContinue: '계속하기',
