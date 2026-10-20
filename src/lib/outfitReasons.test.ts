@@ -75,11 +75,12 @@ describe('buildOutfitReason - 조건 근거', () => {
     expect(reasonOf(15, 'walking', { pm10: 120 }).extras[0]).toContain('스포츠 마스크');
   });
 
-  it('무릎·비염 설정에 따른 장비를 설명한다', () => {
-    expect(reasonOf(15, 'running', {}, ['kneeIssue']).extras[0]).toBe(
-      '무릎 설정을 반영해 무릎보호대',
-    );
+  it('비염 설정에 따른 장비를 설명한다', () => {
     expect(reasonOf(15, 'running', { temp: 2 }, ['rhinitis']).extras[0]).toContain('티슈');
+  });
+
+  it('무릎 설정의 무릎보호대는 AI 가이드와 아이콘이 알려주므로 근거 줄에 쓰지 않는다', () => {
+    expect(reasonOf(15, 'running', {}, ['kneeIssue']).extras).toEqual([]);
   });
 
   it('조건 근거는 우선순위 순서로 최대 2개만 보여준다', () => {
