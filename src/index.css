@@ -217,12 +217,20 @@
   }
 }
 
-/* 강조 문구: 글자는 --highlight(다크 라임, 라이트 #111111) + 형광펜 밑줄(--mark, 라이트만) */
+/* 강조 문구: 글자는 --highlight(다크 라임, 라이트 #111111) + 형광펜 평행사변형(--mark, 라이트만).
+   밑줄은 글자 뒤(z-index -1)에 비스듬히(skewX) 칠하고, 다크는 --mark가 투명해 보이지 않는다. */
 @utility mark-lime {
+  position: relative;
+  isolation: isolate;
   color: var(--highlight);
-  background-image: linear-gradient(transparent 55%, var(--mark) 55%, var(--mark) 92%, transparent 92%);
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 55% -0.15em 8% -0.15em;
+    z-index: -1;
+    background: var(--mark);
+    transform: skewX(-20deg);
+  }
 }
 
 /* 시간대 차트처럼 가로로 스크롤하는 목록의 스크롤바: 4px 막대를 스크롤하는 동안에만 보인다 (data-scrolling) */
