@@ -22,9 +22,9 @@ Swoosh는 한밤중의 아레나 콘솔처럼 작동합니다. 거의 완전한 
 | Fog Border | `#e5e5e5` | `--color-fog-border` | 라이트 모드 헤어라인 테두리, 텍스트/제목 밑줄, 아이콘 스트로크 — 반전된 맥락(흰 카드, 밝은 표면)에서 등장 |
 | Pure White | `#ffffff` | `--color-pure-white` | 어두운 표면 위의 밝은 텍스트, 반전 라벨, 고대비 캡션. 기본 CTA 컬러로 승격하지 말 것 |
 | Carbon Black | `#000000` | `--color-carbon-black` | 밝은 표면 위의 주요 제목, 본문 텍스트, 아이콘 채움. 기본 CTA 컬러로 승격하지 말 것 |
-| Level Good | `#4da3ff` | `--color-level-good` | 등급 표시 전용: 미세먼지 '좋음', 자외선 '낮음' |
-| Level Normal | `#ff9a3c` | `--color-level-normal` | 등급 표시 전용: '보통', 점수 '보통' 막대 |
-| Level Bad | `#ff7a6b` | `--color-level-bad` | 등급 표시 전용: '나쁨'·'높음', 점수 '나쁨' 막대 |
+| Level Good | 다크 `#4da3ff` / 라이트 `#1a6fd6` | `--level-good` (`text-level-good`) | 등급 표시 전용: 미세먼지 '좋음', 자외선 '낮음' |
+| Level Normal | 다크 `#ff9a3c` / 라이트 `#e36100` | `--level-normal` (`text-level-normal`) | 등급 표시 전용: '보통', 점수 '보통' 막대 |
+| Level Bad | 다크 `#ff7a6b` / 라이트 `#c4301f` | `--level-bad` (`text-level-bad`) | 등급 표시 전용: '나쁨'·'높음', 점수 '나쁨' 막대 |
 | Destructive | `#ff7a6b` | `--destructive` (= Level Bad) | 오류·위험 표시 전용: Destructive 버튼의 면(100%), 입력 오류 테두리, 오류 안내 문구 |
 | Destructive Foreground | `#111111` | `--destructive-foreground` | Destructive 버튼 글자 (코랄 면 위 대비 7.42:1, 흰색은 2.55:1이라 쓰지 않음) |
 
@@ -438,9 +438,9 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
   --color-carbon-black: #000000;
 
   /* 상태 레벨 색 (등급 표시 전용) */
-  --color-level-good: #4da3ff;
-  --color-level-normal: #ff9a3c;
-  --color-level-bad: #ff7a6b;
+  --level-good: #4da3ff;   /* 라이트는 #1a6fd6 */
+  --level-normal: #ff9a3c; /* 라이트는 #e36100 */
+  --level-bad: #ff7a6b;    /* 라이트는 #c4301f */
 
   /* Typography — Font Families */
   --font-plus-jakarta-sans: 'Plus Jakarta Sans', 'Pretendard Variable', Pretendard, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -533,9 +533,9 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
   --color-carbon-black: #000000;
 
   /* 상태 레벨 색 (등급 표시 전용) */
-  --color-level-good: #4da3ff;
-  --color-level-normal: #ff9a3c;
-  --color-level-bad: #ff7a6b;
+  --level-good: #4da3ff;   /* 라이트는 #1a6fd6 */
+  --level-normal: #ff9a3c; /* 라이트는 #e36100 */
+  --level-bad: #ff7a6b;    /* 라이트는 #c4301f */
 
   /* Typography */
   --font-plus-jakarta-sans: 'Plus Jakarta Sans', 'Pretendard Variable', Pretendard, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
