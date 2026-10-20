@@ -7,7 +7,7 @@ import { cn } from "cn"
  * 선택: 옅은 라임 면 + 라임 외곽선 (라이트·다크 공통, 체크 아이콘 없음).
  */
 const chipVariants = cva(
-  "inline-flex shrink-0 items-center justify-center rounded-full border px-5 py-2 text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-40",
+  "inline-flex shrink-0 items-center justify-center rounded-full border px-5 py-2 text-sm font-medium whitespace-nowrap transition-colors duration-(--motion-duration-fast) ease-(--motion-ease-main) outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-40",
   {
     variants: {
       selected: {

@@ -35,7 +35,7 @@ export default function HistoryRecommendation({ entry, daysAgo }: HistoryRecomme
         {HISTORY_MESSAGES.recommendation}
         <ChevronDown
           aria-hidden="true"
-          className="size-4 transition-transform group-open:rotate-180"
+          className="size-4 transition-transform duration-(--motion-duration-fast) ease-(--motion-ease-main) group-open:rotate-180"
         />
       </summary>
       {open && (

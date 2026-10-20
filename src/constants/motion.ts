@@ -17,3 +17,10 @@ export const SKELETON_DELAY_MS = MOTION_DURATION_MS.fast;
 /** 콘텐츠가 자리에 나타날 때의 페이드 (tw-animate 사용). 로딩 문구가 본문으로 바뀌는 순간 등에 쓴다. */
 export const FADE_IN_CLASS =
   'animate-in fade-in-0 duration-(--motion-duration-normal) ease-(--motion-ease-main)';
+
+/**
+ * 탭을 옮길 때 새 페이지가 나타나는 페이드. opacity만 쓰는 전용 애니메이션이다(index.css의 --animate-page-in).
+ * tw-animate의 animate-in은 transform도 애니메이션해, 래퍼가 홈의 하단 고정 버튼(fixed)의
+ * 기준이 되어 버튼이 페이지 아래로 튄다.
+ */
+export const PAGE_FADE_CLASS = 'animate-page-in';

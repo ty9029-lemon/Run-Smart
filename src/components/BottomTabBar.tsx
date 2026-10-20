@@ -31,7 +31,7 @@ export default function BottomTabBar() {
               onClick={() => trackTabClick(tab, pathname)}
               className={({ isActive }) =>
                 cn(
-                  'relative flex h-full flex-col items-center justify-center gap-1 text-xs font-medium',
+                  'relative flex h-full flex-col items-center justify-center gap-1 text-xs font-medium transition-colors duration-(--motion-duration-fast) ease-(--motion-ease-main)',
                   // 라이트에서는 글자색만으로 활성 구분이 약해 상단에 라임 막대를 더한다 (다크는 라임 글자로 충분)
                   isActive
                     ? 'text-highlight before:absolute before:inset-x-[30%] before:top-0 before:h-0.5 before:rounded-full before:bg-primary dark:before:hidden'
