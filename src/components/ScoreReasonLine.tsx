@@ -18,7 +18,7 @@ export default function ScoreReasonLine({ reasons, onOpenBreakdown }: ScoreReaso
   const top = pickTopReasons(reasons);
   const hasSensitive = top.some((r) => r.sensitive);
   return (
-    <div className="flex items-start justify-between gap-3 border-t border-border pt-3">
+    <div className="flex items-center justify-between gap-3 border-t border-border pt-3">
       <div className="min-w-0 text-sm">
         <p>{formatReasonText(top)}</p>
         {hasSensitive && (
