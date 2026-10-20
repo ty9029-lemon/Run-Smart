@@ -14,7 +14,7 @@ export const OUTFIT_REASON_MESSAGES = {
   glare: '햇빛이 강해',
   dust: '미세먼지에 대비해',
   coldAir: '찬 공기에 대비해',
-  knee: '무릎 설정을 반영해',
+  knee: '무릎 보호를 위해',
   ice: '빙판에 대비해',
 } as const;
 

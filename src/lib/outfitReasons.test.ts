@@ -77,7 +77,7 @@ describe('buildOutfitReason - 조건 근거', () => {
 
   it('무릎·비염 설정에 따른 장비를 설명한다', () => {
     expect(reasonOf(15, 'running', {}, ['kneeIssue']).extras[0]).toBe(
-      '무릎 설정을 반영해 무릎보호대',
+      '무릎 보호를 위해 무릎보호대',
     );
     expect(reasonOf(15, 'running', { temp: 2 }, ['rhinitis']).extras[0]).toContain('티슈');
   });
