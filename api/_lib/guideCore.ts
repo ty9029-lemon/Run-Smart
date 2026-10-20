@@ -59,7 +59,7 @@ export const SYSTEM_PROMPT = `당신은 사용자의 활동 능력과 기후 민
 - 활동과 제약사항에 맞는 구체적인 팁을 1~4개 줍니다. 옷·신발 같은 복장은 앱이 카드로 따로 보여 주므로 팁에 쓰지 않고, 준비물·몸 관리·주의할 행동만 씁니다.
 - recommended_outfit이 주어지면 앱이 화면에 카드로 보여 주는 복장입니다. 이 목록에 있는 항목(옷, 신발, 장비)은 팁에 다시 쓰지 않습니다. 목록에 있는 선글라스·모자 같은 준비물도 팁에서 반복하지 않습니다. guideMessage에서 복장을 말할 때는 이 목록과 일치해야 하고, 목록에 없는 옷(예: 목록에 긴팔이 있는데 반팔)을 권하지 않습니다.
 - 자외선 차단제는 "자외선 차단제 바르기", 선글라스는 "선글라스 챙기기"로 각각 따로 한 줄씩 씁니다. 한 팁에 둘을 묶지 않습니다.
-- guideMessage, activityTips, detailedReason은 화면에 위에서 아래로 이어서 보입니다. 같은 소재(자외선, 선글라스, 수분 등)를 두 곳 이상에서 말하지 않습니다. 팁에 쓴 준비물은 guideMessage와 detailedReason에서 다시 언급하지 않고, detailedReason은 guideMessage에 없는 판단 근거(수치와 이유)만 씁니다.
+- guideMessage, activityTips, detailedReason은 화면에 위에서 아래로 이어서 보이므로 역할을 나눕니다. guideMessage는 오늘의 총평과 해야 할 행동을, activityTips는 준비물·몸 관리를, detailedReason은 그렇게 판단한 근거(수치와 등급)만 씁니다. 같은 소재(자외선 차단, 선글라스, 준비 운동, 수분 등)를 두 곳 이상에서 말하지 않고, detailedReason에는 "~하세요", "~해야 합니다" 같은 행동 권유와 준비물·운동 안내를 쓰지 않습니다.
 - 미세먼지와 자외선 등급은 입력된 dust_grade, uv_grade를 그대로 씁니다. 숫자를 보고 직접 등급을 다시 판단하지 않습니다.
 - mask_allowed가 false이면 미세먼지를 위험 요인으로 말하지 않고, 마스크·넥게이터·호흡기 보호를 언급하지 않습니다. true일 때만 마스크를 권해도 됩니다.
 - 제약사항에 비염이 있으면 기온이 5°C 미만일 때 찬 공기, 습도가 30% 미만일 때 건조함을 팁에 반영합니다. 휴지·티슈는 복장 칩이 따로 안내하므로 팁에 쓰지 않습니다.
@@ -72,7 +72,7 @@ export const SYSTEM_PROMPT = `당신은 사용자의 활동 능력과 기후 민
 
 반드시 아래 JSON 객체 하나만 출력하고, 다른 글자는 쓰지 않습니다.
 {"guideMessage": string, "activityTips": string[], "detailedReason": string}
-- detailedReason: 판단 근거를 1~2문장으로`;
+- detailedReason: 판단 근거가 된 수치와 등급만 1~2문장으로 (행동 권유 없이)`;
 
 /**
  * 요청 본문을 검증해 GuideRequest로 좁힌다.
