@@ -206,4 +206,9 @@ describe('복장 목록(outfitLabels)', () => {
     expect(SYSTEM_PROMPT).toContain('자외선 차단제 바르기');
     expect(SYSTEM_PROMPT).toContain('선글라스 챙기기');
   });
+
+  it('시스템 프롬프트가 요약·팁·근거에서 같은 소재를 반복하지 않는 규칙을 담는다', () => {
+    expect(SYSTEM_PROMPT).toContain('같은 소재');
+    expect(SYSTEM_PROMPT).toContain('guideMessage에 없는 판단 근거');
+  });
 });
