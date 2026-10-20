@@ -19,6 +19,7 @@ export default function Settings() {
       coldLevel: next.coldLevel,
       heatLevel: next.heatLevel,
       activityCount: next.selectedActivities.length,
+      timeSlotCount: next.activityTimeSlots.length,
       constraintCount: next.constraints.length,
     });
     navigate('/');
