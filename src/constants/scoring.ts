@@ -39,6 +39,20 @@ export const ACTIVITY_DAYLIGHT_BUFFER_HOURS: Record<Activity, number> = {
   cycling: DAYLIGHT_BUFFER_HOURS,
 };
 
+/**
+ * 활동별로 일몰 후에 일조 배점 외에 더 깎는 점수.
+ * 러닝·산책은 낮 점수를 그대로 두고 밤에만 추가로 깎아, 밤 최고점이 등산·자전거(일조 우선 배점표)와 같은 65점이 되게 한다.
+ * 등산·자전거는 배점표가 이미 일조를 우선하므로 0이다.
+ */
+export const NIGHT_EXTRA_PENALTY = DAYLIGHT_FIRST_WEIGHTS.daylight - SCORE_WEIGHTS.daylight;
+
+export const ACTIVITY_NIGHT_EXTRA_PENALTY: Record<Activity, number> = {
+  running: NIGHT_EXTRA_PENALTY,
+  walking: NIGHT_EXTRA_PENALTY,
+  hiking: 0,
+  cycling: 0,
+};
+
 /** 활동별 배점표 */
 export const ACTIVITY_SCORE_WEIGHTS: Record<Activity, ScoreWeights> = {
   running: SCORE_WEIGHTS,

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { ACTIVITY_SCORE_WEIGHTS, SCORE_WEIGHTS } from '../constants/scoring';
-import { SCORE_MAX } from '../constants/thresholds';
+import { ACTIVITY_SCORE_WEIGHTS, NIGHT_EXTRA_PENALTY, SCORE_WEIGHTS } from '../constants/scoring';
+import { NIGHT_HEADLINE } from '../constants/messages';
+import { RECOMMEND_MIN_SCORE, SCORE_MAX } from '../constants/thresholds';
 import { DUMMY_HOURLY } from '../data/dummyWeather';
 import type { Activity, HourlyWeather, Weather } from '../types';
 import {
@@ -8,6 +9,7 @@ import {
   findBestHourToday,
   findGoodRange,
   scoreHours,
+  isRecommendableHour,
   isTomorrowIndex,
   sliceFromHour,
 } from './bestHour';
@@ -43,6 +45,9 @@ const IDEAL_DAY_AND_NIGHT: HourlyWeather[] = Array.from({ length: 24 }, (_, hour
 
 /** 낮시간을 최우선으로 보는 활동 */
 const DAYLIGHT_FIRST_ACTIVITIES: Activity[] = ['hiking', 'cycling'];
+
+/** 활동 4종 */
+const ALL_ACTIVITIES: Activity[] = ['running', 'walking', 'hiking', 'cycling'];
 
 /** 낮이라 해도 날씨가 평범해(바람·미세먼지 나쁨) 점수가 낮아진 시간대 */
 const MEDIOCRE_DAY: Weather = { ...IDEAL, windSpeed: 7, pm10: 60 };
@@ -95,9 +100,18 @@ describe('calcRunScore', () => {
     expect(score).toBeLessThanOrEqual(100);
   });
 
-  it('밤이면 낮보다 낮 항목 배점만큼 낮다', () => {
-    const night = { ...IDEAL, isDay: false };
-    expect(calcRunScore(night, NEUTRAL_SENSITIVITY, [], 'running')).toBe(100 - SCORE_WEIGHTS.daylight);
+  it.each(['running', 'walking'] as Activity[])(
+    '%s는 밤이면 같은 날씨의 낮보다 일조 배점과 밤 추가 감점만큼 낮다',
+    (activity) => {
+      const day = calcRunScore(IDEAL, NEUTRAL_SENSITIVITY, [], activity);
+      const night = calcRunScore({ ...IDEAL, isDay: false }, NEUTRAL_SENSITIVITY, [], activity);
+      expect(day - night).toBe(SCORE_WEIGHTS.daylight + NIGHT_EXTRA_PENALTY);
+    },
+  );
+
+  it('러닝은 날씨가 이상적인 낮은 100점 그대로이고, 이상적인 밤은 65점이다', () => {
+    expect(calcRunScore(IDEAL, NEUTRAL_SENSITIVITY, [], 'running')).toBe(SCORE_MAX);
+    expect(calcRunScore({ ...IDEAL, isDay: false }, NEUTRAL_SENSITIVITY, [], 'running')).toBe(65);
   });
 
   it.each(DAYLIGHT_FIRST_ACTIVITIES)('%s는 밤이면 점수가 낮 배점만큼 낮아져 65점이 된다', (activity) => {
@@ -113,10 +127,19 @@ describe('calcRunScore', () => {
     expect(day).toBeGreaterThan(night);
   });
 
-  it('러닝은 날씨가 평범한 낮보다 이상적인 밤의 점수가 높다 (기존 동작 유지)', () => {
-    const night = calcRunScore({ ...IDEAL, isDay: false }, NEUTRAL_SENSITIVITY, [], 'running');
-    const day = calcRunScore(MEDIOCRE_DAY, NEUTRAL_SENSITIVITY, [], 'running');
-    expect(night).toBeGreaterThan(day);
+  it.each(['running', 'walking'] as Activity[])(
+    '%s도 날씨가 이상적인 밤보다 평범한 낮의 점수가 높다',
+    (activity) => {
+      const night = calcRunScore({ ...IDEAL, isDay: false }, NEUTRAL_SENSITIVITY, [], activity);
+      const day = calcRunScore(MEDIOCRE_DAY, NEUTRAL_SENSITIVITY, [], activity);
+      expect(day).toBeGreaterThan(night);
+    },
+  );
+
+  it.each(ALL_ACTIVITIES)('%s는 밤에 어떤 날씨여도 70점(좋음)과 80점(추천)에 닿지 못한다', (activity) => {
+    const night = calcRunScore({ ...IDEAL, isDay: false }, NEUTRAL_SENSITIVITY, [], activity);
+    expect(scoreToLevel(night)).not.toBe('good');
+    expect(night).toBeLessThan(RECOMMEND_MIN_SCORE);
   });
 
   it.each([
@@ -202,6 +225,16 @@ describe('러닝 점수 5단계', () => {
     expect(scoreToTier(90, 'walking')).toBeNull();
     expect(scoreToHeadline(90, 'walking')).toBe('활동하기 좋아요');
     expect(scoreToHeadline(50, 'cycling')).toBe('주의가 필요해요');
+  });
+
+  it.each(ALL_ACTIVITIES)('%s는 해가 진 뒤에 점수와 상관없이 야간 전용 헤드라인을 보여준다', (activity) => {
+    expect(scoreToHeadline(95, activity, false)).toBe(NIGHT_HEADLINE);
+    expect(scoreToHeadline(30, activity, false)).toBe(NIGHT_HEADLINE);
+  });
+
+  it('낮이거나 낮밤을 모르면 기존 헤드라인을 쓴다', () => {
+    expect(scoreToHeadline(85, 'running', true)).toBe('지금 러닝하기 딱 좋아요');
+    expect(scoreToHeadline(85, 'running')).toBe('지금 러닝하기 딱 좋아요');
   });
 
   it('러닝은 단계별 헤드라인을 보여준다', () => {
@@ -528,5 +561,53 @@ describe('findGoodRange 22시 제외', () => {
       { hour: 23, score: 90 },
     ];
     expect(findGoodRange(scores, scores[0])).toEqual({ startHour: 20, endHour: 21 });
+  });
+});
+
+describe('밤 시간대는 추천에서 제외한다', () => {
+  it('isRecommendableHour: 해가 진 뒤(isDay=false)와 22시 이후는 제외하고, 낮밤을 모르면 시각만 본다', () => {
+    expect(isRecommendableHour(15, true)).toBe(true);
+    expect(isRecommendableHour(15)).toBe(true);
+    expect(isRecommendableHour(15, false)).toBe(false);
+    expect(isRecommendableHour(22, true)).toBe(false);
+  });
+
+  it('점수가 더 높아도 밤 시간대는 오늘의 추천 시간으로 뽑지 않는다', () => {
+    const scores = [
+      { hour: 17, score: 70, isDay: true },
+      { hour: 19, score: 95, isDay: false },
+      { hour: 20, score: 95, isDay: false },
+    ];
+    expect(findBestHourToday(scores, 17)?.hour).toBe(17);
+  });
+
+  it('남은 시간이 모두 밤이면 추천 시간이 없다', () => {
+    const scores = [
+      { hour: 20, score: 65, isDay: false },
+      { hour: 21, score: 65, isDay: false },
+    ];
+    expect(findBestHourToday(scores, 20)).toBeNull();
+  });
+
+  it('구간 추천에도 밤 시간대를 넣지 않는다', () => {
+    const scores = [
+      { hour: 16, score: 90, isDay: true },
+      { hour: 17, score: 90, isDay: true },
+      { hour: 18, score: 90, isDay: false },
+    ];
+    const best = findBestHourToday(scores, 16);
+    expect(findGoodRange(scores, best)).toEqual({ startHour: 16, endHour: 17 });
+  });
+
+  it('scoreHours는 시간대의 낮밤을 담아 준다', () => {
+    const scores = scoreHours(IDEAL_DAY_AND_NIGHT, NEUTRAL_SENSITIVITY, [], 'running');
+    expect(scores[12].isDay).toBe(true);
+    expect(scores[23].isDay).toBe(false);
+  });
+
+  it('밤 23시의 러닝 점수는 낮보다 낮고 추천에서 빠져 "추천 시간 없음"과 모순되지 않는다', () => {
+    const scores = scoreHours(IDEAL_DAY_AND_NIGHT, NEUTRAL_SENSITIVITY, [], 'running');
+    expect(scores[23].score).toBe(65);
+    expect(findBestHourToday(scores.slice(23), 23)).toBeNull();
   });
 });

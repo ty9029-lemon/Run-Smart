@@ -30,7 +30,7 @@ export default function HomeSummary({
   return (
     <div>
       <ActivityChips selected={activity} onSelect={onSelectActivity} />
-      <h1 className="mb-4 mt-5 text-2xl font-bold leading-snug">{headline}</h1>
+      <h1 className="mb-4 mt-5 break-keep text-2xl font-bold leading-snug">{headline}</h1>
       <HomeScoreCard
         score={score}
         weather={weather}

@@ -20,7 +20,7 @@ export interface BestTimeCard {
 
 /** 시각(시) 목록에서 추천할 수 있는 칸만 남긴다. */
 function recommendable(scores: HourScore[]): HourScore[] {
-  return scores.filter((s) => isRecommendableHour(s.hour));
+  return scores.filter((s) => isRecommendableHour(s.hour, s.isDay));
 }
 
 /** 요일이 평일인지 주말인지 구분한다. */

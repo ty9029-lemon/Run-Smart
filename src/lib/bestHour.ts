@@ -17,6 +17,8 @@ export interface HourScore {
   pm10?: number;
   /** 자외선 지수 */
   uvIndex?: number;
+  /** 해가 떠 있는 시간대인지. false면 추천 후보에서 제외한다 */
+  isDay?: boolean;
   /** 개인 체감온도가 활동의 쾌적(만점) 구간에서 벗어난 정도(°C). 구간 안이면 0 */
   comfortGap?: number;
 }
@@ -55,6 +57,7 @@ export function scoreHours(
     score: calcRunScore(h, sensitivity, constraints, activity),
     pm10: h.pm10,
     uvIndex: h.uvIndex,
+    isDay: h.isDay,
     comfortGap: calcComfortGap(h, sensitivity, activity),
   }));
 }
@@ -125,9 +128,13 @@ export function isTomorrowIndex(index: number, nowHour: number): boolean {
   return index >= HOURS_IN_DAY - nowHour;
 }
 
-/** 추천 대상 시각인지 확인한다. (RECOMMEND_CUTOFF_HOUR 이후는 제외) */
-export function isRecommendableHour(hour: number): boolean {
-  return hour < RECOMMEND_CUTOFF_HOUR;
+/**
+ * 추천 대상 시각인지 확인한다. RECOMMEND_CUTOFF_HOUR 이후와, 해가 진 뒤(isDay가 false)는 제외한다.
+ * @param hour 시각(0~23)
+ * @param isDay 해가 떠 있는지. 모르면(undefined) 시각만 본다.
+ */
+export function isRecommendableHour(hour: number, isDay?: boolean): boolean {
+  return hour < RECOMMEND_CUTOFF_HOUR && isDay !== false;
 }
 
 /**
@@ -136,7 +143,7 @@ export function isRecommendableHour(hour: number): boolean {
  * @param nowHour 현재 시(0~23). 목록 앞의 (24 - nowHour)개가 오늘이다.
  */
 export function findBestHourToday(scores: HourScore[], nowHour: number): HourScore | null {
-  return findBestHour(sliceToday(scores, nowHour).filter((s) => isRecommendableHour(s.hour)));
+  return findBestHour(sliceToday(scores, nowHour).filter((s) => isRecommendableHour(s.hour, s.isDay)));
 }
 
 /** 함께 추천하는 연속 시간대 구간 (양 끝 시각 포함) */
@@ -156,7 +163,7 @@ export function findGoodRange(todayScores: HourScore[], best: HourScore | null):
   const minScore = Math.max(best.score - RECOMMEND_SCORE_MARGIN, RECOMMEND_MIN_SCORE);
   const bestIndex = todayScores.findIndex((s) => s.hour === best.hour);
   const isGood = (i: number) =>
-    todayScores[i]?.score >= minScore && isRecommendableHour(todayScores[i].hour);
+    todayScores[i]?.score >= minScore && isRecommendableHour(todayScores[i].hour, todayScores[i].isDay);
   let start = bestIndex;
   let end = bestIndex;
   while (isGood(start - 1)) start -= 1;

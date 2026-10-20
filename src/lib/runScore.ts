@@ -1,6 +1,7 @@
 import {
   ACTIVITY_COMFORT,
   ACTIVITY_DAYLIGHT_BUFFER_HOURS,
+  ACTIVITY_NIGHT_EXTRA_PENALTY,
   ACTIVITY_SCORE_WEIGHTS,
   type SCORE_WEIGHTS,
 } from '../constants/scoring';
@@ -12,7 +13,7 @@ import {
   SCORE_MAX,
   SCORE_MIN,
 } from '../constants/thresholds';
-import { LEVEL_LABEL, RUNNING_TIER_LABEL } from '../constants/messages';
+import { LEVEL_LABEL, NIGHT_HEADLINE, RUNNING_TIER_LABEL } from '../constants/messages';
 import type {
   Activity,
   Constraint,
@@ -36,7 +37,10 @@ import {
   windQuality,
 } from './scoreFactors';
 
-/** 항목별 점수. 각 값은 0 ~ 해당 항목 배점이고 합이 총점이다. */
+/**
+ * 항목별 점수. 합이 총점이다. 각 값은 0 ~ 해당 항목 배점이다.
+ * 다만 러닝·산책의 일조 항목은 밤에 추가 감점이 들어가 음수일 수 있다. (ACTIVITY_NIGHT_EXTRA_PENALTY)
+ */
 export type ScoreBreakdown = { [K in keyof typeof SCORE_WEIGHTS]: number };
 
 /**
@@ -57,6 +61,11 @@ export function calcScoreBreakdown(
   const dustSensitive =
     constraints.includes('dustSensitive') || constraints.includes('asthma') || rhinitis;
   const w = ACTIVITY_SCORE_WEIGHTS[activity];
+  const daylightQ = daylightQuality(
+    weather.isDay,
+    weather.hoursUntilSunset,
+    ACTIVITY_DAYLIGHT_BUFFER_HOURS[activity],
+  );
   return {
     feelsLike: w.feelsLike * feelsLikeQuality(felt, ACTIVITY_COMFORT[activity]),
     // 비염은 찬 공기에서만 기온 감점을 키운다
@@ -69,12 +78,7 @@ export function calcScoreBreakdown(
       applySensitivity(humidityQuality(weather.humidity), rhinitis && isDryAir(weather.humidity)),
     dust: w.dust * applySensitivity(dustQuality(weather.pm10), dustSensitive),
     daylight:
-      w.daylight *
-      daylightQuality(
-        weather.isDay,
-        weather.hoursUntilSunset,
-        ACTIVITY_DAYLIGHT_BUFFER_HOURS[activity],
-      ),
+      w.daylight * daylightQ - ACTIVITY_NIGHT_EXTRA_PENALTY[activity] * (1 - daylightQ),
     uv: w.uv * applySensitivity(uvQuality(weather.uvIndex), constraints.includes('uvSensitive')),
   };
 }
@@ -121,10 +125,13 @@ export function scoreToTier(score: number, activity: Activity): ScoreTier | null
 
 /**
  * 점수 링 위에 보여줄 헤드라인을 고른다. 러닝은 5단계, 그 밖의 활동은 기존 3단계 문구를 쓴다.
+ * 해가 진 뒤(isDay가 false)에는 점수 단계와 상관없이 야간 전용 문구를 보여준다.
  * @param score 활동 지수
  * @param activity 활동
+ * @param isDay 해가 떠 있는지. 모르면 낮으로 본다.
  */
-export function scoreToHeadline(score: number, activity: Activity): string {
+export function scoreToHeadline(score: number, activity: Activity, isDay: boolean = true): string {
+  if (!isDay) return NIGHT_HEADLINE;
   const tier = scoreToTier(score, activity);
   return tier ? RUNNING_TIER_LABEL[tier] : LEVEL_LABEL[scoreToLevel(score)];
 }

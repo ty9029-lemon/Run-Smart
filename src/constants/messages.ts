@@ -161,6 +161,9 @@ export const LEVEL_LABEL: Record<WarningLevel, string> = {
   careful: '신중히 검토하세요',
 };
 
+/** 해가 진 뒤의 헤드라인 문구 (점수 단계와 별개로 모든 활동에 쓴다) */
+export const NIGHT_HEADLINE = '지금은 어두워요. 밝은 시간대를 추천해요';
+
 /** 러닝 점수 5단계별 헤드라인 문구 */
 export const RUNNING_TIER_LABEL: Record<ScoreTier, string> = {
   excellent: '지금 러닝하기 딱 좋아요',

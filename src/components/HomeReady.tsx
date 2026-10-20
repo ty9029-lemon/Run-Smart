@@ -265,7 +265,7 @@ export default function HomeReady({
       <HomeSummary
         activity={activity}
         score={score}
-        headline={scoreToHeadline(score, activity)}
+        headline={scoreToHeadline(score, activity, current.isDay)}
         weather={current}
         feelsLike={feelsLike}
         reasons={scoreReasons.reasons}
