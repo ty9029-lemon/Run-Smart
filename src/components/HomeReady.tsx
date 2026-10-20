@@ -29,6 +29,7 @@ import { ACTIVITY_DAYLIGHT_BUFFER_HOURS } from '../constants/scoring';
 import {
   findBestHourToday,
   findGoodRange,
+  isTomorrowIndex,
   scoreHours,
   sliceFromHour,
   sliceToday,
@@ -288,6 +289,7 @@ export default function HomeReady({
             score={scores[selectedIndex]?.score ?? 0}
             feelsLike={calcPersonalFeelsLike(upcomingHourly[selectedIndex], sensitivity)}
             deltas={hourDeltas}
+            isTomorrow={isTomorrowIndex(selectedIndex, nowHour)}
           />
         )}
       </div>
