@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { SPLASH_FADE_MS, SPLASH_HOLD_MS, SPLASH_LOGO_URL } from '../constants/splash';
+import { revealApp } from '../lib/splash';
 
 interface SplashScreenProps {
   /** 페이드아웃까지 끝났을 때 호출한다 */
@@ -15,7 +16,11 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
 
   useEffect(() => {
     const exitTimer = setTimeout(() => setIsExiting(true), SPLASH_HOLD_MS);
-    const finishTimer = setTimeout(onFinish, SPLASH_HOLD_MS + SPLASH_FADE_MS);
+    // 로고가 완전히 사라진 뒤에 아래 화면의 등장 모션을 시작한다.
+    const finishTimer = setTimeout(() => {
+      revealApp();
+      onFinish();
+    }, SPLASH_HOLD_MS + SPLASH_FADE_MS);
     return () => {
       clearTimeout(exitTimer);
       clearTimeout(finishTimer);
@@ -26,8 +31,8 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
     <div
       role="presentation"
       aria-hidden="true"
-      className="bg-primary text-primary-foreground dark:bg-background dark:text-primary fixed inset-0 z-[100] flex flex-col items-center justify-center gap-2 transition-opacity ease-out"
-      style={{ opacity: isExiting ? 0 : 1, transitionDuration: `${SPLASH_FADE_MS}ms` }}
+      className="bg-primary text-primary-foreground dark:bg-background dark:text-primary fixed inset-0 z-[100] flex flex-col items-center justify-center gap-2 transition-opacity duration-(--motion-duration-normal) ease-out"
+      style={{ opacity: isExiting ? 0 : 1 }}
     >
       <div
         className="animate-splash-logo size-20 bg-current"

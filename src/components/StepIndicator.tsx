@@ -11,7 +11,7 @@ export default function StepIndicator({ current, total }: StepIndicatorProps) {
         {Array.from({ length: total }, (_, i) => (
           <span
             key={i}
-            className={`h-1 flex-1 rounded-md ${
+            className={`h-1 flex-1 rounded-md transition-colors duration-(--motion-duration-fast) ease-(--motion-ease-main) ${
               i <= current ? 'bg-lime-pulse' : 'bg-border'
             }`}
           />

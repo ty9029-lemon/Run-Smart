@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { clearBootBackground, markSplashShown, shouldShowSplash } from './splash';
 
 /** 테스트용 메모리 저장소 */
@@ -33,5 +33,19 @@ describe('미리 칠한 바탕색 지우기', () => {
     const root = { style: { removeProperty: (name: string) => removed.push(name) } };
     clearBootBackground(root as unknown as HTMLElement);
     expect(removed).toEqual(['background-color']);
+  });
+});
+
+describe('스플래시 사라짐 알림', () => {
+  it('걷히기 전에는 false, 알린 뒤에는 true이고 구독자에게 알린다', async () => {
+    vi.resetModules();
+    const { getAppRevealed, revealApp, subscribeAppReveal } = await import('./splash');
+    const listener = vi.fn();
+    subscribeAppReveal(listener);
+    expect(getAppRevealed()).toBe(false);
+    revealApp();
+    revealApp();
+    expect(getAppRevealed()).toBe(true);
+    expect(listener).toHaveBeenCalledTimes(1);
   });
 });
