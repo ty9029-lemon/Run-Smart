@@ -286,7 +286,7 @@
 @theme {
   /* 스플래시는 브랜드 첫인상이라 공통 토큰이 아닌 따로 맞춘 값을 쓴다. ease-main은 감속이 너무 강해
      로고가 첫 몇 프레임에 끝나 모션이 보이지 않는다. */
-  --animate-splash-logo: splash-logo-in 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-splash-logo: splash-logo-in 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-splash-text: splash-text-in 500ms ease-out 250ms both;
   --animate-step-in-forward: step-in-forward var(--motion-duration-normal) var(--motion-ease-main) both;
   --animate-step-in-back: step-in-back var(--motion-duration-normal) var(--motion-ease-main) both;

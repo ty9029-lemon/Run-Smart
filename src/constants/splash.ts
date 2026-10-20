@@ -1,7 +1,7 @@
 import { MOTION_DURATION_MS } from './motion';
 
 /** 스플래시를 완전히 보여주는 시간(ms): 로고 등장 애니메이션이 끝나고 잠시 머무는 길이 */
-export const SPLASH_HOLD_MS = 1400;
+export const SPLASH_HOLD_MS = 1600;
 
 /** 스플래시가 사라지는 페이드아웃 시간(ms): 모션 토큰 normal과 같다 */
 export const SPLASH_FADE_MS = MOTION_DURATION_MS.normal;

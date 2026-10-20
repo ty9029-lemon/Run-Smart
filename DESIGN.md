@@ -212,7 +212,7 @@ Tailwind 기본 radius 클래스는 `--radius: 20px` 기준으로 계산되어 `
 
 - **사용법:** `duration-(--motion-duration-normal) ease-(--motion-ease-main)`처럼 Tailwind 변수 문법으로 쓰고, 애니메이션은 `@theme`의 `--animate-*`에 `var(--motion-…)`을 넣어 정의한다.
 - **온보딩 단계 전환:** 다음은 오른쪽에서, 이전은 왼쪽에서 24px 밀려 들어오며 나타난다(400ms, `ease-main`). 제목·입력 카드·버튼이 `--motion-stagger`(60ms) 간격으로 차례로 들어오고, 첫 방문의 1단계는 스플래시가 완전히 사라진 뒤에 시작한다(`useAppRevealed`). 그 전에는 온보딩 화면을 숨겨 사라지는 로고와 겹쳐 보이지 않게 한다. 진행 막대는 200ms로 색이 바뀐다.
-- **스플래시는 예외:** 로고(600ms, `cubic-bezier(0.16, 1, 0.3, 1)`)·글자(500ms, `ease-out`, 250ms 지연)·페이드아웃(400ms, `ease-out`)을 따로 맞춘 값으로 쓴다. `ease-main`(`cubic-bezier(0, 0, 0, 1)`)은 감속이 너무 강해 짧은 거리의 크기·투명도 변화는 첫 몇 프레임에 끝나 모션이 보이지 않는다.
+- **스플래시는 예외:** 로고(800ms, `cubic-bezier(0.16, 1, 0.3, 1)`)·글자(500ms, `ease-out`, 250ms 지연)·페이드아웃(400ms, `ease-out`)을 따로 맞춘 값으로 쓴다. `ease-main`(`cubic-bezier(0, 0, 0, 1)`)은 감속이 너무 강해 짧은 거리의 크기·투명도 변화는 첫 몇 프레임에 끝나 모션이 보이지 않는다.
 - **모션 줄이기:** 새 애니메이션은 `motion-safe:`로 적용하고, 스플래시는 `prefers-reduced-motion`에서 `animation: none`으로 둔다.
 - **순차 등장 쓰는 법:** 요소 순서(i)에 `animation-delay: calc(i * var(--motion-stagger))`를 준다.
 
