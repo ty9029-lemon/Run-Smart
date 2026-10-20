@@ -206,4 +206,15 @@ describe('복장 목록(outfitLabels)', () => {
     expect(SYSTEM_PROMPT).toContain('자외선 차단제 바르기');
     expect(SYSTEM_PROMPT).toContain('선글라스 챙기기');
   });
+
+  it('시스템 프롬프트가 요약·팁·근거에서 같은 소재를 반복하지 않는 규칙을 담는다', () => {
+    expect(SYSTEM_PROMPT).toContain('같은 소재');
+    expect(SYSTEM_PROMPT).toContain('한 단락으로 이어 붙여');
+    expect(SYSTEM_PROMPT).toContain('날씨 수치와 총평은 다시 쓰지 않습니다');
+  });
+
+  it('시스템 프롬프트가 자외선 등급이 높음일 때만 차단을 권하도록 한다', () => {
+    expect(SYSTEM_PROMPT).toContain('"높음"일 때만 이 두 문장의 행동 권유에 자외선 차단을 넣습니다');
+    expect(SYSTEM_PROMPT).toContain('uv_grade와 관계없이 activityTips에 "자외선 차단제 바르기"');
+  });
 });
