@@ -8,7 +8,7 @@ export default function ThemeSelector() {
   const setMode = useThemeStore((s) => s.setMode);
 
   return (
-    <section className="rounded-panel border border-border bg-card p-6">
+    <section className="rounded-panel bg-card p-6">
       <h2 id="theme-label" className="mb-3 text-base font-medium">
         화면 테마
       </h2>
