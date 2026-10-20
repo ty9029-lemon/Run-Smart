@@ -39,7 +39,7 @@ export default function ConfirmActionDialog({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        <DialogFooter className="grid grid-cols-2 gap-2 border-t-0">
+        <DialogFooter className="grid grid-cols-2 gap-2 border-t-0 pt-0">
           <Button type="button" variant="secondary" size="lg" onClick={onCancel}>
             {cancelLabel}
           </Button>
