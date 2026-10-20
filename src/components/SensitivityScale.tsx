@@ -44,7 +44,7 @@ export default function SensitivityScale({ question, value, onChange }: Sensitiv
                   aria-label={LEVEL_LABEL[level] ?? `${level}단계`}
                   onClick={() => onChange(level)}
                   className={`shrink-0 rounded-full border-[1.5px] ${CIRCLE_SIZE_CLASS[level]} ${
-                    on ? 'border-highlight bg-selected' : 'border-input'
+                    on ? 'border-input bg-selected' : 'border-input'
                   }`}
                 />
               </div>

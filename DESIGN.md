@@ -39,12 +39,13 @@ Swoosh는 한밤중의 아레나 콘솔처럼 작동합니다. 거의 완전한 
 | `--primary` | `#b7ff2c` Lime Pulse | `#b7ff2c` | 채워진 CTA 배경 (양쪽 동일) |
 | `--primary-foreground` | `#000000` | `#000000` | 라임 위 글자 (양쪽 동일) |
 | `--highlight` | `#b7ff2c` | `#111111` | 활성 상태의 글자·아이콘·테두리 |
-| `--selected` | `#b7ff2c1a` (라임 10%) | `#b7ff2c` (라임 채움) | 선택된 칩·민감도 원의 배경 |
+| `--selected` | `#b7ff2c1a` (라임 10%) | `#b7ff2c` (라임 채움) | 선택된 민감도 원의 면 |
+| `--chip-selected` | `#b7ff2c1a` (라임 10%) | `#b7ff2c2e` (라임 18%) | 선택된 칩의 배경 |
 | `--chip-border` | `#707072` Steel Border | `#e5e5e5` Fog Border | 선택 전 칩의 외곽선 |
 | `--switch-off` | `#707072` Steel Border | `#d4d4d6` | 꺼진 스위치의 트랙 |
 | `--outline-border` | `#b7ff2c` | `#dfdfdf` | outline 버튼 외곽선 (글자는 `--highlight`) |
 | `--outline-border-disabled` | `#b7ff2c` | `#a1a1a3` | 비활성 outline 버튼 외곽선 (투명도 40%가 겹쳐도 윤곽이 남도록 기본보다 진함) |
-| `--chip-border-selected` | `#b7ff2c` | `#e5e5e5` | 선택된 칩의 외곽선 (라이트는 선택 전과 같은 색) |
+| `--chip-border-selected` | `#b7ff2c` | `#b7ff2c` | 선택된 칩의 외곽선 (양쪽 모드 같은 라임) |
 | `--toast` | `#ffffff` | `#111111` | 토스트 면 (배경과 반대 톤) |
 | `--toast-foreground` | `#000000` | `#ffffff` | 토스트 글자 |
 | `--toast-border` | `#e5e5e5` | `#28282a` | 토스트 외곽선 |
@@ -58,8 +59,8 @@ Swoosh는 한밤중의 아레나 콘솔처럼 작동합니다. 거의 완전한 
 ### 라이트 모드 규칙
 
 - **라임은 면에만 씁니다.** `#b7ff2c`는 흰 배경에서 글자·아이콘·선으로 쓰면 대비가 1.1:1 수준이라 보이지 않습니다. 채워진 CTA(라임 배경 + 검정 글자 `17.35:1`)는 양쪽 모드가 같고, 활성 탭 글자나 선택된 칩의 글자·테두리처럼 라임을 글자·선으로 쓰던 곳은 `--highlight`(다크는 라임, 라이트는 `#111111`)를 씁니다.
-- **선택된 칩은 라임 면 + 선택 전과 같은 외곽선 + 왼쪽 체크 아이콘입니다.** 라이트에서는 라임으로 채우고 `--chip-border-selected`(`#e5e5e5`) 외곽선, `--highlight`(`#111111`) 글자·체크를 씁니다. 다크는 라임 10% 틴트 + 라임 외곽선·글자·체크입니다. 체크 아이콘은 14px, 글자와 간격 6, 왼쪽 패딩 14·오른쪽 패딩 20, 높이 35입니다(선택 전 칩과 오른쪽 패딩·높이가 같고, 체크가 들어가는 왼쪽만 6 좁음). 색뿐 아니라 아이콘으로도 선택을 알려 접근성에도 좋습니다. 이 모양은 **여러 개를 고르는 토글 전용**입니다(체크는 다중 선택 신호). 하나만 고르고 바로 제출하는 선택지(예: FeedbackCard의 추웠어요/적당했어요/더웠어요)는 칩이 아니라 outline 버튼을 씁니다. 라임 10% 틴트는 흰 카드 위에서 보이지 않으므로 라이트에서 쓰지 않습니다.
-- **민감도 원·체크박스는 라임 면 + 진한 테두리·체크입니다.** 선택되면 라이트에서 라임으로 채우고 `--highlight`(`#111111`) 테두리를 씁니다. 체크박스는 브라우저 기본 컨트롤 대신 `Checkbox` 컴포넌트를 씁니다(기본 컨트롤의 `accent-color`는 모드별 테두리를 줄 수 없음).
+- **선택된 칩은 옅은 라임 면 + 라임 외곽선입니다(체크 아이콘 없음).** 라이트·다크 같은 규칙이고, 면은 다크 라임 10%·라이트 라임 18%(흰 카드 위에서도 보이도록 조금 더 진하게), 글자는 `--highlight`(다크 라임, 라이트 `#111111`)입니다. 패딩은 좌우 20, 높이 35로 선택 전 칩과 같아 선택해도 크기가 변하지 않습니다. 라임 외곽선은 흰 배경에서 대비가 낮으므로 선택은 면 색과 외곽선이 함께 알립니다. 이 모양은 **여러 개를 고르는 토글 전용**입니다. 하나만 고르고 바로 제출하는 선택지(예: FeedbackCard의 추웠어요/적당했어요/더웠어요)는 칩이 아니라 outline 버튼을 씁니다.
+- **민감도 원은 선택되면 면만 바뀝니다.** 라이트는 라임으로 채우고(`--selected`) 다크는 라임 10% 면입니다. 외곽선은 선택 전과 같은 `--input` 색·1.5px 굵기를 유지합니다. 체크박스는 라임 면 + `--highlight` 테두리·체크이며, 브라우저 기본 컨트롤 대신 `Checkbox` 컴포넌트를 씁니다(기본 컨트롤의 `accent-color`는 모드별 테두리를 줄 수 없음).
 - **outline 버튼은 연한 회색 외곽선 + 진한 글자입니다.** 외곽선은 `--outline-border`(라이트 `#dfdfdf`, 다크 라임), 글자는 `--highlight`입니다. 비활성은 `--outline-border-disabled`(라이트 `#a1a1a3`)에 투명도 40%를 적용합니다. 라이트에서는 outline이 secondary(옅은 회색 면)와 비슷한 무게가 되므로 한 화면에서 둘을 같이 쓰지 않는 것이 좋습니다.
 - **destructive는 붉은 글자 + 10% 붉은 면입니다.** `--destructive`를 쓰고, 값은 점수 '경고'와 같습니다(라이트 `#c4301f`, 다크 `#ff7a6b`). 채운 붉은 버튼은 쓰지 않아 화면의 유일한 채운 면은 라임 CTA로 남습니다.
 - **토스트는 배경과 반대 톤입니다.** 다크는 흰 면 + 검정 글자, 라이트는 `#111111` 면 + 흰 글자(`--toast*`)로 배경에 묻히지 않게 합니다. 안의 [실행 취소]는 알약 없는 ghost 버튼이고, 그림자는 `--toast-shadow`(토스트만 예외)입니다.
@@ -512,11 +513,12 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
   --ring: #111111;
   --highlight: #111111;
   --selected: #b7ff2c;
+  --chip-selected: #b7ff2c2e;
   --chip-border: #e5e5e5;
   --switch-off: #d4d4d6;
   --outline-border: #dfdfdf;
   --outline-border-disabled: #a1a1a3;
-  --chip-border-selected: #e5e5e5;
+  --chip-border-selected: #b7ff2c;
   --toast: #111111;
   --toast-foreground: #ffffff;
   --toast-border: #28282a;
@@ -551,6 +553,7 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
   --ring: #b7ff2c;
   --highlight: #b7ff2c;
   --selected: #b7ff2c1a;
+  --chip-selected: #b7ff2c1a;
   --chip-border: #707072;
   --switch-off: #707072;
   --outline-border: #b7ff2c;

@@ -31,12 +31,13 @@
 @theme inline {
   --font-heading: var(--font-sans);
   --color-highlight: var(--highlight);
-  --color-selected: var(--selected);
   --color-chip-border: var(--chip-border);
   --color-switch-off: var(--switch-off);
   --color-outline-border: var(--outline-border);
   --color-outline-border-disabled: var(--outline-border-disabled);
   --color-chip-border-selected: var(--chip-border-selected);
+  --color-chip-selected: var(--chip-selected);
+  --color-selected: var(--selected);
   --color-toast: var(--toast);
   --color-toast-foreground: var(--toast-foreground);
   --color-toast-border: var(--toast-border);
@@ -96,8 +97,6 @@
   --ring: #111111;
   /* 활성 상태 글자·아이콘 (다크에서는 라임, 라이트에서는 진한 색) */
   --highlight: #111111;
-  /* 선택된 칩·민감도 원의 배경: 라이트는 라임 채움 (옅은 라임은 흰 카드 위에서 안 보임) */
-  --selected: #b7ff2c;
   /* 선택 전 칩의 외곽선 (Figma 시안: fog-border) */
   --chip-border: #e5e5e5;
   /* 꺼진 스위치 트랙: --input보다 연해 '비활성'처럼 보이지 않게 한다 */
@@ -105,8 +104,11 @@
   /* outline 버튼 외곽선: 연한 회색(라임은 흰 배경에서 안 보임), 비활성은 투명도 40%가 겹쳐도 윤곽이 남게 한 단계 진하게 */
   --outline-border: #dfdfdf;
   --outline-border-disabled: #a1a1a3;
-  /* 선택된 칩의 외곽선: 선택 전(--chip-border)과 같은 색 */
-  --chip-border-selected: #e5e5e5;
+  /* 선택된 칩: 옅은 라임 면 + 라임 외곽선 (다크와 같은 규칙, 체크 아이콘 없음) */
+  /* 민감도 원의 선택 면: 라이트는 라임 채움 (옅은 라임은 흰 카드 위에서 안 보임) */
+  --selected: #b7ff2c;
+  --chip-selected: #b7ff2c2e;
+  --chip-border-selected: #b7ff2c;
   /* 토스트: 배경과 반대 톤으로 눈에 띄게 (라이트는 어두운 면) */
   --toast: #111111;
   --toast-foreground: #ffffff;
@@ -146,12 +148,13 @@
   --ring: #b7ff2c;
   --highlight: #b7ff2c;
   /* 어두운 카드 위에서는 라임 10% 틴트로 충분하다 */
-  --selected: #b7ff2c1a;
   /* 어두운 표면에서는 #e5e5e5가 너무 밝아 Steel Border를 유지한다 (DESIGN.md) */
   --chip-border: #707072;
   --switch-off: #707072;
   --outline-border: #b7ff2c;
   --outline-border-disabled: #b7ff2c;
+  --selected: #b7ff2c1a;
+  --chip-selected: #b7ff2c1a;
   --chip-border-selected: #b7ff2c;
   /* 토스트: 다크는 흰 면 + 검정 글자 */
   --toast: #ffffff;
