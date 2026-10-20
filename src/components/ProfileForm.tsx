@@ -1,9 +1,10 @@
 import ActivityPicker from './ActivityPicker';
+import ActivityTimePicker from './ActivityTimePicker';
 import ConstraintList from './ConstraintList';
 import FeedbackOffsetSection from './FeedbackOffsetSection';
 import SensitivityList from './SensitivityList';
 import { ACTIVITY_SCREENS } from '../constants/analytics';
-import { toggleActivity, toggleConstraint } from '../lib/profileDraft';
+import { toggleActivity, toggleActivityTimeSlot, toggleConstraint } from '../lib/profileDraft';
 import type { Profile } from '../types';
 
 const SECTION = 'rounded-panel bg-card-charcoal p-6';
@@ -14,7 +15,7 @@ interface ProfileFormProps {
   onChange: (next: Profile) => void;
 }
 
-/** 설정 폼: 활동 선택, 추위·더위 민감도, 제약사항 */
+/** 설정 폼: 활동 선택, 활동 시간대, 추위·더위 민감도, 제약사항 */
 export default function ProfileForm({ draft, error, onChange }: ProfileFormProps) {
   return (
     <>
@@ -24,6 +25,12 @@ export default function ProfileForm({ draft, error, onChange }: ProfileFormProps
           error={error}
           screen={ACTIVITY_SCREENS.settings}
           onToggle={(id) => onChange(toggleActivity(draft, id))}
+        />
+      </section>
+      <section className={SECTION}>
+        <ActivityTimePicker
+          selected={draft.activityTimeSlots}
+          onToggle={(id) => onChange(toggleActivityTimeSlot(draft, id))}
         />
       </section>
       <section className={`${SECTION} space-y-5`}>
