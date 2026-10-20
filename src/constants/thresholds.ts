@@ -19,10 +19,18 @@ export const FORECAST_DAYS = 2;
 export const DAYLIGHT_BUFFER_HOURS = 3;
 /** 히스토리 보관 일수 (1년) */
 export const HISTORY_DAYS = 365;
+/** 활동 시간이 이보다 짧으면(초) 출발 직후 바로 끝낸 것으로 보고 기록을 남기지 않는다 */
+export const MIN_RECORD_DURATION_SEC = 60;
 /** 한 주의 일수 (달력 열 개수) */
 export const DAYS_PER_WEEK = 7;
 /** 1시간의 분 */
 export const MINUTES_PER_HOUR = 60;
+/** 1분의 초 */
+export const SECONDS_PER_MINUTE = 60;
+/** 1초의 밀리초 */
+export const MS_PER_SECOND = 1000;
+/** 활동 타이머 표시를 갱신하는 주기(ms) */
+export const STOPWATCH_TICK_MS = MS_PER_SECOND;
 /** 1분의 밀리초 */
 export const MS_PER_MINUTE = 60 * 1000;
 /** 하루의 밀리초 */
@@ -45,6 +53,9 @@ export const OUTFIT_STRONG_WIND_MIN = 8;
 export const OUTFIT_DARK_SOON_HOURS = 1;
 /** 복장: 자외선 지수가 이 값 이상이면 모자·선크림·선글라스/고글을 더한다 */
 export const OUTFIT_UV_HIGH_MIN = 6;
+/** 자외선 등급: 이 값(지수) 이하면 '낮음' (WHO 기준 0~2) */
+export const UV_LOW_MAX = 2;
+
 /** 복장: 등산 시 체감온도가 이 값(°C) 이하면 빙판 대비 아이젠을 챙기도록 안내한다 */
 export const OUTFIT_ICE_RISK_MAX = 0;
 
@@ -54,8 +65,12 @@ export const SCORE_MIN = 0;
 /** 경고 단계 기준 점수 */
 export const SCORE_GOOD = 70;
 export const SCORE_CAUTION = 45;
+/** 러닝 5단계 중 '가볍게 뛰기 괜찮은' 단계의 최소 점수 */
+export const SCORE_FAIR = 60;
 /** 추천 시간대를 구간으로 묶을 때의 최소 점수 */
 export const RECOMMEND_MIN_SCORE = 80;
+/** 이 시각(시) 이후는 추천 시간대에서 제외한다 (22시 정각 포함) */
+export const RECOMMEND_CUTOFF_HOUR = 22;
 /** 최고점과 이 점수 이내로 차이 나는 시간대를 함께 추천한다 */
 export const RECOMMEND_SCORE_MARGIN = 3;
 
@@ -73,6 +88,11 @@ export const REDEPARTURE_DELAY_MINUTES = 30;
 export const REDEPARTURE_DELAY_MS = REDEPARTURE_DELAY_MINUTES * MS_PER_MINUTE;
 /** '가기' 기록 후 이 시간(ms)이 지나면 피드백을 묻지 않는다 (24시간) */
 export const FEEDBACK_EXPIRE_MS = MS_PER_DAY;
+/** 피드백 시트에서 답한 뒤 감사 문구를 보여주고 닫기까지의 시간(ms) */
+export const FEEDBACK_SHEET_THANKS_MS = 1500;
+
+/** 시간대 차트 스크롤바: 마지막 스크롤 후 이 시간(ms)이 지나면 다시 숨긴다 */
+export const SCROLLBAR_HIDE_DELAY_MS = 1000;
 /** 피드백 1회당 체감온도 보정(°C) */
 export const FEEDBACK_STEP = 0.5;
 /** 피드백 누적 보정의 최대 크기(±°C) */

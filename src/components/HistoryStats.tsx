@@ -1,0 +1,49 @@
+import { HISTORY_MESSAGES } from '../constants/messages';
+import { MS_PER_SECOND } from '../constants/thresholds';
+import { formatDistanceKm } from '../lib/distance';
+import { formatElapsed } from '../lib/formatElapsed';
+import { calcPaceSecPerKm, formatPace } from '../lib/pace';
+import type { HistoryEntry } from '../types';
+
+/** 큰 숫자로 보여줄 기록 한 칸 */
+interface Stat {
+  label: string;
+  value: string;
+}
+
+/**
+ * 기록에서 보여줄 숫자(거리, 페이스, 시간)를 고른다. 값이 없는 칸은 뺀다.
+ * 페이스는 거리와 시간이 모두 있을 때만 계산한다.
+ * @param entry 활동 기록
+ */
+export function buildStats(entry: HistoryEntry): Stat[] {
+  const stats: Stat[] = [];
+  const { distanceKm, durationSec } = entry;
+  if (distanceKm !== undefined) {
+    stats.push({ label: HISTORY_MESSAGES.distanceLabel, value: formatDistanceKm(distanceKm) });
+  }
+  const pace = calcPaceSecPerKm(distanceKm, durationSec);
+  if (pace !== null) stats.push({ label: HISTORY_MESSAGES.paceLabel, value: formatPace(pace) });
+  if (durationSec !== undefined) {
+    const value = formatElapsed(durationSec * MS_PER_SECOND);
+    stats.push({ label: HISTORY_MESSAGES.durationLabel, value });
+  }
+  return stats;
+}
+
+/** 거리·페이스·시간을 큰 숫자로 나란히 보여준다. 보여줄 값이 없으면 그리지 않는다. */
+export default function HistoryStats({ entry }: { entry: HistoryEntry }) {
+  const stats = buildStats(entry);
+  if (stats.length === 0) return null;
+  return (
+    <dl className="mt-5 grid auto-cols-fr grid-flow-col gap-3">
+      {stats.map(({ label, value }) => (
+        // 화면에는 숫자가 위, 이름이 아래에 오지만 읽을 때는 이름이 먼저 오도록 DOM 순서는 dt가 앞이다
+        <div key={label} className="flex flex-col-reverse">
+          <dt className="text-sm text-muted-foreground">{label}</dt>
+          <dd className="text-2xl font-bold leading-tight tabular-nums">{value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}

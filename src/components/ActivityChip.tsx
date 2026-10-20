@@ -11,7 +11,7 @@ interface ActivityChipProps {
   onDisabledClick?: () => void;
 }
 
-const BASE_CLASS = 'inline-flex items-center rounded-full border px-5 py-2 text-sm font-bold';
+const BASE_CLASS = 'rounded-full border px-5 py-2 text-sm font-medium';
 /** 선택: 옅은 라임 면 + 라임 외곽선 (체크 아이콘 없음, DESIGN.md) */
 const SELECTED_CLASS = 'border-chip-border-selected bg-chip-selected text-highlight';
 const DEFAULT_CLASS = 'border-chip-border bg-transparent text-foreground';

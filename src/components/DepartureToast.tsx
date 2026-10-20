@@ -17,7 +17,10 @@ interface DepartureToastProps {
   onUndo: () => void;
 }
 
-/** 출발을 기록한 직후 보여주는 토스트 (우측 [실행 취소]로 방금 기록을 되돌린다) */
+/**
+ * 출발을 기록한 직후 보여주는 토스트 (우측 [실행 취소]로 방금 기록을 되돌린다).
+ * 가장 가까운 relative 조상(출발 버튼 영역) 바로 위에 8px(mb-2) 간격을 두고 뜬다.
+ */
 export default function DepartureToast({
   open,
   activityLabel,
@@ -28,6 +31,7 @@ export default function DepartureToast({
     <ToastProvider>
       <Toast open={open} onOpenChange={onOpenChange}>
         <ToastDescription className="whitespace-pre-line">{formatDepartureToast(activityLabel)}</ToastDescription>
+        {/* 토스트 면은 배경과 반대 톤이라 secondary 면이 보이지 않아 ghost에 토스트 글자색을 쓴다 */}
         <ToastAction asChild altText={MESSAGES.toastUndo} onClick={onUndo}>
           <Button
             type="button"
@@ -39,7 +43,7 @@ export default function DepartureToast({
           </Button>
         </ToastAction>
       </Toast>
-      <ToastViewport className="bottom-[calc(5.5rem+env(safe-area-inset-bottom))]" />
+      <ToastViewport className="absolute bottom-full mb-2 max-w-none px-0" />
     </ToastProvider>
   );
 }

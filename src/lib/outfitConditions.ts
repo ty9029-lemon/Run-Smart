@@ -8,6 +8,7 @@ import {
 import type { Activity, Constraint, OutfitItem, Weather } from '../types';
 import { shouldRecommendMask } from './airGrade';
 import { outfitItem } from './outfitTiers';
+import { isColdAir } from './scoreFactors';
 
 /** 날씨 조건 때문에 더하고(add) 뺄(remove, 라벨 기준) 항목 */
 interface ConditionGear {
@@ -74,7 +75,10 @@ const CLEAR_SKY_CONDITIONS = ['맑음'];
 const ICE_GEAR = outfitItem('gear', 'crampons', '아이젠');
 
 /** 미세먼지 대비 마스크 (미세먼지 등급과 제약사항 조건을 만족할 때만 더한다) */
-const MASK = outfitItem('gear', 'mask', '마스크');
+const MASK = outfitItem('gear', 'mask', '스포츠 마스크');
+
+/** 찬 공기에 콧물이 날 때를 대비한 티슈 (비염을 체크했고 기온이 낮을 때만 더한다) */
+const TISSUE = outfitItem('gear', 'tissue', '티슈');
 
 /** 무릎 보호대 (무릎 부담이 적은 산책에는 더하지 않는다) */
 const KNEE_BRACE = outfitItem('gear', 'kneeBrace', '무릎보호대');
@@ -92,8 +96,9 @@ export function isKneeBraceNeeded(activity: Activity): boolean {
 
 /**
  * 미세먼지와 제약사항(예: 무릎 문제)에 맞는 보호 장비를 더한다.
- * 마스크는 미세먼지가 나쁠 때(제약사항과 무관), 또는 천식이면 보통 이상일 때 더한다.
+ * 스포츠 마스크는 미세먼지가 나쁠 때(제약사항과 무관), 또는 천식·비염이면 보통 이상일 때 더한다.
  * 무릎보호대는 무릎 문제를 체크했고 산책이 아닐 때만 더한다.
+ * 티슈는 비염을 체크했고 찬 공기일 때만 더한다.
  * @param items 복장 항목
  * @param constraints 사용자가 체크한 제약사항
  * @param weather 현재 날씨 (미세먼지 판단용)
@@ -108,11 +113,12 @@ export function applyConstraintGear(
   const gear: OutfitItem[] = [];
   if (constraints.includes('kneeIssue') && isKneeBraceNeeded(activity)) gear.push(KNEE_BRACE);
   if (shouldRecommendMask(constraints, weather.pm10)) gear.push(MASK);
+  if (constraints.includes('rhinitis') && isColdAir(weather.temp)) gear.push(TISSUE);
   return dedupeByLabel([...items, ...gear]);
 }
 
 /** 일몰이 임박했거나 이미 어두운지 */
-function isDarkSoon(weather: Weather): boolean {
+export function isDarkSoon(weather: Weather): boolean {
   if (!weather.isDay) return true;
   return weather.hoursUntilSunset !== undefined && weather.hoursUntilSunset <= OUTFIT_DARK_SOON_HOURS;
 }
@@ -123,7 +129,7 @@ function isSunnyDaytime(weather: Weather): boolean {
 }
 
 /** 자외선이 강하거나 맑은 낮이라 눈 보호 장비가 필요한지 */
-function needsSunglasses(weather: Weather): boolean {
+export function needsSunglasses(weather: Weather): boolean {
   return weather.uvIndex >= OUTFIT_UV_HIGH_MIN || isSunnyDaytime(weather);
 }
 

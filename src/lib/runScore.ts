@@ -5,12 +5,22 @@ import {
   type SCORE_WEIGHTS,
 } from '../constants/scoring';
 import {
+  RECOMMEND_MIN_SCORE,
   SCORE_CAUTION,
+  SCORE_FAIR,
   SCORE_GOOD,
   SCORE_MAX,
   SCORE_MIN,
 } from '../constants/thresholds';
-import type { Activity, Constraint, Sensitivity, Weather, WarningLevel } from '../types';
+import { LEVEL_LABEL, RUNNING_TIER_LABEL } from '../constants/messages';
+import type {
+  Activity,
+  Constraint,
+  ScoreTier,
+  Sensitivity,
+  Weather,
+  WarningLevel,
+} from '../types';
 import { calcPersonalFeelsLike } from './feelsLike';
 import {
   applySensitivity,
@@ -18,6 +28,8 @@ import {
   dustQuality,
   feelsLikeQuality,
   humidityQuality,
+  isColdAir,
+  isDryAir,
   rainQuality,
   tempQuality,
   uvQuality,
@@ -41,15 +53,20 @@ export function calcScoreBreakdown(
   activity: Activity,
 ): ScoreBreakdown {
   const felt = calcPersonalFeelsLike(weather, sensitivity);
+  const rhinitis = constraints.includes('rhinitis');
   const dustSensitive =
-    constraints.includes('dustSensitive') || constraints.includes('asthma');
+    constraints.includes('dustSensitive') || constraints.includes('asthma') || rhinitis;
   const w = ACTIVITY_SCORE_WEIGHTS[activity];
   return {
     feelsLike: w.feelsLike * feelsLikeQuality(felt, ACTIVITY_COMFORT[activity]),
-    temp: w.temp * tempQuality(weather.temp),
+    // 비염은 찬 공기에서만 기온 감점을 키운다
+    temp: w.temp * applySensitivity(tempQuality(weather.temp), rhinitis && isColdAir(weather.temp)),
     precipitation: w.precipitation * rainQuality(weather.precipitation),
     wind: w.wind * windQuality(weather.windSpeed),
-    humidity: w.humidity * humidityQuality(weather.humidity),
+    // 비염은 건조한 공기에서만 습도 감점을 키운다 (습한 쪽은 제외)
+    humidity:
+      w.humidity *
+      applySensitivity(humidityQuality(weather.humidity), rhinitis && isDryAir(weather.humidity)),
     dust: w.dust * applySensitivity(dustQuality(weather.pm10), dustSensitive),
     daylight:
       w.daylight *
@@ -85,4 +102,29 @@ export function scoreToLevel(score: number): WarningLevel {
   if (score >= SCORE_GOOD) return 'good';
   if (score >= SCORE_CAUTION) return 'caution';
   return 'careful';
+}
+
+/**
+ * 러닝 점수를 5단계로 나눈다. 러닝이 아닌 활동은 단계를 나누지 않는다.
+ * 각 단계는 경고 단계(scoreToLevel)를 쪼갠 것이라 서로 어긋나지 않는다.
+ * @param score 활동 지수
+ * @param activity 활동
+ */
+export function scoreToTier(score: number, activity: Activity): ScoreTier | null {
+  if (activity !== 'running') return null;
+  if (score >= RECOMMEND_MIN_SCORE) return 'excellent';
+  if (score >= SCORE_GOOD) return 'good';
+  if (score >= SCORE_FAIR) return 'fair';
+  if (score >= SCORE_CAUTION) return 'caution';
+  return 'careful';
+}
+
+/**
+ * 점수 링 위에 보여줄 헤드라인을 고른다. 러닝은 5단계, 그 밖의 활동은 기존 3단계 문구를 쓴다.
+ * @param score 활동 지수
+ * @param activity 활동
+ */
+export function scoreToHeadline(score: number, activity: Activity): string {
+  const tier = scoreToTier(score, activity);
+  return tier ? RUNNING_TIER_LABEL[tier] : LEVEL_LABEL[scoreToLevel(score)];
 }

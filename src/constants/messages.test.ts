@@ -1,10 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { formatDepartedNotice, formatDepartureToast } from './messages';
+import {
+  formatDepartedNotice,
+  formatDepartureToast,
+  formatEndDialogDescription,
+  formatEndDialogTitle,
+  formatEndedNotice,
+  formatPreviousDeparture,
+  formatTimerButtonLabel,
+} from './messages';
 
 describe('formatDepartureToast', () => {
   it('활동명을 넣어 출발 안내 문구를 만든다', () => {
     expect(formatDepartureToast('러닝')).toBe(
-      '즐거운 러닝 되세요!\n돌아오시면 착장 피드백을 반영해 드릴게요.',
+      '즐거운 러닝 되세요!\n끝나고 더웠는지 추웠는지 알려주세요.',
     );
   });
 });
@@ -13,5 +21,48 @@ describe('formatDepartedNotice', () => {
   it('받침 유무에 맞는 조사로 출발 안내 문구를 만든다', () => {
     expect(formatDepartedNotice('러닝')).toBe('러닝을 출발했어요. 잠시 뒤에 다시 만나요.');
     expect(formatDepartedNotice('자전거')).toBe('자전거를 출발했어요. 잠시 뒤에 다시 만나요.');
+  });
+});
+
+describe('formatEndedNotice', () => {
+  it('받침 유무에 맞는 조사로 종료 안내 문구를 만든다', () => {
+    expect(formatEndedNotice('러닝')).toBe('러닝을 마쳤어요. 수고하셨어요!');
+    expect(formatEndedNotice('자전거')).toBe('자전거를 마쳤어요. 수고하셨어요!');
+  });
+});
+
+describe('formatTimerButtonLabel', () => {
+  it('활동명과 경과 시간을 읽어 주고 종료 확인이 열린다고 알려 준다', () => {
+    expect(formatTimerButtonLabel('러닝', '1:00:01')).toBe(
+      '러닝 경과 시간 1:00:01, 누르면 종료 확인',
+    );
+  });
+});
+
+describe('종료 확인 팝업 문구', () => {
+  it('받침 유무에 맞는 조사로 제목을 만든다', () => {
+    expect(formatEndDialogTitle('러닝')).toBe('러닝을 종료할까요?');
+    expect(formatEndDialogTitle('자전거')).toBe('자전거를 종료할까요?');
+  });
+
+  it('경과 시간을 넣어 설명을 만든다', () => {
+    expect(formatEndDialogDescription('00:07')).toBe('지금까지 00:07 동안 기록했어요.');
+  });
+});
+
+describe('formatPreviousDeparture', () => {
+  it('오늘 출발한 시각과 활동을 알린다', () => {
+    expect(formatPreviousDeparture('오전 7:30', '러닝', false)).toBe(
+      '오늘 오전 7:30에 러닝을 출발한 기록이 있어요.',
+    );
+    expect(formatPreviousDeparture('오후 6:10', '자전거', false)).toBe(
+      '오늘 오후 6:10에 자전거를 출발한 기록이 있어요.',
+    );
+  });
+
+  it('피드백 카드가 열려 있으면 카드로 안내한다', () => {
+    expect(formatPreviousDeparture('오전 7:30', '러닝', true)).toBe(
+      '오늘 오전 7:30에 러닝을 출발한 기록이 있어요. 위 카드에서 어땠는지 남겨 주세요.',
+    );
   });
 });

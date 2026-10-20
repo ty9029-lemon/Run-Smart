@@ -20,6 +20,7 @@ export default function Settings() {
       coldLevel: next.coldLevel,
       heatLevel: next.heatLevel,
       activityCount: next.selectedActivities.length,
+      timeSlotCount: next.activityTimeSlots.length,
       constraintCount: next.constraints.length,
     });
     navigate('/');
@@ -37,7 +38,8 @@ export default function Settings() {
         <h1 className="text-2xl font-bold">설정</h1>
       </header>
       <ProfileForm draft={draft} error={error} onChange={onChange} />
-      <section className="rounded-panel border border-border bg-card p-6">
+      <ThemeSelector />
+      <section className="rounded-panel bg-card p-6">
         <LocationStatus
           status={locationStatus}
           enabled={draft.useCurrentLocation}
@@ -45,7 +47,6 @@ export default function Settings() {
           requestOnEnable
         />
       </section>
-      <ThemeSelector />
       <Button type="button" size="lg" onClick={handleSave} className="w-full">
         저장
       </Button>

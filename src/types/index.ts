@@ -6,9 +6,20 @@ export type Activity = 'running' | 'hiking' | 'walking' | 'cycling';
 /** 제약사항 종류 */
 export type Constraint =
   | 'kneeIssue'
+  | 'footIssue'
   | 'uvSensitive'
   | 'dustSensitive'
-  | 'asthma';
+  | 'asthma'
+  | 'rhinitis';
+
+/** 주로 활동하는 시간대 */
+export type ActivityTimeSlot =
+  | 'beforeWork'
+  | 'afterWork'
+  | 'weekdayDaytime'
+  | 'weekendMorning'
+  | 'weekendEvening'
+  | 'irregular';
 
 /** 가기 결정 */
 export type Decision = 'go';
@@ -18,6 +29,9 @@ export type Feedback = 'cold' | 'good' | 'hot';
 
 /** 경고 단계 */
 export type WarningLevel = 'good' | 'caution' | 'careful';
+
+/** 러닝 전용 5단계 (경고 단계를 더 잘게 나눈 것) */
+export type ScoreTier = 'excellent' | 'good' | 'fair' | 'caution' | 'careful';
 
 /** 추위·더위 민감도 (각 1~5단계, 3이 보통) */
 export interface Sensitivity {
@@ -33,6 +47,8 @@ export interface Profile extends Sensitivity {
   selectedActivities: Activity[];
   lastActivity: Activity | null;
   constraints: Constraint[];
+  /** 주로 활동하는 시간대 (비어 있어도 된다) */
+  activityTimeSlots: ActivityTimeSlot[];
   /** 현재 위치로 날씨를 볼지 여부 (false면 서울 기준) */
   useCurrentLocation: boolean;
 }
@@ -75,6 +91,9 @@ export type GuideState =
 /** 미세먼지 등급 (날씨 카드·복장·AI 가이드 공통) */
 export type DustGrade = '좋음' | '보통' | '나쁨';
 
+/** 자외선 표시 등급 (낮음·보통·높음) */
+export type UvLevel = '낮음' | '보통' | '높음';
+
 /** 자외선 등급 (복장의 선글라스·선크림 기준과 같다) */
 export type UvGrade = '보통' | '높음';
 
@@ -87,6 +106,8 @@ export interface GuideRequest {
   feltTemp: number;
   score: number;
   level: WarningLevel;
+  /** 러닝 5단계 (러닝이 아니거나 기존 클라이언트면 없음) */
+  scoreTier?: ScoreTier;
   location: string;
   /** 앱이 정한 미세먼지 등급 (없으면 기존 클라이언트) */
   dustGrade?: DustGrade;
@@ -94,6 +115,8 @@ export interface GuideRequest {
   uvGrade?: UvGrade;
   /** AI 가이드가 마스크를 언급해도 되는지 (false면 언급하지 않는다. 없으면 기존 클라이언트) */
   maskAllowed?: boolean;
+  /** 앱이 화면에 추천한 복장 이름 목록. 가이드의 복장 팁이 화면과 어긋나지 않게 알려 준다 (없으면 기존 클라이언트) */
+  outfitLabels?: string[];
 }
 
 /** 복장 추천 항목 분류 (화면에서 그룹 소제목으로 쓴다) */
@@ -125,4 +148,16 @@ export interface HistoryEntry {
   feedback?: Feedback;
   /** 피드백을 남긴 시각(ISO) */
   feedbackAt?: string;
+  /** 활동 시간(초). 종료 버튼을 눌러 활동을 마친 기록에만 있다 */
+  durationSec?: number;
+  /** 사용자가 입력한 실제 이동 거리(km) */
+  distanceKm?: number;
+  /** 사용자가 입력한 실제 착용 복장 */
+  actualOutfit?: string;
+}
+
+/** 운동 후 피드백과 함께 남기는 선택 입력 */
+export interface FeedbackDetail {
+  distanceKm?: number;
+  actualOutfit?: string;
 }

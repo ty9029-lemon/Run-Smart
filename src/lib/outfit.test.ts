@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { OUTFIT_ICON_KEYS } from '../constants/outfitIcons';
 import type { Activity, Weather } from '../types';
+import { calcFeelsLike } from './feelsLike';
 import { groupOutfitByCategory, recommendOutfit } from './outfit';
 import { listOutfitIconFileKeys, outfitIconUrl } from './outfitIconUrls';
 
@@ -82,8 +83,8 @@ describe('recommendOutfit - 러닝', () => {
     expect(labels(25, 'running')).toContain('러닝 민소매');
   });
 
-  it('선선한 날에는 러닝 7부 타이츠 대신 반바지/러닝 레깅스를 추천한다', () => {
-    expect(labels(15, 'running')).toContain('반바지/러닝 레깅스');
+  it('선선한 날에는 러닝 7부 타이츠 대신 반바지 또는 레깅스를 추천한다', () => {
+    expect(labels(15, 'running')).toContain('반바지 또는 레깅스');
     expect(labels(15, 'running')).not.toContain('러닝 7부 타이츠');
   });
 
@@ -307,15 +308,15 @@ describe('recommendOutfit - 제약사항', () => {
   it('천식을 체크하고 미세먼지가 나쁘면 모든 활동에 마스크를 추천한다', () => {
     activities.forEach((activity) => {
       const result = recommendOutfit(20, dusty, activity, ['asthma']).map((i) => i.label);
-      expect(result).toContain('마스크');
+      expect(result).toContain('스포츠 마스크');
     });
   });
 
   it('미세먼지 민감을 체크해도 나쁠 때만 마스크를 추천하고, 천식과 함께여도 한 번만 나온다', () => {
     const dust = recommendOutfit(20, dusty, 'cycling', ['dustSensitive']);
-    expect(dust.map((i) => i.label)).toContain('마스크');
+    expect(dust.map((i) => i.label)).toContain('스포츠 마스크');
     const both = recommendOutfit(20, dusty, 'cycling', ['asthma', 'dustSensitive']);
-    expect(both.filter((i) => i.label === '마스크')).toHaveLength(1);
+    expect(both.filter((i) => i.label === '스포츠 마스크')).toHaveLength(1);
   });
 
   it('제약사항을 체크해도 미세먼지가 좋음이면 마스크를 추천하지 않는다', () => {
@@ -324,7 +325,7 @@ describe('recommendOutfit - 제약사항', () => {
         'asthma',
         'dustSensitive',
       ]).map((i) => i.label);
-      expect(result).not.toContain('마스크');
+      expect(result).not.toContain('스포츠 마스크');
     });
   });
 
@@ -333,7 +334,7 @@ describe('recommendOutfit - 제약사항', () => {
       const result = recommendOutfit(20, weatherWith(overrides), 'running', [
         'dustSensitive',
       ]).map((i) => i.label);
-      expect(result).not.toContain('마스크');
+      expect(result).not.toContain('스포츠 마스크');
     });
   });
 
@@ -342,36 +343,36 @@ describe('recommendOutfit - 제약사항', () => {
       const result = recommendOutfit(20, weatherWith({ pm10: 50 }), activity, ['asthma']).map(
         (i) => i.label,
       );
-      expect(result).toContain('마스크');
+      expect(result).toContain('스포츠 마스크');
     });
   });
 
   it('제약사항을 체크하지 않아도 미세먼지가 나쁘면 모든 활동에 마스크를 추천한다', () => {
     activities.forEach((activity) => {
       const result = recommendOutfit(20, dusty, activity, []).map((i) => i.label);
-      expect(result).toContain('마스크');
+      expect(result).toContain('스포츠 마스크');
     });
   });
 
   it('제약사항이 없고 미세먼지가 보통 이하면 마스크를 추천하지 않는다', () => {
     [17, 50, 80].forEach((pm10) => {
       const result = recommendOutfit(20, weatherWith({ pm10 }), 'running', []).map((i) => i.label);
-      expect(result).not.toContain('마스크');
+      expect(result).not.toContain('스포츠 마스크');
     });
   });
 
   it('체크하지 않았거나 다른 제약사항만 있으면 해당 장비를 추천하지 않는다', () => {
     expect(labels(20, 'running')).not.toContain('무릎보호대');
-    expect(labels(20, 'running')).not.toContain('마스크');
+    expect(labels(20, 'running')).not.toContain('스포츠 마스크');
     const asthma = recommendOutfit(20, dusty, 'running', ['asthma']).map((i) => i.label);
     expect(asthma).not.toContain('무릎보호대');
     const knee = recommendOutfit(20, weatherWith(), 'running', ['kneeIssue']).map((i) => i.label);
-    expect(knee).not.toContain('마스크');
+    expect(knee).not.toContain('스포츠 마스크');
   });
 
   it('여러 제약사항을 함께 체크하면 조건이 맞는 장비를 모두 추천한다', () => {
     const result = recommendOutfit(20, dusty, 'hiking', ['kneeIssue', 'asthma']).map((i) => i.label);
-    expect(result).toEqual(expect.arrayContaining(['무릎보호대', '마스크']));
+    expect(result).toEqual(expect.arrayContaining(['무릎보호대', '스포츠 마스크']));
   });
 });
 
@@ -407,5 +408,91 @@ describe('복장 일러스트 에셋', () => {
 
   it('키 목록에 없는 이미지 파일이 에셋 폴더에 남아 있지 않다', () => {
     expect([...listOutfitIconFileKeys()].sort()).toEqual([...OUTFIT_ICON_KEYS].sort());
+  });
+});
+
+describe('비염 복장', () => {
+  const rhinitisLabels = (temp: number, pm10 = 10) =>
+    recommendOutfit(10, weatherWith({ temp, pm10 }), 'running', ['rhinitis']).map((i) => i.label);
+
+  it('찬 공기(5°C 미만)에서만 티슈를 추천한다', () => {
+    expect(rhinitisLabels(4)).toContain('티슈');
+    expect(rhinitisLabels(5)).not.toContain('티슈');
+  });
+
+  it('비염이 아니면 찬 공기여도 티슈를 추천하지 않는다', () => {
+    const result = recommendOutfit(0, weatherWith({ temp: 0 }), 'running', []).map((i) => i.label);
+    expect(result).not.toContain('티슈');
+  });
+
+  it('미세먼지만으로는 티슈가 아니라 스포츠 마스크를 추천한다', () => {
+    const result = rhinitisLabels(15, 50);
+    expect(result).toContain('스포츠 마스크');
+    expect(result).not.toContain('티슈');
+  });
+});
+
+/** 하의가 짧은 바지(shorts)로 추천되는지 */
+function hasShorts(feelsLike: number, activity: Activity): boolean {
+  return recommendOutfit(feelsLike, weatherWith(), activity).some(
+    (i) => i.category === 'bottom' && i.icon === 'shorts',
+  );
+}
+
+/** 추천된 하의 라벨 (경계에서 라벨이 어떻게 바뀌는지 확인용) */
+function bottomLabel(feelsLike: number, activity: Activity): string | undefined {
+  return recommendOutfit(feelsLike, weatherWith(), activity).find((i) => i.category === 'bottom')
+    ?.label;
+}
+
+/**
+ * UT 응답("추운 것 같았는데 반바지를 추천해줌") 재현용 특성화 테스트.
+ * 현재 규칙에서 하의가 반바지로 바뀌는 체감온도 경계를 고정해 두어,
+ * 규칙을 조정할 때 어느 값이 바뀌는지 바로 드러나게 한다.
+ * (러닝 하의 규칙은 #59에서 한파 구간 기모 바지, 선선한 날 반바지 또는 레깅스로 조정되었다)
+ */
+describe('recommendOutfit - 반바지가 처음 나오는 체감온도', () => {
+  it('산책은 체감 23°C부터 반바지다', () => {
+    expect(hasShorts(22, 'walking')).toBe(false);
+    expect(hasShorts(23, 'walking')).toBe(true);
+  });
+
+  it('러닝은 체온 상승 보정 때문에 체감 11°C부터 반바지 또는 레깅스(짧은 하의)다', () => {
+    expect(hasShorts(10, 'running')).toBe(false);
+    expect(bottomLabel(10, 'running')).toBe('긴바지/러닝 레깅스');
+    expect(hasShorts(11, 'running')).toBe(true);
+    expect(bottomLabel(11, 'running')).toBe('반바지 또는 레깅스');
+  });
+
+  it('러닝은 체감 17°C부터 러닝 쇼츠로 바뀐다', () => {
+    expect(bottomLabel(16, 'running')).toBe('반바지 또는 레깅스');
+    expect(bottomLabel(17, 'running')).toBe('러닝 쇼츠');
+  });
+
+  it('러닝은 체감 -2°C 이하에서 기모 바지/레깅스다', () => {
+    expect(bottomLabel(-2, 'running')).toBe('기모 바지/레깅스');
+    expect(bottomLabel(-1, 'running')).toBe('긴바지/러닝 레깅스');
+  });
+
+  it('자전거는 체감 6°C부터 짧은 하의(빕숏)다', () => {
+    expect(hasShorts(5, 'cycling')).toBe(false);
+    expect(hasShorts(6, 'cycling')).toBe(true);
+  });
+
+  it('등산은 체감 28°C부터 반바지다 (22°C 이하에서는 반바지가 아니다)', () => {
+    expect(hasShorts(22, 'hiking')).toBe(false);
+    expect(hasShorts(27, 'hiking')).toBe(false);
+    expect(hasShorts(28, 'hiking')).toBe(true);
+  });
+
+  it('기온 18°C에 바람 3m/s여도 러닝은 반바지로 나온다 (체감 약 17°C)', () => {
+    const windy = weatherWith({ temp: 18, windSpeed: 3 });
+    const feelsLike = Math.round(calcFeelsLike(windy));
+    expect(feelsLike).toBe(17);
+    expect(
+      recommendOutfit(feelsLike, windy, 'running').some(
+        (i) => i.category === 'bottom' && i.icon === 'shorts',
+      ),
+    ).toBe(true);
   });
 });

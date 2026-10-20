@@ -80,6 +80,34 @@ describe('setFeedback', () => {
     expect(a.feedbackAt).toBeDefined();
     expect(b.feedback).toBeUndefined();
   });
+
+  it('거리와 실제 복장을 함께 남긴다', () => {
+    useHistoryStore.getState().setFeedback('a', 'good', { distanceKm: 5.5, actualOutfit: '반팔' });
+    const [a, b] = useHistoryStore.getState().entries;
+    expect(a.distanceKm).toBe(5.5);
+    expect(a.actualOutfit).toBe('반팔');
+    expect(b.distanceKm).toBeUndefined();
+  });
+
+  it('선택 입력 없이 저장해도 거리·복장 필드를 만들지 않는다', () => {
+    useHistoryStore.getState().setFeedback('a', 'hot');
+    const [a] = useHistoryStore.getState().entries;
+    expect('distanceKm' in a).toBe(false);
+    expect('actualOutfit' in a).toBe(false);
+  });
+});
+
+describe('setDuration', () => {
+  beforeEach(() => {
+    useHistoryStore.setState({ entries: [makeEntry('a'), makeEntry('b')] });
+  });
+
+  it('지정한 기록에만 활동 시간을 남긴다', () => {
+    useHistoryStore.getState().setDuration('a', 125);
+    const [a, b] = useHistoryStore.getState().entries;
+    expect(a.durationSec).toBe(125);
+    expect(b.durationSec).toBeUndefined();
+  });
 });
 
 describe('dropRemovedEntries', () => {
@@ -95,5 +123,42 @@ describe('dropSeedEntries', () => {
   it('더미 시드 기록만 버리고 사용자 기록은 남긴다', () => {
     const entries = [makeEntry('seed-1'), makeEntry('seed-5'), makeEntry('1735689600000')];
     expect(dropSeedEntries(entries).map((e) => e.id)).toEqual(['1735689600000']);
+  });
+});
+
+describe('updateEntryDetail', () => {
+  beforeEach(() => {
+    useHistoryStore.setState({
+      entries: [
+        { ...makeEntry('a'), distanceKm: 5, actualOutfit: '반팔', feedback: 'good' },
+        makeEntry('b'),
+      ],
+    });
+  });
+
+  it('거리와 복장을 새 값으로 바꾼다', () => {
+    useHistoryStore.getState().updateEntryDetail('a', { distanceKm: 7.5, actualOutfit: '긴팔' });
+    const entry = useHistoryStore.getState().entries[0];
+    expect(entry.distanceKm).toBe(7.5);
+    expect(entry.actualOutfit).toBe('긴팔');
+  });
+
+  it('비워 둔 값은 지운다', () => {
+    useHistoryStore.getState().updateEntryDetail('a', {});
+    const entry = useHistoryStore.getState().entries[0];
+    expect(entry.distanceKm).toBeUndefined();
+    expect(entry.actualOutfit).toBeUndefined();
+  });
+
+  it('체감 같은 다른 값과 다른 기록은 그대로 둔다', () => {
+    useHistoryStore.getState().updateEntryDetail('a', { distanceKm: 3 });
+    const [a, b] = useHistoryStore.getState().entries;
+    expect(a.feedback).toBe('good');
+    expect(b.distanceKm).toBeUndefined();
+  });
+
+  it('거리 없던 기록에 거리를 채울 수 있다', () => {
+    useHistoryStore.getState().updateEntryDetail('b', { distanceKm: 4.2 });
+    expect(useHistoryStore.getState().entries[1].distanceKm).toBe(4.2);
   });
 });

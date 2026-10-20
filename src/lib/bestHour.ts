@@ -1,6 +1,7 @@
 import { ACTIVITY_COMFORT } from '../constants/scoring';
 import {
   HOURS_IN_DAY,
+  RECOMMEND_CUTOFF_HOUR,
   RECOMMEND_MIN_SCORE,
   RECOMMEND_SCORE_MARGIN,
 } from '../constants/thresholds';
@@ -115,13 +116,18 @@ export function sliceToday(scores: HourScore[], nowHour: number): HourScore[] {
   return scores.slice(0, HOURS_IN_DAY - nowHour);
 }
 
+/** 추천 대상 시각인지 확인한다. (RECOMMEND_CUTOFF_HOUR 이후는 제외) */
+export function isRecommendableHour(hour: number): boolean {
+  return hour < RECOMMEND_CUTOFF_HOUR;
+}
+
 /**
- * 오늘 남은 시간대 중에서만 가장 점수가 높은 시간대를 찾는다. (내일 칸은 추천하지 않는다)
+ * 오늘 남은 시간대 중에서만 가장 점수가 높은 시간대를 찾는다. (내일 칸과 22시 이후는 추천하지 않는다)
  * @param scores 현재 시각부터 시작하는 시간대별 점수
  * @param nowHour 현재 시(0~23). 목록 앞의 (24 - nowHour)개가 오늘이다.
  */
 export function findBestHourToday(scores: HourScore[], nowHour: number): HourScore | null {
-  return findBestHour(sliceToday(scores, nowHour));
+  return findBestHour(sliceToday(scores, nowHour).filter((s) => isRecommendableHour(s.hour)));
 }
 
 /** 함께 추천하는 연속 시간대 구간 (양 끝 시각 포함) */
@@ -140,7 +146,8 @@ export function findGoodRange(todayScores: HourScore[], best: HourScore | null):
   if (!best || best.score < RECOMMEND_MIN_SCORE) return null;
   const minScore = Math.max(best.score - RECOMMEND_SCORE_MARGIN, RECOMMEND_MIN_SCORE);
   const bestIndex = todayScores.findIndex((s) => s.hour === best.hour);
-  const isGood = (i: number) => todayScores[i]?.score >= minScore;
+  const isGood = (i: number) =>
+    todayScores[i]?.score >= minScore && isRecommendableHour(todayScores[i].hour);
   let start = bestIndex;
   let end = bestIndex;
   while (isGood(start - 1)) start -= 1;

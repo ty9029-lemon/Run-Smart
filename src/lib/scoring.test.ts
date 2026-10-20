@@ -11,7 +11,13 @@ import {
   sliceFromHour,
 } from './bestHour';
 import { NEUTRAL_SENSITIVITY } from './feelsLike';
-import { calcRunScore, calcScoreBreakdown, scoreToLevel } from './runScore';
+import {
+  calcRunScore,
+  calcScoreBreakdown,
+  scoreToHeadline,
+  scoreToLevel,
+  scoreToTier,
+} from './runScore';
 
 /** 러닝 기준 모든 항목이 이상적인 낮 날씨 (체감 11°C) */
 const IDEAL: Weather = {
@@ -169,6 +175,40 @@ describe('calcRunScore', () => {
   });
 });
 
+describe('러닝 점수 5단계', () => {
+  it('경계 점수에서 단계가 바뀐다', () => {
+    expect(scoreToTier(100, 'running')).toBe('excellent');
+    expect(scoreToTier(80, 'running')).toBe('excellent');
+    expect(scoreToTier(79, 'running')).toBe('good');
+    expect(scoreToTier(70, 'running')).toBe('good');
+    expect(scoreToTier(69, 'running')).toBe('fair');
+    expect(scoreToTier(60, 'running')).toBe('fair');
+    expect(scoreToTier(59, 'running')).toBe('caution');
+    expect(scoreToTier(45, 'running')).toBe('caution');
+    expect(scoreToTier(44, 'running')).toBe('careful');
+    expect(scoreToTier(0, 'running')).toBe('careful');
+  });
+
+  it('5단계는 기존 3단계 경고 단계 안에 포함된다', () => {
+    const upperLevel = { excellent: 'good', good: 'good', fair: 'caution', caution: 'caution', careful: 'careful' };
+    for (let score = 0; score <= SCORE_MAX; score += 1) {
+      const tier = scoreToTier(score, 'running');
+      expect(upperLevel[tier!]).toBe(scoreToLevel(score));
+    }
+  });
+
+  it('러닝이 아닌 활동은 단계를 나누지 않고 기존 헤드라인을 쓴다', () => {
+    expect(scoreToTier(90, 'walking')).toBeNull();
+    expect(scoreToHeadline(90, 'walking')).toBe('활동하기 좋아요');
+    expect(scoreToHeadline(50, 'cycling')).toBe('주의가 필요해요');
+  });
+
+  it('러닝은 단계별 헤드라인을 보여준다', () => {
+    expect(scoreToHeadline(85, 'running')).toBe('지금 러닝하기 딱 좋아요');
+    expect(scoreToHeadline(30, 'running')).toBe('오늘은 푹 쉬어가는 걸 추천해요');
+  });
+});
+
 describe('일몰 3시간 전까지만 낮으로 보는 점수', () => {
   /** 일몰 18:12 기준, 슬롯 시작 시각이 hour시일 때의 이상적인 날씨 */
   const SUNSET_HOUR = 18.2;
@@ -304,10 +344,27 @@ describe('findBestHourToday', () => {
   });
 
   it('오늘 칸이 하나뿐이어도 고른다', () => {
-    expect(findBestHourToday([{ hour: 23, score: 70 }, { hour: 0, score: 90 }], 23)).toEqual({
-      hour: 23,
-      score: 70,
-    });
+    const lateScores = [
+      { hour: 21, score: 70 },
+      { hour: 22, score: 50 },
+      { hour: 23, score: 50 },
+      { hour: 0, score: 90 },
+    ];
+    expect(findBestHourToday(lateScores, 21)).toEqual({ hour: 21, score: 70 });
+  });
+
+  it('22시 이후(22시 정각 포함)는 점수가 높아도 추천하지 않는다', () => {
+    const night = [
+      { hour: 20, score: 60 },
+      { hour: 21, score: 61 },
+      { hour: 22, score: 99 },
+      { hour: 23, score: 98 },
+    ];
+    expect(findBestHourToday(night, 20)).toEqual({ hour: 21, score: 61 });
+  });
+
+  it('남은 오늘 칸이 모두 22시 이후면 null', () => {
+    expect(findBestHourToday([{ hour: 22, score: 90 }, { hour: 23, score: 90 }], 22)).toBeNull();
   });
 
   it('빈 목록이면 null', () => {
@@ -411,5 +468,51 @@ describe('findGoodRange', () => {
 
   it('대표 시간대가 없으면 null이다', () => {
     expect(findGoodRange([], null)).toBeNull();
+  });
+});
+
+describe('비염 점수', () => {
+  const score = (weather: typeof IDEAL, constraints: Parameters<typeof calcRunScore>[2]) =>
+    calcRunScore(weather, NEUTRAL_SENSITIVITY, constraints, 'running');
+
+  it('쾌적한 날씨에서는 비염을 체크해도 점수가 같다', () => {
+    expect(score(IDEAL, ['rhinitis'])).toBe(score(IDEAL, []));
+  });
+
+  it('건조한 공기(습도 20%)에서는 비염이면 점수가 더 낮다', () => {
+    const dry = { ...IDEAL, humidity: 20 };
+    expect(score(dry, ['rhinitis'])).toBeLessThan(score(dry, []));
+  });
+
+  it('습한 공기(습도 80%)에서는 비염이어도 점수가 같다', () => {
+    const wet = { ...IDEAL, humidity: 80 };
+    expect(score(wet, ['rhinitis'])).toBe(score(wet, []));
+  });
+
+  it('찬 공기(0°C)에서는 비염이면 점수가 더 낮다', () => {
+    const cold = { ...IDEAL, temp: 0 };
+    expect(score(cold, ['rhinitis'])).toBeLessThan(score(cold, []));
+  });
+
+  it('더운 날씨(30°C)에서는 비염이어도 점수가 같다', () => {
+    const hot = { ...IDEAL, temp: 30 };
+    expect(score(hot, ['rhinitis'])).toBe(score(hot, []));
+  });
+
+  it('미세먼지는 미세먼지 민감과 같은 감점을 준다', () => {
+    const dusty = { ...IDEAL, pm10: 100 };
+    expect(score(dusty, ['rhinitis'])).toBe(score(dusty, ['dustSensitive']));
+  });
+});
+
+describe('findGoodRange 22시 제외', () => {
+  it('좋은 구간이 22시를 넘어 이어져도 21시에서 끊는다', () => {
+    const scores = [
+      { hour: 20, score: 90 },
+      { hour: 21, score: 90 },
+      { hour: 22, score: 90 },
+      { hour: 23, score: 90 },
+    ];
+    expect(findGoodRange(scores, scores[0])).toEqual({ startHour: 20, endHour: 21 });
   });
 });

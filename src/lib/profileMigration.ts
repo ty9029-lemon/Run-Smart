@@ -90,6 +90,11 @@ function removeDisabledActivities(state: LegacyProfileState): LegacyProfileState
   return { ...state, profile: { ...profile, selectedActivities, lastActivity } };
 }
 
+/** v5 → v6: 활동 시간대는 비워 둔다. */
+function addActivityTimeSlots(state: LegacyProfileState): LegacyProfileState {
+  return { ...state, profile: { ...state.profile, activityTimeSlots: [] } };
+}
+
 /**
  * 저장된 프로필을 현재 버전 형태로 옮긴다.
  * @param persisted localStorage에서 읽은 값
@@ -102,5 +107,6 @@ export function migrateProfileState(persisted: unknown, version: number): unknow
   if (version < 3) state = addFeedbackOffset(state);
   if (version < 4) state = addUseCurrentLocation(state);
   if (version < 5) state = removeDisabledActivities(state);
+  if (version < 6) state = addActivityTimeSlots(state);
   return state;
 }

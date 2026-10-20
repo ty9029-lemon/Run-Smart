@@ -3,6 +3,7 @@ import {
   GUIDE_MESSAGE_MAX,
   GUIDE_TIP_MAX,
   GUIDE_TIPS_MAX_COUNT,
+  SYSTEM_PROMPT,
   buildUserPrompt,
   parseGuideRequest,
   parseGuideResponse,
@@ -95,6 +96,24 @@ describe('buildUserPrompt', () => {
   });
 });
 
+describe('러닝 점수 단계(scoreTier)', () => {
+  it('올바른 단계는 통과하고 프롬프트에 담긴다', () => {
+    const req = parseGuideRequest({ ...VALID_REQUEST, scoreTier: 'good' });
+    expect(req).not.toBeNull();
+    expect(JSON.parse(buildUserPrompt(req!)).score_tier).toBe('good');
+  });
+
+  it('없으면(기존 클라이언트) 그대로 통과하고 프롬프트에 단계가 없다', () => {
+    const req = parseGuideRequest(VALID_REQUEST);
+    expect(req).not.toBeNull();
+    expect(JSON.parse(buildUserPrompt(req!)).score_tier).toBeUndefined();
+  });
+
+  it('알 수 없는 단계는 거절한다', () => {
+    expect(parseGuideRequest({ ...VALID_REQUEST, scoreTier: 'great' })).toBeNull();
+  });
+});
+
 describe('buildUserPrompt - 등급', () => {
   it('앱이 정한 미세먼지·자외선 등급을 담는다', () => {
     const graded = { ...VALID_REQUEST, dustGrade: '좋음', uvGrade: '보통', maskAllowed: false };
@@ -160,5 +179,31 @@ describe('parseGuideResponse', () => {
     const withMask = { ...VALID_OUTPUT, activityTips: ['마스크 준비하기'] };
     expect(parseGuideResponse(JSON.stringify(withMask), 'good', true)).not.toBeNull();
     expect(parseGuideResponse(JSON.stringify(withMask), 'good')).not.toBeNull();
+  });
+});
+
+describe('복장 목록(outfitLabels)', () => {
+  const withOutfit = { ...VALID_REQUEST, outfitLabels: ['기능성 얇은 긴팔', '반바지 또는 레깅스', '러닝화'] };
+
+  it('올바른 복장 목록은 통과하고 프롬프트에 담긴다', () => {
+    const parsed = JSON.parse(buildUserPrompt(parseGuideRequest(withOutfit)!));
+    expect(parsed.recommended_outfit).toEqual(['기능성 얇은 긴팔', '반바지 또는 레깅스', '러닝화']);
+  });
+
+  it('없으면(기존 클라이언트) 통과하고 프롬프트에도 없다', () => {
+    const parsed = JSON.parse(buildUserPrompt(parseGuideRequest(VALID_REQUEST)!));
+    expect(parsed.recommended_outfit).toBeUndefined();
+  });
+
+  it('배열이 아니거나 너무 많거나 문자열이 아니면 거절한다', () => {
+    expect(parseGuideRequest({ ...VALID_REQUEST, outfitLabels: '긴팔' })).toBeNull();
+    expect(parseGuideRequest({ ...VALID_REQUEST, outfitLabels: Array(13).fill('러닝화') })).toBeNull();
+    expect(parseGuideRequest({ ...VALID_REQUEST, outfitLabels: [1] })).toBeNull();
+  });
+
+  it('시스템 프롬프트가 복장 일치와 자외선 차단제·선글라스 문구 규칙을 담는다', () => {
+    expect(SYSTEM_PROMPT).toContain('recommended_outfit');
+    expect(SYSTEM_PROMPT).toContain('자외선 차단제 바르기');
+    expect(SYSTEM_PROMPT).toContain('선글라스 챙기기');
   });
 });

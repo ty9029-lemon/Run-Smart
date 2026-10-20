@@ -33,7 +33,7 @@ const DEVICE_GUIDE_ERROR_CODES: readonly number[] = [1, 2];
  * 차단(denied)으로 보여도 일단 읽어 보고, 실패하면 설정 안내를 펼친다.
  * (사이트 설정을 바꿨는데 앱이 이전 상태를 들고 있을 수 있다.)
  */
-function LocationNotice({ error, onRequest, isOff = false }: LocationNoticeProps) {
+export function LocationNotice({ error, onRequest, isOff = false }: LocationNoticeProps) {
   const [showGuide, setShowGuide] = useState(false);
   const handleClick = async () => {
     const succeeded = await onRequest();
@@ -91,7 +91,7 @@ function GuideBody({ guide, rawWeather }: Pick<GuideBoxProps, 'guide' | 'rawWeat
 /** AI 가이드 메시지 박스. 불러오는 동안은 안내를, 실패하면 원시 날씨 문구를 보여준다. */
 export default function GuideBox({ guide, rawWeather, location }: GuideBoxProps) {
   return (
-    <section className="space-y-3 rounded-panel border border-border bg-card p-6">
+    <section className="space-y-3 rounded-panel bg-card p-6">
       <GuideBody guide={guide} rawWeather={rawWeather} />
       {location && <LocationNotice {...location} />}
     </section>

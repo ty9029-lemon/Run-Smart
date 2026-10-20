@@ -20,7 +20,7 @@ export default function BottomTabBar() {
   return (
     <nav
       aria-label="주요 메뉴"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card pb-[env(safe-area-inset-bottom)]"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-tabbar pb-[env(safe-area-inset-bottom)]"
     >
       <ul className="mx-auto flex max-w-md" style={{ height: TAB_BAR_HEIGHT }}>
         {TAB_ITEMS.map((tab) => (

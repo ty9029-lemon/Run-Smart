@@ -14,17 +14,37 @@ const FEEDBACK_DELTA: Record<Feedback, number> = {
 };
 
 /**
+ * 이 기록에 지금 체감을 물어볼 수 있는지 확인한다. (홈 카드와 기록 화면이 같은 기준을 쓴다)
+ * @param entry 히스토리 기록
+ * @param now 현재 시각(ms)
+ * @param activeEntryId 진행 중인 활동의 기록 id
+ */
+export function isFeedbackAskable(
+  entry: HistoryEntry,
+  now: number,
+  activeEntryId: string | null = null,
+): boolean {
+  if (entry.feedback || entry.id === activeEntryId) return false;
+  const elapsed = now - new Date(entry.date).getTime();
+  const isEnded = entry.durationSec !== undefined;
+  return (isEnded || elapsed >= FEEDBACK_ASK_DELAY_MS) && elapsed < FEEDBACK_EXPIRE_MS;
+}
+
+/**
  * 지금 피드백을 물어볼 기록을 찾는다.
- * '가기'로 기록했고 아직 피드백이 없으며, 일정 시간이 지났고 너무 오래되지 않은 가장 최근 기록이다.
+ * 아직 피드백이 없고 너무 오래되지 않은 가장 최근 기록이다.
+ * 활동을 마친 기록(활동 시간이 있는 기록)은 바로 묻고, 그렇지 않은 기록은 일정 시간이 지난 뒤에 묻는다.
+ * 진행 중인 활동은 아직 끝나지 않았으므로 묻지 않는다.
  * @param entries 히스토리 기록
  * @param now 현재 시각(ms)
+ * @param activeEntryId 진행 중인 활동의 기록 id
  */
-export function findPendingFeedback(entries: HistoryEntry[], now: number): HistoryEntry | null {
-  const candidates = entries.filter((e) => {
-    if (e.feedback) return false;
-    const elapsed = now - new Date(e.date).getTime();
-    return elapsed >= FEEDBACK_ASK_DELAY_MS && elapsed < FEEDBACK_EXPIRE_MS;
-  });
+export function findPendingFeedback(
+  entries: HistoryEntry[],
+  now: number,
+  activeEntryId: string | null = null,
+): HistoryEntry | null {
+  const candidates = entries.filter((e) => isFeedbackAskable(e, now, activeEntryId));
   return candidates.reduce<HistoryEntry | null>(
     (latest, e) => (!latest || e.date > latest.date ? e : latest),
     null,

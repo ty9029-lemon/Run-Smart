@@ -6,6 +6,8 @@ export interface OnboardingStepMeta {
   id: OnboardingStepId;
   title: string;
   description: string;
+  /** 같은 단계 아래에 이어서 보여줄 두 번째 질문 */
+  followUp?: { title: string; description: string };
 }
 
 /** 온보딩 4단계 (순서대로 진행) */
@@ -14,6 +16,10 @@ export const ONBOARDING_STEPS: OnboardingStepMeta[] = [
     id: 'activity',
     title: '어떤 활동을 하세요?',
     description: '자주 하는 활동을 골라 주세요.',
+    followUp: {
+      title: '주로 언제 활동하세요?',
+      description: '대략적인 시간대를 골라 주세요.',
+    },
   },
   {
     id: 'offset',
@@ -22,7 +28,7 @@ export const ONBOARDING_STEPS: OnboardingStepMeta[] = [
   },
   {
     id: 'constraint',
-    title: '신경 쓸 점이 있나요?',
+    title: '활동할 때 신경 쓸 점이 있나요?',
     description: '해당하는 항목을 모두 체크해 주세요. 없으면 건너뛰어도 돼요.',
   },
   {

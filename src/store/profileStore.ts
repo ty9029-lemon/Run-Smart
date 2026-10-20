@@ -12,9 +12,19 @@ export const DEFAULT_PROFILE: Profile = {
   coldLevel: SENSITIVITY_DEFAULT,
   heatLevel: SENSITIVITY_DEFAULT,
   constraints: [],
+  activityTimeSlots: [],
   feedbackOffset: 0,
   useCurrentLocation: true,
 };
+
+/**
+ * 저장·서버에서 읽은 프로필에 빠진 필드를 기본값으로 채운다.
+ * 필드를 추가하기 전에 저장된 프로필(서버 동기화 포함)이 새 필드 때문에 화면을 멈추게 하지 않는다.
+ * @param stored 저장돼 있던 프로필 (일부 필드가 없을 수 있다)
+ */
+export function withProfileDefaults(stored: Partial<Profile>): Profile {
+  return { ...DEFAULT_PROFILE, ...stored };
+}
 
 interface ProfileState {
   profile: Profile;
@@ -30,8 +40,8 @@ interface ProfileState {
   resetFeedbackOffset: () => void;
 }
 
-/** 저장 데이터 버전 (1: '외출' 활동 제거, 2: 추위·더위 민감도로 교체, 3: 피드백 보정 추가, 4: 현재 위치 사용 여부 추가, 5: 준비 중인 활동 제거) */
-const PROFILE_STORE_VERSION = 5;
+/** 저장 데이터 버전 (1: '외출' 활동 제거, 2: 추위·더위 민감도로 교체, 3: 피드백 보정 추가, 4: 현재 위치 사용 여부 추가, 5: 준비 중인 활동 제거, 6: 활동 시간대 추가) */
+const PROFILE_STORE_VERSION = 6;
 
 /** 사용자 프로필 스토어 (localStorage 저장) */
 export const useProfileStore = create<ProfileState>()(
@@ -63,6 +73,11 @@ export const useProfileStore = create<ProfileState>()(
       name: 'run-smart-profile',
       version: PROFILE_STORE_VERSION,
       migrate: (persisted, version) => migrateProfileState(persisted, version) as ProfileState,
+      // 저장본에 빠진 프로필 필드는 기본값으로 채운다 (기본 병합은 프로필을 통째로 덮어쓴다)
+      merge: (persisted, current) => {
+        const saved = persisted as Partial<ProfileState> | undefined;
+        return { ...current, ...saved, profile: withProfileDefaults(saved?.profile ?? {}) };
+      },
     },
   ),
 );

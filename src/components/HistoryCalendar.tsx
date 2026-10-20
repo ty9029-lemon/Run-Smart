@@ -89,7 +89,7 @@ function MonthHeader({
   return (
     <div className="flex items-center justify-between">
       <Button
-        variant="secondary"
+        variant="ghost"
         size="icon"
         aria-label="이전 달"
         disabled={!isMonthInRange(prev, today)}
@@ -97,11 +97,11 @@ function MonthHeader({
       >
         <ChevronLeft />
       </Button>
-      <h2 className="text-lg font-bold">
+      <h2 className="text-subheading-sm font-bold">
         {viewMonth.year}년 {viewMonth.month + 1}월
       </h2>
       <Button
-        variant="secondary"
+        variant="ghost"
         size="icon"
         aria-label="다음 달"
         disabled={!isMonthInRange(next, today)}
@@ -124,7 +124,7 @@ export default function HistoryCalendar({
 }: HistoryCalendarProps) {
   const weeks = buildMonthGrid(viewMonth.year, viewMonth.month);
   return (
-    <section className="space-y-3 rounded-panel border border-border bg-card p-4">
+    <section className="space-y-3 rounded-panel bg-card p-4">
       <MonthHeader viewMonth={viewMonth} today={today} onChangeMonth={onChangeMonth} />
       <div className="grid grid-cols-7 text-center text-sm text-muted-foreground">
         {WEEKDAY_LABELS.map((label) => (

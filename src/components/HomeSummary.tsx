@@ -1,35 +1,43 @@
 import ActivityChips from './ActivityChips';
-import OutfitPanel from './OutfitPanel';
-import ScoreRing from './ScoreRing';
-import { OUTFIT_SOURCES } from '../constants/analytics';
-import { LEVEL_LABEL } from '../constants/messages';
-import type { Activity, OutfitItem, WarningLevel } from '../types';
+import HomeScoreCard from './HomeScoreCard';
+import type { ScoreReason } from '../lib/scoreReasons';
+import type { Activity, Weather } from '../types';
 
 interface HomeSummaryProps {
   activity: Activity;
   score: number;
-  level: WarningLevel;
-  outfit: OutfitItem[];
+  /** 점수 카드 위의 헤드라인 문구 */
+  headline: string;
+  weather: Weather;
+  feelsLike: number;
+  /** 항목별 점수 근거 */
+  reasons: ScoreReason[];
+  onOpenBreakdown: () => void;
   onSelectActivity: (activity: Activity) => void;
 }
 
-/** 첫 화면 요약: 활동 칩 → 가이드 헤드라인 → 러닝 지수 → 오늘 추천 복장(1단) */
+/** 첫 화면 요약: 활동 칩 → 가이드 헤드라인 → 활동 지수·지금 날씨 카드 */
 export default function HomeSummary({
   activity,
   score,
-  level,
-  outfit,
+  headline,
+  weather,
+  feelsLike,
+  reasons,
+  onOpenBreakdown,
   onSelectActivity,
 }: HomeSummaryProps) {
   return (
-    <div className="space-y-4">
-      <ActivityChips
-        selected={activity}
-        onSelect={onSelectActivity}
+    <div>
+      <ActivityChips selected={activity} onSelect={onSelectActivity} />
+      <h1 className="mb-4 mt-5 text-2xl font-bold leading-snug">{headline}</h1>
+      <HomeScoreCard
+        score={score}
+        weather={weather}
+        feelsLike={feelsLike}
+        reasons={reasons}
+        onOpenBreakdown={onOpenBreakdown}
       />
-      <h1 className="text-3xl font-bold leading-tight">{LEVEL_LABEL[level]}</h1>
-      <ScoreRing score={score} />
-      <OutfitPanel items={outfit} source={OUTFIT_SOURCES.home} activity={activity} />
     </div>
   );
 }

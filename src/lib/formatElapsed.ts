@@ -1,0 +1,59 @@
+import {
+  MIN_RECORD_DURATION_SEC,
+  MINUTES_PER_HOUR,
+  MS_PER_SECOND,
+  SECONDS_PER_MINUTE,
+} from '../constants/thresholds';
+
+/** 숫자를 두 자리로 맞춘다. (예: 7 → '07') */
+function pad2(value: number): string {
+  return String(value).padStart(2, '0');
+}
+
+/**
+ * 경과 시간을 타이머 형식으로 바꾼다.
+ * 1시간 미만은 `mm:ss`(예: 00:07), 1시간 이상은 `h:mm:ss`(예: 1:00:01)로 표시한다.
+ * @param elapsedMs 경과 시간(ms). 음수는 0으로 본다
+ */
+export function formatElapsed(elapsedMs: number): string {
+  const totalSeconds = Math.floor(Math.max(0, elapsedMs) / MS_PER_SECOND);
+  const seconds = totalSeconds % SECONDS_PER_MINUTE;
+  const totalMinutes = Math.floor(totalSeconds / SECONDS_PER_MINUTE);
+  const minutes = totalMinutes % MINUTES_PER_HOUR;
+  const hours = Math.floor(totalMinutes / MINUTES_PER_HOUR);
+  if (hours === 0) return `${pad2(minutes)}:${pad2(seconds)}`;
+  return `${hours}:${pad2(minutes)}:${pad2(seconds)}`;
+}
+
+/**
+ * 시작과 종료 시각 사이의 활동 시간(초)을 구한다. 화면 표시(formatElapsed)와 같이 1초 미만은 버린다.
+ * @param startedAtMs 시작 시각(ms)
+ * @param endedAtMs 종료 시각(ms)
+ */
+export function elapsedSeconds(startedAtMs: number, endedAtMs: number): number {
+  return Math.floor(Math.max(0, endedAtMs - startedAtMs) / MS_PER_SECOND);
+}
+
+/**
+ * 기록으로 남기기엔 너무 짧은 활동인지 확인한다. (출발 직후 바로 종료한 경우)
+ * @param durationSec 활동 시간(초)
+ */
+export function isTooShortToRecord(durationSec: number): boolean {
+  return durationSec < MIN_RECORD_DURATION_SEC;
+}
+
+/**
+ * 활동 시간을 읽기 쉬운 한국어로 바꾼다.
+ * 1분 미만은 `42초`, 1시간 미만은 `21분 5초`(초가 0이면 `21분`), 1시간 이상은 `1시간 5분`(분이 0이면 `1시간`).
+ * @param durationSec 활동 시간(초). 음수는 0으로 본다
+ */
+export function formatDurationText(durationSec: number): string {
+  const totalSeconds = Math.floor(Math.max(0, durationSec));
+  const seconds = totalSeconds % SECONDS_PER_MINUTE;
+  const totalMinutes = Math.floor(totalSeconds / SECONDS_PER_MINUTE);
+  const minutes = totalMinutes % MINUTES_PER_HOUR;
+  const hours = Math.floor(totalMinutes / MINUTES_PER_HOUR);
+  if (hours > 0) return minutes > 0 ? `${hours}시간 ${minutes}분` : `${hours}시간`;
+  if (totalMinutes === 0) return `${seconds}초`;
+  return seconds > 0 ? `${minutes}분 ${seconds}초` : `${minutes}분`;
+}

@@ -16,14 +16,25 @@
   --color-pure-white: #ffffff;
   --color-carbon-black: #000000;
 
+  /* 상태 레벨 색 (DESIGN.md '상태 레벨 색'): 등급 표시 글자·아이콘·작은 막대 전용 */
+  --color-level-good: #4da3ff;
+  --color-level-normal: #ff9a3c;
+  --color-level-bad: #ff7a6b;
+
   /* 라틴 글리프는 Plus Jakarta Sans가 먼저 받고, 한글은 Pretendard로 넘어간다 */
   --font-sans: 'Plus Jakarta Sans', 'Pretendard Variable', Pretendard,
     'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', ui-sans-serif,
     system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
+  /* 서브헤딩 18px: 시트·폼의 섹션 제목 */
+  --text-subheading-sm: 18px;
+  --text-subheading-sm--line-height: 1.4;
+
   --radius-md: 6px;
   /* 카드/패널 전용 반경 (버튼·칩은 rounded-full pill) */
   --radius-panel: 20px;
+  /* 입력창 전용 반경 (Figma radius/input) */
+  --radius-input: 8px;
   --shadow-sm: rgba(17, 17, 17, 0.125) 0px 2px 6px 0px;
 }
 
@@ -48,6 +59,9 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-placeholder: var(--placeholder);
+  --color-tabbar: var(--tabbar);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -75,23 +89,30 @@
    흰 배경에서 안 보이는 글자·아이콘·포커스 링은 진한 색(highlight, ring)으로 대신한다 */
 :root {
   color-scheme: light;
-  --background: #ffffff;
+  --background: #f4f4f5;
   --foreground: #111111;
-  /* 카드는 배경과 같은 흰색: 면 대신 --border 테두리로 구분해 라임 채움이 흰 면 위에 놓이게 한다 */
+  /* 카드는 흰 면: 회색 캔버스(#f4f4f5)와의 면 대비로 구분한다 (다크와 같이 테두리 없음) */
   --card: #ffffff;
   --card-foreground: #111111;
   --popover: #ffffff;
   --popover-foreground: #111111;
   --primary: #b7ff2c;
   --primary-foreground: #000000;
-  --secondary: #f4f4f5;
+  /* 검정 8% 면: 흰 카드·회색 캔버스 어디에 올려도 한 단계 어둡게 보인다 (Figma bg/secondary) */
+  --secondary: rgba(0, 0, 0, 0.08);
   --secondary-foreground: #111111;
   --muted: #f4f4f5;
   --muted-foreground: #66666a;
+  /* placeholder: 입력한 글자와 구분되도록 서브 텍스트보다 옅게 (Figma text/placeholder) */
+  --placeholder: #8e8e91;
+  /* 하단 탭바 면: 라이트는 흰색, 다크는 캔버스색 (Figma bg/tabbar) */
+  --tabbar: #ffffff;
   --accent: #ececee;
   --accent-foreground: #111111;
   /* 파괴적 액션은 붉은 글자 + 10% 붉은 면 (라임 외 유일한 예외 색, 점수 '경고'와 같은 값) */
   --destructive: #c4301f;
+  /* 붉은 면(#c4301f) 위 글자: 흰색 5.54:1 (Figma feedback/on-destructive) */
+  --destructive-foreground: #ffffff;
   --border: #e5e5e5;
   --input: #8e8e91;
   --ring: #111111;
@@ -136,13 +157,18 @@
   --popover-foreground: #ffffff;
   --primary: #b7ff2c;
   --primary-foreground: #000000;
-  --secondary: #1f1f21;
+  /* 흰색 10% 면: 캔버스·카드·시트 어디에 올려도 한 단계 밝게 보여 구분된다 (불투명 #1f1f21은 카드 위에서 사라졌다) */
+  --secondary: rgba(255, 255, 255, 0.1);
   --secondary-foreground: #ffffff;
   --muted: #1f1f21;
-  --muted-foreground: #707072;
+  --muted-foreground: #8e8e90;
+  --placeholder: #636366;
+  --tabbar: #111111;
   --accent: #28282a;
   --accent-foreground: #ffffff;
   --destructive: #ff7a6b;
+  /* 코랄 면 위 글자: 흰색은 대비 2.55:1이라 어두운 글자(7.42:1)를 쓴다 (Figma feedback/on-destructive) */
+  --destructive-foreground: #111111;
   --border: #28282a;
   --input: #707072;
   --ring: #b7ff2c;
@@ -183,5 +209,34 @@
   }
   button {
     cursor: pointer;
+  }
+}
+
+/* 시간대 차트처럼 가로로 스크롤하는 목록의 스크롤바: 4px 막대를 스크롤하는 동안에만 보인다 (data-scrolling) */
+@utility chart-scrollbar {
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 9999px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 9999px;
+  }
+  &[data-scrolling='true']::-webkit-scrollbar-track {
+    background: var(--border);
+  }
+  &[data-scrolling='true']::-webkit-scrollbar-thumb {
+    background: var(--input);
+  }
+  /* Chrome 121+는 표준 속성이 있으면 ::-webkit-scrollbar를 무시하므로 Firefox에서만 지정한다 */
+  @supports (-moz-appearance: none) {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    &[data-scrolling='true'] {
+      scrollbar-color: var(--input) var(--border);
+    }
   }
 }

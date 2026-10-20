@@ -27,7 +27,7 @@ function resolveActivity(profile: Profile): Activity | null {
 /** 안내 박스 */
 function Notice({ children }: { children: React.ReactNode }) {
   return (
-    <p className="rounded-panel border border-border bg-card p-6 text-sm">
+    <p className="rounded-panel bg-card p-6 text-sm">
       {children}
     </p>
   );
