@@ -140,3 +140,40 @@ describe('buildScoreDeltas', () => {
     expect(Math.abs(deltas[0].diff)).toBeGreaterThanOrEqual(Math.abs(deltas[1].diff));
   });
 });
+
+describe('buildScoreReasons: 밤', () => {
+  const NIGHT: Weather = { ...IDEAL, isDay: false };
+
+  it('러닝은 밤이면 일조 시간이 가장 큰 감점(−35점)으로 나온다', () => {
+    const reasons = reasonsOf(NIGHT);
+    expect(reasons[0].key).toBe('daylight');
+    expect(reasons[0].penalty).toBe(35);
+    expect(reasons[0].max).toBe(35);
+    expect(reasons[0].points).toBe(0);
+    expect(reasons[0].ratio).toBe(1);
+  });
+
+  it('점수에 음수 칸이 나오지 않는다', () => {
+    for (const r of reasonsOf(NIGHT)) expect(r.points).toBeGreaterThanOrEqual(0);
+  });
+
+  it('낮에는 일조 시간이 감점이 아니다', () => {
+    const daylight = reasonsOf(IDEAL).find((r) => r.key === 'daylight');
+    expect(daylight?.penalty).toBe(0);
+    expect(daylight?.max).toBe(5);
+  });
+
+  it('등산은 배점표가 일조를 우선하므로 추가 감점 없이 35점이 깎인다', () => {
+    const w = NIGHT;
+    const breakdown = calcScoreBreakdown(w, NEUTRAL_SENSITIVITY, [], 'hiking');
+    const daylight = buildScoreReasons(breakdown, 'hiking', [], w).find((r) => r.key === 'daylight');
+    expect(daylight?.penalty).toBe(35);
+    expect(daylight?.max).toBe(35);
+  });
+
+  it('점수 한 줄 요약에 "일조 시간 −35점"이 보인다', () => {
+    const top = pickTopReasons(reasonsOf(NIGHT));
+    expect(top[0].label).toBe('일조 시간');
+    expect(top[0].penalty).toBe(35);
+  });
+});

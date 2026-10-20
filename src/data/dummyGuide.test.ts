@@ -103,3 +103,20 @@ describe('비염 팁', () => {
     );
   });
 });
+
+describe('buildDummyGuide - 밤', () => {
+  const night = weatherWith({ isDay: false, hoursUntilSunset: -5, uvIndex: 0 });
+
+  it('자외선 민감이어도 밤에는 자외선 차단제 팁을 보여 주지 않는다', () => {
+    expect(tips('running', night, ['uvSensitive'])).not.toContain('자외선 차단제 바르기');
+  });
+
+  it('낮에는 자외선 민감 팁을 그대로 보여 준다', () => {
+    expect(tips('running', weatherWith(), ['uvSensitive'])).toContain('자외선 차단제 바르기');
+  });
+
+  it('밤에는 반사 장비와 조명 팁을 덧붙이고, 낮에는 붙이지 않는다', () => {
+    expect(tips('running', night, [])).toContain('반사 장비와 조명 챙기기');
+    expect(tips('running', weatherWith(), [])).not.toContain('반사 장비와 조명 챙기기');
+  });
+});

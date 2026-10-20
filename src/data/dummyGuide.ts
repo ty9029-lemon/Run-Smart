@@ -43,6 +43,9 @@ const CONSTRAINT_TIPS: Partial<Record<Constraint, string>> = {
   asthma: '흡입기 등 개인 약 챙기기',
 };
 
+/** 해가 진 뒤에 덧붙이는 팁 */
+const NIGHT_TIP = '반사 장비와 조명 챙기기';
+
 /** 마스크 팁 (천식·비염·미세먼지 민감의 등급 조건을 만족할 때만 보여 준다) */
 const MASK_TIP = '미세먼지 스포츠 마스크 고려';
 
@@ -94,8 +97,11 @@ export function buildDummyGuide(
   const score = calcRunScore(weather, sensitivity, constraints, activity);
   const level = scoreToLevel(score);
   const felt = calcPersonalFeelsLike(weather, sensitivity);
+  const isNight = weather.isDay === false;
   const constraintTips = constraints
     .filter((c) => isConstraintTipNeeded(c, activity))
+    // 밤에는 햇빛이 없으므로 자외선 차단제 팁을 쓰지 않는다
+    .filter((c) => !(isNight && c === 'uvSensitive'))
     .map((c) => CONSTRAINT_TIPS[c])
     .filter((tip): tip is string => Boolean(tip));
   const maskTips = shouldRecommendMask(constraints, weather.pm10) ? [MASK_TIP] : [];
@@ -106,6 +112,7 @@ export function buildDummyGuide(
       ...constraintTips,
       ...buildRhinitisTips(constraints, weather),
       ...maskTips,
+      ...(isNight ? [NIGHT_TIP] : []),
     ],
     warningLevel: level,
     goOrNotEmoji: LEVEL_EMOJI[level],

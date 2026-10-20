@@ -5,6 +5,7 @@ import {
   GUIDE_TIPS_MAX_COUNT,
   SYSTEM_PROMPT,
   buildUserPrompt,
+  findGuideProblem,
   parseGuideRequest,
   parseGuideResponse,
 } from './guideCore.js';
@@ -93,6 +94,52 @@ describe('buildUserPrompt', () => {
     const parsed = JSON.parse(buildUserPrompt(parseGuideRequest(night)!));
     expect(parsed.current_weather.is_day).toBe(false);
     expect(JSON.parse(buildUserPrompt(parseGuideRequest(VALID_REQUEST)!)).current_weather.is_day).toBe(true);
+  });
+});
+
+describe('밤 규칙', () => {
+  const NIGHT_REQUEST = { ...VALID_REQUEST, weather: { ...VALID_REQUEST.weather, isDay: false } };
+
+  it('시스템 프롬프트가 밤에는 안전 중심으로 쓰고 햇빛·자외선·쾌적을 말하지 않게 한다', () => {
+    expect(SYSTEM_PROMPT).toContain('is_day가 false(밤)');
+    expect(SYSTEM_PROMPT).toContain('햇빛·자외선·선글라스·자외선 차단제는 말하지 않습니다');
+    expect(SYSTEM_PROMPT).toContain('자외선 민감이 있어도 밤에는 쓰지 않습니다');
+    expect(SYSTEM_PROMPT).toContain('"쾌적하다"');
+  });
+
+  it('선크림 팁 규칙은 낮에만 적용한다', () => {
+    expect(SYSTEM_PROMPT).toContain('is_day가 true(낮)이면');
+  });
+
+  it('밤이면 프롬프트의 is_day가 false이고, 밤에는 내일 일몰까지의 시간이 양수라 헷갈리므로 일몰 시간은 담지 않는다', () => {
+    const withSunset = {
+      ...NIGHT_REQUEST,
+      weather: { ...NIGHT_REQUEST.weather, hoursUntilSunset: 17.8 },
+    };
+    const parsed = JSON.parse(buildUserPrompt(parseGuideRequest(withSunset)!));
+    expect(parsed.current_weather.is_day).toBe(false);
+    expect(parsed.current_weather).not.toHaveProperty('hours_until_sunset');
+  });
+
+  it('밤인데 햇빛·선글라스·자외선 차단·쾌적을 말하면 응답을 거른다', () => {
+    const sun = { ...VALID_OUTPUT, detailedReason: '햇빛이 나올 때를 대비해 외출하세요.' };
+    const comfy = { ...VALID_OUTPUT, guideMessage: '러닝하기 좋은 쾌적한 날씨네요.' };
+    const tip = { ...VALID_OUTPUT, activityTips: ['선글라스 챙기기'] };
+    for (const body of [sun, comfy, tip]) {
+      expect(parseGuideResponse(JSON.stringify(body), 'good', true, false)).toBeNull();
+      expect(findGuideProblem(JSON.stringify(body), true, false)).toBe('night_phrase');
+    }
+  });
+
+  it('낮이거나 낮밤을 모르면 같은 문구도 통과한다', () => {
+    const sun = { ...VALID_OUTPUT, detailedReason: '햇빛이 강하니 선글라스를 챙기세요.' };
+    expect(parseGuideResponse(JSON.stringify(sun), 'good', true, true)).not.toBeNull();
+    expect(parseGuideResponse(JSON.stringify(sun), 'good')).not.toBeNull();
+  });
+
+  it('밤에 어두운 환경의 안전을 말하는 응답은 통과한다', () => {
+    const safe = { ...VALID_OUTPUT, activityTips: ['반사 장비 착용하기', '밝은 길로 다니기'] };
+    expect(parseGuideResponse(JSON.stringify(safe), 'caution', true, false)).not.toBeNull();
   });
 });
 
