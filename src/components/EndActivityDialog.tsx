@@ -44,7 +44,7 @@ export default function EndActivityDialog({
           <Button type="button" variant="outline" onClick={onContinue}>
             {MESSAGES.endContinue}
           </Button>
-          <Button type="button" variant="default" onClick={onConfirm}>
+          <Button type="button" variant="destructive" onClick={onConfirm}>
             {MESSAGES.endConfirm}
           </Button>
         </DialogFooter>
