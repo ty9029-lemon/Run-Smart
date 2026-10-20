@@ -43,7 +43,11 @@ describe('buildBestTimeCards 시간대 선택', () => {
   it('금요일 저녁이면 내일(토)이 평일이 아니라 내일 출근 전은 만들지 않는다', () => {
     const scores = makeScores(14, peaks({ 19: 84, 7: 99 }));
     const cards = buildBestTimeCards(scores, friday(14), ['beforeWork', 'afterWork']);
-    expect(cards[0]).toEqual({ label: '오늘 퇴근 후', hour: 19, score: 84 });
+    expect(cards.find((c) => c.label === '오늘 퇴근 후')).toEqual({
+      label: '오늘 퇴근 후',
+      hour: 19,
+      score: 84,
+    });
     expect(cards.some((c) => c.label === '내일 출근 전')).toBe(false);
   });
 
@@ -55,8 +59,12 @@ describe('buildBestTimeCards 시간대 선택', () => {
 
   it('토요일에는 주말 저녁을 오늘로 만든다', () => {
     const scores = makeScores(9, peaks({ 18: 88 }));
-    const [card] = buildBestTimeCards(scores, saturday(9), ['weekendEvening']);
-    expect(card).toEqual({ label: '오늘 주말 저녁', hour: 18, score: 88 });
+    const cards = buildBestTimeCards(scores, saturday(9), ['weekendEvening']);
+    expect(cards.find((c) => c.label === '오늘 주말 저녁')).toEqual({
+      label: '오늘 주말 저녁',
+      hour: 18,
+      score: 88,
+    });
   });
 
   it('22시 이후 시각은 시간대 안에 있어도 고르지 않는다', () => {
@@ -124,8 +132,17 @@ describe('buildBestTimeCards 시간대 카드와 채우기', () => {
   it('시간대 카드가 1장이면 나머지를 오늘 좋은 시간으로 채운다 (같은 시각은 피한다)', () => {
     const scores = makeScores(14, peaks({ 19: 90, 15: 85 }));
     expect(buildBestTimeCards(scores, monday(14), ['afterWork'])).toEqual([
-      { label: '오늘 퇴근 후', hour: 19, score: 90 },
       { label: '오늘 오후', hour: 15, score: 85 },
+      { label: '오늘 퇴근 후', hour: 19, score: 90 },
+    ]);
+  });
+
+  it('채운 카드가 더 이르면 시간대 카드보다 앞에 온다 (오늘 오후가 내일 출근 전보다 먼저)', () => {
+    const scores = makeScores(14, peaks({ 9: 97, 19: 91 }));
+    const cards = buildBestTimeCards(scores, monday(14), ['beforeWork']);
+    expect(cards).toEqual([
+      { label: '오늘 오후', hour: 19, score: 91 },
+      { label: '내일 출근 전', hour: 9, score: 97 },
     ]);
   });
 
