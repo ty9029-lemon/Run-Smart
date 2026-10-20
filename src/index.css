@@ -290,6 +290,9 @@
   --animate-splash-text: splash-text-in 500ms ease-out 250ms both;
   /* 스켈레톤: 천천히 숨 쉬듯 밝기만 바뀐다. 시간은 slow 토큰의 두 배(1280ms) */
   --animate-skeleton: skeleton-pulse calc(var(--motion-duration-slow) * 2) ease-in-out infinite alternate;
+  /* 페이지 전환 페이드: opacity만 움직인다. tw-animate의 animate-in은 transform을 함께 걸어
+     하단 고정 버튼(fixed)의 기준을 페이지 래퍼로 바꿔 버리므로 쓰지 않는다. */
+  --animate-page-in: fade-in-soft var(--motion-duration-fast) var(--motion-ease-main) backwards;
   --animate-step-in-forward: step-in-forward var(--motion-duration-normal) var(--motion-ease-main) both;
   --animate-step-in-back: step-in-back var(--motion-duration-normal) var(--motion-ease-main) both;
 
