@@ -4,6 +4,7 @@ import LocationStatus from '../components/LocationStatus';
 import ProfileForm from '../components/ProfileForm';
 import ThemeSelector from '../components/ThemeSelector';
 import { CTA_IDS } from '../constants/analytics';
+import { SETTINGS_SAVED_STATE } from '../constants/navigation';
 import { useLocationPermission } from '../hooks/useLocationPermission';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { useProfileDraft } from '../hooks/useProfileDraft';
@@ -28,7 +29,7 @@ export default function Settings() {
     });
     // 화면을 떠나면 미리보기가 사라지므로 이동 전에 테마를 확정한다
     commitThemePreview();
-    navigate('/');
+    navigate('/', { state: SETTINGS_SAVED_STATE });
   });
 
   /** [저장] 클릭을 기록하고 프로필을 저장한다. */

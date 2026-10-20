@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import AppReviewDialog from './AppReviewDialog';
 import DecisionButtons from './DecisionButtons';
 import DepartureToast from './DepartureToast';
+import SettingsSavedToast from './SettingsSavedToast';
 import FeedbackCard from './FeedbackCard';
 import FeedbackSheet from './FeedbackSheet';
 import BestTimeSection from './BestTimeSection';
@@ -11,6 +12,7 @@ import HomeSummary from './HomeSummary';
 import HourlyChart from './HourlyChart';
 import ScoreBreakdownSheet from './ScoreBreakdownSheet';
 import SelectedHourDetail from './SelectedHourDetail';
+import { useSettingsSavedToast } from '../hooks/useSettingsSavedToast';
 import { useHourScoreDeltas } from '../hooks/useHourScoreDeltas';
 import { useScoreReasons } from '../hooks/useScoreReasons';
 import { buildDummyGuide } from '../data/dummyGuide';
@@ -88,6 +90,7 @@ export default function HomeReady({
   const isRunning = session !== null && session.activity === activity;
   const todayEntry = useTodayEntry(activity);
   const [toastOpen, setToastOpen] = useState(false);
+  const savedToast = useSettingsSavedToast();
   const now = useNow();
   // 결과가 화면에 준비된 시점부터 결정까지 걸린 시간을 재기 위한 경과 시간 읽기
   const getElapsedMs = useElapsedSinceMount();
@@ -194,6 +197,8 @@ export default function HomeReady({
           : buildDummyGuide(activity, current, sensitivity, profile.constraints),
     });
     startSession({ entryId, activity, startedAt: decidedAt.getTime() });
+    // 같은 자리에 뜨는 설정 저장 토스트와 겹치지 않게 닫는다
+    savedToast.setOpen(false);
     setToastOpen(true);
   };
 
@@ -308,6 +313,7 @@ export default function HomeReady({
             onOpenChange={setToastOpen}
             onUndo={handleCancel}
           />
+          <SettingsSavedToast open={savedToast.open} onOpenChange={savedToast.setOpen} />
         </div>
       </div>
       <FeedbackSheet
