@@ -27,6 +27,8 @@ interface DecisionButtonsProps {
   onDecide: () => void;
   /** 종료 확인 후 호출. 타이머 버튼을 누른 시각(ms)을 종료 시각으로 넘긴다 */
   onEnd: (endedAtMs: number) => void;
+  /** 종료 확인에서 [계속하기]를 눌렀을 때 호출. 팝업이 열려 있던 시간(ms)을 넘겨 그만큼 타이머를 멈춘 것으로 친다 */
+  onResume: (pausedMs: number) => void;
   onCancel: () => void;
 }
 
@@ -54,8 +56,12 @@ function RunningTimer({
   activity,
   startedAt,
   onEnd,
+  onResume,
   onCancel,
-}: Pick<DecisionButtonsProps, 'activityLabel' | 'activity' | 'startedAt' | 'onEnd' | 'onCancel'>) {
+}: Pick<
+  DecisionButtonsProps,
+  'activityLabel' | 'activity' | 'startedAt' | 'onEnd' | 'onResume' | 'onCancel'
+>) {
   // 타이머 버튼을 누른 순간의 시각과 경과 시간. 확인 팝업이 떠 있는 동안 표시를 고정한다
   const [paused, setPaused] = useState<{ at: number; elapsedMs: number } | null>(null);
   const liveElapsedMs = useStopwatch(startedAt);
@@ -67,8 +73,9 @@ function RunningTimer({
     setPaused({ at, elapsedMs: startedAt === null ? 0 : at - startedAt });
   };
 
-  /** 종료를 취소하고 활동을 계속한다. 팝업을 열어 둔 시간도 활동 시간에 포함된다. */
+  /** 종료를 취소하고 활동을 계속한다. 팝업을 열어 둔 시간은 활동 시간에서 빼서 팝업에서 본 시간부터 이어 간다. */
   const handleContinue = () => {
+    if (paused) onResume(Date.now() - paused.at);
     setPaused(null);
     trackEvent(ANALYTICS_EVENTS.activityEndDismissed, { activity });
   };
@@ -115,6 +122,7 @@ export default function DecisionButtons({
   previousNotice,
   onDecide,
   onEnd,
+  onResume,
   onCancel,
 }: DecisionButtonsProps) {
   if (status === 'running') {
@@ -124,6 +132,7 @@ export default function DecisionButtons({
         activity={activity}
         startedAt={startedAt}
         onEnd={onEnd}
+        onResume={onResume}
         onCancel={onCancel}
       />
     );

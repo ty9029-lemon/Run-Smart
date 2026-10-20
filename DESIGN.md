@@ -284,7 +284,7 @@ Pure White(#ffffff) 배경, 20px radius, 20-24px 패딩. Carbon Black의 heading
 Card Charcoal(#1f1f21) 배경, 테두리 없음(면 대비로 구분), 20px radius, 20px 패딩. Midnight Canvas보다 한 단계 위에 놓이며, 같은 표면처럼 느껴질 만큼 은은하면서도 콘텐츠 블록을 담을 만큼 분명합니다.
 
 ### Confirm Dialog
-**역할:** 되돌리기 어렵거나 실수하기 쉬운 동작을 한 번 더 묻는 확인 팝업 (러닝 종료 "러닝을 종료할까요?", 기록 삭제 "이 기록을 삭제할까요?", 설정의 보정 초기화 "보정을 초기화할까요?")
+**역할:** 되돌리기 어렵거나 실수하기 쉬운 동작을 한 번 더 묻는 확인 팝업 (러닝 종료 "러닝을 종료할까요?", 기록 삭제 "이 기록을 삭제할까요?", 설정의 보정 초기화 "보정을 초기화할까요?"). 러닝 종료 팝업이 떠 있는 동안 타이머는 멈춘 것으로 보고, [계속하기]를 누르면 팝업에서 본 시간부터 다시 흐릅니다(팝업이 열려 있던 시간만큼 시작 시각을 뒤로 미룸).
 
 Popover 면(Card Charcoal) 배경, 20px radius, 24px 패딩, 가운데 뜨는 Dialog입니다. 제목은 Pretendard 700 24px(`font-heading`, 줄 간격 1.2), 설명은 Subtle Text, 닫기 버튼은 두지 않으며 바깥 탭·ESC는 "취소"와 같습니다. **제목·설명과 버튼 영역 사이에 구분선을 두지 않습니다**(푸터의 `border-t`를 `border-t-0`으로 끔). 버튼은 같은 너비의 2열(간격 8px)로, 왼쪽이 안전한 선택지(outline, "계속하기"·"취소"), 오른쪽이 실행 버튼(destructive, "종료하기"·"삭제")입니다. 라임 default 버튼은 쓰지 않습니다. 되돌리기 어려운 동작이라 위험을 알리는 코랄(`--destructive`) 100% 면 + `--destructive-foreground` 글자로 구분하고, 호버는 면을 90%로 낮춥니다. 구현은 `EndActivityDialog`, `DeleteEntryDialog`, 제목·설명·버튼 이름을 받는 공용 `ConfirmActionDialog`(설정의 보정 초기화)입니다.
 

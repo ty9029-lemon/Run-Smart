@@ -18,4 +18,15 @@ describe('activeSessionStore', () => {
     useActiveSessionStore.getState().clear();
     expect(useActiveSessionStore.getState().session).toBeNull();
   });
+
+  it('시작 시각을 늦추면 그만큼 뒤로 밀린다', () => {
+    useActiveSessionStore.getState().start(SESSION);
+    useActiveSessionStore.getState().shiftStart(4000);
+    expect(useActiveSessionStore.getState().session?.startedAt).toBe(5000);
+  });
+
+  it('세션이 없으면 시작 시각을 늦춰도 아무 일도 없다', () => {
+    useActiveSessionStore.getState().shiftStart(4000);
+    expect(useActiveSessionStore.getState().session).toBeNull();
+  });
 });

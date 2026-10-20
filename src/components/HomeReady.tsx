@@ -87,6 +87,7 @@ export default function HomeReady({
   const setDuration = useHistoryStore((s) => s.setDuration);
   const startSession = useActiveSessionStore((s) => s.start);
   const clearSession = useActiveSessionStore((s) => s.clear);
+  const shiftSessionStart = useActiveSessionStore((s) => s.shiftStart);
   const session = useActiveSession();
   const isRunning = session !== null && session.activity === activity;
   const todayEntry = useTodayEntry(activity);
@@ -307,6 +308,7 @@ export default function HomeReady({
             previousNotice={previousNotice}
             onDecide={handleDecide}
             onEnd={handleEnd}
+            onResume={shiftSessionStart}
             onCancel={handleCancel}
           />
           <DepartureToast
