@@ -202,9 +202,9 @@ Tailwind 기본 radius 클래스는 `--radius: 20px` 기준으로 계산되어 `
 
 | 토큰 | 값 | 쓰임 |
 |---|---|---|
-| `--motion-duration-fast` | 200ms | 색·진행 막대 같은 작은 상태 변화 |
-| `--motion-duration-normal` | 400ms | 단계·화면 전환, 페이드 |
-| `--motion-duration-slow` | 640ms | 처음 등장하는 강조 요소(스플래시 로고) |
+| `--motion-duration-fast` | 200ms | 색·진행 막대·차트 막대 같은 작은 상태 변화, 다이얼로그·토스트·메뉴 |
+| `--motion-duration-normal` | 400ms | 단계 전환, 바텀시트 열림, 페이드, 섹션 등장 |
+| `--motion-duration-slow` | 640ms | 점수 링처럼 값이 차오르는 강조 요소 |
 | `--motion-ease-main` | `cubic-bezier(0, 0, 0, 1)` | 화면에 들어오는 요소 (Decelerate) |
 | `--motion-ease-exit` | `cubic-bezier(0.3, 0, 1, 1)` | 화면에서 나가는 요소 |
 | `--motion-stagger` | 60ms | 요소를 순서대로 등장시킬 때 요소 간 지연 |
@@ -213,7 +213,10 @@ Tailwind 기본 radius 클래스는 `--radius: 20px` 기준으로 계산되어 `
 - **사용법:** `duration-(--motion-duration-normal) ease-(--motion-ease-main)`처럼 Tailwind 변수 문법으로 쓰고, 애니메이션은 `@theme`의 `--animate-*`에 `var(--motion-…)`을 넣어 정의한다.
 - **온보딩 단계 전환:** 다음은 오른쪽에서, 이전은 왼쪽에서 24px 밀려 들어오며 나타난다(400ms, `ease-main`). 제목·입력 카드·버튼이 `--motion-stagger`(60ms) 간격으로 차례로 들어오고, 첫 방문의 1단계는 스플래시가 완전히 사라진 뒤에 시작한다(`useAppRevealed`). 그 전에는 온보딩 화면을 숨겨 사라지는 로고와 겹쳐 보이지 않게 한다. 진행 막대는 200ms로 색이 바뀐다.
 - **스플래시는 예외:** 로고(800ms, `cubic-bezier(0.16, 1, 0.3, 1)`)·글자(500ms, `ease-out`, 250ms 지연)·페이드아웃(400ms, `ease-out`)을 따로 맞춘 값으로 쓴다. `ease-main`(`cubic-bezier(0, 0, 0, 1)`)은 감속이 너무 강해 짧은 거리의 크기·투명도 변화는 첫 몇 프레임에 끝나 모션이 보이지 않는다.
-- **모션 줄이기:** 새 애니메이션은 `motion-safe:`로 적용하고, 스플래시는 `prefers-reduced-motion`에서 `animation: none`으로 둔다.
+- **오버레이:** 다이얼로그와 오버레이는 200ms(fast), 열릴 때 `ease-main`·닫힐 때 `ease-exit`입니다. 화면 높이만큼 움직이는 바텀시트는 열릴 때 400ms(normal), 닫힐 때 200ms(fast)입니다(`BOTTOM_SHEET_CLASS`). 토스트는 열릴 때 아래에서 16px 올라오며 200ms, 닫힐 때 8px 내려가며 사라지고, 드롭다운 메뉴(`HistoryEntryMenu`)는 95%에서 커지며 200ms로 열리고 닫힙니다.
+- **홈 데이터 등장:** 점수 링은 빈 링에서 시작해 640ms(slow)에 점수만큼 차오르고, 점수가 바뀌면 같은 전환으로 이어서 움직입니다. AI 가이드는 로딩 문구가 본문으로 바뀔 때 400ms 페이드로 나타나고, 시간대 차트 막대는 선택·값 변화를 200ms로 부드럽게 바꿉니다. 로딩 문구와 본문의 높이 차이로 생기는 레이아웃 점프는 아직 다루지 않았습니다.
+- **홈 첫 진입:** 앱을 연 뒤 홈을 처음 볼 때만 섹션이 24px 떠오르며 60ms 간격으로 차례로 나타납니다(`stagger-children`, `useIntroOnce`). 탭을 오가며 다시 열면 모션 없이 바로 보이고, 첫 방문에서는 스플래시가 사라진 뒤에 시작합니다. 부모에 `stagger-children`을 주면 자식 6개까지 지연이 늘고 7번째부터는 같은 지연을 씁니다.
+- **모션 줄이기:** `prefers-reduced-motion`에서는 `index.css`의 전역 규칙이 모든 애니메이션·전환을 0.01ms로 끝내고 반복을 1회로 줄입니다. 0이 아닌 값을 쓰는 이유는 Radix·Base UI가 닫힘 애니메이션의 `animationend`를 기다리기 때문입니다. 온보딩 전환은 이와 별개로 `motion-safe:`를 씁니다.
 - **순차 등장 쓰는 법:** 요소 순서(i)에 `animation-delay: calc(i * var(--motion-stagger))`를 준다.
 
 ## 컴포넌트

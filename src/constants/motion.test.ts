@@ -29,3 +29,23 @@ describe('모션 easing·간격 토큰', () => {
     expect(readToken('motion-distance-md')).toMatch(/^24px/);
   });
 });
+
+describe('모션 줄이기 전역 처리', () => {
+  const reduced = css.slice(css.indexOf('@media (prefers-reduced-motion: reduce)'));
+
+  it('애니메이션과 전환을 즉시 끝낸다', () => {
+    expect(reduced).toContain('animation-duration: 0.01ms !important');
+    expect(reduced).toContain('transition-duration: 0.01ms !important');
+  });
+
+  it('닫힘 애니메이션 이벤트가 오도록 duration을 0으로 두지 않는다', () => {
+    expect(reduced).not.toMatch(/animation-duration:\s*0(ms|s)?\s/);
+  });
+});
+
+describe('순차 등장', () => {
+  it('stagger 간격 토큰으로 자식 지연을 계산한다', () => {
+    expect(css).toContain('.stagger-children > :nth-child(2)');
+    expect(css).toContain('calc(1 * var(--motion-stagger))');
+  });
+});

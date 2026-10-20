@@ -7,3 +7,6 @@ export const MOTION_DURATION_MS = {
   normal: 400,
   slow: 640,
 } as const;
+
+/** 홈 화면 첫 진입 등장 모션을 구분하는 키 (한 번 보여주면 다시 보여주지 않는다) */
+export const HOME_INTRO_KEY = 'home';

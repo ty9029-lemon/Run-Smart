@@ -21,6 +21,8 @@ import { useActiveSession } from '../hooks/useActiveSession';
 import { useAppReview } from '../hooks/useAppReview';
 import { useElapsedSinceMount } from '../hooks/useElapsedSinceMount';
 import { useFeedbackPrompt } from '../hooks/useFeedbackPrompt';
+import { HOME_INTRO_KEY } from '../constants/motion';
+import { useIntroOnce } from '../hooks/useIntroOnce';
 import { useNow } from '../hooks/useNow';
 import { formatPreviousDeparture, formatRawWeather } from '../constants/messages';
 import { FEEDBACK_SOURCES } from '../constants/feedback';
@@ -81,6 +83,8 @@ export default function HomeReady({
   guide,
   location,
 }: HomeReadyProps) {
+  // 앱을 연 뒤 홈을 처음 볼 때만 섹션이 차례로 나타난다. (스플래시가 사라진 뒤에 시작)
+  const intro = useIntroOnce(HOME_INTRO_KEY);
   const setLastActivity = useProfileStore((s) => s.setLastActivity);
   const addEntry = useHistoryStore((s) => s.addEntry);
   const removeEntry = useHistoryStore((s) => s.removeEntry);
@@ -248,7 +252,10 @@ export default function HomeReady({
   };
 
   return (
-    <div className="space-y-10" style={{ paddingBottom: CTA_CLEARANCE }}>
+    <div
+      className={`space-y-10 ${intro.shouldAnimate ? 'stagger-children' : ''} ${intro.isHidden ? 'opacity-0' : ''}`}
+      style={{ paddingBottom: CTA_CLEARANCE }}
+    >
       <FeedbackCard hiddenEntryIds={[sheetEntry?.id ?? null, feedbackDismissedId]} />
       <HomeSummary
         activity={activity}
