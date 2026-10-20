@@ -20,7 +20,7 @@ interface DeleteEntryDialogProps {
 export default function DeleteEntryDialog({ onCancel, onConfirm }: DeleteEntryDialogProps) {
   return (
     <Dialog open onOpenChange={(open) => !open && onCancel()}>
-      <DialogContent showCloseButton={false}>
+      <DialogContent showCloseButton={false} className="gap-8">
         <DialogHeader>
           <DialogTitle>{HISTORY_MENU_MESSAGES.deleteTitle}</DialogTitle>
           <DialogDescription>{HISTORY_MENU_MESSAGES.deleteDescription}</DialogDescription>

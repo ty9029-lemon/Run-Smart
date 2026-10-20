@@ -35,7 +35,7 @@ export default function EndActivityDialog({
 }: EndActivityDialogProps) {
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onContinue()}>
-      <DialogContent showCloseButton={false}>
+      <DialogContent showCloseButton={false} className="gap-8">
         <DialogHeader>
           <DialogTitle>{formatEndDialogTitle(activityLabel)}</DialogTitle>
           <DialogDescription>{formatEndDialogDescription(elapsedText)}</DialogDescription>
