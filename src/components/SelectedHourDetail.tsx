@@ -89,7 +89,7 @@ export default function SelectedHourDetail({
             )}
           </p>
           <p className={`text-2xl font-bold leading-snug ${SCORE_LEVEL_TEXT_CLASS[level]}`}>
-            {score}점 {SCORE_LEVEL_NAME[level]}
+            {SCORE_LEVEL_NAME[level]} {score}점
           </p>
         </div>
         {deltas && <ScoreDeltaLine deltas={deltas} />}
