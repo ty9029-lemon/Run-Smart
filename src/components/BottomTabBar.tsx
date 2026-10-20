@@ -13,6 +13,10 @@ function trackTabClick(tab: TabItem, currentPath: string): void {
   if (tab.id === TAB_IDS.history) trackEvent(ANALYTICS_EVENTS.historyOpened);
 }
 
+/** 활성 탭 위의 라임 막대 (라이트 전용): 투명도 0→1로 전환한다 */
+const TAB_BAR_INDICATOR_CLASS =
+  'before:absolute before:inset-x-[30%] before:top-0 before:h-0.5 before:rounded-full before:bg-primary before:opacity-0 before:transition-opacity before:duration-(--motion-duration-fast) before:ease-(--motion-ease-main) dark:before:hidden';
+
 /** 화면 하단에 고정되는 주요 메뉴 (홈 / 기록 / 설정) */
 export default function BottomTabBar() {
   const { pathname } = useLocation();
@@ -32,10 +36,10 @@ export default function BottomTabBar() {
               className={({ isActive }) =>
                 cn(
                   'relative flex h-full flex-col items-center justify-center gap-1 text-xs font-medium transition-colors duration-(--motion-duration-fast) ease-(--motion-ease-main)',
-                  // 라이트에서는 글자색만으로 활성 구분이 약해 상단에 라임 막대를 더한다 (다크는 라임 글자로 충분)
-                  isActive
-                    ? 'text-highlight before:absolute before:inset-x-[30%] before:top-0 before:h-0.5 before:rounded-full before:bg-primary dark:before:hidden'
-                    : 'text-muted-foreground',
+                  // 라이트에서는 글자색만으로 활성 구분이 약해 상단에 라임 막대를 더한다 (다크는 라임 글자로 충분).
+                  // 막대는 항상 그려 두고 투명도로 나타나고 사라지게 한다.
+                  TAB_BAR_INDICATOR_CLASS,
+                  isActive ? 'text-highlight before:opacity-100' : 'text-muted-foreground',
                 )
               }
             >

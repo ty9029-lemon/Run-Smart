@@ -5,10 +5,12 @@ import ActivityTimePicker from '../components/ActivityTimePicker';
 import OnboardingStep from '../components/OnboardingStep';
 import StepIndicator from '../components/StepIndicator';
 import { CTA_IDS } from '../constants/analytics';
+import { MOTION_DURATION_MS } from '../constants/motion';
 import { ONBOARDING_STEPS } from '../constants/onboarding';
 import { useAppRevealed } from '../hooks/useAppRevealed';
 import { useProfileDraft } from '../hooks/useProfileDraft';
 import { useRestartAnimation } from '../hooks/useRestartAnimation';
+import { useRestoreFocus } from '../hooks/useRestoreFocus';
 import { requestLocationPermission, useLocationPermission } from '../hooks/useLocationPermission';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { toggleActivityTimeSlot } from '../lib/profileDraft';
@@ -30,6 +32,10 @@ const FOLLOW_UP_GAP_CLASS = 'mt-9';
 
 /** 하단 버튼 위 여백 (48px) */
 const BUTTON_GAP_CLASS = 'mt-12';
+
+/** 온보딩을 마치고 홈으로 넘어가기 직전, 화면이 사라지는 전환 */
+const LEAVE_FADE_CLASS =
+  'opacity-0 transition-opacity duration-(--motion-duration-fast) ease-(--motion-ease-exit)';
 
 /** 단계 이동 방향별 등장 애니메이션 (모션 줄이기 설정에서는 적용하지 않는다) */
 const STEP_MOTION_CLASS: Record<StepDirection, string> = {
@@ -96,6 +102,8 @@ export default function Onboarding() {
   // 단계 콘텐츠를 키로 다시 그려도 구독이 초기화되지 않도록 여기서 한 번만 구독한다.
   const locationStatus = useLocationPermission();
   const [isStarting, setIsStarting] = useState(false);
+  // [시작하기] 뒤 홈으로 넘어가기 전에 화면이 짧게 사라지는 중인지
+  const [isLeaving, setIsLeaving] = useState(false);
   // 버튼은 다시 그리지 않고(포커스 유지) 단계가 바뀔 때 애니메이션만 다시 재생한다.
   const buttonsRef = useRef<HTMLDivElement>(null);
   const { draft, error, onChange, validate, submit } = useProfileDraft(
@@ -114,6 +122,8 @@ export default function Onboarding() {
   const isFirst = stepIndex === 0;
   const isLast = stepIndex === LAST_STEP;
   useRestartAnimation(buttonsRef, stepIndex);
+  // 눌렀던 버튼이 사라지는 전환(2단계의 [이전])에서 포커스를 잃지 않게 한다.
+  useRestoreFocus(buttonsRef, stepIndex);
 
   /** 순차 등장: 요소 순서만큼 --motion-stagger 지연을 준다. */
   const getMotion = (index: number): StepMotion => ({
@@ -121,10 +131,13 @@ export default function Onboarding() {
     style: { animationDelay: `calc(${index} * var(--motion-stagger))` },
   });
   const buttonsMotion = getMotion(step.followUp ? 4 : 2);
+  // 스플래시가 사라지기 전에는 숨기고, 시작하기를 누른 뒤에는 짧게 사라진다(나가는 모션은 exit 이징).
+  const mainFadeClass = isLeaving ? LEAVE_FADE_CLASS : isRevealed ? '' : 'opacity-0';
 
   /**
    * 마지막 단계의 [시작하기] 클릭을 기록한다.
-   * 현재 위치 사용이 켜져 있으면 권한 팝업을 띄운 뒤(거부돼도 계속 진행) 프로필을 저장한다.
+   * 현재 위치 사용이 켜져 있으면 권한 팝업을 띄운 뒤(거부돼도 계속 진행) 화면을 짧게 사라지게 하고 프로필을 저장한다.
+   * 저장하면 곧바로 홈으로 이동하므로, 사라지는 모션은 저장 전에 끝낸다.
    */
   const handleStart = async () => {
     setIsStarting(true);
@@ -133,6 +146,12 @@ export default function Onboarding() {
       trackEvent(ANALYTICS_EVENTS.ctaClicked, { cta: CTA_IDS.locationAllow });
       await requestLocationPermission();
     }
+    if (!validate()) {
+      setIsStarting(false);
+      return;
+    }
+    setIsLeaving(true);
+    await new Promise((resolve) => setTimeout(resolve, MOTION_DURATION_MS.fast));
     submit();
     setIsStarting(false);
   };
@@ -156,9 +175,9 @@ export default function Onboarding() {
 
   return (
     <main
-      className={`mx-auto max-w-md space-y-6 overflow-x-clip px-4 py-6 ${isRevealed ? '' : 'opacity-0'}`}
+      className={`mx-auto max-w-md space-y-6 overflow-x-clip px-4 py-6 ${mainFadeClass}`}
     >
-      <StepIndicator current={stepIndex} total={ONBOARDING_STEPS.length} />
+      <StepIndicator current={stepIndex} total={ONBOARDING_STEPS.length} stepTitle={step.title} />
       <div key={step.id} className="space-y-6">
         <StepSection
           title={step.title}
