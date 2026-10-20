@@ -41,10 +41,10 @@ export default function EndActivityDialog({
           <DialogDescription>{formatEndDialogDescription(elapsedText)}</DialogDescription>
         </DialogHeader>
         <DialogFooter className="grid grid-cols-2 gap-2 border-t-0">
-          <Button type="button" variant="outline" onClick={onContinue}>
+          <Button type="button" variant="secondary" size="lg" onClick={onContinue}>
             {MESSAGES.endContinue}
           </Button>
-          <Button type="button" variant="destructive" onClick={onConfirm}>
+          <Button type="button" variant="destructive" size="lg" onClick={onConfirm}>
             {MESSAGES.endConfirm}
           </Button>
         </DialogFooter>

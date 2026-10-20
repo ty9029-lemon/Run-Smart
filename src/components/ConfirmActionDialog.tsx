@@ -40,10 +40,10 @@ export default function ConfirmActionDialog({
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <DialogFooter className="grid grid-cols-2 gap-2 border-t-0">
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button type="button" variant="secondary" size="lg" onClick={onCancel}>
             {cancelLabel}
           </Button>
-          <Button type="button" variant="destructive" onClick={onConfirm}>
+          <Button type="button" variant="destructive" size="lg" onClick={onConfirm}>
             {confirmLabel}
           </Button>
         </DialogFooter>
