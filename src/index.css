@@ -336,9 +336,49 @@
   }
 }
 
+/* 순차 등장: 부모에 stagger-children을 주면 자식이 --motion-stagger 간격으로 차례로 떠오른다.
+   자식이 7개 이상이면 6번째와 같은 지연을 쓴다. 끝난 뒤 transform이 남지 않도록 fill은 backwards로 둔다. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-distance-md));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stagger-children > * {
+  animation: rise-in var(--motion-duration-normal) var(--motion-ease-main) backwards;
+}
+.stagger-children > :nth-child(2) {
+  animation-delay: calc(1 * var(--motion-stagger));
+}
+.stagger-children > :nth-child(3) {
+  animation-delay: calc(2 * var(--motion-stagger));
+}
+.stagger-children > :nth-child(4) {
+  animation-delay: calc(3 * var(--motion-stagger));
+}
+.stagger-children > :nth-child(5) {
+  animation-delay: calc(4 * var(--motion-stagger));
+}
+.stagger-children > :nth-child(n + 6) {
+  animation-delay: calc(5 * var(--motion-stagger));
+}
+
+/* 모션 줄이기: 모든 애니메이션·전환을 즉시 끝낸다. duration을 0이 아닌 값으로 두는 이유는
+   Radix·Base UI가 닫힘 애니메이션의 animationend를 기다리기 때문이다. */
 @media (prefers-reduced-motion: reduce) {
-  .animate-splash-logo,
-  .animate-splash-text {
-    animation: none;
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
   }
 }

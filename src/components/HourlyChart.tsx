@@ -171,7 +171,7 @@ function HourBar({ label, score, isSelected, isExcluded, onSelect }: HourBarProp
     >
       <span className="flex w-full flex-1 items-end">
         <span
-          className={`w-full rounded-t-lg ${SCORE_LEVEL_BAR_CLASS[scoreToLevel(score)]} ${fade}`}
+          className={`w-full rounded-t-lg transition-[height,opacity] duration-(--motion-duration-fast) ease-(--motion-ease-main) ${SCORE_LEVEL_BAR_CLASS[scoreToLevel(score)]} ${fade}`}
           style={{ height: `${(score / 100) * BAR_AREA_HEIGHT}px` }}
         />
       </span>

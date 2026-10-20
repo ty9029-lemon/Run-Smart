@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react';
 import { SCORE_MAX } from '../constants/thresholds';
+import { useAppRevealed } from '../hooks/useAppRevealed';
 
 /** 링 크기 상수 */
 const SIZE = 88;
@@ -10,9 +12,20 @@ interface ScoreRingProps {
   score: number;
 }
 
-/** 활동 지수(100점 만점)를 원형 게이지로 보여준다. 카드는 바깥(HomeScoreCard)이 그린다. */
+/**
+ * 활동 지수(100점 만점)를 원형 게이지로 보여준다. 카드는 바깥(HomeScoreCard)이 그린다.
+ * 빈 링에서 시작해 점수만큼 차오르고, 점수가 바뀌면 부드럽게 이어서 움직인다.
+ */
 export default function ScoreRing({ score }: ScoreRingProps) {
-  const offset = CIRCUMFERENCE * (1 - score / SCORE_MAX);
+  const isRevealed = useAppRevealed();
+  // 마운트 직후 한 프레임 뒤에 목표 값을 넣어야 CSS transition이 빈 링에서 시작한다.
+  const [shownScore, setShownScore] = useState(0);
+  useEffect(() => {
+    if (!isRevealed) return;
+    const frame = requestAnimationFrame(() => setShownScore(score));
+    return () => cancelAnimationFrame(frame);
+  }, [score, isRevealed]);
+  const offset = CIRCUMFERENCE * (1 - shownScore / SCORE_MAX);
   return (
     <div
       role="img"
@@ -39,6 +52,7 @@ export default function ScoreRing({ score }: ScoreRingProps) {
           strokeLinecap="round"
           strokeDasharray={CIRCUMFERENCE}
           strokeDashoffset={offset}
+          className="transition-[stroke-dashoffset] duration-(--motion-duration-slow) ease-(--motion-ease-main)"
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">

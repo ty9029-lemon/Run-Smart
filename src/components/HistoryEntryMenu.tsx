@@ -9,6 +9,14 @@ import type { FeedbackDetail, HistoryEntry } from '../types';
 import DeleteEntryDialog from './DeleteEntryDialog';
 import HistoryEditSheet from './HistoryEditSheet';
 
+/** 메뉴가 열리고 닫힐 때의 모션 (열릴 때는 main, 닫힐 때는 exit 이징) */
+const MENU_MOTION_CLASS = [
+  'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
+  'data-[state=open]:duration-(--motion-duration-fast) data-[state=open]:ease-(--motion-ease-main)',
+  'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
+  'data-[state=closed]:duration-(--motion-duration-fast) data-[state=closed]:ease-(--motion-ease-exit)',
+].join(' ');
+
 /** 메뉴 항목 공통 모양 */
 const ITEM_CLASS =
   'flex w-full cursor-default items-center rounded-[12px] px-3 py-2.5 text-sm outline-none data-highlighted:bg-card';
@@ -58,7 +66,7 @@ export default function HistoryEntryMenu({ entry, daysAgo }: HistoryEntryMenuPro
           <DropdownMenu.Content
             align="end"
             sideOffset={4}
-            className="z-50 min-w-40 rounded-[12px] bg-accent p-1 text-foreground"
+            className={`z-50 min-w-40 rounded-[12px] bg-accent p-1 text-foreground ${MENU_MOTION_CLASS}`}
           >
             <DropdownMenu.Item className={ITEM_CLASS} onSelect={() => setDialog('edit')}>
               {HISTORY_MENU_MESSAGES.edit}

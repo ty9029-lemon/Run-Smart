@@ -37,8 +37,8 @@ function Toast({
       className={cn(
         // 배경과 반대 톤으로 눈에 띄게 한다 (다크는 흰 면, 라이트는 #111111 면 — DESIGN.md 토스트 규칙)
         "flex items-center justify-between gap-4 rounded-panel border border-toast-border bg-toast p-4 text-toast-foreground shadow-toast",
-        "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-4 data-[state=open]:fade-in-0",
-        "data-[state=closed]:animate-out data-[state=closed]:fade-out-0",
+        "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-4 data-[state=open]:fade-in-0 data-[state=open]:duration-(--motion-duration-fast) data-[state=open]:ease-(--motion-ease-main)",
+        "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-2 data-[state=closed]:fade-out-0 data-[state=closed]:duration-(--motion-duration-fast) data-[state=closed]:ease-(--motion-ease-exit)",
         className
       )}
       {...props}
