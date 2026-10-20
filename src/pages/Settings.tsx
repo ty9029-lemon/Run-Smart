@@ -4,6 +4,7 @@ import LocationStatus from '../components/LocationStatus';
 import ProfileForm from '../components/ProfileForm';
 import ThemeSelector from '../components/ThemeSelector';
 import { CTA_IDS } from '../constants/analytics';
+import { SETTINGS_SAVED_STATE } from '../constants/navigation';
 import { useLocationPermission } from '../hooks/useLocationPermission';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { useProfileDraft } from '../hooks/useProfileDraft';
@@ -24,7 +25,7 @@ export default function Settings() {
       constraintCount: next.constraints.length,
       useCurrentLocation: next.useCurrentLocation,
     });
-    navigate('/');
+    navigate('/', { state: SETTINGS_SAVED_STATE });
   });
 
   /** [저장] 클릭을 기록하고 프로필을 저장한다. */
