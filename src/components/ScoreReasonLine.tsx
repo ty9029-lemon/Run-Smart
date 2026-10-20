@@ -20,7 +20,7 @@ export default function ScoreReasonLine({ reasons, onOpenBreakdown }: ScoreReaso
   return (
     <div className="flex items-start justify-between gap-3 border-t border-border pt-3">
       <div className="min-w-0 text-sm">
-        <p className="font-medium">{formatReasonText(top)}</p>
+        <p>{formatReasonText(top)}</p>
         {hasSensitive && (
           <p className="mt-0.5 text-muted-foreground">{SCORE_REASON_MESSAGES.sensitiveNote}</p>
         )}
