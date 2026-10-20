@@ -8,6 +8,7 @@ import {
   findBestHourToday,
   findGoodRange,
   scoreHours,
+  isTomorrowIndex,
   sliceFromHour,
 } from './bestHour';
 import { NEUTRAL_SENSITIVITY } from './feelsLike';
@@ -329,6 +330,19 @@ describe('sliceFromHour', () => {
 
   it('현재 시각이 목록에 없으면 앞에서부터 쓴다', () => {
     expect(sliceFromHour(DUMMY_HOURLY, 99)[0].hour).toBe(0);
+  });
+});
+
+describe('isTomorrowIndex', () => {
+  it('자정을 넘긴 칸부터 내일이다 (14시 기준 10번째 칸이 0시)', () => {
+    expect(isTomorrowIndex(0, 14)).toBe(false);
+    expect(isTomorrowIndex(9, 14)).toBe(false);
+    expect(isTomorrowIndex(10, 14)).toBe(true);
+    expect(isTomorrowIndex(23, 14)).toBe(true);
+  });
+
+  it('0시 기준이면 24칸이 모두 오늘이다', () => {
+    expect(isTomorrowIndex(23, 0)).toBe(false);
   });
 });
 

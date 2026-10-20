@@ -12,6 +12,9 @@ import type { ScoreDelta } from '../lib/scoreReasons';
 import type { HourlyWeather } from '../types';
 import ScoreDeltaLine from './ScoreDeltaLine';
 
+/** 내일 시각 앞에 붙이는 말 */
+const TOMORROW_WORD = '내일';
+
 interface SelectedHourDetailProps {
   weather: HourlyWeather;
   /** 그 시각의 활동 지수 */
@@ -20,6 +23,8 @@ interface SelectedHourDetailProps {
   feelsLike: number;
   /** 지금과 비교한 항목별 점수 차이. 지금 시각이면 null(비교하지 않는다) */
   deltas?: ScoreDelta[] | null;
+  /** 선택한 시각이 내일이면 시각 앞에 "내일"을 붙인다 (오늘은 붙이지 않는다) */
+  isTomorrow?: boolean;
 }
 
 /** 지표 타일 한 칸 */
@@ -60,6 +65,7 @@ export default function SelectedHourDetail({
   score,
   feelsLike,
   deltas = null,
+  isTomorrow = false,
 }: SelectedHourDetailProps) {
   const level = scoreToLevel(score);
   const emoji = getWeatherEmoji(weather.condition, weather.isDay);
@@ -68,7 +74,10 @@ export default function SelectedHourDetail({
       <div className="space-y-2">
         <p className="flex items-center gap-2 text-sm">
           <span className="text-muted-foreground">선택한 시간</span>
-          <span className="font-bold">{formatHourLabel(weather.hour)}</span>
+          <span className="font-bold">
+            {isTomorrow && `${TOMORROW_WORD} `}
+            {formatHourLabel(weather.hour)}
+          </span>
         </p>
         <div className="flex items-end justify-between">
           <p className="flex items-center gap-3 text-4xl font-bold leading-none">
@@ -80,7 +89,7 @@ export default function SelectedHourDetail({
             )}
           </p>
           <p className={`text-2xl font-bold leading-snug ${SCORE_LEVEL_TEXT_CLASS[level]}`}>
-            {score}점 {SCORE_LEVEL_NAME[level]}
+            {SCORE_LEVEL_NAME[level]} {score}점
           </p>
         </div>
         {deltas && <ScoreDeltaLine deltas={deltas} />}

@@ -116,6 +116,15 @@ export function sliceToday(scores: HourScore[], nowHour: number): HourScore[] {
   return scores.slice(0, HOURS_IN_DAY - nowHour);
 }
 
+/**
+ * 현재 시각부터 시작하는 목록의 index번째 칸이 내일인지 알려준다.
+ * @param index 목록에서의 위치 (0이 현재 시각)
+ * @param nowHour 현재 시(0~23). 목록 앞의 (24 - nowHour)개가 오늘이다.
+ */
+export function isTomorrowIndex(index: number, nowHour: number): boolean {
+  return index >= HOURS_IN_DAY - nowHour;
+}
+
 /** 추천 대상 시각인지 확인한다. (RECOMMEND_CUTOFF_HOUR 이후는 제외) */
 export function isRecommendableHour(hour: number): boolean {
   return hour < RECOMMEND_CUTOFF_HOUR;
