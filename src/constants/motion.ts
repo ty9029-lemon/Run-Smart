@@ -10,3 +10,10 @@ export const MOTION_DURATION_MS = {
 
 /** 홈 화면 첫 진입 등장 모션을 구분하는 키 (한 번 보여주면 다시 보여주지 않는다) */
 export const HOME_INTRO_KEY = 'home';
+
+/** 로딩이 이 시간(ms)보다 오래 걸릴 때만 스켈레톤을 보여준다. 짧은 로딩에서 깜빡이지 않게 하려는 값이다. */
+export const SKELETON_DELAY_MS = MOTION_DURATION_MS.fast;
+
+/** 콘텐츠가 자리에 나타날 때의 페이드 (tw-animate 사용). 로딩 문구가 본문으로 바뀌는 순간 등에 쓴다. */
+export const FADE_IN_CLASS =
+  'animate-in fade-in-0 duration-(--motion-duration-normal) ease-(--motion-ease-main)';

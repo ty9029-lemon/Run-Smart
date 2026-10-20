@@ -1,7 +1,9 @@
 import { LocationNotice, type LocationNoticeProps } from './GuideBox';
 import OutfitPanel from './OutfitPanel';
+import SkeletonLines from './SkeletonLines';
 import { MESSAGES } from '../constants/messages';
 import { OUTFIT_SOURCES } from '../constants/analytics';
+import { FADE_IN_CLASS } from '../constants/motion';
 import { filterTipsNotInOutfit } from '../lib/guideTips';
 import type { OutfitReason } from '../lib/outfitReasons';
 import type { Activity, GuideState, OutfitItem } from '../types';
@@ -23,14 +25,15 @@ interface HomeOutfitSectionProps {
 function GuideParagraph({ guide, rawWeather }: Pick<HomeOutfitSectionProps, 'guide' | 'rawWeather'>) {
   if (guide.state === 'loading') {
     return (
-      <p role="status" className="animate-pulse text-base text-muted-foreground">
-        {MESSAGES.guideLoading}
-      </p>
+      <div role="status" aria-busy="true">
+        <span className="sr-only">{MESSAGES.guideLoading}</span>
+        <SkeletonLines />
+      </div>
     );
   }
   const text =
     guide.state === 'ready' ? `${guide.data.guideMessage} ${guide.data.detailedReason}` : rawWeather;
-  return <p className="text-base">{text}</p>;
+  return <p className={`text-base ${FADE_IN_CLASS}`}>{text}</p>;
 }
 
 /** 현재 날씨 추천 복장: 제목 → 가이드 문단 → 복장 카드(활동 팁 불릿 포함) */
@@ -56,6 +59,7 @@ export default function HomeOutfitSection({
         title={null}
         reason={outfitReason}
         tips={tips}
+        isTipsLoading={guide.state === 'loading'}
         source={OUTFIT_SOURCES.home}
         activity={activity}
       />

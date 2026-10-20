@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { MOTION_DURATION_MS } from './motion';
+import { MOTION_DURATION_MS, SKELETON_DELAY_MS } from './motion';
 import { SPLASH_FADE_MS } from './splash';
 
 const css = readFileSync('src/index.css', 'utf8');
@@ -47,5 +47,21 @@ describe('순차 등장', () => {
   it('stagger 간격 토큰으로 자식 지연을 계산한다', () => {
     expect(css).toContain('.stagger-children > :nth-child(2)');
     expect(css).toContain('calc(1 * var(--motion-stagger))');
+  });
+});
+
+describe('스켈레톤·페이드 등장', () => {
+  it('스켈레톤은 slow 토큰의 두 배 주기로 깜빡인다', () => {
+    expect(css).toContain('--animate-skeleton: skeleton-pulse calc(var(--motion-duration-slow) * 2)');
+    expect(css).toContain('@keyframes skeleton-pulse');
+  });
+
+  it('페이드 등장은 자식을 한꺼번에 나타나게 한다', () => {
+    expect(css).toContain('.fade-children > *');
+    expect(css).not.toMatch(/\.fade-children > :nth-child/);
+  });
+
+  it('스켈레톤은 fast 시간 안에 끝나는 로딩에서는 보이지 않는다', () => {
+    expect(SKELETON_DELAY_MS).toBe(MOTION_DURATION_MS.fast);
   });
 });
