@@ -2,13 +2,11 @@ import { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import HomeHeader from '../components/HomeHeader';
 import HomeReady from '../components/HomeReady';
-import SettingsSavedToast from '../components/SettingsSavedToast';
 import { isActivityEnabled } from '../constants/activities';
 import { CURRENT_LOCATION_LABEL } from '../constants/api';
 import { DEFAULT_LOCATION, MESSAGES } from '../constants/messages';
 import { useCoords } from '../hooks/useCoords';
 import { useHomeData } from '../hooks/useHomeData';
-import { useSettingsSavedToast } from '../hooks/useSettingsSavedToast';
 import {
   requestLocationPermission,
   useLocationPermission,
@@ -40,7 +38,6 @@ export default function Home() {
   const profile = useProfileStore((s) => s.profile);
   const setUseCurrentLocation = useProfileStore((s) => s.setUseCurrentLocation);
   const locationStatus = useLocationPermission();
-  const savedToast = useSettingsSavedToast();
   const activity = resolveActivity(profile);
   const { coldLevel, heatLevel, feedbackOffset } = profile;
   const sensitivity = useMemo(
@@ -87,7 +84,6 @@ export default function Home() {
 
   return (
     <main className="mx-auto max-w-md space-y-6 px-4 py-6">
-      <SettingsSavedToast open={savedToast.open} onOpenChange={savedToast.setOpen} />
       <HomeHeader location={headerLabel} />
       {!activity && (
         <Notice>
