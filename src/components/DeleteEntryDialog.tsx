@@ -26,10 +26,10 @@ export default function DeleteEntryDialog({ onCancel, onConfirm }: DeleteEntryDi
           <DialogDescription>{HISTORY_MENU_MESSAGES.deleteDescription}</DialogDescription>
         </DialogHeader>
         <DialogFooter className="grid grid-cols-2 gap-2 border-t-0">
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button type="button" variant="secondary" size="lg" onClick={onCancel}>
             {HISTORY_MENU_MESSAGES.cancel}
           </Button>
-          <Button type="button" variant="destructive" onClick={onConfirm}>
+          <Button type="button" variant="destructive" size="lg" onClick={onConfirm}>
             {HISTORY_MENU_MESSAGES.remove}
           </Button>
         </DialogFooter>
