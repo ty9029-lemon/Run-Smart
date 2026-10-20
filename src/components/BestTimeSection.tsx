@@ -25,7 +25,7 @@ function LevelRow({ score }: { score: number }) {
       >
         {SCORE_LEVEL_NAME[level]}
       </Badge>
-      <span className="text-sm font-bold">{score}점</span>
+      <span className="text-sm font-medium">{score}점</span>
     </div>
   );
 }
@@ -37,7 +37,7 @@ function LevelRow({ score }: { score: number }) {
 function BestTimeCard({ card, isWide }: { card: BestTimeCardData; isWide: boolean }) {
   const time = <p className="text-4xl font-bold leading-none">{formatClock(card.hour)}</p>;
   return (
-    <div className="flex-1 space-y-2 rounded-panel bg-card-charcoal p-4">
+    <div className="flex-1 space-y-2 rounded-panel bg-card p-4">
       <p className="text-sm font-medium">{card.label}</p>
       {isWide ? (
         <div className="flex items-center justify-between">

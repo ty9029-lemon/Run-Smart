@@ -53,7 +53,7 @@ export default function ButtonSection() {
   return (
     <Section
       title="Button"
-      description="pill 형태. default는 라임 채움 CTA, secondary는 차콜 채움(내비게이션용), outline은 라임 외곽선. hover·focus는 직접 눌러서 확인하세요."
+      description="pill 형태. default는 라임 채움 CTA, secondary는 옅은 면(내비게이션용), outline은 연한 회색 외곽선(다크는 라임), destructive는 붉은 글자 + 10% 붉은 면. hover·focus는 직접 눌러서 확인하세요."
     >
       <div className="flex flex-col gap-6">
         {BUTTON_VARIANTS.map((variant) => (
@@ -61,7 +61,7 @@ export default function ButtonSection() {
         ))}
       </div>
       <div className="mt-10 flex flex-col gap-6">
-        <p className="text-sm text-subtle-text">
+        <p className="text-sm text-muted-foreground">
           Icon Button: 정사각형 pill, Lucide 아이콘만 사용하고 aria-label 필수.
         </p>
         {ICON_BUTTON_VARIANTS.map((variant) => (

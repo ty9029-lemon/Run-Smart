@@ -23,7 +23,7 @@ interface HomeOutfitSectionProps {
 function GuideParagraph({ guide, rawWeather }: Pick<HomeOutfitSectionProps, 'guide' | 'rawWeather'>) {
   if (guide.state === 'loading') {
     return (
-      <p role="status" className="animate-pulse text-base text-subtle-text">
+      <p role="status" className="animate-pulse text-base text-muted-foreground">
         {MESSAGES.guideLoading}
       </p>
     );
@@ -45,7 +45,7 @@ export default function HomeOutfitSection({
   // 복장 카드에 이미 보이는 항목을 말하는 팁은 뺀다
   const tips = guide.state === 'ready' ? filterTipsNotInOutfit(guide.data.activityTips, outfit) : [];
   return (
-    <section className="space-y-4">
+    <section className="space-y-3">
       <div className="space-y-3">
         <h2 className="text-xl font-bold">현재 날씨 추천 복장</h2>
         <GuideParagraph guide={guide} rawWeather={rawWeather} />

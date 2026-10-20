@@ -37,7 +37,7 @@ function HistoryHeader({ entry }: { entry: HistoryEntry }) {
   const runningStartedAt = session?.entryId === entry.id ? session.startedAt : null;
   const askFeedback = isFeedbackAskable(entry, now.getTime(), session?.entryId ?? null);
   return (
-    <div className="relative rounded-panel bg-card-charcoal p-6">
+    <div className="relative rounded-panel bg-card p-6">
       {/* 진행 중인 기록은 수정·삭제하지 않는다 */}
       {runningStartedAt === null && (
         <div className="absolute right-3 top-3">
@@ -51,12 +51,12 @@ function HistoryHeader({ entry }: { entry: HistoryEntry }) {
       />
       <div className="mt-5 space-y-1 text-base">
         <p>
-          <span className="mr-2 text-subtle-text">{HISTORY_MESSAGES.weatherLabel}</span>
+          <span className="mr-2 text-muted-foreground">{HISTORY_MESSAGES.weatherLabel}</span>
           {entry.weatherSummary}
         </p>
         {entry.actualOutfit && (
           <p>
-            <span className="mr-2 text-subtle-text">{HISTORY_MESSAGES.actualOutfitLabel}</span>
+            <span className="mr-2 text-muted-foreground">{HISTORY_MESSAGES.actualOutfitLabel}</span>
             {entry.actualOutfit}
           </p>
         )}
@@ -90,7 +90,7 @@ function DayPanel({ date, entries }: { date: Date; entries: HistoryEntry[] }) {
     <section className="space-y-3">
       <h2 className="text-base font-bold">{formatDate(date)}</h2>
       {entries.length === 0 ? (
-        <p className="text-sm text-subtle-text">{MESSAGES.historyEmptyDay}</p>
+        <p className="text-sm text-muted-foreground">{MESSAGES.historyEmptyDay}</p>
       ) : (
         <ul className="space-y-3">
           {entries.map((entry) => (

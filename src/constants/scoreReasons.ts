@@ -30,7 +30,7 @@ export const REASON_NORMAL_RATIO = 0.5;
 
 /** 해석 문구의 글자 색: 좋으면 서브 텍스트 그대로, 보통·나쁨만 레벨 색으로 눈에 띄게 한다 */
 export const REASON_LEVEL_TEXT_CLASS: Record<WarningLevel, string> = {
-  good: 'text-subtle-text',
+  good: 'text-muted-foreground',
   caution: 'text-level-normal',
   careful: 'text-level-bad',
 };

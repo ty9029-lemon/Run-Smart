@@ -42,7 +42,7 @@ function StartButton({ onDecide }: Pick<DecisionButtonsProps, 'onDecide'>) {
 /** [출발 취소] 링크 버튼 */
 function CancelLink({ onCancel }: { onCancel: () => void }) {
   return (
-    <Button type="button" variant="link" size="sm" onClick={onCancel} className="text-subtle-text">
+    <Button type="button" variant="link" size="sm" onClick={onCancel} className="text-muted-foreground">
       {MESSAGES.departureCancel}
     </Button>
   );
@@ -131,7 +131,7 @@ export default function DecisionButtons({
   if (status === 'ended') {
     return (
       <div className="space-y-3">
-        <p className="text-center text-base font-medium text-pure-white" role="status">
+        <p className="text-center text-base font-medium text-foreground" role="status">
           {formatEndedNotice(activityLabel)}
         </p>
         <StartButton onDecide={onDecide} />
@@ -141,7 +141,7 @@ export default function DecisionButtons({
   if (status === 'departed') {
     return (
       <div className="flex flex-col items-center gap-1 py-2">
-        <p className="text-base font-medium text-pure-white" role="status">
+        <p className="text-base font-medium text-foreground" role="status">
           {formatDepartedNotice(activityLabel)}
         </p>
         <CancelLink onCancel={onCancel} />
@@ -151,7 +151,7 @@ export default function DecisionButtons({
   if (previousNotice) {
     return (
       <div className="space-y-2">
-        <p className="text-center text-sm text-subtle-text" role="status">
+        <p className="text-center text-sm text-muted-foreground" role="status">
           {previousNotice}
         </p>
         <StartButton onDecide={onDecide} />

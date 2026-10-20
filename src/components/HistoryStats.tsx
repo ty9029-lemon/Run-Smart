@@ -40,7 +40,7 @@ export default function HistoryStats({ entry }: { entry: HistoryEntry }) {
       {stats.map(({ label, value }) => (
         // 화면에는 숫자가 위, 이름이 아래에 오지만 읽을 때는 이름이 먼저 오도록 DOM 순서는 dt가 앞이다
         <div key={label} className="flex flex-col-reverse">
-          <dt className="text-sm text-subtle-text">{label}</dt>
+          <dt className="text-sm text-muted-foreground">{label}</dt>
           <dd className="text-2xl font-bold leading-tight tabular-nums">{value}</dd>
         </div>
       ))}

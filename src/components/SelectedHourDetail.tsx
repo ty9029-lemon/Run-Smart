@@ -66,12 +66,12 @@ export default function SelectedHourDetail({
   return (
     <section aria-label="선택한 시간 상세" className="space-y-3">
       <div className="space-y-2">
-        <p className="flex items-center gap-1.5 text-sm">
-          <span className="text-subtle-text">선택한 시간</span>
+        <p className="flex items-center gap-2 text-sm">
+          <span className="text-muted-foreground">선택한 시간</span>
           <span className="font-bold">{formatHourLabel(weather.hour)}</span>
         </p>
         <div className="flex items-end justify-between">
-          <p className="flex items-center gap-3 text-[28px] font-bold leading-none">
+          <p className="flex items-center gap-3 text-4xl font-bold leading-none">
             <span>{weather.temp}°C</span>
             {emoji && (
               <span role="img" aria-label={weather.condition}>
@@ -85,10 +85,10 @@ export default function SelectedHourDetail({
         </div>
         {deltas && <ScoreDeltaLine deltas={deltas} />}
       </div>
-      <dl className="grid grid-cols-3 gap-3">
+      <dl className="grid grid-cols-3 gap-2">
         {buildTiles(weather, feelsLike).map(({ label, value, icon: Icon, valueClass }) => (
-          <div key={label} className="rounded-[12px] bg-card-charcoal p-3">
-            <dt className="flex items-center gap-1 text-sm text-subtle-text">
+          <div key={label} className="rounded-[12px] bg-card p-3">
+            <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
               <Icon aria-hidden="true" className="size-4" />
               {label}
             </dt>

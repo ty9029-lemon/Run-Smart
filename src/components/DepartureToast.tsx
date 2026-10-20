@@ -31,13 +31,13 @@ export default function DepartureToast({
     <ToastProvider>
       <Toast open={open} onOpenChange={onOpenChange}>
         <ToastDescription className="whitespace-pre-line">{formatDepartureToast(activityLabel)}</ToastDescription>
-        {/* 토스트 면이 흰색이라 흰색 10% 면은 보이지 않아 버튼은 어두운 면을 직접 쓴다 */}
+        {/* 토스트 면은 배경과 반대 톤이라 secondary 면이 보이지 않아 ghost에 토스트 글자색을 쓴다 */}
         <ToastAction asChild altText={MESSAGES.toastUndo} onClick={onUndo}>
           <Button
             type="button"
-            variant="secondary"
+            variant="ghost"
             size="sm"
-            className="shrink-0 bg-card-charcoal hover:bg-card-border-ink"
+            className="shrink-0 font-bold text-toast-foreground hover:bg-toast-foreground/10 hover:text-toast-foreground"
           >
             {MESSAGES.toastUndo}
           </Button>

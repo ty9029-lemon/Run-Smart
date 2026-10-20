@@ -11,7 +11,7 @@ import HistoryEditSheet from './HistoryEditSheet';
 
 /** 메뉴 항목 공통 모양 */
 const ITEM_CLASS =
-  'flex w-full cursor-default items-center rounded-[12px] px-3 py-2.5 text-sm outline-none data-highlighted:bg-card-charcoal';
+  'flex w-full cursor-default items-center rounded-[12px] px-3 py-2.5 text-sm outline-none data-highlighted:bg-card';
 
 interface HistoryEntryMenuProps {
   entry: HistoryEntry;
@@ -58,7 +58,7 @@ export default function HistoryEntryMenu({ entry, daysAgo }: HistoryEntryMenuPro
           <DropdownMenu.Content
             align="end"
             sideOffset={4}
-            className="z-50 min-w-40 rounded-[12px] bg-card-border-ink p-1 text-foreground"
+            className="z-50 min-w-40 rounded-[12px] bg-accent p-1 text-foreground"
           >
             <DropdownMenu.Item className={ITEM_CLASS} onSelect={() => setDialog('edit')}>
               {HISTORY_MENU_MESSAGES.edit}

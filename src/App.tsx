@@ -7,6 +7,7 @@ import History from './pages/History';
 import Home from './pages/Home';
 import Onboarding from './pages/Onboarding';
 import Settings from './pages/Settings';
+import { useTheme } from './hooks/useTheme';
 import { useProfileStore } from './store/profileStore';
 
 /** 온보딩을 마치지 않았으면 온보딩으로 보낸다. */
@@ -23,6 +24,8 @@ function OnboardingOnly() {
 
 /** 앱 라우팅: 온보딩 / 홈 / 설정 / 히스토리 */
 export default function App() {
+  useTheme();
+
   return (
     <TooltipProvider>
       <BrowserRouter>

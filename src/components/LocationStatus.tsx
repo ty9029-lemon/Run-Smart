@@ -59,19 +59,19 @@ export default function LocationStatus({
         <span id={labelId} className="text-base">위치 권한</span>
         <Switch aria-labelledby={labelId} checked={enabled} onCheckedChange={handleToggle} />
       </div>
-      {hint && <p className="mt-2 text-sm text-subtle-text">{hint}</p>}
+      {hint && <p className="mt-2 text-sm text-muted-foreground">{hint}</p>}
       {enabled && !granted && (
         <Button
           type="button"
           variant="ghost"
           size="sm"
           onClick={handleSettings}
-          className="mt-3 -ml-5 text-subtle-text"
+          className="mt-3 -ml-5 text-muted-foreground"
         >
           설정으로 이동
         </Button>
       )}
-      {showGuide && <p className="mt-2 text-sm text-subtle-text">{MESSAGES.locationSettingsGuide}</p>}
+      {showGuide && <p className="mt-2 text-sm text-muted-foreground">{MESSAGES.locationSettingsGuide}</p>}
     </div>
   );
 }

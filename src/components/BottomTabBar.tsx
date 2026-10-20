@@ -20,7 +20,7 @@ export default function BottomTabBar() {
   return (
     <nav
       aria-label="주요 메뉴"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-card-border-ink bg-midnight-canvas pb-[env(safe-area-inset-bottom)]"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-tabbar pb-[env(safe-area-inset-bottom)]"
     >
       <ul className="mx-auto flex max-w-md" style={{ height: TAB_BAR_HEIGHT }}>
         {TAB_ITEMS.map((tab) => (
@@ -31,8 +31,11 @@ export default function BottomTabBar() {
               onClick={() => trackTabClick(tab, pathname)}
               className={({ isActive }) =>
                 cn(
-                  'flex h-full flex-col items-center justify-center gap-1 text-xs font-medium',
-                  isActive ? 'text-lime-pulse' : 'text-subtle-text',
+                  'relative flex h-full flex-col items-center justify-center gap-1 text-xs font-medium',
+                  // 라이트에서는 글자색만으로 활성 구분이 약해 상단에 라임 막대를 더한다 (다크는 라임 글자로 충분)
+                  isActive
+                    ? 'text-highlight before:absolute before:inset-x-[30%] before:top-0 before:h-0.5 before:rounded-full before:bg-primary dark:before:hidden'
+                    : 'text-muted-foreground',
                 )
               }
             >

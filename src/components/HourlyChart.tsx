@@ -97,7 +97,7 @@ function ChartTitle({
       <h2 className="px-4 text-xl font-bold leading-snug">
         {buildFallbackParts(best, activityLabel, sunsetStatus, nextRecommendation).map((part, i) =>
           part.highlight ? (
-            <span key={i} className="text-primary">
+            <span key={i} className="mark-lime">
               {part.text}
             </span>
           ) : (
@@ -110,7 +110,7 @@ function ChartTitle({
   return (
     <h2 className="px-4 text-xl font-bold leading-snug">
       오늘{' '}
-      <span className="text-primary">
+      <span className="mark-lime">
         {range.startHour}~{hourLabel(range.endHour)}
       </span>{' '}
       {activityLabel}하기 좋아요
@@ -141,7 +141,7 @@ function CutoffMarker() {
         aria-hidden="true"
         className="pointer-events-none absolute left-0 top-0 h-35 w-px bg-chart-4"
       />
-      <span className="pointer-events-none absolute left-1.5 top-0.5 whitespace-nowrap text-xs leading-4 text-subtle-text">
+      <span className="pointer-events-none absolute left-1.5 top-0.5 whitespace-nowrap text-xs leading-4 text-muted-foreground">
         {RECOMMEND_CUTOFF_HOUR}시 이후
         <br />
         추천 제외
@@ -176,7 +176,7 @@ function HourBar({ label, score, isSelected, isExcluded, onSelect }: HourBarProp
         />
       </span>
       <span
-        className={`whitespace-nowrap text-xs tracking-tight ${isSelected ? 'font-bold text-foreground' : 'font-medium text-subtle-text'}`}
+        className={`whitespace-nowrap text-xs tracking-tight ${isSelected ? 'font-bold text-foreground' : 'font-medium text-muted-foreground'}`}
       >
         {label}
       </span>

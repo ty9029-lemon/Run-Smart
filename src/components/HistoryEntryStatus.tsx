@@ -26,7 +26,7 @@ interface HistoryEntryStatusProps {
 function RunningLabel({ startedAt }: { startedAt: number }) {
   const elapsedText = formatElapsed(useStopwatch(startedAt));
   return (
-    <span className="font-medium tabular-nums text-lime-pulse">
+    <span className="font-medium tabular-nums text-highlight">
       {HISTORY_MESSAGES.running} · {elapsedText}
     </span>
   );
@@ -36,7 +36,7 @@ function RunningLabel({ startedAt }: { startedAt: number }) {
 function FeedbackResult({ feedback }: { feedback: Feedback }) {
   return (
     <p className="shrink-0 text-base">
-      <span className="mr-2 text-subtle-text">{HISTORY_MESSAGES.feedbackLabel}</span>
+      <span className="mr-2 text-muted-foreground">{HISTORY_MESSAGES.feedbackLabel}</span>
       <span className={`font-bold ${FEEDBACK_TEXT_CLASS[feedback]}`}>
         {FEEDBACK_LABELS[feedback]}
       </span>
@@ -62,7 +62,7 @@ export default function HistoryEntryStatus({
 
   return (
     <>
-      <p className="text-base text-subtle-text">
+      <p className="text-base text-muted-foreground">
         {formatTime(entry.date)}
         {runningStartedAt !== null && (
           <>

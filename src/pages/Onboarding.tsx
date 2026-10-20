@@ -43,9 +43,9 @@ function StepSection({ title, description, isMain = false, children }: StepSecti
     <>
       <header className={`space-y-1 ${isMain ? '' : FOLLOW_UP_GAP_CLASS}`}>
         <Heading className="text-2xl font-bold">{title}</Heading>
-        <p className="text-sm text-subtle-text">{description}</p>
+        <p className="text-sm text-muted-foreground">{description}</p>
       </header>
-      <section className="rounded-panel bg-card-charcoal p-6">
+      <section className="rounded-panel bg-card p-6">
         {children}
       </section>
     </>

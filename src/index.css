@@ -6,28 +6,15 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
-/* 다크 단일 테마: :root 값이 이미 다크이므로 dark: 변형은 쓰지 않는다 (OS 설정에 따라 켜지지 않게 고정) */
+/* 라이트/다크 전환: <html>의 .dark 클래스로 결정한다 (useTheme이 시스템 설정·사용자 선택을 반영).
+   색은 모드와 무관한 상수 토큰과, :root/.dark에서 값이 바뀌는 시맨틱 토큰으로 나눈다. */
 @custom-variant dark (&:is(.dark *));
 
-/* DESIGN.md 토큰: 검정 캔버스 + 라임 1색 */
+/* DESIGN.md 상수 토큰: 모드와 관계없이 값이 고정된 색 (라임 1색 + 반전 카드용 흑백) */
 @theme {
   --color-lime-pulse: #b7ff2c;
-  --color-midnight-canvas: #111111;
-  --color-card-charcoal: #1f1f21;
-  --color-card-border-ink: #28282a;
-  --color-footer-rule: #39393b;
-  --color-steel-border: #707072;
-  /* 서브 텍스트 전용 회색: 어두운 카드·캔버스 위에서 대비 4.5:1 이상 (테두리는 steel-border) */
-  --color-subtle-text: #8e8e90;
-  /* placeholder 전용 회색: 입력한 글자와 구분되도록 서브 텍스트보다 옅게 */
-  --color-placeholder: #636366;
   --color-pure-white: #ffffff;
   --color-carbon-black: #000000;
-
-  /* 상태 레벨 색 (DESIGN.md '상태 레벨 색'): 등급 표시 글자·아이콘·작은 막대 전용 */
-  --color-level-good: #4da3ff;
-  --color-level-normal: #ff9a3c;
-  --color-level-bad: #ff7a6b;
 
   /* 라틴 글리프는 Plus Jakarta Sans가 먼저 받고, 한글은 Pretendard로 넘어간다 */
   --font-sans: 'Plus Jakarta Sans', 'Pretendard Variable', Pretendard,
@@ -49,11 +36,31 @@
 /* shadcn 시맨틱 색 → DESIGN.md 토큰 (--radius-md는 기존 6px 유지) */
 @theme inline {
   --font-heading: var(--font-sans);
+  --color-highlight: var(--highlight);
+  --color-chip-border: var(--chip-border);
+  --color-switch-off: var(--switch-off);
+  --color-outline-border: var(--outline-border);
+  --color-outline-border-disabled: var(--outline-border-disabled);
+  --color-chip-border-selected: var(--chip-border-selected);
+  --color-chip-selected: var(--chip-selected);
+  --color-selected: var(--selected);
+  --color-toast: var(--toast);
+  --color-toast-foreground: var(--toast-foreground);
+  --color-toast-border: var(--toast-border);
+  --shadow-toast: var(--toast-shadow);
+  --color-score-caution: var(--score-caution);
+  --color-score-warn: var(--score-warn);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-placeholder: var(--placeholder);
+  --color-tabbar: var(--tabbar);
+  --color-level-good: var(--level-good);
+  --color-level-normal: var(--level-normal);
+  --color-level-bad: var(--level-bad);
+  --color-mark: var(--mark);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -77,8 +84,76 @@
   --radius-xl: calc(var(--radius) * 1.4);
 }
 
-/* 다크 단일 테마: 라임은 primary(액션)와 ring(포커스)에만 사용 */
+/* 라이트 테마(기본값): 흰 캔버스 + 진한 텍스트. 라임은 primary(채워진 액션) 배경에만 쓰고,
+   흰 배경에서 안 보이는 글자·아이콘·포커스 링은 진한 색(highlight, ring)으로 대신한다 */
 :root {
+  color-scheme: light;
+  --background: #f4f4f5;
+  --foreground: #111111;
+  /* 카드는 흰 면: 회색 캔버스(#f4f4f5)와의 면 대비로 구분한다 (다크와 같이 테두리 없음) */
+  --card: #ffffff;
+  --card-foreground: #111111;
+  --popover: #ffffff;
+  --popover-foreground: #111111;
+  --primary: #b7ff2c;
+  --primary-foreground: #000000;
+  /* 검정 8% 면: 흰 카드·회색 캔버스 어디에 올려도 한 단계 어둡게 보인다 (Figma bg/secondary) */
+  --secondary: rgba(0, 0, 0, 0.08);
+  --secondary-foreground: #111111;
+  --muted: #f4f4f5;
+  --muted-foreground: #66666a;
+  /* placeholder: 입력한 글자와 구분되도록 서브 텍스트보다 옅게 (Figma text/placeholder) */
+  --placeholder: #8e8e91;
+  /* 하단 탭바 면: 라이트는 흰색, 다크는 캔버스색 (Figma bg/tabbar) */
+  --tabbar: #ffffff;
+  /* 상태 레벨 색(등급 글자·작은 막대): 흰 배경에서 대비 4.5:1 이상이 되도록 어둡게 (Figma level/*) */
+  --level-good: #1a6fd6;
+  --level-normal: #e36100;
+  --level-bad: #c4301f;
+  /* 형광펜 밑줄: 라이트는 라임 (라임 글자는 흰 배경에서 읽기 어려워 글자는 --highlight, 밑줄만 라임) */
+  --mark: #b7ff2c;
+  --accent: #ececee;
+  --accent-foreground: #111111;
+  /* 파괴적 액션은 붉은 글자 + 10% 붉은 면 (라임 외 유일한 예외 색, 점수 '경고'와 같은 값) */
+  --destructive: #c4301f;
+  /* 붉은 면(#c4301f) 위 글자: 흰색 5.54:1 (Figma feedback/on-destructive) */
+  --destructive-foreground: #ffffff;
+  --border: #e5e5e5;
+  --input: #8e8e91;
+  --ring: #111111;
+  /* 활성 상태 글자·아이콘 (다크에서는 라임, 라이트에서는 진한 색) */
+  --highlight: #111111;
+  /* 선택 전 칩의 외곽선 (Figma 시안: fog-border) */
+  --chip-border: #e5e5e5;
+  /* 꺼진 스위치 트랙: --input보다 연해 '비활성'처럼 보이지 않게 한다 */
+  --switch-off: #d4d4d6;
+  /* outline 버튼 외곽선: 연한 회색(라임은 흰 배경에서 안 보임), 비활성은 투명도 40%가 겹쳐도 윤곽이 남게 한 단계 진하게 */
+  --outline-border: #dfdfdf;
+  --outline-border-disabled: #a1a1a3;
+  /* 선택된 칩: 옅은 라임 면 + 라임 외곽선 (다크와 같은 규칙, 체크 아이콘 없음) */
+  /* 민감도 원의 선택 면: 라이트는 라임 채움 (옅은 라임은 흰 카드 위에서 안 보임) */
+  --selected: #b7ff2c;
+  --chip-selected: #b7ff2c2e;
+  --chip-border-selected: #b7ff2c;
+  /* 토스트: 배경과 반대 톤으로 눈에 띄게 (라이트는 어두운 면) */
+  --toast: #111111;
+  --toast-foreground: #ffffff;
+  --toast-border: #28282a;
+  --toast-shadow: 0 8px 24px -4px rgb(0 0 0 / 0.12);
+  /* 시간대별 점수 등급 글자·막대 색 (좋음은 라임 bg-lime-pulse 사용) */
+  --score-caution: #9a5b00;
+  --score-warn: #c4301f;
+  /* 차트: 진한 색 + 회색 단계 (라임은 흰 배경에서 선이 안 보임, 계열은 3개 이하 권장) */
+  --chart-1: #111111;
+  --chart-2: #66666a;
+  --chart-3: #a1a1a3;
+  --chart-4: #d4d4d6;
+  --radius: 20px;
+}
+
+/* 다크 테마: 검정 캔버스 + 라임 1색. 라임은 primary(액션)·ring(포커스)·highlight(활성)에 사용 */
+.dark {
+  color-scheme: dark;
   --background: #111111;
   --foreground: #ffffff;
   --card: #1f1f21;
@@ -92,21 +167,42 @@
   --secondary-foreground: #ffffff;
   --muted: #1f1f21;
   --muted-foreground: #8e8e90;
+  --placeholder: #636366;
+  --tabbar: #111111;
+  --level-good: #4da3ff;
+  --level-normal: #ff9a3c;
+  --level-bad: #ff7a6b;
+  /* 다크는 라임 글자 자체가 강조라 밑줄을 쓰지 않는다 */
+  --mark: transparent;
   --accent: #28282a;
   --accent-foreground: #ffffff;
-  /* 오류·위험(destructive)은 상태 레벨 색의 '나쁨'과 같은 코랄을 쓴다 (Figma feedback/destructive) */
-  --destructive: var(--color-level-bad);
+  --destructive: #ff7a6b;
   /* 코랄 면 위 글자: 흰색은 대비 2.55:1이라 어두운 글자(7.42:1)를 쓴다 (Figma feedback/on-destructive) */
   --destructive-foreground: #111111;
   --border: #28282a;
   --input: #707072;
   --ring: #b7ff2c;
-  /* 차트: 라임 1색 + 흰색·회색 단계 (두 번째 유채색 금지, 계열은 3개 이하 권장) */
+  --highlight: #b7ff2c;
+  /* 어두운 카드 위에서는 라임 10% 틴트로 충분하다 */
+  /* 어두운 표면에서는 #e5e5e5가 너무 밝아 Steel Border를 유지한다 (DESIGN.md) */
+  --chip-border: #707072;
+  --switch-off: #707072;
+  --outline-border: #b7ff2c;
+  --outline-border-disabled: #b7ff2c;
+  --selected: #b7ff2c1a;
+  --chip-selected: #b7ff2c1a;
+  --chip-border-selected: #b7ff2c;
+  /* 토스트: 다크는 흰 면 + 검정 글자 */
+  --toast: #ffffff;
+  --toast-foreground: #000000;
+  --toast-border: #e5e5e5;
+  --toast-shadow: 0 8px 24px -4px rgb(0 0 0 / 0.6);
+  --score-caution: #ffc24b;
+  --score-warn: #ff7a6b;
   --chart-1: #b7ff2c;
   --chart-2: #ffffff;
   --chart-3: #707072;
   --chart-4: #39393b;
-  --radius: 20px;
 }
 
 @layer base {
@@ -126,6 +222,22 @@
   }
 }
 
+/* 강조 문구: 글자는 --highlight(다크 라임, 라이트 #111111) + 형광펜 평행사변형(--mark, 라이트만).
+   밑줄은 글자 뒤(z-index -1)에 비스듬히(skewX) 칠하고, 다크는 --mark가 투명해 보이지 않는다. */
+@utility mark-lime {
+  position: relative;
+  isolation: isolate;
+  color: var(--highlight);
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 55% -0.15em 8% -0.15em;
+    z-index: -1;
+    background: var(--mark);
+    transform: skewX(-20deg);
+  }
+}
+
 /* 시간대 차트처럼 가로로 스크롤하는 목록의 스크롤바: 4px 막대를 스크롤하는 동안에만 보인다 (data-scrolling) */
 @utility chart-scrollbar {
   &::-webkit-scrollbar {
@@ -140,17 +252,17 @@
     border-radius: 9999px;
   }
   &[data-scrolling='true']::-webkit-scrollbar-track {
-    background: var(--color-card-border-ink);
+    background: var(--border);
   }
   &[data-scrolling='true']::-webkit-scrollbar-thumb {
-    background: var(--color-steel-border);
+    background: var(--input);
   }
   /* Chrome 121+는 표준 속성이 있으면 ::-webkit-scrollbar를 무시하므로 Firefox에서만 지정한다 */
   @supports (-moz-appearance: none) {
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
     &[data-scrolling='true'] {
-      scrollbar-color: var(--color-steel-border) var(--color-card-border-ink);
+      scrollbar-color: var(--input) var(--border);
     }
   }
 }

@@ -41,16 +41,16 @@ function ReasonRow({ reason, value }: { reason: ScoreReason; value: string }) {
       <div className="flex items-baseline justify-between gap-3">
         <span className="font-medium">
           {label}
-          <span className="ml-2 font-normal text-subtle-text">{value}</span>
+          <span className="ml-2 font-normal text-muted-foreground">{value}</span>
         </span>
         <span className="shrink-0 text-sm tabular-nums">
           {points}/{max}점{penalty > 0 && <span className="ml-2 text-level-bad">−{penalty}</span>}
         </span>
       </div>
-      <div className="h-1.5 overflow-hidden rounded-full bg-card-border-ink" aria-hidden="true">
+      <div className="h-1.5 overflow-hidden rounded-full bg-border" aria-hidden="true">
         <div className="h-full rounded-full bg-primary" style={{ width: `${earnedPercent}%` }} />
       </div>
-      <p className="text-sm text-subtle-text">
+      <p className="text-sm text-muted-foreground">
         <span className={REASON_LEVEL_TEXT_CLASS[ratioToLevel(ratio)]}>{describeRatio(ratio)}</span>
         {sensitive && ` · ${SCORE_REASON_MESSAGES.sensitiveNote}`}
       </p>

@@ -8,7 +8,7 @@ import { skipFeedback } from '../lib/skipFeedback';
 import type { Feedback, FeedbackDetail } from '../types';
 import FeedbackForm from './FeedbackForm';
 
-const CARD = 'rounded-panel bg-card-charcoal p-6';
+const CARD = 'rounded-panel bg-card p-6';
 
 interface FeedbackCardProps {
   /** 이미 다른 곳(종료 직후 시트 등)에서 묻고 있거나 넘긴 기록의 id. 해당 기록은 카드로 묻지 않는다. */

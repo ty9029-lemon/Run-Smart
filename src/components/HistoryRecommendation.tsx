@@ -31,7 +31,7 @@ export default function HistoryRecommendation({ entry, daysAgo }: HistoryRecomme
 
   return (
     <details className="group" onToggle={handleToggle}>
-      <summary className="flex cursor-pointer list-none items-center gap-1 px-1 py-2 text-sm text-subtle-text [&::-webkit-details-marker]:hidden">
+      <summary className="flex cursor-pointer list-none items-center gap-1 px-1 py-2 text-sm text-muted-foreground [&::-webkit-details-marker]:hidden">
         {HISTORY_MESSAGES.recommendation}
         <ChevronDown
           aria-hidden="true"

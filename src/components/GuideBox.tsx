@@ -41,17 +41,17 @@ export function LocationNotice({ error, onRequest, isOff = false }: LocationNoti
   };
   return (
     <div className="space-y-3">
-      <p className="text-sm text-subtle-text">
+      <p className="text-sm text-muted-foreground">
         📍 {isOff ? MESSAGES.locationOffNotice : MESSAGES.locationDenied}
       </p>
       <Button type="button" variant="outline" size="sm" onClick={handleClick}>
         {MESSAGES.useCurrentLocation}
       </Button>
       {showGuide && (
-        <p className="text-sm text-subtle-text">{MESSAGES.locationSettingsGuide}</p>
+        <p className="text-sm text-muted-foreground">{MESSAGES.locationSettingsGuide}</p>
       )}
       {!isOff && error && DEVICE_GUIDE_ERROR_CODES.includes(error.code) && (
-        <p className="text-sm text-subtle-text">{MESSAGES.locationSystemGuide}</p>
+        <p className="text-sm text-muted-foreground">{MESSAGES.locationSystemGuide}</p>
       )}
     </div>
   );
@@ -70,7 +70,7 @@ function GuideContent({ guide }: { guide: AiGuide }) {
           <li key={tip}>{tip}</li>
         ))}
       </ul>
-      <p className="text-sm text-subtle-text">{guide.detailedReason}</p>
+      <p className="text-sm text-muted-foreground">{guide.detailedReason}</p>
     </>
   );
 }
@@ -80,7 +80,7 @@ function GuideBody({ guide, rawWeather }: Pick<GuideBoxProps, 'guide' | 'rawWeat
   if (guide.state === 'ready') return <GuideContent guide={guide.data} />;
   if (guide.state === 'loading') {
     return (
-      <p role="status" className="animate-pulse text-base text-subtle-text">
+      <p role="status" className="animate-pulse text-base text-muted-foreground">
         {MESSAGES.guideLoading}
       </p>
     );
@@ -91,7 +91,7 @@ function GuideBody({ guide, rawWeather }: Pick<GuideBoxProps, 'guide' | 'rawWeat
 /** AI 가이드 메시지 박스. 불러오는 동안은 안내를, 실패하면 원시 날씨 문구를 보여준다. */
 export default function GuideBox({ guide, rawWeather, location }: GuideBoxProps) {
   return (
-    <section className="space-y-3 rounded-panel bg-card-charcoal p-6">
+    <section className="space-y-3 rounded-panel bg-card p-6">
       <GuideBody guide={guide} rawWeather={rawWeather} />
       {location && <LocationNotice {...location} />}
     </section>

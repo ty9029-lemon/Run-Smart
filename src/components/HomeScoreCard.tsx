@@ -47,7 +47,7 @@ export default function HomeScoreCard({
 }: HomeScoreCardProps) {
   const emoji = getWeatherEmoji(weather.condition, weather.isDay);
   return (
-    <section className="space-y-4 rounded-panel bg-card-charcoal p-6">
+    <section className="space-y-4 rounded-panel bg-card p-6">
       <div className="flex items-center gap-6">
         <ScoreRing score={score} />
         <div className="flex items-center gap-3 text-[28px] font-bold leading-none">
@@ -57,14 +57,14 @@ export default function HomeScoreCard({
               {emoji}
             </span>
           ) : (
-            <span className="text-base font-normal text-subtle-text">{weather.condition}</span>
+            <span className="text-base font-normal text-muted-foreground">{weather.condition}</span>
           )}
         </div>
       </div>
       <dl className="grid grid-cols-3 gap-x-5 gap-y-3 pl-2">
         {buildMetrics(weather, feelsLike).map(({ label, value, valueClass }) => (
           <div key={label}>
-            <dt className="text-sm text-subtle-text">{label}</dt>
+            <dt className="text-sm text-muted-foreground">{label}</dt>
             <dd className={`text-base font-bold ${valueClass ?? ''}`}>{value}</dd>
           </div>
         ))}

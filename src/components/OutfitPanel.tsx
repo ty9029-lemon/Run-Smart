@@ -53,7 +53,7 @@ export default function OutfitPanel({
   return (
     <section
       ref={sectionRef}
-      className="rounded-panel bg-card-charcoal px-6 py-5"
+      className="rounded-panel bg-card p-6"
     >
       {title && <h2 className="mb-3 text-base font-bold">{title}</h2>}
       <ul className="grid grid-cols-3 gap-4">
@@ -63,7 +63,7 @@ export default function OutfitPanel({
             className="flex flex-col items-center gap-2 rounded-2xl px-1 py-3 text-center"
           >
             <OutfitIcon icon={item.icon} className="size-16" />
-            <span className="break-keep text-xs leading-tight">{item.label}</span>
+            <span className="break-keep text-xs font-medium leading-tight">{item.label}</span>
           </li>
         ))}
       </ul>

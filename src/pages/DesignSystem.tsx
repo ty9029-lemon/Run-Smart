@@ -1,4 +1,5 @@
 import { TooltipProvider } from '@/components/ui/tooltip';
+import ThemeSelector from '../components/ThemeSelector';
 import BadgeChipSection from './design-system/BadgeChipSection';
 import ButtonSection from './design-system/ButtonSection';
 import ChartSection from './design-system/ChartSection';
@@ -15,8 +16,11 @@ export default function DesignSystem() {
         <header>
           <h1 className="text-5xl font-bold leading-none">Design System</h1>
           <p className="mt-4 text-muted-foreground">
-            검정 캔버스 + 라임 1색. 컨테이너 20px, 버튼은 pill.
+            라이트·다크 두 테마, 라임 1색(destructive만 붉은색 예외). 컨테이너 20px, 버튼은 pill.
           </p>
+          <div className="mt-6 max-w-sm">
+            <ThemeSelector />
+          </div>
         </header>
         <ButtonSection />
         <BadgeChipSection />

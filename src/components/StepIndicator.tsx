@@ -12,12 +12,12 @@ export default function StepIndicator({ current, total }: StepIndicatorProps) {
           <span
             key={i}
             className={`h-1 flex-1 rounded-md ${
-              i <= current ? 'bg-lime-pulse' : 'bg-card-border-ink'
+              i <= current ? 'bg-lime-pulse' : 'bg-border'
             }`}
           />
         ))}
       </div>
-      <p className="text-sm text-subtle-text">
+      <p className="text-sm text-muted-foreground">
         {current + 1} / {total}
       </p>
     </div>

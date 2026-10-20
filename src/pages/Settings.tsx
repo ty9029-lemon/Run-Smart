@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import LocationStatus from '../components/LocationStatus';
 import ProfileForm from '../components/ProfileForm';
+import ThemeSelector from '../components/ThemeSelector';
 import { CTA_IDS } from '../constants/analytics';
 import { useLocationPermission } from '../hooks/useLocationPermission';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
@@ -37,7 +38,8 @@ export default function Settings() {
         <h1 className="text-2xl font-bold">설정</h1>
       </header>
       <ProfileForm draft={draft} error={error} onChange={onChange} />
-      <section className="rounded-panel bg-card-charcoal p-6">
+      <ThemeSelector />
+      <section className="rounded-panel bg-card p-6">
         <LocationStatus
           status={locationStatus}
           enabled={draft.useCurrentLocation}
