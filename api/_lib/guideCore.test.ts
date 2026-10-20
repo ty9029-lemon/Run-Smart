@@ -214,6 +214,7 @@ describe('복장 목록(outfitLabels)', () => {
   });
 
   it('시스템 프롬프트가 자외선 등급이 높음일 때만 차단을 권하도록 한다', () => {
-    expect(SYSTEM_PROMPT).toContain('"높음"일 때만 행동 권유에 자외선 차단을 넣습니다');
+    expect(SYSTEM_PROMPT).toContain('"높음"일 때만 이 두 문장의 행동 권유에 자외선 차단을 넣습니다');
+    expect(SYSTEM_PROMPT).toContain('uv_grade와 관계없이 activityTips에 "자외선 차단제 바르기"');
   });
 });
