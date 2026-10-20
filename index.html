@@ -8,6 +8,9 @@
     />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#ffffff" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <!-- 첫 화면이 그려지기 전에 저장된 테마를 적용해 깜빡임을 막는다. 저장값이 없으면 기본(다크)을 쓴다.
          키·값은 src/constants/theme.ts의 THEME_STORAGE_KEY, DEFAULT_THEME_MODE, THEME_COLOR_META와 맞춘다. -->
     <script>
@@ -22,6 +25,12 @@
           document
             .querySelector('meta[name="theme-color"]')
             .setAttribute('content', dark ? '#111111' : '#ffffff');
+          // 첫 방문이면 스플래시가 뜰 때까지 빈 흰 화면이 보이지 않도록 스플래시 바탕색을 미리 칠한다.
+          // 키는 src/constants/splash.ts의 SPLASH_SESSION_KEY, 색은 SplashScreen의 바탕(다크 background,
+          // 라이트 primary)과 맞춘다. 스플래시가 끝나면 src/lib/splash.ts의 clearBootBackground가 이 값을 지운다.
+          if (sessionStorage.getItem('run-smart-splash-shown') == null) {
+            document.documentElement.style.backgroundColor = dark ? '#111111' : '#b7ff2c';
+          }
         } catch (e) {
           /* 저장값을 읽지 못하면 CSS 기본값(라이트)과 useTheme에 맡긴다 */
         }
