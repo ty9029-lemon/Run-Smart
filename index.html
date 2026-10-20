@@ -8,13 +8,13 @@
     />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#ffffff" />
-    <!-- 첫 화면이 그려지기 전에 저장된 테마를 적용해 깜빡임을 막는다.
-         키·값은 src/constants/theme.ts의 THEME_STORAGE_KEY, THEME_COLOR_META와 맞춘다. -->
+    <!-- 첫 화면이 그려지기 전에 저장된 테마를 적용해 깜빡임을 막는다. 저장값이 없으면 기본(다크)을 쓴다.
+         키·값은 src/constants/theme.ts의 THEME_STORAGE_KEY, DEFAULT_THEME_MODE, THEME_COLOR_META와 맞춘다. -->
     <script>
       (function () {
         try {
           var raw = localStorage.getItem('run-smart-theme');
-          var mode = raw ? JSON.parse(raw).state.mode : 'system';
+          var mode = raw ? JSON.parse(raw).state.mode : 'dark';
           var dark =
             mode === 'dark' ||
             (mode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);

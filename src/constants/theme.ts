@@ -10,8 +10,8 @@ export type ThemeMode = (typeof THEME_MODES)[keyof typeof THEME_MODES];
 /** 실제로 화면에 적용되는 테마 */
 export type ResolvedTheme = typeof THEME_MODES.light | typeof THEME_MODES.dark;
 
-/** 기본 테마 모드: 기기 설정을 따른다 */
-export const DEFAULT_THEME_MODE: ThemeMode = THEME_MODES.system;
+/** 기본 테마 모드: 다크 (설정에서 고른 적이 없는 사용자에게 적용된다) */
+export const DEFAULT_THEME_MODE: ThemeMode = THEME_MODES.dark;
 
 /** localStorage 저장 키 (index.html의 깜빡임 방지 스크립트와 값을 맞춘다) */
 export const THEME_STORAGE_KEY = 'run-smart-theme';
