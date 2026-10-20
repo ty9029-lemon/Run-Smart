@@ -1,6 +1,8 @@
+import { useCallback, useState } from 'react';
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import AnalyticsInit from './components/AnalyticsInit';
 import AppLayout from './components/AppLayout';
+import SplashScreen from './components/SplashScreen';
 import { TooltipProvider } from './components/ui/tooltip';
 import DesignSystem from './pages/DesignSystem';
 import History from './pages/History';
@@ -8,6 +10,7 @@ import Home from './pages/Home';
 import Onboarding from './pages/Onboarding';
 import Settings from './pages/Settings';
 import { useTheme } from './hooks/useTheme';
+import { clearBootBackground, markSplashShown, shouldShowSplash } from './lib/splash';
 import { useProfileStore } from './store/profileStore';
 
 /** 온보딩을 마치지 않았으면 온보딩으로 보낸다. */
@@ -22,12 +25,19 @@ function OnboardingOnly() {
   return hasOnboarded ? <Navigate to="/" replace /> : <Onboarding />;
 }
 
-/** 앱 라우팅: 온보딩 / 홈 / 설정 / 히스토리 */
+/** 앱 라우팅: 온보딩 / 홈 / 설정 / 히스토리 (처음 열 때는 스플래시를 위에 덮는다) */
 export default function App() {
   useTheme();
+  const [isSplashVisible, setIsSplashVisible] = useState(shouldShowSplash);
+  const handleSplashFinish = useCallback(() => {
+    markSplashShown();
+    clearBootBackground();
+    setIsSplashVisible(false);
+  }, []);
 
   return (
     <TooltipProvider>
+      {isSplashVisible && <SplashScreen onFinish={handleSplashFinish} />}
       <BrowserRouter>
         <AnalyticsInit />
         <Routes>
