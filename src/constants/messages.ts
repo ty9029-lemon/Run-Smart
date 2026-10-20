@@ -52,6 +52,14 @@ export const HISTORY_MENU_MESSAGES = {
   deleteDescription: '삭제한 기록은 되돌릴 수 없어요.',
 } as const;
 
+/** 설정 화면 확인 팝업 문구 (보정 초기화) */
+export const SETTINGS_CONFIRM_MESSAGES = {
+  resetTitle: '보정을 초기화할까요?',
+  resetDescription: '피드백으로 쌓인 보정값이 0°C로 돌아가요.',
+  resetCancel: '취소',
+  resetConfirm: '초기화',
+} as const;
+
 /** 앱 만족도 팝업 문구 */
 export const APP_REVIEW_MESSAGES = {
   title: 'Run Smart, 어떠셨나요?',
