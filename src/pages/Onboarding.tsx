@@ -62,6 +62,7 @@ export default function Onboarding() {
     (saved) => {
       trackEvent(ANALYTICS_EVENTS.onboardingCompleted, {
         activityCount: saved.selectedActivities.length,
+        timeSlotCount: saved.activityTimeSlots.length,
         constraintCount: saved.constraints.length,
         useCurrentLocation: saved.useCurrentLocation,
       });
