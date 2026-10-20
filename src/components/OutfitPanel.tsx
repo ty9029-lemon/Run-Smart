@@ -11,6 +11,11 @@ import type { OutfitReason } from '../lib/outfitReasons';
 import type { Activity, OutfitItem } from '../types';
 import OutfitIcon from './outfit/OutfitIcon';
 import OutfitReasonLine from './OutfitReasonLine';
+import SkeletonLines from './SkeletonLines';
+import { FADE_IN_CLASS } from '../constants/motion';
+
+/** 팁 스켈레톤 줄 폭 (불릿 3개 분량) */
+const TIPS_SKELETON_WIDTHS = ['w-5/6', 'w-3/4', 'w-2/3'];
 
 interface OutfitPanelProps {
   items: OutfitItem[];
@@ -20,6 +25,8 @@ interface OutfitPanelProps {
   reason?: OutfitReason | null;
   /** 복장 아래에 불릿으로 보여줄 활동 팁 */
   tips?: string[];
+  /** 팁을 아직 불러오는 중이면 true: 팁이 들어올 자리를 스켈레톤으로 잡아 둔다 */
+  isTipsLoading?: boolean;
   /** 어느 화면에서 보여주는지 (노출 이벤트 구분용) */
   source: OutfitSource;
   /** 복장이 추천된 활동 (노출 이벤트 속성) */
@@ -32,6 +39,7 @@ export default function OutfitPanel({
   title = '오늘 추천 복장',
   reason = null,
   tips = [],
+  isTipsLoading = false,
   source,
   activity,
 }: OutfitPanelProps) {
@@ -68,8 +76,9 @@ export default function OutfitPanel({
         ))}
       </ul>
       {reason && <OutfitReasonLine reason={reason} />}
+      {isTipsLoading && <SkeletonLines widths={TIPS_SKELETON_WIDTHS} className="mt-4 space-y-0.5 pl-6" />}
       {tips.length > 0 && (
-        <ul className="mt-4 list-disc space-y-0.5 pl-6 text-base">
+        <ul className={`mt-4 list-disc space-y-0.5 pl-6 text-base ${FADE_IN_CLASS}`}>
           {tips.map((tip) => (
             <li key={tip}>{tip}</li>
           ))}

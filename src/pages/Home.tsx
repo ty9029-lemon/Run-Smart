@@ -1,11 +1,14 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import HomeHeader from '../components/HomeHeader';
 import HomeReady from '../components/HomeReady';
+import HomeSkeleton from '../components/HomeSkeleton';
 import { isActivityEnabled } from '../constants/activities';
 import { CURRENT_LOCATION_LABEL } from '../constants/api';
 import { DEFAULT_LOCATION, MESSAGES } from '../constants/messages';
+import { SKELETON_DELAY_MS } from '../constants/motion';
 import { useCoords } from '../hooks/useCoords';
+import { useDelayedFlag } from '../hooks/useDelayedFlag';
 import { useHomeData } from '../hooks/useHomeData';
 import {
   requestLocationPermission,
@@ -73,6 +76,13 @@ export default function Home() {
     locationLabel,
   });
 
+  // 로딩이 짧으면(캐시 적중 등) 스켈레톤 없이 바로 보여주고, 오래 걸릴 때만 스켈레톤을 보여준다.
+  const isLoading = Boolean(activity) && data.status === 'loading';
+  const isSkeletonVisible = useDelayedFlag(isLoading, SKELETON_DELAY_MS);
+  // 스켈레톤을 본 적이 있으면 실제 화면은 떠오르지 않고 제자리에서 페이드로 나타난다.
+  const [hasSeenSkeleton, setHasSeenSkeleton] = useState(false);
+  if (isSkeletonVisible && !hasSeenSkeleton) setHasSeenSkeleton(true);
+
   // 위치 권한이 거부된 상태로 홈을 보면 한 번 기록
   useEffect(() => {
     if (!profile.useCurrentLocation || locationStatus !== 'denied') return;
@@ -93,7 +103,7 @@ export default function Home() {
           </Link>
         </Notice>
       )}
-      {activity && data.status === 'loading' && <Notice>불러오는 중이에요…</Notice>}
+      {isSkeletonVisible && <HomeSkeleton />}
       {activity && data.status === 'error' && <Notice>{MESSAGES.weatherFailed}</Notice>}
       {activity && data.status === 'ready' && (
         <HomeReady
@@ -101,6 +111,7 @@ export default function Home() {
           profile={profile}
           weather={data.weather}
           guide={data.guide}
+          afterSkeleton={hasSeenSkeleton}
           location={
             showLocationNotice
               ? {

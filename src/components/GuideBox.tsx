@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { MESSAGES } from '../constants/messages';
+import { FADE_IN_CLASS } from '../constants/motion';
 import type { CoordsError } from '../hooks/useCoords';
 import type { LocationStatus } from '../hooks/useLocationPermission';
 import type { AiGuide, GuideState } from '../types';
@@ -57,14 +58,10 @@ export function LocationNotice({ error, onRequest, isOff = false }: LocationNoti
   );
 }
 
-/** 가이드 본문이 나타날 때의 페이드 (로딩 문구에서 본문으로 바뀌는 순간) */
-const GUIDE_FADE_IN_CLASS =
-  'animate-in fade-in-0 duration-(--motion-duration-normal) ease-(--motion-ease-main)';
-
 /** AI 가이드 본문 (요약 + 팁 불릿 + 상세 이유) */
 function GuideContent({ guide }: { guide: AiGuide }) {
   return (
-    <div className={GUIDE_FADE_IN_CLASS}>
+    <div className={FADE_IN_CLASS}>
       <p className="mb-3 text-base">
         <span className="mr-2 text-xl">{guide.goOrNotEmoji}</span>
         {guide.guideMessage}

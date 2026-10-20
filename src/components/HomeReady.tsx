@@ -62,6 +62,8 @@ interface HomeReadyProps {
   guide: GuideState;
   /** 위치 권한이 없어 서울 기준일 때만 전달한다 (가이드 칸에 안내와 버튼을 보여준다) */
   location?: LocationNoticeProps;
+  /** 로딩 스켈레톤을 본 뒤에 이 화면이 나타난 것이면 true (떠오르는 대신 페이드로만 나타난다) */
+  afterSkeleton?: boolean;
 }
 
 /** 오늘 이 활동으로 기록한 가장 최근 출발 항목을 찾는다. (entries는 최신순) */
@@ -82,9 +84,12 @@ export default function HomeReady({
   weather,
   guide,
   location,
+  afterSkeleton = false,
 }: HomeReadyProps) {
   // 앱을 연 뒤 홈을 처음 볼 때만 섹션이 차례로 나타난다. (스플래시가 사라진 뒤에 시작)
   const intro = useIntroOnce(HOME_INTRO_KEY);
+  // 스켈레톤에서 넘어온 첫 진입은 자리가 같으므로 떠오르지 않고 페이드로만 나타난다.
+  const introClass = intro.shouldAnimate ? (afterSkeleton ? 'fade-children' : 'stagger-children') : '';
   const setLastActivity = useProfileStore((s) => s.setLastActivity);
   const addEntry = useHistoryStore((s) => s.addEntry);
   const removeEntry = useHistoryStore((s) => s.removeEntry);
@@ -253,7 +258,7 @@ export default function HomeReady({
 
   return (
     <div
-      className={`space-y-10 ${intro.shouldAnimate ? 'stagger-children' : ''} ${intro.isHidden ? 'opacity-0' : ''}`}
+      className={`space-y-10 ${introClass} ${intro.isHidden ? 'opacity-0' : ''}`}
       style={{ paddingBottom: CTA_CLEARANCE }}
     >
       <FeedbackCard hiddenEntryIds={[sheetEntry?.id ?? null, feedbackDismissedId]} />
