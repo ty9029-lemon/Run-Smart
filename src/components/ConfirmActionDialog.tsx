@@ -34,12 +34,12 @@ export default function ConfirmActionDialog({
 }: ConfirmActionDialogProps) {
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onCancel()}>
-      <DialogContent showCloseButton={false}>
+      <DialogContent showCloseButton={false} className="gap-8">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        <DialogFooter className="grid grid-cols-2 gap-2 border-t-0">
+        <DialogFooter className="grid grid-cols-2 gap-2 border-t-0 pt-0">
           <Button type="button" variant="secondary" size="lg" onClick={onCancel}>
             {cancelLabel}
           </Button>
