@@ -22,6 +22,14 @@ describe('AppLayout', () => {
     expect(html).toContain('aria-label="주요 메뉴"');
   });
 
+  it('활성 탭의 라임 막대를 투명도로 전환한다 (다크는 계속 숨긴다)', () => {
+    // 활성(기록) 탭은 막대가 보이고, 나머지는 투명하다
+    expect(html).toContain('before:opacity-100');
+    expect(html).toContain('before:opacity-0');
+    expect(html).toContain('before:transition-opacity before:duration-(--motion-duration-fast)');
+    expect(html).toContain('dark:before:hidden');
+  });
+
   it('탭바 활성 색 전환에 fast 모션 토큰을 쓴다', () => {
     expect(html).toContain('transition-colors duration-(--motion-duration-fast)');
   });
