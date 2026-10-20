@@ -21,8 +21,8 @@ Mixpanel 화면에서 직접 만들며, 별도 코드 변경은 필요하지 않
 |---|---|---|
 | `[Auto] Page View` (`$mp_web_page_view`) | 페이지 경로가 바뀔 때 (자동 수집) | Mixpanel 기본 속성 (`$current_url` 등) |
 | `cta_clicked` | 핵심 버튼 클릭 | `cta`: `onboarding_start` / `location_allow` / `location_settings` / `settings_save` (`location_allow`는 아래 주석 참고) |
-| `onboarding_completed` | 온보딩 완료 | `activityCount`, `constraintCount`, `useCurrentLocation` |
-| `settings_saved` | 설정 저장 성공 | `coldLevel`, `heatLevel`, `activityCount`, `timeSlotCount`, `constraintCount` |
+| `onboarding_completed` | 온보딩 완료 | `activityCount`, `timeSlotCount`, `constraintCount`, `useCurrentLocation` |
+| `settings_saved` | 설정 저장 성공 | `coldLevel`, `heatLevel`, `activityCount`, `timeSlotCount`, `constraintCount`, `useCurrentLocation` |
 | `decision_made` | 가기 선택 (홈의 '안 가기' 버튼 제거 후 `skip`은 새로 발생하지 않고 Mixpanel의 과거 데이터에만 남음) | `decision`(`go`), `activity`, `score`, `isChange`(오늘 같은 활동으로 이미 결정한 적이 있으면 `true`), `timeToDecisionMs`(결과 화면이 준비된 뒤 결정까지 걸린 시간(ms). 재결정(`isChange=true`)에는 붙지 않으며 2026-10-12 추가) |
 | `decision_cancelled` | 출발 토스트의 '실행 취소' 또는 홈의 '출발 취소'로 오늘 결정을 취소 | `decision`(취소한 결정), `activity` |
 | `activity_ended` | 홈의 타이머 버튼을 누르고 종료 확인 팝업에서 '종료하기'를 눌러 활동을 종료 | `activity`, `durationSec`(활동 시간, 초) |
@@ -278,6 +278,7 @@ Preview 배포에서 발생한 이벤트도 같은 프로젝트에 쌓입니다.
 | 저장 시 "Saved Report Limit" 안내 | 무료 플랜 5개 한도 도달 | **Continue With Free Plan**을 선택하고 쓰지 않는 리포트·보드를 삭제 |
 | `location_allow` 수치가 배포 전후로 크게 달라 보임 | 2026-10-11부터 발생 시점이 바뀜 ([위치 허용하기] 클릭 → [시작하기]/설정 ON 전환) | 배포일 이후 데이터만 비교하고, 이전 수치와 직접 비교하지 않기 |
 | `onboarding_completed`에 `useCurrentLocation`이 없는 이벤트가 보임 | 속성은 2026-10-11 배포 이후 이벤트부터 붙음 | 기간을 배포일 이후로 좁혀 확인 |
+| `onboarding_completed`에 `timeSlotCount`, `settings_saved`에 `useCurrentLocation`이 없는 이벤트가 보임 | 두 속성은 2026-10-20 배포 이후 이벤트부터 붙음 | 기간을 배포일 이후로 좁혀 확인 |
 | Mixpanel Agent가 만든 보드의 위젯이 비어 있음 | 에이전트 초안의 쿼리가 완성되지 않음 | Events 또는 Insights에서 직접 만들어 보드에 추가 |
 
 ---

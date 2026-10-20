@@ -22,6 +22,7 @@ export default function Settings() {
       activityCount: next.selectedActivities.length,
       timeSlotCount: next.activityTimeSlots.length,
       constraintCount: next.constraints.length,
+      useCurrentLocation: next.useCurrentLocation,
     });
     navigate('/');
   });
