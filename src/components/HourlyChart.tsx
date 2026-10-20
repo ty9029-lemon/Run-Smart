@@ -97,7 +97,7 @@ function ChartTitle({
       <h2 className="px-4 text-xl font-bold leading-snug">
         {buildFallbackParts(best, activityLabel, sunsetStatus, nextRecommendation).map((part, i) =>
           part.highlight ? (
-            <span key={i} className="text-primary">
+            <span key={i} className="mark-lime">
               {part.text}
             </span>
           ) : (
@@ -110,7 +110,7 @@ function ChartTitle({
   return (
     <h2 className="px-4 text-xl font-bold leading-snug">
       오늘{' '}
-      <span className="text-primary">
+      <span className="mark-lime">
         {range.startHour}~{hourLabel(range.endHour)}
       </span>{' '}
       {activityLabel}하기 좋아요

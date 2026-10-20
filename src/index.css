@@ -62,6 +62,7 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-placeholder: var(--placeholder);
   --color-tabbar: var(--tabbar);
+  --color-mark: var(--mark);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -107,6 +108,8 @@
   --placeholder: #8e8e91;
   /* 하단 탭바 면: 라이트는 흰색, 다크는 캔버스색 (Figma bg/tabbar) */
   --tabbar: #ffffff;
+  /* 형광펜 밑줄: 라이트는 라임 (라임 글자는 흰 배경에서 읽기 어려워 글자는 --highlight, 밑줄만 라임) */
+  --mark: #b7ff2c;
   --accent: #ececee;
   --accent-foreground: #111111;
   /* 파괴적 액션은 붉은 글자 + 10% 붉은 면 (라임 외 유일한 예외 색, 점수 '경고'와 같은 값) */
@@ -164,6 +167,8 @@
   --muted-foreground: #8e8e90;
   --placeholder: #636366;
   --tabbar: #111111;
+  /* 다크는 라임 글자 자체가 강조라 밑줄을 쓰지 않는다 */
+  --mark: transparent;
   --accent: #28282a;
   --accent-foreground: #ffffff;
   --destructive: #ff7a6b;
@@ -210,6 +215,14 @@
   button {
     cursor: pointer;
   }
+}
+
+/* 강조 문구: 글자는 --highlight(다크 라임, 라이트 #111111) + 형광펜 밑줄(--mark, 라이트만) */
+@utility mark-lime {
+  color: var(--highlight);
+  background-image: linear-gradient(transparent 55%, var(--mark) 55%, var(--mark) 92%, transparent 92%);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
 /* 시간대 차트처럼 가로로 스크롤하는 목록의 스크롤바: 4px 막대를 스크롤하는 동안에만 보인다 (data-scrolling) */

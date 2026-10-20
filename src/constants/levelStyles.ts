@@ -16,9 +16,9 @@ export const SCORE_LEVEL_NAME: Record<WarningLevel, string> = {
   careful: '나쁨',
 };
 
-/** 점수 단계별 글자 색 (좋음은 라임, 나머지는 레벨 색) */
+/** 점수 단계별 글자 색 (좋음은 라임 강조 — 라이트는 형광펜 밑줄, 나머지는 레벨 색) */
 export const SCORE_LEVEL_TEXT_CLASS: Record<WarningLevel, string> = {
-  good: 'text-primary',
+  good: 'mark-lime',
   caution: 'text-level-normal',
   careful: 'text-level-bad',
 };

@@ -46,6 +46,7 @@ Swoosh는 한밤중의 아레나 콘솔처럼 작동합니다. 거의 완전한 
 | `--muted-foreground` | `#8e8e90` Subtle Text | `#66666a` | 보조 텍스트 |
 | `--placeholder` | `#636366` | `#8e8e91` | 입력창 placeholder |
 | `--tabbar` | `#111111` | `#ffffff` | 하단 탭바 면 |
+| `--mark` | 투명 | `#b7ff2c` | 형광펜 밑줄(`mark-lime`)의 색 |
 | `--accent` | `#28282a` Card Border Ink | `#ececee` | 호버·눌림 표면 |
 | `--border` | `#28282a` Card Border Ink | `#e5e5e5` Fog Border | 카드 테두리, 구분선 |
 | `--input` | `#707072` Steel Border | `#8e8e91` | 입력·칩·라디오의 윤곽선 |
@@ -342,6 +343,7 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
 - 카드(점수·복장·베스트 시간 같은 정보 패널, 설정·온보딩·피드백 카드, 가이드 박스 모두)는 테두리 없이 Card Charcoal 면 대비로 구분할 것 — 테두리가 있는 것은 팝업(Dialog)과 입력창뿐이다
 - 어두운 표면의 본문 텍스트는 16px Plus Jakarta Sans / Pretendard 400, 줄 간격 1.50, Pure White로 설정할 것
 - 라이트 모드에서 라임을 글자·아이콘·선으로 쓰던 자리는 `--highlight`(`#111111`)로 바꿀 것 — 라임은 채워진 면에만 남긴다
+- 문구 강조(차트 제목의 추천 시각, 시간대 상세의 "80점 좋음")는 `mark-lime` 유틸리티로 쓸 것 — 글자는 `--highlight`, 라이트에서는 글자 아래 55~92% 구간에 `--mark`(라임) 형광펜 밑줄을 칠하고 다크는 라임 글자만 쓴다(밑줄 투명). 라임 글자는 흰 배경에서 대비가 1.1:1이라 접근성이 매우 낮다
 - 색은 시맨틱 클래스(`bg-card`, `text-foreground`, `border-border`)로 쓰고, 모드별 값은 토큰에서만 바꿀 것
 - 지표 이름, 보조 설명 같은 서브 텍스트는 `text-muted-foreground`(다크 `#8e8e90`, 라이트 `#66666a`)를 사용할 것 — 카드 위에서 대비 4.5:1 이상을 확보한다. 테두리용 회색(`--input`)은 대비가 낮아 글자에 쓰지 않는다
 
