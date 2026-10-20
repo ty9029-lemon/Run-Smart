@@ -86,12 +86,11 @@ export default function ScoreBreakdownSheet({
             />
           ))}
         </ul>
-        {/* 시트 배경(Card Charcoal)과 같은 Secondary 면이라 구분되도록 한 단계 밝은 면을 쓴다 */}
         <Button
           type="button"
           variant="secondary"
           size="lg"
-          className="w-full bg-card-border-ink"
+          className="w-full"
           onClick={() => onOpenChange(false)}
         >
           {SCORE_REASON_MESSAGES.close}

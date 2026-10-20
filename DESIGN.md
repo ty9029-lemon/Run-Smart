@@ -160,7 +160,7 @@ Lime Pulse(#b7ff2c) 배경, Carbon Black(#000000) 텍스트, 9999px border radiu
 ### Secondary Navigation Button
 **역할:** 내비게이션의 보조 액션 (예: 기록, 설정)
 
-Card Charcoal(#1f1f21) 배경, Pure White(#ffffff) 텍스트, 테두리 없음, 9999px radius(pill), 높이 32px(sm) / 가로 20px의 컴팩트한 패딩, Plus Jakarta Sans / Pretendard 700 14px. 구현은 `Button`의 `variant="secondary" size="sm"`입니다. 라임을 쓰지 않으므로 같은 내비게이션 안의 채워진 CTA와 경쟁하지 않고 공존할 수 있습니다.
+흰색 10% 면(`--secondary`, `rgba(255,255,255,0.1)`) 배경, Pure White(#ffffff) 텍스트, 테두리 없음, 9999px radius(pill), 높이 32px(sm) / 가로 20px의 컴팩트한 패딩, Plus Jakarta Sans / Pretendard 700 14px. 구현은 `Button`의 `variant="secondary" size="sm"`입니다. 라임을 쓰지 않으므로 같은 내비게이션 안의 채워진 CTA와 경쟁하지 않고 공존할 수 있습니다. 면을 불투명 회색이 아니라 흰색 10%로 둔 이유는 캔버스(#111)·카드(Card Charcoal)·시트 어디에 올려도 한 단계 밝게 보여 버튼 모양이 사라지지 않게 하기 위해서입니다(불투명 #1f1f21은 카드 위에서 면이 안 보여 ghost처럼 보였습니다). 호버는 면에 흰색을 5% 더 섞습니다. 흰색 면(토스트) 위에서는 이 면이 보이지 않으므로 어두운 면(Card Charcoal)을 직접 지정하고, 달력 이전·다음 달 화살표처럼 면 없이 쓰는 아이콘 버튼은 ghost를 씁니다.
 
 ### Icon Button
 **역할:** 텍스트 없이 아이콘만으로 동작하는 정사각형 액션 (예: 설정)
@@ -281,6 +281,7 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
 - #111111을 기본 페이지 배경으로, #1f1f21을 카드와 모달의 한 단계 높은 표면으로 사용할 것
 - 화면을 가득 채우는 어두운 사진을 Pure White(#ffffff) 플로팅 카드와 짝지어 포스터 스타일 레이어링을 만들 것
 - #e5e5e5 테두리는 반전된(흰 표면) 맥락에서만 사용하고, 어두운 표면에서는 #28282a 또는 #707072를 사용할 것
+- secondary 버튼은 카드·시트 위에서도 보이도록 면 색을 흰색 10%(`--secondary`)로 쓸 것 — 카드와 같은 불투명 회색 면을 직접 칠하지 말 것(흰색 면 위에서만 예외)
 - 카드(점수·복장·베스트 시간 같은 정보 패널, 설정·온보딩·피드백 카드, 가이드 박스 모두)는 테두리 없이 Card Charcoal 면 대비로 구분할 것 — 테두리가 있는 것은 팝업(Dialog)과 입력창뿐이다
 - 어두운 표면의 본문 텍스트는 16px Plus Jakarta Sans / Pretendard 400, 줄 간격 1.50, Pure White로 설정할 것
 - 지표 이름, 보조 설명 같은 서브 텍스트는 Subtle Text(#8e8e90, `text-subtle-text`)를 사용할 것 — 어두운 카드 위에서 대비 4.5:1 이상을 확보한다. Steel Border(#707072)는 대비가 약 3.4:1이라 글자에 쓰지 않는다

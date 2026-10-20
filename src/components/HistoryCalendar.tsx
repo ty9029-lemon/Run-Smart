@@ -89,7 +89,7 @@ function MonthHeader({
   return (
     <div className="flex items-center justify-between">
       <Button
-        variant="secondary"
+        variant="ghost"
         size="icon"
         aria-label="이전 달"
         disabled={!isMonthInRange(prev, today)}
@@ -101,7 +101,7 @@ function MonthHeader({
         {viewMonth.year}년 {viewMonth.month + 1}월
       </h2>
       <Button
-        variant="secondary"
+        variant="ghost"
         size="icon"
         aria-label="다음 달"
         disabled={!isMonthInRange(next, today)}
