@@ -66,7 +66,6 @@ const EXTRA_RULES: ExtraRule[] = [
   },
   { text: OUTFIT_REASON_MESSAGES.dust, when: () => true, matches: hasIcon('mask') },
   { text: OUTFIT_REASON_MESSAGES.coldAir, when: () => true, matches: hasIcon('tissue') },
-  { text: OUTFIT_REASON_MESSAGES.knee, when: () => true, matches: hasIcon('kneeBrace') },
   { text: OUTFIT_REASON_MESSAGES.ice, when: () => true, matches: hasIcon('crampons') },
 ];
 
