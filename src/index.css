@@ -267,11 +267,29 @@
   }
 }
 
+/* 모션 토큰: duration 3단계, easing 2종, 순차 등장 간격, 이동 거리.
+   JS 타이머가 필요한 duration은 src/constants/motion.ts의 MOTION_DURATION_MS와 값을 맞춘다. */
+:root {
+  --motion-duration-fast: 200ms;
+  --motion-duration-normal: 400ms;
+  --motion-duration-slow: 640ms;
+  --motion-ease-main: cubic-bezier(0, 0, 0, 1); /* Decelerate: 화면에 들어오는 요소 */
+  --motion-ease-exit: cubic-bezier(0.3, 0, 1, 1); /* 화면에서 나가는 요소 */
+  --motion-stagger: 60ms; /* 요소를 순서대로 등장시킬 때 요소 간 지연 */
+  --motion-distance-sm: 8px;
+  --motion-distance-md: 24px;
+}
+
 /* 스플래시: 로고가 작게 시작해 살짝 커지며 나타나고, 글자는 조금 늦게 아래에서 올라온다.
+   온보딩 단계 전환: 다음은 오른쪽에서, 이전은 왼쪽에서 밀려 들어오며 나타난다.
    모션 줄이기 설정에서는 애니메이션 없이 바로 보여준다. */
 @theme {
-  --animate-splash-logo: splash-logo-in 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* 스플래시는 브랜드 첫인상이라 공통 토큰이 아닌 따로 맞춘 값을 쓴다. ease-main은 감속이 너무 강해
+     로고가 첫 몇 프레임에 끝나 모션이 보이지 않는다. */
+  --animate-splash-logo: splash-logo-in 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-splash-text: splash-text-in 500ms ease-out 250ms both;
+  --animate-step-in-forward: step-in-forward var(--motion-duration-normal) var(--motion-ease-main) both;
+  --animate-step-in-back: step-in-back var(--motion-duration-normal) var(--motion-ease-main) both;
 
   @keyframes splash-logo-in {
     from {
@@ -287,11 +305,33 @@
   @keyframes splash-text-in {
     from {
       opacity: 0;
-      transform: translateY(8px);
+      transform: translateY(var(--motion-distance-sm));
     }
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @keyframes step-in-forward {
+    from {
+      opacity: 0;
+      transform: translateX(var(--motion-distance-md));
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes step-in-back {
+    from {
+      opacity: 0;
+      transform: translateX(calc(var(--motion-distance-md) * -1));
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
     }
   }
 }

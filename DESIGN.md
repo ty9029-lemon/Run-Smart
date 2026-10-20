@@ -196,6 +196,26 @@ Tailwind 기본 radius 클래스는 `--radius: 20px` 기준으로 계산되어 `
 - **카드 패딩:** 20-24px
 - **요소 간격:** 16-20px
 
+## 토큰 — 모션
+
+움직임은 `src/index.css`의 `:root`에 있는 CSS 변수로만 정한다. 새 화면에서 ms나 cubic-bezier를 직접 쓰지 않는다. JS 타이머가 필요한 duration은 `src/constants/motion.ts`의 `MOTION_DURATION_MS`를 쓰고, 두 값은 `motion.test.ts`가 대조한다. 토큰 세트는 토스 스타일 모션 레퍼런스에서 가져왔다.
+
+| 토큰 | 값 | 쓰임 |
+|---|---|---|
+| `--motion-duration-fast` | 200ms | 색·진행 막대 같은 작은 상태 변화 |
+| `--motion-duration-normal` | 400ms | 단계·화면 전환, 페이드 |
+| `--motion-duration-slow` | 640ms | 처음 등장하는 강조 요소(스플래시 로고) |
+| `--motion-ease-main` | `cubic-bezier(0, 0, 0, 1)` | 화면에 들어오는 요소 (Decelerate) |
+| `--motion-ease-exit` | `cubic-bezier(0.3, 0, 1, 1)` | 화면에서 나가는 요소 |
+| `--motion-stagger` | 60ms | 요소를 순서대로 등장시킬 때 요소 간 지연 |
+| `--motion-distance-sm` / `-md` | 8px / 24px | 등장 시 이동 거리 |
+
+- **사용법:** `duration-(--motion-duration-normal) ease-(--motion-ease-main)`처럼 Tailwind 변수 문법으로 쓰고, 애니메이션은 `@theme`의 `--animate-*`에 `var(--motion-…)`을 넣어 정의한다.
+- **온보딩 단계 전환:** 다음은 오른쪽에서, 이전은 왼쪽에서 24px 밀려 들어오며 나타난다(400ms, `ease-main`). 제목·입력 카드·버튼이 `--motion-stagger`(60ms) 간격으로 차례로 들어오고, 첫 방문의 1단계는 스플래시가 완전히 사라진 뒤에 시작한다(`useAppRevealed`). 그 전에는 온보딩 화면을 숨겨 사라지는 로고와 겹쳐 보이지 않게 한다. 진행 막대는 200ms로 색이 바뀐다.
+- **스플래시는 예외:** 로고(800ms, `cubic-bezier(0.16, 1, 0.3, 1)`)·글자(500ms, `ease-out`, 250ms 지연)·페이드아웃(400ms, `ease-out`)을 따로 맞춘 값으로 쓴다. `ease-main`(`cubic-bezier(0, 0, 0, 1)`)은 감속이 너무 강해 짧은 거리의 크기·투명도 변화는 첫 몇 프레임에 끝나 모션이 보이지 않는다.
+- **모션 줄이기:** 새 애니메이션은 `motion-safe:`로 적용하고, 스플래시는 `prefers-reduced-motion`에서 `animation: none`으로 둔다.
+- **순차 등장 쓰는 법:** 요소 순서(i)에 `animation-delay: calc(i * var(--motion-stagger))`를 준다.
+
 ## 컴포넌트
 
 ### Primary CTA Button
@@ -329,6 +349,31 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
 **더보기(⋮) 메뉴:** 카드 오른쪽 위(오른쪽·위 12px)에 32px 고스트 아이콘 버튼(세로 점 3개)을 두고, 누르면 Card Border Ink(#28282a) 면의 12px radius 메뉴가 열립니다(항목에 마우스를 올리거나 키보드로 고르면 Card Charcoal 면에 같은 12px radius로 강조). 항목은 "거리·복장 수정"과 "삭제"(나쁨 레벨 색)입니다. 진행 중인 기록에는 메뉴를 두지 않습니다. "거리·복장 수정"은 피드백 시트와 같은 바텀 시트(제목 "기록 수정", 거리·실제 복장 입력, 저장 / 취소)로 열리며 현재 값에서 시작하고 둘 다 비우면 둘 다 지웁니다. 체감은 여기서 고치지 않습니다. "삭제"는 확인 팝업("이 기록을 삭제할까요?" / "삭제한 기록은 되돌릴 수 없어요." / 취소 outline·삭제 destructive — 종료 확인 팝업과 같은 모양)을 거친 뒤에만 지웁니다. 이벤트는 `history_entry_edited`, `history_entry_deleted`입니다. 구현은 `HistoryEntryMenu`, `HistoryEditSheet`, `DeleteEntryDialog`입니다.
 
 **그날의 추천 보기:** 카드 아래에 접힌 줄(14px Subtle Text + 화살표, 열면 화살표가 뒤집힘)로 두고, 열면 그날의 AI 가이드와 추천 복장 카드가 나옵니다. "추천 복장 ↔ 실제 복장"을 비교할 수 있게 유지하되 기본은 접어 기록 카드를 깔끔하게 보여줍니다. 열 때 `history_recommendation_opened` 이벤트를 보냅니다. 구현은 `HistoryEntryStatus`, `HistoryStats`, `HistoryRecommendation`입니다.
+
+## 스플래시 화면 구성
+앱을 처음 열 때 한 번 보이는 전체 화면입니다. 가운데에 위에서 아래로: 로고 심볼(80px) → 8px 간격 → "Run Smart"(Plus Jakarta Sans Bold Italic 24px, 자간 0, 줄 높이 120%). 슬로건은 두지 않습니다. 구현은 `SplashScreen`이고, 값은 `src/constants/splash.ts`에 있습니다.
+
+- **색:** 다크는 Midnight Canvas(#111111) 바탕에 라임, 라이트는 Lime Pulse(#b7ff2c) 바탕에 검정(`--primary-foreground`)입니다. 로고는 `logo-mark.svg`를 마스크로 써서 글자와 같은 색(`currentColor`)을 따릅니다.
+- **시간:** 로고 등장 800ms → 완성된 로고를 보여주며 총 1600ms 유지(`SPLASH_HOLD_MS`) → 400ms 페이드아웃(`SPLASH_FADE_MS`). 합쳐서 약 2.0초에 완전히 사라집니다. 모션 값은 위 "토큰 — 모션"의 스플래시 예외를 따릅니다.
+- **표시 규칙:** 같은 탭(세션)에서 한 번만 보이고(`sessionStorage`의 `run-smart-splash-shown`), 다른 화면으로 이동해도 다시 뜨지 않습니다. 모션 줄이기 설정에서는 로고·글자의 등장 애니메이션 없이 바로 보여줍니다(페이드아웃은 그대로).
+- **첫 화면 이음새:** 자바스크립트가 로드되기 전의 빈 흰 화면을 없애려고, 첫 방문이면 `index.html`이 `<html>` 배경색을 스플래시 바탕색(다크 #111111, 라이트 #b7ff2c)으로 미리 칠하고 스플래시가 끝나면 지웁니다(`clearBootBackground`).
+- **아래 화면:** 스플래시가 완전히 사라지기 전에는 온보딩 화면을 숨기고, 사라진 뒤에 1단계 모션이 시작됩니다(`useAppRevealed`). 사라지는 로고와 겹쳐 보이지 않게 하기 위해서입니다.
+- **범위 밖:** 홈 화면에 추가했을 때 iOS가 보여주는 시작 화면(`apple-touch-startup-image`)은 만들지 않았습니다. 주소창이 있는 일반 웹앱으로 쓰기 때문입니다.
+
+## 앱 로고
+R과 S를 맞물린 각진 모노그램입니다. 위쪽 R(고리와 사선 다리)과 아래쪽 S(지그재그 획)가 일정한 틈을 두고 겹쳐 있고, 모서리는 둥글립니다. 색은 라임 한 가지입니다.
+
+| 파일 (`public/`) | 용도 |
+|---|---|
+| `logo-mark.svg` | 배경 없는 심볼. 스플래시와 이후 헤더·워드마크에 씁니다. |
+| `favicon.svg` | 브라우저 탭 아이콘. 검정(#111111) 둥근 사각형 안에 라임 심볼입니다. |
+| `logo-icon-light.svg` | 라이트용. 라임 둥근 사각형 안에 검정 심볼입니다. |
+| `icon-192.png`, `icon-512.png` | PWA 아이콘(`manifest.webmanifest`). 모서리를 둥글리지 않은 정사각형이라 OS가 마스크를 씌울 수 있고, 심볼은 안쪽 약 80%(safe zone)에 둡니다. |
+| `apple-touch-icon.png` | iOS 홈 화면 아이콘(180px). |
+
+- **라임 사용 규칙:** 라이트 배경(흰색)에서는 라임을 글자·선으로 쓰지 않고 면으로만 씁니다(대비 약 1.1:1). 라이트용 로고는 라임 면 위에 검정 심볼입니다.
+- **작은 크기:** 16~32px 파비콘에서도 R과 S의 틈이 막히지 않게 획 두께를 정했습니다. 획을 지금보다 많이 굵게 하면 32px 이하에서 틈이 막혀 한 덩어리로 보일 수 있습니다.
+- 이 문서의 `Swoosh 로고` 표현은 스타일 레퍼런스 원문이며, Run Smart의 로고가 아닙니다.
 
 ## Do와 Don't
 

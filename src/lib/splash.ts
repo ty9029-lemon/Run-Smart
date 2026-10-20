@@ -9,6 +9,31 @@ function getSessionStorage(): Storage | null {
   }
 }
 
+/** 스플래시가 완전히 사라져 아래 화면이 드러났는지 */
+let isAppRevealed = false;
+const appRevealListeners = new Set<() => void>();
+
+/** 스플래시가 완전히 사라졌음을 알린다. 아래 화면의 등장 모션이 이때 시작된다. */
+export function revealApp(): void {
+  if (isAppRevealed) return;
+  isAppRevealed = true;
+  appRevealListeners.forEach((listener) => listener());
+}
+
+/** 화면이 드러났는지 구독한다. useSyncExternalStore용 */
+export function subscribeAppReveal(listener: () => void): () => void {
+  appRevealListeners.add(listener);
+  return () => appRevealListeners.delete(listener);
+}
+
+/**
+ * 지금 화면이 드러난 상태인지 돌려준다.
+ * 이번 세션에 스플래시가 없거나 이미 끝났다면 처음부터 드러난 상태다.
+ */
+export function getAppRevealed(): boolean {
+  return isAppRevealed || !shouldShowSplash();
+}
+
 /** 이번 세션에 스플래시를 아직 보여주지 않았으면 true */
 export function shouldShowSplash(storage: Storage | null = getSessionStorage()): boolean {
   try {
