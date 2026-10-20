@@ -81,7 +81,7 @@ function buildSlotCards(slots: ActivityTimeSlot[], days: DayScores, now: Date): 
     .filter((card): card is BestTimeCard => card !== null);
 }
 
-/** '오늘' 카드를 앞으로 보낸다. (같은 날은 이른 시각 순) */
+/** 시간 순서로 정렬한다. '오늘' 카드가 먼저고, 같은 날은 이른 시각이 먼저다. */
 function sortCards(cards: BestTimeCard[]): BestTimeCard[] {
   const rank = (c: BestTimeCard) => (c.label.startsWith('오늘') ? 0 : 1);
   return [...cards].sort((a, b) => rank(a) - rank(b) || a.hour - b.hour);
@@ -169,5 +169,6 @@ export function buildBestTimeCards(
   const need = MAX_BEST_TIME_CARDS - slotCards.length;
   if (need === 0) return slotCards;
   const taken = new Set(slotCards.map(cardKey));
-  return [...slotCards, ...buildFallbackCards(days, taken, need)];
+  // 채운 카드가 더 이를 수 있어 합친 뒤에도 오늘 → 내일, 이른 시각 순으로 다시 정렬한다
+  return sortCards([...slotCards, ...buildFallbackCards(days, taken, need)]);
 }
