@@ -18,6 +18,7 @@ function render(
       previousNotice={previousNotice}
       onDecide={() => {}}
       onEnd={() => {}}
+      onResume={() => {}}
       onCancel={() => {}}
     />,
   );

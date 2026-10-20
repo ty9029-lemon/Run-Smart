@@ -15,6 +15,8 @@ interface ActiveSessionState {
   session: ActiveSession | null;
   /** 활동을 시작한다 */
   start: (session: ActiveSession) => void;
+  /** 시작 시각을 늦춘다. 종료 확인 팝업이 열려 있던 시간을 활동 시간에서 빼는 데 쓴다 */
+  shiftStart: (ms: number) => void;
   /** 진행 중인 활동을 비운다 (종료·취소 공용) */
   clear: () => void;
 }
@@ -28,6 +30,10 @@ export const useActiveSessionStore = create<ActiveSessionState>()(
     (set) => ({
       session: null,
       start: (session) => set({ session }),
+      shiftStart: (ms) =>
+        set((state) =>
+          state.session ? { session: { ...state.session, startedAt: state.session.startedAt + ms } } : state,
+        ),
       clear: () => set({ session: null }),
     }),
     { name: 'run-smart-active-session', version: 1 },
