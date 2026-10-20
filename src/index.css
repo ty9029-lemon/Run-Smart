@@ -86,7 +86,8 @@
   --popover-foreground: #ffffff;
   --primary: #b7ff2c;
   --primary-foreground: #000000;
-  --secondary: #1f1f21;
+  /* 흰색 10% 면: 캔버스·카드·시트 어디에 올려도 한 단계 밝게 보여 구분된다 (불투명 #1f1f21은 카드 위에서 사라졌다) */
+  --secondary: rgba(255, 255, 255, 0.1);
   --secondary-foreground: #ffffff;
   --muted: #1f1f21;
   --muted-foreground: #8e8e90;
