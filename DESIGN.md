@@ -25,7 +25,8 @@ Swoosh는 한밤중의 아레나 콘솔처럼 작동합니다. 거의 완전한 
 | Level Good | `#4da3ff` | `--color-level-good` | 등급 표시 전용: 미세먼지 '좋음', 자외선 '낮음' |
 | Level Normal | `#ff9a3c` | `--color-level-normal` | 등급 표시 전용: '보통', 점수 '보통' 막대 |
 | Level Bad | `#ff7a6b` | `--color-level-bad` | 등급 표시 전용: '나쁨'·'높음', 점수 '나쁨' 막대 |
-| Destructive | `#ff7a6b` | `--destructive` (= Level Bad) | 오류·위험 표시 전용: Destructive 버튼의 글자와 10% 면, 입력 오류 테두리, 오류 안내 문구 |
+| Destructive | `#ff7a6b` | `--destructive` (= Level Bad) | 오류·위험 표시 전용: Destructive 버튼의 면(100%), 입력 오류 테두리, 오류 안내 문구 |
+| Destructive Foreground | `#111111` | `--destructive-foreground` | Destructive 버튼 글자 (코랄 면 위 대비 7.42:1, 흰색은 2.55:1이라 쓰지 않음) |
 
 ### 상태 레벨 색
 홈의 등급 지표(미세먼지, 자외선)와 시간대 막대·점수 단계에만 쓰는 예외 색입니다. 글자·아이콘·작은 막대에만 쓰고, 면 배경이나 버튼·강조에는 쓰지 않습니다. 색만으로 구분하지 않도록 항상 등급 문구(좋음·보통·나쁨 등)를 함께 적습니다. 점수의 '좋음'은 이 색이 아니라 라임을 씁니다. 코드는 `src/constants/levelStyles.ts`가 등급·점수 단계와 색 클래스를 한 곳에서 연결합니다.
@@ -228,7 +229,7 @@ Card Charcoal(#1f1f21) 배경, 테두리 없음(면 대비로 구분), 20px radi
 ### Confirm Dialog
 **역할:** 되돌리기 어렵거나 실수하기 쉬운 동작을 한 번 더 묻는 확인 팝업 (러닝 종료 "러닝을 종료할까요?", 기록 삭제 "이 기록을 삭제할까요?")
 
-Popover 면(Card Charcoal) 배경, 20px radius, 24px 패딩, 가운데 뜨는 Dialog입니다. 제목은 Pretendard 700 24px(`font-heading`, 줄 간격 1.2), 설명은 Subtle Text, 닫기 버튼은 두지 않으며 바깥 탭·ESC는 "취소"와 같습니다. **제목·설명과 버튼 영역 사이에 구분선을 두지 않습니다**(푸터의 `border-t`를 `border-t-0`으로 끔). 버튼은 같은 너비의 2열(간격 8px)로, 왼쪽이 안전한 선택지(outline, "계속하기"·"취소"), 오른쪽이 실행 버튼(default, "종료하기"·"삭제")입니다. 구현은 `EndActivityDialog`, `DeleteEntryDialog`입니다.
+Popover 면(Card Charcoal) 배경, 20px radius, 24px 패딩, 가운데 뜨는 Dialog입니다. 제목은 Pretendard 700 24px(`font-heading`, 줄 간격 1.2), 설명은 Subtle Text, 닫기 버튼은 두지 않으며 바깥 탭·ESC는 "취소"와 같습니다. **제목·설명과 버튼 영역 사이에 구분선을 두지 않습니다**(푸터의 `border-t`를 `border-t-0`으로 끔). 버튼은 같은 너비의 2열(간격 8px)로, 왼쪽이 안전한 선택지(outline, "계속하기"·"취소"), 오른쪽이 실행 버튼(destructive, "종료하기"·"삭제")입니다. 라임 default 버튼은 쓰지 않습니다. 되돌리기 어려운 동작이라 위험을 알리는 코랄(`--destructive`) 100% 면 + `--destructive-foreground` 글자로 구분하고, 호버는 면을 90%로 낮춥니다. 구현은 `EndActivityDialog`, `DeleteEntryDialog`입니다.
 
 ### Cookie Settings Modal
 **역할:** 오버레이 환경설정 패널

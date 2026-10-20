@@ -29,7 +29,7 @@ export default function DeleteEntryDialog({ onCancel, onConfirm }: DeleteEntryDi
           <Button type="button" variant="outline" onClick={onCancel}>
             {HISTORY_MENU_MESSAGES.cancel}
           </Button>
-          <Button type="button" variant="default" onClick={onConfirm}>
+          <Button type="button" variant="destructive" onClick={onConfirm}>
             {HISTORY_MENU_MESSAGES.remove}
           </Button>
         </DialogFooter>
