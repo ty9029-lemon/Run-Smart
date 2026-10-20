@@ -25,7 +25,7 @@ function LevelRow({ score }: { score: number }) {
       >
         {SCORE_LEVEL_NAME[level]}
       </Badge>
-      <span className="text-sm font-bold">{score}점</span>
+      <span className="text-sm font-medium">{score}점</span>
     </div>
   );
 }
