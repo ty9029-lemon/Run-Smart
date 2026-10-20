@@ -1,9 +1,11 @@
+import { useRef } from 'react';
 import { LocationNotice, type LocationNoticeProps } from './GuideBox';
 import OutfitPanel from './OutfitPanel';
 import SkeletonLines from './SkeletonLines';
 import { MESSAGES } from '../constants/messages';
 import { OUTFIT_SOURCES } from '../constants/analytics';
 import { FADE_IN_CLASS } from '../constants/motion';
+import { useHeightTransition } from '../hooks/useHeightTransition';
 import { filterTipsNotInOutfit } from '../lib/guideTips';
 import type { OutfitReason } from '../lib/outfitReasons';
 import type { Activity, GuideState, OutfitItem } from '../types';
@@ -45,24 +47,33 @@ export default function HomeOutfitSection({
   rawWeather,
   location,
 }: HomeOutfitSectionProps) {
+  // 가이드가 로딩에서 본문으로 바뀔 때 문단과 복장 패널의 높이가 달라져 아래가 튀지 않게 보간한다.
+  const guideRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  useHeightTransition(guideRef, guide.state);
+  useHeightTransition(panelRef, guide.state);
   // 복장 카드에 이미 보이는 항목을 말하는 팁은 뺀다
   const tips = guide.state === 'ready' ? filterTipsNotInOutfit(guide.data.activityTips, outfit) : [];
   return (
     <section className="space-y-3">
       <div className="space-y-3">
         <h2 className="text-xl font-bold">현재 날씨 추천 복장</h2>
-        <GuideParagraph guide={guide} rawWeather={rawWeather} />
+        <div ref={guideRef}>
+          <GuideParagraph guide={guide} rawWeather={rawWeather} />
+        </div>
       </div>
       {location && <LocationNotice {...location} />}
-      <OutfitPanel
-        items={outfit}
-        title={null}
-        reason={outfitReason}
-        tips={tips}
-        isTipsLoading={guide.state === 'loading'}
-        source={OUTFIT_SOURCES.home}
-        activity={activity}
-      />
+      <div ref={panelRef}>
+        <OutfitPanel
+          items={outfit}
+          title={null}
+          reason={outfitReason}
+          tips={tips}
+          isTipsLoading={guide.state === 'loading'}
+          source={OUTFIT_SOURCES.home}
+          activity={activity}
+        />
+      </div>
     </section>
   );
 }

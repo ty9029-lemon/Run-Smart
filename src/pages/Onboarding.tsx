@@ -10,9 +10,11 @@ import { ONBOARDING_STEPS } from '../constants/onboarding';
 import { useAppRevealed } from '../hooks/useAppRevealed';
 import { useProfileDraft } from '../hooks/useProfileDraft';
 import { useRestartAnimation } from '../hooks/useRestartAnimation';
+import { useHeightTransition } from '../hooks/useHeightTransition';
 import { useRestoreFocus } from '../hooks/useRestoreFocus';
 import { requestLocationPermission, useLocationPermission } from '../hooks/useLocationPermission';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
+import { prefersReducedMotion } from '../lib/motionPreference';
 import { toggleActivityTimeSlot } from '../lib/profileDraft';
 import { getStepDirection, type StepDirection } from '../lib/stepDirection';
 import { DEFAULT_PROFILE } from '../store/profileStore';
@@ -106,6 +108,8 @@ export default function Onboarding() {
   const [isLeaving, setIsLeaving] = useState(false);
   // 버튼은 다시 그리지 않고(포커스 유지) 단계가 바뀔 때 애니메이션만 다시 재생한다.
   const buttonsRef = useRef<HTMLDivElement>(null);
+  // 단계마다 콘텐츠 높이가 달라(1단계는 시간대 카드가 더 있다) 아래 버튼이 튀지 않게 높이를 보간한다.
+  const contentRef = useRef<HTMLDivElement>(null);
   const { draft, error, onChange, validate, submit } = useProfileDraft(
     ONBOARDING_INITIAL,
     (saved) => {
@@ -122,6 +126,7 @@ export default function Onboarding() {
   const isFirst = stepIndex === 0;
   const isLast = stepIndex === LAST_STEP;
   useRestartAnimation(buttonsRef, stepIndex);
+  useHeightTransition(contentRef, stepIndex);
   // 눌렀던 버튼이 사라지는 전환(2단계의 [이전])에서 포커스를 잃지 않게 한다.
   useRestoreFocus(buttonsRef, stepIndex);
 
@@ -150,8 +155,11 @@ export default function Onboarding() {
       setIsStarting(false);
       return;
     }
-    setIsLeaving(true);
-    await new Promise((resolve) => setTimeout(resolve, MOTION_DURATION_MS.fast));
+    // 동작 줄이기에서는 사라지는 모션이 없으므로 기다리지 않고 바로 저장한다.
+    if (!prefersReducedMotion()) {
+      setIsLeaving(true);
+      await new Promise((resolve) => setTimeout(resolve, MOTION_DURATION_MS.fast));
+    }
     submit();
     setIsStarting(false);
   };
@@ -178,34 +186,36 @@ export default function Onboarding() {
       className={`mx-auto max-w-md space-y-6 overflow-x-clip px-4 py-6 ${mainFadeClass}`}
     >
       <StepIndicator current={stepIndex} total={ONBOARDING_STEPS.length} stepTitle={step.title} />
-      <div key={step.id} className="space-y-6">
-        <StepSection
-          title={step.title}
-          description={step.description}
-          isMain
-          getMotion={getMotion}
-        >
-          <OnboardingStep
-            step={step.id}
-            draft={draft}
-            error={error}
-            locationStatus={locationStatus}
-            onChange={onChange}
-          />
-        </StepSection>
-        {step.followUp && (
+      <div ref={contentRef}>
+        <div key={step.id} className="space-y-6">
           <StepSection
-            title={step.followUp.title}
-            description={step.followUp.description}
+            title={step.title}
+            description={step.description}
+            isMain
             getMotion={getMotion}
-            startIndex={2}
           >
-            <ActivityTimePicker
-              selected={draft.activityTimeSlots}
-              onToggle={(id) => onChange(toggleActivityTimeSlot(draft, id))}
+            <OnboardingStep
+              step={step.id}
+              draft={draft}
+              error={error}
+              locationStatus={locationStatus}
+              onChange={onChange}
             />
           </StepSection>
-        )}
+          {step.followUp && (
+            <StepSection
+              title={step.followUp.title}
+              description={step.followUp.description}
+              getMotion={getMotion}
+              startIndex={2}
+            >
+              <ActivityTimePicker
+                selected={draft.activityTimeSlots}
+                onToggle={(id) => onChange(toggleActivityTimeSlot(draft, id))}
+              />
+            </StepSection>
+          )}
+        </div>
       </div>
       <div
         ref={buttonsRef}
