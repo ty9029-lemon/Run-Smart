@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
-import { SPLASH_FADE_MS, SPLASH_HOLD_MS, SPLASH_LOGO_URL } from '../constants/splash';
+// 로고는 번들에 데이터 URI로 포함한다. 파일 URL이면 스플래시가 뜬 뒤에야 요청해, 응답이 늦을 때
+// 문구만 먼저 보이고 로고가 나중에 나타난다. (public 폴더 파일은 ?inline으로 가져올 수 없어 src/assets에 둔다)
+import logoMarkUrl from '../assets/logo-mark.svg?inline';
+import { SPLASH_FADE_MS, SPLASH_HOLD_MS } from '../constants/splash';
 import { revealApp } from '../lib/splash';
 
 interface SplashScreenProps {
@@ -37,8 +40,8 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
       <div
         className="animate-splash-logo size-20 bg-current"
         style={{
-          maskImage: `url(${SPLASH_LOGO_URL})`,
-          WebkitMaskImage: `url(${SPLASH_LOGO_URL})`,
+          maskImage: `url("${logoMarkUrl}")`,
+          WebkitMaskImage: `url("${logoMarkUrl}")`,
           maskSize: 'contain',
           WebkitMaskSize: 'contain',
           maskRepeat: 'no-repeat',
