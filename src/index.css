@@ -60,6 +60,8 @@
   --color-level-good: var(--level-good);
   --color-level-normal: var(--level-normal);
   --color-level-bad: var(--level-bad);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
   --color-mark: var(--mark);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
@@ -110,6 +112,9 @@
   --level-good: #1a6fd6;
   --level-normal: #e36100;
   --level-bad: #c4301f;
+  /* 정보 안내 배너 (인디고): 면은 알파 색이라 카드·캔버스 어디에 올려도 비치고, 아이콘은 흰 배경 대비 6:1 (Figma bg/info·feedback/info) */
+  --info: rgba(79, 70, 229, 0.08);
+  --info-foreground: #4f46e5;
   /* 형광펜 밑줄: 라이트는 라임 (라임 글자는 흰 배경에서 읽기 어려워 글자는 --highlight, 밑줄만 라임) */
   --mark: #b7ff2c;
   --accent: #ececee;
@@ -172,6 +177,9 @@
   --level-good: #4da3ff;
   --level-normal: #ff9a3c;
   --level-bad: #ff7a6b;
+  /* 정보 안내 배너 (인디고): 카드(#1f1f21) 위 실제 면 ≈ #313244, 흰 글자 대비 13:1, 아이콘 6:1 */
+  --info: rgba(143, 148, 255, 0.16);
+  --info-foreground: #a5a9ff;
   /* 다크는 라임 글자 자체가 강조라 밑줄을 쓰지 않는다 */
   --mark: transparent;
   --accent: #28282a;

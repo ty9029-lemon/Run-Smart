@@ -60,8 +60,8 @@ export default function HistoryStats({ entry }: { entry: HistoryEntry }) {
         ))}
       </dl>
       {needsDistanceHint(entry) && (
-        <div role="note" className="mt-4 flex items-start gap-2 rounded-[12px] bg-secondary p-3 text-sm">
-          <Info aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+        <div role="note" className="mt-4 flex items-start gap-2 rounded-[12px] bg-info p-3 text-sm">
+          <Info aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-info-foreground" />
           <p>{HISTORY_MESSAGES.distanceHint}</p>
         </div>
       )}

@@ -52,6 +52,16 @@ describe('HistoryStats', () => {
     expect(html).toMatch(/role="note"[\s\S]*<svg[\s\S]*lucide-info[\s\S]*거리를 추가하면/);
   });
 
+  it('배너는 정보(info) 색 토큰을 쓰고 "오른쪽 위" 위치 설명은 없다', () => {
+    const html = renderToStaticMarkup(<HistoryStats entry={entryWith({ durationSec: 600 })} />);
+    expect(html).toContain('bg-info');
+    expect(html).toContain('text-info-foreground');
+    expect(html).not.toContain('bg-secondary');
+    expect(html).not.toContain('오른쪽 위');
+    // 한 줄에 들어가도록 짧은 한 문장이다
+    expect(HISTORY_MESSAGES.distanceHint).toBe('거리를 추가하면 페이스도 나와요.');
+  });
+
   it('거리가 있는 기록은 거리·페이스·시간을 보여주고 안내는 없다', () => {
     const html = renderToStaticMarkup(
       <HistoryStats entry={entryWith({ durationSec: 1800, distanceKm: 5 })} />,
