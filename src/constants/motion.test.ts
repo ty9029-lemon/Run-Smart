@@ -51,9 +51,25 @@ describe('순차 등장', () => {
 });
 
 describe('스켈레톤·페이드 등장', () => {
-  it('스켈레톤은 slow 토큰의 두 배 주기로 깜빡인다', () => {
-    expect(css).toContain('--animate-skeleton: skeleton-pulse calc(var(--motion-duration-slow) * 2)');
-    expect(css).toContain('@keyframes skeleton-pulse');
+  it('스켈레톤은 2000ms 주기로 하이라이트가 지나가는 쉬머다', () => {
+    expect(css).toContain('--animate-skeleton: skeleton-shimmer 2000ms linear infinite');
+    expect(css).toContain('@keyframes skeleton-shimmer');
+    // 제자리 밝기 변화(pulse)는 대비가 5/255라 보이지 않아 쓰지 않는다
+    expect(css).not.toContain('skeleton-pulse');
+  });
+
+  it('쉬머 하이라이트와 모션 줄이기용 면 색 토큰이 라이트·다크에 모두 정의돼 있다', () => {
+    expect(css.match(/--skeleton-highlight:/g)).toHaveLength(2);
+    expect(css.match(/--skeleton-glow:/g)).toHaveLength(2);
+  });
+
+  it('모션 줄이기에서도 스켈레톤은 움직이지 않는 밝기 변화로 계속 살아 있다', () => {
+    const reduced = css.slice(css.indexOf('@media (prefers-reduced-motion: reduce)'));
+    const exception = reduced.slice(reduced.indexOf("[data-slot='skeleton']"));
+    expect(exception).toContain('animation-name: skeleton-glow !important');
+    expect(exception).toContain('animation-iteration-count: infinite !important');
+    expect(exception).toContain('background-image: none !important');
+    expect(css).toContain('@keyframes skeleton-glow');
   });
 
   it('페이드 등장은 자식을 한꺼번에 나타나게 한다', () => {
