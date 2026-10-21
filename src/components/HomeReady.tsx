@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AppReviewDialog from './AppReviewDialog';
 import DecisionButtons from './DecisionButtons';
 import DepartureToast from './DepartureToast';
@@ -26,7 +27,12 @@ import { useIntroOnce } from '../hooks/useIntroOnce';
 import { useNow } from '../hooks/useNow';
 import { formatPreviousDeparture, formatRawWeather } from '../constants/messages';
 import { FEEDBACK_SOURCES } from '../constants/feedback';
-import { CTA_CLEARANCE, CTA_GAP, TAB_BAR_OFFSET } from '../constants/navigation';
+import {
+  CTA_CLEARANCE,
+  CTA_GAP,
+  FEEDBACK_SAVED_STATE,
+  TAB_BAR_OFFSET,
+} from '../constants/navigation';
 import { ACTIVITY_DAYLIGHT_BUFFER_HOURS } from '../constants/scoring';
 import {
   findBestHourToday,
@@ -103,6 +109,7 @@ export default function HomeReady({
   const todayEntry = useTodayEntry(activity);
   const [toastOpen, setToastOpen] = useState(false);
   const savedToast = useSettingsSavedToast();
+  const navigate = useNavigate();
   const now = useNow();
   // 결과가 화면에 준비된 시점부터 결정까지 걸린 시간을 재기 위한 경과 시간 읽기
   const getElapsedMs = useElapsedSinceMount();
@@ -233,8 +240,11 @@ export default function HomeReady({
     setSheetEntry(ended ?? null);
   };
 
-  /** 시트에 답하고 감사 문구까지 보여준 뒤 닫는다. */
-  const handleSheetClose = useCallback(() => setSheetEntry(null), []);
+  /** 시트에서 저장하면 닫고 기록 탭으로 이동한다 (감사 문구는 기록 탭의 토스트가 보여준다). */
+  const handleSheetSaved = () => {
+    setSheetEntry(null);
+    navigate('/history', { state: FEEDBACK_SAVED_STATE });
+  };
 
   /** 시트를 답하지 않고 닫는다. 이번 방문에는 다시 묻지 않고, 앱을 다시 열면 상단 카드가 묻는다. */
   const handleSheetDismiss = (entry: HistoryEntry) => {
@@ -340,7 +350,7 @@ export default function HomeReady({
         entry={sheetEntry}
         onDismiss={handleSheetDismiss}
         onSkip={handleSheetSkip}
-        onClose={handleSheetClose}
+        onSaved={handleSheetSaved}
       />
       <ScoreBreakdownSheet
         open={scoreReasons.sheetOpen}

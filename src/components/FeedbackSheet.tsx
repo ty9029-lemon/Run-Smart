@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -13,7 +12,6 @@ import {
   FEEDBACK_SOURCES,
   formatFeedbackTitle,
 } from '../constants/feedback';
-import { FEEDBACK_SHEET_THANKS_MS } from '../constants/thresholds';
 import { useSubmitFeedback } from '../hooks/useSubmitFeedback';
 import { formatDayPrefix, formatTime } from '../lib/formatTime';
 import type { Feedback, FeedbackDetail, HistoryEntry } from '../types';
@@ -26,36 +24,24 @@ interface FeedbackSheetProps {
   onDismiss: (entry: HistoryEntry) => void;
   /** '저장 안 할래요'를 눌렀을 때 (기록을 지운다) */
   onSkip: (entry: HistoryEntry) => void;
-  /** 답하고 감사 문구까지 보여준 뒤 닫을 때 */
-  onClose: () => void;
+  /** 체감을 저장했을 때 (감사 문구는 이동한 화면의 토스트가 맡는다) */
+  onSaved: () => void;
 }
 
 /** 활동을 마친 직후 체감·거리·복장을 묻는 바텀 시트. 답하지 않고 넘어가면 앱 재방문 때 상단 카드가 이어서 묻는다. */
-export default function FeedbackSheet({ entry, onDismiss, onSkip, onClose }: FeedbackSheetProps) {
+export default function FeedbackSheet({ entry, onDismiss, onSkip, onSaved }: FeedbackSheetProps) {
   const submitFeedback = useSubmitFeedback();
-  const [answeredId, setAnsweredId] = useState<string | null>(null);
-  const answered = entry !== null && answeredId === entry.id;
-
-  // 감사 문구를 잠깐 보여준 뒤 자동으로 닫는다
-  useEffect(() => {
-    if (!answered) return undefined;
-    const timer = setTimeout(onClose, FEEDBACK_SHEET_THANKS_MS);
-    return () => clearTimeout(timer);
-  }, [answered, onClose]);
-
   if (!entry) return null;
 
-  /** 닫기: 답한 뒤라면 그냥 닫고, 아니면 '나중에'로 알린다. */
+  /** 닫기: 답하지 않고 닫으면 '나중에'로 알린다. */
   const handleOpenChange = (open: boolean) => {
-    if (open) return;
-    if (answered) onClose();
-    else onDismiss(entry);
+    if (!open) onDismiss(entry);
   };
 
-  /** 체감과 선택 입력(거리·복장)을 저장하고 감사 문구로 바꾼다. */
+  /** 체감과 선택 입력(거리·복장)을 저장하고 시트를 닫는다. */
   const handleSave = (feedback: Feedback, detail: FeedbackDetail) => {
     submitFeedback(entry, feedback, FEEDBACK_SOURCES.sheet, detail);
-    setAnsweredId(entry.id);
+    onSaved();
   };
 
   const title = formatFeedbackTitle(
@@ -67,19 +53,11 @@ export default function FeedbackSheet({ entry, onDismiss, onSkip, onClose }: Fee
   return (
     <Dialog open onOpenChange={handleOpenChange}>
       <DialogContent className={BOTTOM_SHEET_CLASS}>
-        {answered ? (
-          <p role="status" className="py-4 text-center text-base font-medium">
-            {FEEDBACK_MESSAGES.thanks}
-          </p>
-        ) : (
-          <>
-            <DialogHeader className={SHEET_HEADER_CLASS}>
-              <DialogTitle className="text-subheading-sm">{title}</DialogTitle>
-              <DialogDescription>{FEEDBACK_MESSAGES.sheetDescription}</DialogDescription>
-            </DialogHeader>
-            <FeedbackForm key={entry.id} onSave={handleSave} onLater={() => onSkip(entry)} />
-          </>
-        )}
+        <DialogHeader className={SHEET_HEADER_CLASS}>
+          <DialogTitle className="text-subheading-sm">{title}</DialogTitle>
+          <DialogDescription>{FEEDBACK_MESSAGES.sheetDescription}</DialogDescription>
+        </DialogHeader>
+        <FeedbackForm key={entry.id} onSave={handleSave} onLater={() => onSkip(entry)} />
       </DialogContent>
     </Dialog>
   );

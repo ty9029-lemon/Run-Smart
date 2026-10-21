@@ -88,8 +88,6 @@ export const REDEPARTURE_DELAY_MINUTES = 30;
 export const REDEPARTURE_DELAY_MS = REDEPARTURE_DELAY_MINUTES * MS_PER_MINUTE;
 /** '가기' 기록 후 이 시간(ms)이 지나면 피드백을 묻지 않는다 (24시간) */
 export const FEEDBACK_EXPIRE_MS = MS_PER_DAY;
-/** 피드백 시트에서 답한 뒤 감사 문구를 보여주고 닫기까지의 시간(ms) */
-export const FEEDBACK_SHEET_THANKS_MS = 1500;
 
 /** 시간대 차트 스크롤바: 마지막 스크롤 후 이 시간(ms)이 지나면 다시 숨긴다 */
 export const SCROLLBAR_HIDE_DELAY_MS = 1000;
