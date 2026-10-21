@@ -31,7 +31,7 @@ export const FEEDBACK_MESSAGES = {
   ariaLabel: '운동 후 피드백',
   later: '저장 안 할래요',
   save: '저장',
-  thanks: '알려주셔서 고마워요. 다음 추천부터 반영할게요.',
+  thanks: '알려주셔서 고마워요. 다음 복장 추천에 반영할게요.',
   sheetDescription: '답해 주시면 다음 추천에 반영돼요.',
   historyPrompt: '체감은 어땠나요?',
 } as const;
