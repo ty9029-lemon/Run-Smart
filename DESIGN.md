@@ -325,7 +325,7 @@ Popover 면(Card Charcoal) 배경, 20px radius, 24px 패딩, 가운데 뜨는 Di
 ### Cookie Settings Modal
 **역할:** 오버레이 환경설정 패널
 
-Card Charcoal(#1f1f21) 배경, 20px radius, 24px 패딩, 1px Card Border Ink 테두리. 제목은 Pure White, 본문은 16px / 1.50의 Pure White, 체크 상태에 Lime Pulse를 쓰는 체크박스 컨트롤, 하단에 고정된 Primary CTA Button으로 구성됩니다.
+Card Charcoal(#1f1f21) 배경, 20px radius, 24px 패딩, 1px Card Border Ink 테두리. 제목은 Pure White, 본문은 16px / 1.50의 Pure White, 체크 상태에 Lime Pulse를 쓰는 체크박스 컨트롤(제약사항 목록은 모바일에서 잘 눌리도록 체크박스·글자·오른쪽 빈 영역까지 줄 전체가 높이 48px의 라벨이라 어디를 눌러도 토글되고, 누르는 동안 배경이 살짝 반응합니다), 하단에 고정된 Primary CTA Button으로 구성됩니다.
 
 ### Marquee Display Section
 **역할:** 흘러가는 초대형 헤드라인
