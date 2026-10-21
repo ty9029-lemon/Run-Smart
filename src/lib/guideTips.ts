@@ -26,7 +26,7 @@ export function formatGuideParagraph(guide: AiGuide): string {
 }
 
 /**
- * 문단이 이 복장 항목을 이미 말하고 있는지 확인한다. (예: "선글라스를 챙겨"는 선글라스/고글을 말한 것으로 본다)
+ * 문단이 이 복장 항목을 이미 말하고 있는지 확인한다. (예: "선글라스를 챙겨"는 선글라스 또는 고글을 말한 것으로 본다)
  * @param text 가이드 문단
  * @param item 복장 항목
  */

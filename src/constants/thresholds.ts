@@ -51,7 +51,7 @@ export const OUTFIT_RAIN_MIN = 0.1;
 export const OUTFIT_STRONG_WIND_MIN = 8;
 /** 복장: 일몰까지 이 시간(h) 이하로 남으면 어두워질 것으로 보고 반사·조명 장비를 더한다 */
 export const OUTFIT_DARK_SOON_HOURS = 1;
-/** 복장: 자외선 지수가 이 값 이상이면 모자·선크림·선글라스/고글을 더한다 */
+/** 복장: 자외선 지수가 이 값 이상이면 모자·선크림·선글라스 또는 고글을 더한다 */
 export const OUTFIT_UV_HIGH_MIN = 6;
 /** 자외선 등급: 이 값(지수) 이하면 '낮음' (WHO 기준 0~2) */
 export const UV_LOW_MAX = 2;

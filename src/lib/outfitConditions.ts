@@ -71,9 +71,9 @@ const SUNNY_GEAR: Partial<Record<Activity, OutfitItem[]>> = {
 /** 눈 보호 장비: 운동 활동은 선글라스와 고글을 하나로 통합하고, 산책은 선글라스로만 보여 준다 */
 const SUNGLASSES_GEAR: Record<Activity, OutfitItem> = {
   walking: outfitItem('gear', 'sunglasses', '선글라스'),
-  running: outfitItem('gear', 'sunglasses', '선글라스/고글'),
-  cycling: outfitItem('gear', 'sunglasses', '선글라스/고글'),
-  hiking: outfitItem('gear', 'sunglasses', '선글라스/고글'),
+  running: outfitItem('gear', 'sunglasses', '선글라스 또는 고글'),
+  cycling: outfitItem('gear', 'sunglasses', '선글라스 또는 고글'),
+  hiking: outfitItem('gear', 'sunglasses', '선글라스 또는 고글'),
 };
 
 /** 구름이 없는 맑은 날씨로 보는 날씨 상태 (openMeteo의 weatherCodeToCondition 라벨 기준) */
