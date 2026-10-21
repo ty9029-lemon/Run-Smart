@@ -9,7 +9,6 @@ import { MOTION_DURATION_MS } from '../constants/motion';
 import { ONBOARDING_STEPS } from '../constants/onboarding';
 import { useAppRevealed } from '../hooks/useAppRevealed';
 import { useProfileDraft } from '../hooks/useProfileDraft';
-import { useRestartAnimation } from '../hooks/useRestartAnimation';
 import { useRestoreFocus } from '../hooks/useRestoreFocus';
 import { requestLocationPermission, useLocationPermission } from '../hooks/useLocationPermission';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
@@ -30,8 +29,20 @@ const LAST_STEP = ONBOARDING_STEPS.length - 1;
 /** 이어지는 질문 위 여백 (36px) */
 const FOLLOW_UP_GAP_CLASS = 'mt-9';
 
-/** 하단 버튼 위 여백 (48px) */
-const BUTTON_GAP_CLASS = 'mt-12';
+/**
+ * 모바일: 하단에 고정된 [이전]/[다음]에 본문이 가리지 않도록 비워 두는 아래 여백
+ * (버튼 48px + 위 그라데이션 24px + 아래 여백 12px + 기기 하단 safe-area). 넓은 화면(md~)은 버튼이 본문 아래에 이어지므로 일반 여백(24px)이다.
+ * Tailwind가 읽을 수 있게 클래스 문자열 전체를 적는다.
+ */
+const MAIN_BOTTOM_CLASS = 'pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-6';
+
+/**
+ * [이전]/[다음] 영역.
+ * 모바일은 단계마다 콘텐츠 높이가 달라도 같은 자리에 있도록 화면 하단에 고정한다(홈의 CTA와 같은 그라데이션 바탕, 아래 여백 12px + safe-area).
+ * 넓은 화면(md~)은 내용이 짧을 때 버튼이 멀리 떨어져 보이므로 본문 아래에 이어 붙인다(위 여백 48px, 부모 space-y의 여백보다 우선하도록 `!`를 쓴다).
+ */
+const CTA_BAR_CLASS =
+  'fixed inset-x-0 bottom-0 z-30 bg-linear-to-t from-background from-70% to-transparent px-4 pt-6 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:static md:mt-12! md:bg-none md:p-0';
 
 /** 온보딩을 마치고 홈으로 넘어가기 직전, 화면이 사라지는 전환 */
 const LEAVE_FADE_CLASS =
@@ -104,7 +115,7 @@ export default function Onboarding() {
   const [isStarting, setIsStarting] = useState(false);
   // [시작하기] 뒤 홈으로 넘어가기 전에 화면이 짧게 사라지는 중인지
   const [isLeaving, setIsLeaving] = useState(false);
-  // 버튼은 다시 그리지 않고(포커스 유지) 단계가 바뀔 때 애니메이션만 다시 재생한다.
+  // 버튼은 단계가 바뀌어도 다시 그리지 않고 같은 자리에 둔다(포커스 유지).
   const buttonsRef = useRef<HTMLDivElement>(null);
   const { draft, error, onChange, validate, submit } = useProfileDraft(
     ONBOARDING_INITIAL,
@@ -121,7 +132,6 @@ export default function Onboarding() {
   const step = ONBOARDING_STEPS[stepIndex];
   const isFirst = stepIndex === 0;
   const isLast = stepIndex === LAST_STEP;
-  useRestartAnimation(buttonsRef, stepIndex);
   // 눌렀던 버튼이 사라지는 전환(2단계의 [이전])에서 포커스를 잃지 않게 한다.
   useRestoreFocus(buttonsRef, stepIndex);
 
@@ -130,7 +140,6 @@ export default function Onboarding() {
     className: isRevealed ? STEP_MOTION_CLASS[direction] : '',
     style: { animationDelay: `calc(${index} * var(--motion-stagger))` },
   });
-  const buttonsMotion = getMotion(step.followUp ? 4 : 2);
   // 스플래시가 사라지기 전에는 숨기고, 시작하기를 누른 뒤에는 짧게 사라진다(나가는 모션은 exit 이징).
   const mainFadeClass = isLeaving ? LEAVE_FADE_CLASS : isRevealed ? '' : 'opacity-0';
 
@@ -175,7 +184,7 @@ export default function Onboarding() {
 
   return (
     <main
-      className={`mx-auto max-w-md space-y-6 overflow-x-clip px-4 py-6 ${mainFadeClass}`}
+      className={`mx-auto max-w-md space-y-6 overflow-x-clip px-4 pt-6 ${MAIN_BOTTOM_CLASS} ${mainFadeClass}`}
     >
       <StepIndicator current={stepIndex} total={ONBOARDING_STEPS.length} stepTitle={step.title} />
       <div key={step.id} className="space-y-6">
@@ -207,29 +216,31 @@ export default function Onboarding() {
           </StepSection>
         )}
       </div>
-      <div
-        ref={buttonsRef}
-        className={`grid gap-3 ${BUTTON_GAP_CLASS} ${isFirst ? '' : 'grid-cols-2'} ${buttonsMotion.className}`}
-        style={buttonsMotion.style}
-      >
-        {!isFirst && (
+      <div className={CTA_BAR_CLASS}>
+        {/* 본문(max-w-md + px-4)과 같은 폭이 되도록 max-w-104를 쓴다 */}
+        <div
+          ref={buttonsRef}
+          className={`mx-auto grid max-w-104 gap-3 ${isFirst ? '' : 'grid-cols-2'}`}
+        >
+          {!isFirst && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="lg"
+              onClick={() => goToStep(stepIndex - 1)}
+            >
+              이전
+            </Button>
+          )}
           <Button
             type="button"
-            variant="secondary"
             size="lg"
-            onClick={() => goToStep(stepIndex - 1)}
+            disabled={isStarting || !isStepComplete}
+            onClick={isLast ? handleStart : handleNext}
           >
-            이전
+            {isLast ? '시작하기' : '다음'}
           </Button>
-        )}
-        <Button
-          type="button"
-          size="lg"
-          disabled={isStarting || !isStepComplete}
-          onClick={isLast ? handleStart : handleNext}
-        >
-          {isLast ? '시작하기' : '다음'}
-        </Button>
+        </div>
       </div>
     </main>
   );
