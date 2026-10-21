@@ -53,11 +53,19 @@ const DARK_GEAR: Partial<Record<Activity, OutfitItem[]>> = {
   hiking: [outfitItem('gear', 'headlamp', '헤드랜턴')],
 };
 
+/** 러닝 모자: 자외선이 강하거나 햇빛이 강할 때 쓰는 같은 항목이다. (라벨이 같아 중복으로 더해지지 않는다) */
+const RUNNING_HAT = outfitItem('gear', 'cap', '러닝 모자');
+
 /** 자외선이 강할 때: 모자·선크림 (눈 보호 장비는 SUNGLASSES로 따로 더한다) */
 const UV_GEAR: Partial<Record<Activity, OutfitItem[]>> = {
-  running: [outfitItem('gear', 'cap', '러닝 캡')],
+  running: [RUNNING_HAT],
   cycling: [outfitItem('gear', 'sunscreen', '선크림')],
   hiking: [outfitItem('gear', 'wideHat', '챙 넓은 모자'), outfitItem('gear', 'sunscreen', '선크림')],
+};
+
+/** 맑은 낮 햇빛이 강할 때: 자외선 지수가 낮아도 러닝은 모자를 더한다 */
+const SUNNY_GEAR: Partial<Record<Activity, OutfitItem[]>> = {
+  running: [RUNNING_HAT],
 };
 
 /** 눈 보호 장비: 운동 활동은 선글라스와 고글을 하나로 통합하고, 산책은 선글라스로만 보여 준다 */
@@ -144,7 +152,7 @@ function dedupeByLabel(items: OutfitItem[]): OutfitItem[] {
 }
 
 /**
- * 날씨 조건(바람·비·어두움·자외선·맑은 낮·빙판)에 따라 활동 전용 항목을 더하거나 바꾼다.
+ * 날씨 조건(바람·비·어두움·자외선·맑은 낮 햇빛·빙판)에 따라 활동 전용 항목을 더하거나 바꾼다.
  * 바람 → 비 순서로 적용해, 비가 오면 방풍 겉옷이 방수 겉옷으로 대체된다.
  * @param items 체감온도 구간으로 정해진 기본 항목
  * @param weather 현재 날씨
@@ -169,6 +177,7 @@ export function applyOutfitConditions(
   }
   if (isDarkSoon(weather)) result = swapItems(result, DARK_GEAR[activity] ?? []);
   if (weather.uvIndex >= OUTFIT_UV_HIGH_MIN) result = swapItems(result, UV_GEAR[activity] ?? []);
+  if (isSunnyDaytime(weather)) result = swapItems(result, SUNNY_GEAR[activity] ?? []);
   if (needsSunglasses(weather)) result = swapItems(result, [SUNGLASSES_GEAR[activity]]);
   if (activity === 'hiking' && feelsLike <= OUTFIT_ICE_RISK_MAX) result = swapItems(result, [ICE_GEAR]);
   return dedupeByLabel(result);

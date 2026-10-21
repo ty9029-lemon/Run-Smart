@@ -119,9 +119,9 @@ describe('recommendOutfit - 러닝', () => {
     expect(labels(15, 'running', { hoursUntilSunset: 0.5 })).not.toContain('반사 소재 옷');
   });
 
-  it('자외선이 강하면 러닝 캡과 선글라스를 더한다', () => {
+  it('자외선이 강하면 러닝 모자와 선글라스를 더한다', () => {
     expect(labels(15, 'running', { uvIndex: 7 })).toEqual(
-      expect.arrayContaining(['러닝 캡', '선글라스/고글']),
+      expect.arrayContaining(['러닝 모자', '선글라스/고글']),
     );
   });
 
@@ -281,6 +281,28 @@ describe('recommendOutfit - 맑은 낮 선글라스/고글', () => {
     const result = labels(15, 'hiking', sunny);
     expect(result).not.toContain('챙 넓은 모자');
     expect(result).not.toContain('선크림');
+  });
+
+  it('러닝은 맑은 낮이면 자외선이 약해도 러닝 모자를 더한다', () => {
+    expect(labels(15, 'running', sunny)).toEqual(
+      expect.arrayContaining(['러닝 모자', '선글라스/고글']),
+    );
+  });
+
+  it('러닝 모자는 밤이거나 흐리면 더하지 않는다', () => {
+    expect(labels(15, 'running', { ...sunny, isDay: false })).not.toContain('러닝 모자');
+    expect(labels(15, 'running', { ...sunny, condition: '흐림' })).not.toContain('러닝 모자');
+  });
+
+  it('자외선이 강하고 맑아도 러닝 모자는 한 번만 나온다', () => {
+    const result = labels(25, 'running', { ...sunny, uvIndex: 8 });
+    expect(result.filter((label) => label === '러닝 모자')).toHaveLength(1);
+  });
+
+  it('러닝 외 활동은 맑은 낮에도 모자를 더하지 않는다', () => {
+    ['walking', 'cycling'].forEach((activity) => {
+      expect(labels(15, activity as Activity, sunny)).not.toContain('러닝 모자');
+    });
   });
 
   it('산책에는 고글 없이 선글라스로만 추천한다', () => {

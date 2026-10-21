@@ -10,6 +10,7 @@ import {
   OUTFIT_UV_HIGH_MIN,
 } from '../constants/thresholds';
 import type { Activity, OutfitCategory, OutfitItem, Weather } from '../types';
+import { withObjectParticle } from './koreanParticle';
 import { isWarmupActivity } from './outfit';
 import { isDarkSoon, needsSunglasses } from './outfitConditions';
 
@@ -24,6 +25,8 @@ export interface OutfitReason {
 /** 조건 근거 규칙: 날씨 조건이 맞고 그 장비가 복장에 실제로 있을 때만 설명한다. */
 interface ExtraRule {
   text: string;
+  /** 장비 이름 뒤에 이어 붙일 맺음말 (없으면 "~해 장비" 꼴로 끝낸다) */
+  closing?: string;
   when: (weather: Weather) => boolean;
   matches: (item: OutfitItem) => boolean;
 }
@@ -61,8 +64,9 @@ const EXTRA_RULES: ExtraRule[] = [
   },
   {
     text: OUTFIT_REASON_MESSAGES.glare,
+    closing: OUTFIT_REASON_MESSAGES.glareClosing,
     when: (w) => w.uvIndex < OUTFIT_UV_HIGH_MIN && needsSunglasses(w),
-    matches: hasIcon('sunglasses'),
+    matches: hasIcon('cap', 'sunglasses'),
   },
   { text: OUTFIT_REASON_MESSAGES.dust, when: () => true, matches: hasIcon('mask') },
   { text: OUTFIT_REASON_MESSAGES.coldAir, when: () => true, matches: hasIcon('tissue') },
@@ -77,11 +81,28 @@ const BASE_CATEGORIES: OutfitCategory[] = ['top', 'outer', 'bottom'];
  * @param outfit 추천된 복장
  * @param weather 현재 날씨
  */
-function buildExtras(outfit: OutfitItem[], weather: Weather): { text: string; labels: string[] }[] {
+function buildExtras(
+  outfit: OutfitItem[],
+  weather: Weather,
+): { text: string; closing?: string; labels: string[] }[] {
   return EXTRA_RULES.filter((rule) => rule.when(weather))
-    .map((rule) => ({ text: rule.text, labels: outfit.filter(rule.matches).map((i) => i.label) }))
+    .map((rule) => ({
+      text: rule.text,
+      closing: rule.closing,
+      labels: outfit.filter(rule.matches).map((i) => i.label),
+    }))
     .filter((extra) => extra.labels.length > 0)
     .slice(0, MAX_OUTFIT_EXTRA_REASONS);
+}
+
+/**
+ * 조건 근거 한 줄을 만든다. 맺음말이 있으면 "햇빛이 강해 러닝 모자·선글라스/고글을 챙기면 좋아요."처럼 문장으로 끝낸다.
+ * @param extra 조건 문구, 맺음말, 장비 이름들
+ */
+function formatExtra(extra: { text: string; closing?: string; labels: string[] }): string {
+  const names = extra.labels.join('·');
+  if (!extra.closing) return `${extra.text} ${names}`;
+  return `${extra.text} ${withObjectParticle(names)} ${extra.closing}`;
 }
 
 /**
@@ -106,6 +127,6 @@ export function buildOutfitReason(
   const base = formatOutfitBase(feelsLike, baseLabels);
   return {
     base: isWarmupActivity(activity) ? `${base} ${OUTFIT_REASON_MESSAGES.warmup}` : base,
-    extras: extras.map((extra) => `${extra.text} ${extra.labels.join('·')}`),
+    extras: extras.map(formatExtra),
   };
 }
