@@ -45,6 +45,7 @@ import { formatTime } from '../lib/formatTime';
 import { skipFeedback } from '../lib/skipFeedback';
 import { buildBestTimeCards } from '../lib/bestTimes';
 import { recommendOutfit } from '../lib/outfit';
+import { formatGuideParagraph } from '../lib/guideTips';
 import { buildOutfitReason } from '../lib/outfitReasons';
 import { calcRunScore, scoreToHeadline, scoreToLevel } from '../lib/runScore';
 import { getSunsetStatus } from '../lib/scoreFactors';
@@ -159,7 +160,9 @@ export default function HomeReady({
   );
   const rawWeather = formatRawWeather(current.temp, current.condition, current.windSpeed);
   const outfit = recommendOutfit(feelsLike, current, activity, profile.constraints);
-  const outfitReason = buildOutfitReason(feelsLike, current, activity, outfit);
+  // 가이드 문단이 이미 말한 장비는 복장 이유 줄에서 뺀다
+  const guideText = guide.state === 'ready' ? formatGuideParagraph(guide.data) : '';
+  const outfitReason = buildOutfitReason(feelsLike, current, activity, outfit, guideText);
 
   // 활동이나 점수가 바뀌어 새 결과가 보일 때마다 전송
   useEffect(() => {

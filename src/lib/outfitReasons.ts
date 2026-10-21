@@ -10,6 +10,7 @@ import {
   OUTFIT_UV_HIGH_MIN,
 } from '../constants/thresholds';
 import type { Activity, OutfitCategory, OutfitItem, Weather } from '../types';
+import { mentionsOutfitItem } from './guideTips';
 import { withObjectParticle } from './koreanParticle';
 import { isWarmupActivity } from './outfit';
 import { isDarkSoon, needsSunglasses } from './outfitConditions';
@@ -25,8 +26,6 @@ export interface OutfitReason {
 /** 조건 근거 규칙: 날씨 조건이 맞고 그 장비가 복장에 실제로 있을 때만 설명한다. */
 interface ExtraRule {
   text: string;
-  /** 장비 이름 뒤에 이어 붙일 맺음말 (없으면 "~해 장비" 꼴로 끝낸다) */
-  closing?: string;
   when: (weather: Weather) => boolean;
   matches: (item: OutfitItem) => boolean;
 }
@@ -64,7 +63,6 @@ const EXTRA_RULES: ExtraRule[] = [
   },
   {
     text: OUTFIT_REASON_MESSAGES.glare,
-    closing: OUTFIT_REASON_MESSAGES.glareClosing,
     when: (w) => w.uvIndex < OUTFIT_UV_HIGH_MIN && needsSunglasses(w),
     matches: hasIcon('cap', 'sunglasses'),
   },
@@ -76,50 +74,68 @@ const EXTRA_RULES: ExtraRule[] = [
 /** 기본 근거에 이름을 보여줄 분류 */
 const BASE_CATEGORIES: OutfitCategory[] = ['top', 'outer', 'bottom'];
 
-/**
- * 조건 때문에 더해진 장비를 "비가 와서 방수 바람막이" 같은 문장으로 만든다.
- * @param outfit 추천된 복장
- * @param weather 현재 날씨
- */
-function buildExtras(
-  outfit: OutfitItem[],
-  weather: Weather,
-): { text: string; closing?: string; labels: string[] }[] {
-  return EXTRA_RULES.filter((rule) => rule.when(weather))
-    .map((rule) => ({
-      text: rule.text,
-      closing: rule.closing,
-      labels: outfit.filter(rule.matches).map((i) => i.label),
-    }))
-    .filter((extra) => extra.labels.length > 0)
-    .slice(0, MAX_OUTFIT_EXTRA_REASONS);
+/** 조건 하나가 더한 장비: 조건 문구와 그 조건 때문에 복장에 있는 장비들 */
+interface ExtraDetail {
+  text: string;
+  items: OutfitItem[];
 }
 
 /**
- * 조건 근거 한 줄을 만든다. 맺음말이 있으면 "햇빛이 강해 러닝 모자·선글라스/고글을 챙기면 좋아요."처럼 문장으로 끝낸다.
- * @param extra 조건 문구, 맺음말, 장비 이름들
+ * 날씨 조건 때문에 더해진 장비를 조건마다 모은다. (우선순위 순서, 장비가 없는 조건은 뺀다)
+ * @param outfit 추천된 복장
+ * @param weather 현재 날씨
  */
-function formatExtra(extra: { text: string; closing?: string; labels: string[] }): string {
-  const names = extra.labels.join('·');
-  if (!extra.closing) return `${extra.text} ${names}`;
-  return `${extra.text} ${withObjectParticle(names)} ${extra.closing}`;
+function collectExtras(outfit: OutfitItem[], weather: Weather): ExtraDetail[] {
+  return EXTRA_RULES.filter((rule) => rule.when(weather))
+    .map((rule) => ({ text: rule.text, items: outfit.filter(rule.matches) }))
+    .filter((extra) => extra.items.length > 0);
+}
+
+/**
+ * 가이드 문단이 이미 말한 장비를 뺀다. 장비가 모두 빠진 조건은 통째로 뺀다.
+ * @param extras 조건별 장비
+ * @param guideText 가이드 문단 (없으면 그대로 돌려준다)
+ */
+function omitMentioned(extras: ExtraDetail[], guideText: string): ExtraDetail[] {
+  if (!guideText) return extras;
+  return extras
+    .map((extra) => ({
+      text: extra.text,
+      items: extra.items.filter((item) => !mentionsOutfitItem(guideText, item)),
+    }))
+    .filter((extra) => extra.items.length > 0);
+}
+
+/**
+ * 조건 근거 한 줄을 "비가 와서 방수 바람막이를 챙기면 좋아요."처럼 문장으로 만든다.
+ * @param extra 조건 문구와 장비들
+ */
+function formatExtra(extra: ExtraDetail): string {
+  const names = extra.items.map((item) => item.label).join('·');
+  return `${extra.text} ${withObjectParticle(names)} ${OUTFIT_REASON_MESSAGES.closing}`;
 }
 
 /**
  * 복장을 왜 이렇게 추천했는지 근거를 만든다. 추천 결과(outfit)에 실제로 있는 항목만 설명한다.
+ * 가이드 문단이 이미 말한 장비는 조건 근거에서 뺀다. (같은 말이 두 번 보이지 않게)
  * @param feelsLike 개인 체감온도
  * @param weather 현재 날씨
  * @param activity 활동
  * @param outfit recommendOutfit이 만든 복장
+ * @param guideText AI 가이드 문단 (아직 없으면 빈 문자열)
  */
 export function buildOutfitReason(
   feelsLike: number,
   weather: Weather,
   activity: Activity,
   outfit: OutfitItem[],
+  guideText = '',
 ): OutfitReason {
-  const extras = buildExtras(outfit, weather);
-  const explained = new Set(extras.flatMap((extra) => extra.labels));
+  const extras = collectExtras(outfit, weather);
+  // 기본 근거는 조건 근거가 맡는 장비를 다시 부르지 않는다. (가이드 문단 때문에 조건 근거에서 빠져도 마찬가지)
+  const explained = new Set(
+    extras.slice(0, MAX_OUTFIT_EXTRA_REASONS).flatMap((extra) => extra.items.map((i) => i.label)),
+  );
   const baseLabels = outfit
     .filter((item) => BASE_CATEGORIES.includes(item.category) && !explained.has(item.label))
     .map((item) => item.label)
@@ -127,6 +143,6 @@ export function buildOutfitReason(
   const base = formatOutfitBase(feelsLike, baseLabels);
   return {
     base: isWarmupActivity(activity) ? `${base} ${OUTFIT_REASON_MESSAGES.warmup}` : base,
-    extras: extras.map(formatExtra),
+    extras: omitMentioned(extras, guideText).slice(0, MAX_OUTFIT_EXTRA_REASONS).map(formatExtra),
   };
 }

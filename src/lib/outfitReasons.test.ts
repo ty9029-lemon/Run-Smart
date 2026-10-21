@@ -19,16 +19,17 @@ function weatherWith(overrides: Partial<Weather> = {}): Weather {
   };
 }
 
-/** 추천 복장과 근거를 함께 만든다 */
+/** 추천 복장과 근거를 함께 만든다 (guideText: 홈의 AI 가이드 문단) */
 function reasonOf(
   feelsLike: number,
   activity: Activity,
   overrides: Partial<Weather> = {},
   constraints: Constraint[] = [],
+  guideText = '',
 ) {
   const weather = weatherWith(overrides);
   const outfit = recommendOutfit(feelsLike, weather, activity, constraints);
-  return buildOutfitReason(feelsLike, weather, activity, outfit);
+  return buildOutfitReason(feelsLike, weather, activity, outfit, guideText);
 }
 
 describe('buildOutfitReason - 기본 근거', () => {
@@ -58,7 +59,9 @@ describe('buildOutfitReason - 조건 근거', () => {
   });
 
   it('비가 오면 방수 장비를 이유와 함께 보여준다', () => {
-    expect(reasonOf(15, 'walking', { precipitation: 2 }).extras[0]).toBe('비가 와서 우비/방수');
+    expect(reasonOf(15, 'walking', { precipitation: 2 }).extras[0]).toBe(
+      '비가 와서 우비/방수를 챙기면 좋아요.',
+    );
   });
 
   it('강풍이면 방풍 겉옷을 이유와 함께 보여준다', () => {
@@ -93,6 +96,21 @@ describe('buildOutfitReason - 조건 근거', () => {
     expect(extras[0]).toBe('햇빛이 강해 선글라스를 챙기면 좋아요.');
   });
 
+  it('모든 조건 근거는 "~를 챙기면 좋아요."로 끝난다', () => {
+    const cases: [Activity, Partial<Weather>, Constraint[], string][] = [
+      ['running', { windSpeed: 10 }, [], '바람이 강해 경량 바람막이를 챙기면 좋아요.'],
+      ['cycling', { isDay: false }, [], '어두워서 반사 조끼·전조등·후미등을 챙기면 좋아요.'],
+      ['running', { uvIndex: 8 }, [], '자외선이 강해 러닝 모자·선글라스/고글을 챙기면 좋아요.'],
+      ['walking', { pm10: 120 }, [], '미세먼지에 대비해 스포츠 마스크를 챙기면 좋아요.'],
+      ['running', { temp: 2 }, ['rhinitis'], '찬 공기에 대비해 티슈를 챙기면 좋아요.'],
+      ['hiking', {}, [], '빙판에 대비해 아이젠을 챙기면 좋아요.'],
+    ];
+    cases.forEach(([activity, weather, constraints, expected]) => {
+      const feelsLike = activity === 'hiking' ? -3 : 15;
+      expect(reasonOf(feelsLike, activity, weather, constraints).extras).toContain(expected);
+    });
+  });
+
   it('조건 근거는 우선순위 순서로 최대 2개만 보여준다', () => {
     const { extras } = reasonOf(15, 'cycling', {
       precipitation: 2,
@@ -110,5 +128,51 @@ describe('buildOutfitReason - 조건 근거', () => {
     const labels = outfit.map((item) => item.label);
     const { extras } = buildOutfitReason(8, weather, 'cycling', outfit);
     extras.forEach((extra) => expect(labels.some((label) => extra.includes(label))).toBe(true));
+  });
+});
+
+describe('buildOutfitReason - 가이드 문단과 겹치는 말 제거', () => {
+  const sunny = { condition: '맑음', isDay: true, uvIndex: 2 };
+
+  it('가이드 문단이 선글라스를 말하면 선글라스는 이유 줄에서 뺀다', () => {
+    const { extras } = reasonOf(15, 'running', sunny, [], '햇빛이 있으므로 선글라스를 착용하세요.');
+    expect(extras).toEqual(['햇빛이 강해 러닝 모자를 챙기면 좋아요.']);
+  });
+
+  it('가이드 문단이 조건의 장비를 모두 말하면 그 조건 줄을 통째로 뺀다', () => {
+    const { extras } = reasonOf(
+      15,
+      'running',
+      sunny,
+      [],
+      '러닝 모자와 선글라스를 챙겨 출발하세요.',
+    );
+    expect(extras).toEqual([]);
+  });
+
+  it('겹치는 말이 없으면 그대로 보여준다', () => {
+    const { extras } = reasonOf(15, 'running', sunny, [], '기온이 선선해 달리기 좋아요.');
+    expect(extras).toEqual(['햇빛이 강해 러닝 모자·선글라스/고글을 챙기면 좋아요.']);
+  });
+
+  it('앞 조건이 빠지면 다음 조건이 이어서 보인다', () => {
+    const { extras } = reasonOf(
+      15,
+      'running',
+      { windSpeed: 10, precipitation: 2, uvIndex: 8 },
+      [],
+      '비가 오니 방수 바람막이를 입으세요.',
+    );
+    expect(extras).toHaveLength(1);
+    expect(extras[0]).toContain('자외선이 강해');
+  });
+
+  it('이유 줄에서 빠진 장비를 기본 근거가 다시 부르지 않는다', () => {
+    const { base } = reasonOf(15, 'walking', { precipitation: 2 }, [], '우비를 챙기세요.');
+    expect(base).not.toContain('우비');
+  });
+
+  it('가이드 문단이 없으면 아무것도 빼지 않는다', () => {
+    expect(reasonOf(15, 'running', sunny).extras).toHaveLength(1);
   });
 });
