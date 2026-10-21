@@ -38,7 +38,7 @@ export const HISTORY_MESSAGES = {
   distanceLabel: '거리',
   paceLabel: '페이스',
   durationLabel: '시간',
-  distanceHint: '오른쪽 위 ⋮ 메뉴에서 거리를 추가하면 페이스도 볼 수 있어요.',
+  distanceHint: '거리를 추가하면 페이스도 나와요.',
   recommendation: '그날의 추천 보기',
 } as const;
 

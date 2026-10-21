@@ -25,6 +25,8 @@ Swoosh는 한밤중의 아레나 콘솔처럼 작동합니다. 거의 완전한 
 | Level Good | 다크 `#4da3ff` / 라이트 `#1a6fd6` | `--level-good` (`text-level-good`) | 등급 표시 전용: 미세먼지 '좋음', 자외선 '낮음' |
 | Level Normal | 다크 `#ff9a3c` / 라이트 `#e36100` | `--level-normal` (`text-level-normal`) | 등급 표시 전용: '보통', 점수 '보통' 막대 |
 | Level Bad | 다크 `#ff7a6b` / 라이트 `#c4301f` | `--level-bad` (`text-level-bad`) | 등급 표시 전용: '나쁨'·'높음', 점수 '나쁨' 막대 |
+| Info | 다크 `rgba(143,148,255,0.16)` / 라이트 `rgba(79,70,229,0.08)` | `--info` (`bg-info`) | 정보 안내 배너의 면 전용(알파 색이라 카드 위에서 비친다). 인디고라 등급 색(파랑=좋음)·라임(활성)과 겹치지 않는다 |
+| Info Foreground | 다크 `#a5a9ff` / 라이트 `#4f46e5` | `--info-foreground` (`text-info-foreground`) | 정보 배너의 아이콘 전용. 문구는 본문색을 쓴다 |
 | Destructive | `#ff7a6b` | `--destructive` (= Level Bad) | 오류·위험 표시 전용: Destructive 버튼의 면(100%), 입력 오류 테두리, 오류 안내 문구 |
 | Destructive Foreground | `#111111` | `--destructive-foreground` | Destructive 버튼 글자 (코랄 면 위 대비 7.42:1, 흰색은 2.55:1이라 쓰지 않음) |
 
@@ -363,7 +365,7 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
 ## 기록 화면 구성
 위에서 아래로: 제목 "활동 기록"(24px)과 오른쪽 끝의 "오늘" 칩(누르면 오늘 날짜와 이번 달로 돌아옴) → 월 달력 카드 → 선택한 날짜 제목(16px 700) → 그날의 기록 카드 → "그날의 추천 보기" 접기 줄. 달력과 기록 카드는 테두리 없이 Card Charcoal 면으로 구분합니다. 달력은 오늘을 강조색 숫자(다크 라임·라이트 `#111111`), 선택한 날을 반전색 원(다크 흰 원·라이트 검정 원, 오늘이면 라임 원), 미래 날짜를 흐리게 그리고 기록이 있는 날 아래에 활동 색 점을 찍습니다. 주 보기는 두지 않습니다(월 보기만).
 
-**기록 카드:** 20px radius, 24px 패딩. ① 시작 시각(16px, Subtle Text — 진행 중이면 뒤에 "진행 중 · 00:21"을 강조색(`--highlight`)으로) ② 활동 이름(20px 700)과 오른쪽 끝의 체감 결과("체감 적당했어요", 16px — 적당했어요는 좋음 레벨 색 파랑, 추웠어요·더웠어요는 보통 레벨 색 주황) ③ 거리·페이스·시간을 24px 700 숫자 위, 14px Subtle Text 이름 아래로 나란히(칸 너비 균등, 값이 없는 칸은 빼고, 진행 중이면 숫자 줄 전체를 그리지 않음) ④ 아직 체감을 못 남겼고 남길 수 있으면 체감 선택지 ⑤ 날씨(16px, 이름은 Subtle Text)와 실제 복장 줄. 이름과 값 사이는 8px입니다(체감 결과도 같음). 페이스는 `6′49″` 형식이며 거리와 시간이 모두 있을 때만 `시간 ÷ 거리`로 계산합니다. 거리나 시간이 없는 기록(타이머 없이 만든 기록, '다음에 할게요')은 해당 칸이 없어도 카드가 자연스럽게 보여야 합니다. 활동을 마쳐 시간은 있는데 거리가 없는 기록에는 숫자 줄 아래 16px에 안내 배너로 "오른쪽 위 ⋮ 메뉴에서 거리를 추가하면 페이스도 볼 수 있어요."를 보여 줍니다(`needsDistanceHint`). 배너는 Secondary 면(`--secondary`, 테두리 없음)에 12px radius, 안쪽 여백 12px이고, 왼쪽에 Lucide Info 아이콘(16px, Subtle Text)을 8px 간격으로 두며 문구는 14px 본문색입니다. 회색 한 줄이면 눈에 잘 안 띈다는 피드백으로 바꿨습니다.
+**기록 카드:** 20px radius, 24px 패딩. ① 시작 시각(16px, Subtle Text — 진행 중이면 뒤에 "진행 중 · 00:21"을 강조색(`--highlight`)으로) ② 활동 이름(20px 700)과 오른쪽 끝의 체감 결과("체감 적당했어요", 16px — 적당했어요는 좋음 레벨 색 파랑, 추웠어요·더웠어요는 보통 레벨 색 주황) ③ 거리·페이스·시간을 24px 700 숫자 위, 14px Subtle Text 이름 아래로 나란히(칸 너비 균등, 값이 없는 칸은 빼고, 진행 중이면 숫자 줄 전체를 그리지 않음) ④ 아직 체감을 못 남겼고 남길 수 있으면 체감 선택지 ⑤ 날씨(16px, 이름은 Subtle Text)와 실제 복장 줄. 이름과 값 사이는 8px입니다(체감 결과도 같음). 페이스는 `6′49″` 형식이며 거리와 시간이 모두 있을 때만 `시간 ÷ 거리`로 계산합니다. 거리나 시간이 없는 기록(타이머 없이 만든 기록, '다음에 할게요')은 해당 칸이 없어도 카드가 자연스럽게 보여야 합니다. 활동을 마쳐 시간은 있는데 거리가 없는 기록에는 숫자 줄 아래 16px에 안내 배너로 "거리를 추가하면 페이스도 나와요."를 한 줄로 보여 줍니다(`needsDistanceHint`, 추가 방법은 카드 오른쪽 위 ⋮ 메뉴의 "거리·복장 수정"). 배너는 정보 색 면(`--info`, 투명도 포함, 테두리 없음)에 12px radius, 안쪽 여백 12px이고, 왼쪽에 Lucide Info 아이콘(16px, `--info-foreground`)을 8px 간격으로 두며 문구는 14px 본문색입니다. 회색 한 줄이면 눈에 잘 안 띈다는 피드백으로 바꿨습니다.
 
 **너무 짧은 활동:** 타이머로 종료한 활동 시간이 1분 미만이면(출발 직후 바로 끝낸 경우) 기록을 남기지 않고 체감 시트도 띄우지 않습니다. 출발 취소와 같이 기록 목록에 카드가 생기지 않습니다. 이미 저장된 짧은 기록은 그대로 둡니다.
 
@@ -508,6 +510,10 @@ R과 S를 맞물린 각진 모노그램입니다. 위쪽 R(고리와 사선 다�
   --level-normal: #ff9a3c; /* 라이트는 #e36100 */
   --level-bad: #ff7a6b;    /* 라이트는 #c4301f */
 
+  /* 정보 안내 배너 (인디고, 알파 면 + 단색 아이콘) */
+  --info: rgba(143, 148, 255, 0.16);  /* 라이트는 rgba(79, 70, 229, 0.08) */
+  --info-foreground: #a5a9ff;         /* 라이트는 #4f46e5 */
+
   /* Typography — Font Families */
   --font-plus-jakarta-sans: 'Plus Jakarta Sans', 'Pretendard Variable', Pretendard, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-pretendard: 'Pretendard Variable', Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", ui-sans-serif, system-ui, sans-serif;
@@ -602,6 +608,10 @@ R과 S를 맞물린 각진 모노그램입니다. 위쪽 R(고리와 사선 다�
   --level-good: #4da3ff;   /* 라이트는 #1a6fd6 */
   --level-normal: #ff9a3c; /* 라이트는 #e36100 */
   --level-bad: #ff7a6b;    /* 라이트는 #c4301f */
+
+  /* 정보 안내 배너 (인디고, 알파 면 + 단색 아이콘) */
+  --info: rgba(143, 148, 255, 0.16);  /* 라이트는 rgba(79, 70, 229, 0.08) */
+  --info-foreground: #a5a9ff;         /* 라이트는 #4f46e5 */
 
   /* Typography */
   --font-plus-jakarta-sans: 'Plus Jakarta Sans', 'Pretendard Variable', Pretendard, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
