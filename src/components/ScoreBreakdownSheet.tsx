@@ -32,8 +32,8 @@ interface ScoreBreakdownSheetProps {
   activity: Activity;
 }
 
-/** 항목 한 줄: 이름·현재 값·해석, 받은 점수 막대, 깎인 점수 */
-function ReasonRow({ reason, value }: { reason: ScoreReason; value: string }) {
+/** 항목 한 줄: 이름·현재 값·해석, 깎인 점수와 받은 점수(깎인 점수가 왼쪽), 받은 점수 막대 */
+export function ReasonRow({ reason, value }: { reason: ScoreReason; value: string }) {
   const { label, points, max, penalty, ratio, sensitive } = reason;
   const earnedPercent = (1 - ratio) * PERCENT;
   return (
@@ -44,7 +44,8 @@ function ReasonRow({ reason, value }: { reason: ScoreReason; value: string }) {
           <span className="ml-2 font-normal text-muted-foreground">{value}</span>
         </span>
         <span className="shrink-0 text-sm tabular-nums">
-          {points}/{max}점{penalty > 0 && <span className="ml-2 text-level-bad">−{penalty}</span>}
+          {penalty > 0 && <span className="mr-2 text-level-bad">−{penalty}</span>}
+          {points}/{max}점
         </span>
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-border" aria-hidden="true">
