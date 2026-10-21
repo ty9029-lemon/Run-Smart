@@ -103,7 +103,7 @@ const RUNNING_TIERS: OutfitTier[] = [
     items: [
       outfitItem('top', 'tank', '러닝 민소매'),
       outfitItem('bottom', 'shorts', '러닝 쇼츠'),
-      outfitItem('gear', 'cap', '러닝 캡'),
+      outfitItem('gear', 'cap', '러닝 모자'),
     ],
   },
 ];

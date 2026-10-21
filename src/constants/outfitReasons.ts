@@ -12,6 +12,7 @@ export const OUTFIT_REASON_MESSAGES = {
   dark: '어두워서',
   uv: '자외선이 강해',
   glare: '햇빛이 강해',
+  glareClosing: '챙기면 좋아요.',
   dust: '미세먼지에 대비해',
   coldAir: '찬 공기에 대비해',
   ice: '빙판에 대비해',

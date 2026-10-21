@@ -83,6 +83,16 @@ describe('buildOutfitReason - 조건 근거', () => {
     expect(reasonOf(15, 'running', {}, ['kneeIssue']).extras).toEqual([]);
   });
 
+  it('햇빛이 강하면 러닝 모자·선글라스/고글을 챙기면 좋다는 문장으로 끝낸다', () => {
+    const { extras } = reasonOf(15, 'running', { condition: '맑음', isDay: true, uvIndex: 2 });
+    expect(extras[0]).toBe('햇빛이 강해 러닝 모자·선글라스/고글을 챙기면 좋아요.');
+  });
+
+  it('산책은 선글라스만 "를"로 이어 문장으로 끝낸다', () => {
+    const { extras } = reasonOf(15, 'walking', { condition: '맑음', isDay: true, uvIndex: 2 });
+    expect(extras[0]).toBe('햇빛이 강해 선글라스를 챙기면 좋아요.');
+  });
+
   it('조건 근거는 우선순위 순서로 최대 2개만 보여준다', () => {
     const { extras } = reasonOf(15, 'cycling', {
       precipitation: 2,
