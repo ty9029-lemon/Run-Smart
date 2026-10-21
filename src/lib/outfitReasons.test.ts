@@ -86,9 +86,9 @@ describe('buildOutfitReason - 조건 근거', () => {
     expect(reasonOf(15, 'running', {}, ['kneeIssue']).extras).toEqual([]);
   });
 
-  it('햇빛이 강하면 러닝 모자·선글라스/고글을 챙기면 좋다는 문장으로 끝낸다', () => {
+  it('햇빛이 강하면 러닝 모자·선글라스 또는 고글을 챙기면 좋다는 문장으로 끝낸다', () => {
     const { extras } = reasonOf(15, 'running', { condition: '맑음', isDay: true, uvIndex: 2 });
-    expect(extras[0]).toBe('햇빛이 강해 러닝 모자·선글라스/고글을 챙기면 좋아요.');
+    expect(extras[0]).toBe('햇빛이 강해 러닝 모자·선글라스 또는 고글을 챙기면 좋아요.');
   });
 
   it('산책은 선글라스만 "를"로 이어 문장으로 끝낸다', () => {
@@ -100,7 +100,7 @@ describe('buildOutfitReason - 조건 근거', () => {
     const cases: [Activity, Partial<Weather>, Constraint[], string][] = [
       ['running', { windSpeed: 10 }, [], '바람이 강해 경량 바람막이를 챙기면 좋아요.'],
       ['cycling', { isDay: false }, [], '어두워서 반사 조끼·전조등·후미등을 챙기면 좋아요.'],
-      ['running', { uvIndex: 8 }, [], '자외선이 강해 러닝 모자·선글라스/고글을 챙기면 좋아요.'],
+      ['running', { uvIndex: 8 }, [], '자외선이 강해 러닝 모자·선글라스 또는 고글을 챙기면 좋아요.'],
       ['walking', { pm10: 120 }, [], '미세먼지에 대비해 스포츠 마스크를 챙기면 좋아요.'],
       ['running', { temp: 2 }, ['rhinitis'], '찬 공기에 대비해 티슈를 챙기면 좋아요.'],
       ['hiking', {}, [], '빙판에 대비해 아이젠을 챙기면 좋아요.'],
@@ -152,7 +152,7 @@ describe('buildOutfitReason - 가이드 문단과 겹치는 말 제거', () => {
 
   it('겹치는 말이 없으면 그대로 보여준다', () => {
     const { extras } = reasonOf(15, 'running', sunny, [], '기온이 선선해 달리기 좋아요.');
-    expect(extras).toEqual(['햇빛이 강해 러닝 모자·선글라스/고글을 챙기면 좋아요.']);
+    expect(extras).toEqual(['햇빛이 강해 러닝 모자·선글라스 또는 고글을 챙기면 좋아요.']);
   });
 
   it('앞 조건이 빠지면 다음 조건이 이어서 보인다', () => {

@@ -62,7 +62,7 @@ describe('recommendOutfit - 산책(일상복)', () => {
   it('자외선이 강하면 선글라스만 더하고 모자·선크림은 더하지 않는다', () => {
     const result = labels(20, 'walking', { uvIndex: 9 });
     expect(result).toContain('선글라스');
-    expect(result).not.toContain('선글라스/고글');
+    expect(result).not.toContain('선글라스 또는 고글');
     expect(result).not.toContain('선크림');
   });
 });
@@ -76,24 +76,25 @@ describe('recommendOutfit - 러닝', () => {
 
   it('추우면 기모 바지와 경량 바람막이, 더우면 민소매를 추천한다', () => {
     expect(labels(-2, 'running')).toEqual(
-      expect.arrayContaining(['기모 바지/레깅스', '경량 바람막이', '러닝 장갑·넥워머']),
+      expect.arrayContaining(['기모 바지·레깅스', '경량 바람막이', '러닝 장갑·넥워머']),
     );
     expect(labels(-2, 'running')).not.toContain('기모 러닝 타이츠');
-    expect(labels(5, 'running')).toEqual(expect.arrayContaining(['긴바지/러닝 레깅스', '경량 바람막이']));
+    expect(labels(5, 'running')).toEqual(expect.arrayContaining(['긴바지 또는 레깅스', '경량 바람막이']));
     expect(labels(25, 'running')).toContain('러닝 민소매');
   });
 
-  it('선선한 날에는 러닝 7부 타이츠 대신 긴바지/러닝 레깅스를 추천한다', () => {
-    expect(labels(16, 'running')).toContain('긴바지/러닝 레깅스');
+  it('선선한 날에는 러닝 7부 타이츠 대신 긴바지 또는 레깅스를 추천한다', () => {
+    expect(labels(16, 'running')).toContain('긴바지 또는 레깅스');
     expect(labels(16, 'running')).not.toContain('러닝 7부 타이츠');
   });
 
   it('러닝은 선선이 체감 14~16°C까지 이어지고 온화 구간을 따로 두지 않는다', () => {
     [14, 15, 16].forEach((feelsLike) => {
       expect(labels(feelsLike, 'running')).toEqual(
-        expect.arrayContaining(['기능성 긴팔 티셔츠', '긴바지/러닝 레깅스']),
+        expect.arrayContaining(['기능성 긴팔 티셔츠', '긴바지 또는 레깅스']),
       );
-      expect(labels(feelsLike, 'running')).not.toContain('긴바지 또는 레깅스');
+      // 옛 온화 구간의 상의(얇은 긴팔)는 나오지 않는다
+      expect(labels(feelsLike, 'running')).not.toContain('기능성 얇은 긴팔');
     });
   });
 
@@ -121,12 +122,12 @@ describe('recommendOutfit - 러닝', () => {
 
   it('자외선이 강하면 러닝 모자와 선글라스를 더한다', () => {
     expect(labels(15, 'running', { uvIndex: 7 })).toEqual(
-      expect.arrayContaining(['러닝 모자', '선글라스/고글']),
+      expect.arrayContaining(['러닝 모자', '선글라스 또는 고글']),
     );
   });
 
   it('자외선이 약하면 선글라스를 추천하지 않는다', () => {
-    expect(labels(15, 'running', { uvIndex: 2 })).not.toContain('선글라스/고글');
+    expect(labels(15, 'running', { uvIndex: 2 })).not.toContain('선글라스 또는 고글');
   });
 });
 
@@ -162,12 +163,12 @@ describe('recommendOutfit - 자전거', () => {
 
   it('자외선이 강하면 선글라스와 선크림을 더한다', () => {
     expect(labels(20, 'cycling', { uvIndex: 7 })).toEqual(
-      expect.arrayContaining(['선글라스/고글', '선크림']),
+      expect.arrayContaining(['선글라스 또는 고글', '선크림']),
     );
   });
 
   it('자외선이 약하면 선글라스를 추천하지 않는다', () => {
-    expect(labels(20, 'cycling', { uvIndex: 2 })).not.toContain('선글라스/고글');
+    expect(labels(20, 'cycling', { uvIndex: 2 })).not.toContain('선글라스 또는 고글');
   });
 
   it('반팔·민소매 구간에서는 팔 보호 장비(암워머·쿨 팔토시)를 함께 추천한다', () => {
@@ -231,12 +232,12 @@ describe('recommendOutfit - 등산', () => {
 
   it('자외선이 강하면 챙 넓은 모자와 선글라스, 선크림을 더한다', () => {
     expect(labels(20, 'hiking', { uvIndex: 8 })).toEqual(
-      expect.arrayContaining(['챙 넓은 모자', '선글라스/고글', '선크림']),
+      expect.arrayContaining(['챙 넓은 모자', '선글라스 또는 고글', '선크림']),
     );
   });
 
   it('자외선이 약하면 선글라스를 추천하지 않는다', () => {
-    expect(labels(20, 'hiking', { uvIndex: 2 })).not.toContain('선글라스/고글');
+    expect(labels(20, 'hiking', { uvIndex: 2 })).not.toContain('선글라스 또는 고글');
   });
 });
 
@@ -254,26 +255,26 @@ describe('recommendOutfit - 공통', () => {
   });
 });
 
-describe('recommendOutfit - 맑은 낮 선글라스/고글', () => {
+describe('recommendOutfit - 맑은 낮 선글라스 또는 고글', () => {
   /** 선글라스와 고글을 통합 표기하는 운동 활동 (산책은 선글라스로만 표기) */
   const outdoorActivities: Activity[] = ['running', 'cycling', 'hiking'];
   const sunny = { condition: '맑음', isDay: true, uvIndex: 2 };
 
-  it('자외선이 약해도 맑은 낮이면 선글라스/고글을 추천한다', () => {
+  it('자외선이 약해도 맑은 낮이면 선글라스 또는 고글을 추천한다', () => {
     outdoorActivities.forEach((activity) => {
-      expect(labels(15, activity, sunny)).toContain('선글라스/고글');
+      expect(labels(15, activity, sunny)).toContain('선글라스 또는 고글');
     });
   });
 
   it('맑아도 밤이면 추천하지 않는다', () => {
     outdoorActivities.forEach((activity) => {
-      expect(labels(15, activity, { ...sunny, isDay: false })).not.toContain('선글라스/고글');
+      expect(labels(15, activity, { ...sunny, isDay: false })).not.toContain('선글라스 또는 고글');
     });
   });
 
   it('낮이어도 흐리면 자외선이 약할 때 추천하지 않는다', () => {
     outdoorActivities.forEach((activity) => {
-      expect(labels(15, activity, { ...sunny, condition: '흐림' })).not.toContain('선글라스/고글');
+      expect(labels(15, activity, { ...sunny, condition: '흐림' })).not.toContain('선글라스 또는 고글');
     });
   });
 
@@ -285,7 +286,7 @@ describe('recommendOutfit - 맑은 낮 선글라스/고글', () => {
 
   it('러닝은 맑은 낮이면 자외선이 약해도 러닝 모자를 더한다', () => {
     expect(labels(15, 'running', sunny)).toEqual(
-      expect.arrayContaining(['러닝 모자', '선글라스/고글']),
+      expect.arrayContaining(['러닝 모자', '선글라스 또는 고글']),
     );
   });
 
@@ -308,7 +309,7 @@ describe('recommendOutfit - 맑은 낮 선글라스/고글', () => {
   it('산책에는 고글 없이 선글라스로만 추천한다', () => {
     const result = labels(15, 'walking', sunny);
     expect(result).toContain('선글라스');
-    expect(result).not.toContain('선글라스/고글');
+    expect(result).not.toContain('선글라스 또는 고글');
   });
 
   it('산책도 맑아도 밤이거나 흐리면 추천하지 않는다', () => {
@@ -488,25 +489,25 @@ describe('recommendOutfit - 반바지가 처음 나오는 체감온도', () => {
     expect(hasShorts(23, 'walking')).toBe(true);
   });
 
-  it('러닝은 체감 13°C까지 쌀쌀 구간이라 긴바지/러닝 레깅스를 추천한다', () => {
-    expect(bottomLabel(13, 'running')).toBe('긴바지/러닝 레깅스');
+  it('러닝은 체감 13°C까지 쌀쌀 구간이라 긴바지 또는 레깅스를 추천한다', () => {
+    expect(bottomLabel(13, 'running')).toBe('긴바지 또는 레깅스');
     expect(labels(13, 'running')).toContain('경량 바람막이');
   });
 
   it('러닝은 체감 16°C까지 긴바지 계열이고 17°C부터 반바지(러닝 쇼츠)다', () => {
-    expect(bottomLabel(15, 'running')).toBe('긴바지/러닝 레깅스');
+    expect(bottomLabel(15, 'running')).toBe('긴바지 또는 레깅스');
     expect(hasShorts(16, 'running')).toBe(false);
     expect(hasShorts(17, 'running')).toBe(true);
   });
 
   it('러닝은 체감 17°C부터 러닝 쇼츠로 바뀐다', () => {
-    expect(bottomLabel(16, 'running')).toBe('긴바지/러닝 레깅스');
+    expect(bottomLabel(16, 'running')).toBe('긴바지 또는 레깅스');
     expect(bottomLabel(17, 'running')).toBe('러닝 쇼츠');
   });
 
-  it('러닝은 체감 -2°C 이하에서 기모 바지/레깅스다', () => {
-    expect(bottomLabel(-2, 'running')).toBe('기모 바지/레깅스');
-    expect(bottomLabel(-1, 'running')).toBe('긴바지/러닝 레깅스');
+  it('러닝은 체감 -2°C 이하에서 기모 바지·레깅스다', () => {
+    expect(bottomLabel(-2, 'running')).toBe('기모 바지·레깅스');
+    expect(bottomLabel(-1, 'running')).toBe('긴바지 또는 레깅스');
   });
 
   it('자전거는 체감 14°C부터 짧은 하의(빕숏)다', () => {
