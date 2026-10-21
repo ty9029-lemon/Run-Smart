@@ -51,8 +51,8 @@ describe('순차 등장', () => {
 });
 
 describe('스켈레톤·페이드 등장', () => {
-  it('스켈레톤은 1400ms 주기로 하이라이트가 지나가는 쉬머다', () => {
-    expect(css).toContain('--animate-skeleton: skeleton-shimmer 1400ms linear infinite');
+  it('스켈레톤은 2000ms 주기로 하이라이트가 지나가는 쉬머다', () => {
+    expect(css).toContain('--animate-skeleton: skeleton-shimmer 2000ms linear infinite');
     expect(css).toContain('@keyframes skeleton-shimmer');
     // 제자리 밝기 변화(pulse)는 대비가 5/255라 보이지 않아 쓰지 않는다
     expect(css).not.toContain('skeleton-pulse');
