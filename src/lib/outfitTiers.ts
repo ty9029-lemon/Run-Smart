@@ -9,12 +9,15 @@ const WARM_MAX = 27;
 
 /** 운동 중 체온 상승을 반영해 더하는 체감온도 보정(°C). 러닝·자전거 구간 비교에 쓴다 */
 export const EXERCISE_WARMUP_OFFSET = 6;
-/** 러닝·자전거의 쌀쌀·선선 상한(보정 전 체감온도, °C). 체감 13°C에서도 긴 하의를 추천하려고 따로 둔다 */
+/** 러닝·자전거의 쌀쌀 상한(보정 전 체감온도, °C). 체감 13°C에서도 긴 하의를 추천하려고 따로 둔다 */
 const EXERCISE_COOL_FELT_MAX = 13;
-const EXERCISE_CHILLY_FELT_MAX = 15;
+/** 선선 상한(보정 전 체감온도, °C). 러닝은 온화 구간을 두지 않고 선선에 합쳤다 */
+const RUNNING_CHILLY_FELT_MAX = 16;
+const CYCLING_CHILLY_FELT_MAX = 15;
 /** 러닝·자전거 구간 상한 (보정이 더해진 체감온도 기준) */
 const EXERCISE_COOL_MAX = EXERCISE_COOL_FELT_MAX + EXERCISE_WARMUP_OFFSET;
-const EXERCISE_CHILLY_MAX = EXERCISE_CHILLY_FELT_MAX + EXERCISE_WARMUP_OFFSET;
+const RUNNING_CHILLY_MAX = RUNNING_CHILLY_FELT_MAX + EXERCISE_WARMUP_OFFSET;
+const CYCLING_CHILLY_MAX = CYCLING_CHILLY_FELT_MAX + EXERCISE_WARMUP_OFFSET;
 
 /** 체감온도 구간별 복장 (상한 오름차순, 마지막은 상한 없음) */
 export interface OutfitTier {
@@ -68,7 +71,7 @@ const WALKING_TIERS: OutfitTier[] = [
   },
 ];
 
-/** 러닝: 운동 중 체온 상승분이 보정된 체감온도 기준 */
+/** 러닝: 운동 중 체온 상승분이 보정된 체감온도 기준 (온화 구간 없이 선선이 체감 16°C까지) */
 const RUNNING_TIERS: OutfitTier[] = [
   {
     max: COLD_MAX,
@@ -88,15 +91,8 @@ const RUNNING_TIERS: OutfitTier[] = [
     ],
   },
   {
-    max: EXERCISE_CHILLY_MAX,
+    max: RUNNING_CHILLY_MAX,
     items: [outfitItem('top', 'longSleeve', '기능성 긴팔 티셔츠'), outfitItem('bottom', 'pants', '긴바지/러닝 레깅스')],
-  },
-  {
-    max: MILD_MAX,
-    items: [
-      outfitItem('top', 'longSleeve', '기능성 얇은 긴팔'),
-      outfitItem('bottom', 'pants', '긴바지 또는 레깅스'),
-    ],
   },
   {
     max: WARM_MAX,
@@ -134,7 +130,7 @@ const CYCLING_TIERS: OutfitTier[] = [
     ],
   },
   {
-    max: EXERCISE_CHILLY_MAX,
+    max: CYCLING_CHILLY_MAX,
     items: [
       outfitItem('top', 'cyclingJersey', '긴팔 사이클 져지'),
       outfitItem('bottom', 'shorts', '빕숏'),
