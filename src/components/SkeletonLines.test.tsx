@@ -15,6 +15,12 @@ describe('SkeletonLines', () => {
     expect(html).toContain('aria-hidden="true"');
   });
 
+  it('쉬머 애니메이션과 하이라이트 그라디언트를 쓴다', () => {
+    const html = renderToStaticMarkup(<SkeletonLines />);
+    expect(html).toContain('animate-skeleton');
+    expect(html).toContain('var(--skeleton-highlight)');
+  });
+
   it('줄 높이를 본문 한 줄(24px)에 맞춘다', () => {
     expect(renderToStaticMarkup(<SkeletonLines />)).toContain('h-6');
   });
