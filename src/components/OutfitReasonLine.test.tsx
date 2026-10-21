@@ -13,7 +13,7 @@ describe('OutfitReasonLine', () => {
     expect(html).toContain('비가 와서 우비');
   });
 
-  it('조건 근거는 조건마다 한 문장씩 따로 보여준다', () => {
+  it('기본 근거와 조건 근거를 줄바꿈 없이 한 문단으로 이어 보여준다', () => {
     const html = renderToStaticMarkup(
       <OutfitReasonLine
         reason={{
@@ -22,7 +22,10 @@ describe('OutfitReasonLine', () => {
         }}
       />,
     );
-    expect(html.match(/<p/g)).toHaveLength(3);
+    expect(html.match(/<p/g)).toHaveLength(1);
+    expect(html).toContain(
+      '기본 근거 비가 와서 우비를 챙기면 좋아요. 바람이 강해 윈드 재킷을 챙기면 좋아요.',
+    );
     expect(html).not.toContain(' · ');
   });
 
