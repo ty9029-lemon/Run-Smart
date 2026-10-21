@@ -11,6 +11,7 @@ import { type LocationNoticeProps } from './GuideBox';
 import HomeOutfitSection from './HomeOutfitSection';
 import HomeSummary from './HomeSummary';
 import HourlyChart from './HourlyChart';
+import ReminderInterestButton from './ReminderInterestButton';
 import ScoreBreakdownSheet from './ScoreBreakdownSheet';
 import SelectedHourDetail from './SelectedHourDetail';
 import { useSettingsSavedToast } from '../hooks/useSettingsSavedToast';
@@ -47,7 +48,8 @@ import { decisionTimingProps, recordDecisionAndCheckChange } from '../lib/decisi
 import { getDepartureStatus } from '../lib/departureStatus';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
 import { elapsedSeconds, isTooShortToRecord } from '../lib/formatElapsed';
-import { formatTime } from '../lib/formatTime';
+import { formatHourLabel, formatTime } from '../lib/formatTime';
+import { CTA_IDS } from '../constants/analytics';
 import { skipFeedback } from '../lib/skipFeedback';
 import { buildBestTimeCards } from '../lib/bestTimes';
 import { recommendOutfit } from '../lib/outfit';
@@ -157,6 +159,8 @@ export default function HomeReady({
   const selectedHour = pickedHour ?? best?.hour ?? upcomingHourly[0]?.hour ?? null;
   const selectedIndex = upcomingHourly.findIndex((h) => h.hour === selectedHour);
   const selectedWeather = selectedIndex >= 0 ? upcomingHourly[selectedIndex] : null;
+  // 알림 수요 확인 버튼을 누른 시각 (다른 시각을 고르면 버튼이 다시 보인다)
+  const [reminderHour, setReminderHour] = useState<number | null>(null);
   // 지금 시각을 고른 경우는 비교할 대상이 같아 비교하지 않는다
   const hourDeltas = useHourScoreDeltas(
     selectedHour === nowHour ? null : selectedWeather,
@@ -187,6 +191,19 @@ export default function HomeReady({
       trackEvent(ANALYTICS_EVENTS.activityChanged, { from: activity, to: next });
     }
     setLastActivity(next);
+  };
+
+  /** 선택한 시간대의 러닝 알림 관심을 기록한다. (알림 기능은 아직 없어 수요만 측정) */
+  const handleRequestReminder = () => {
+    if (!selectedWeather) return;
+    trackEvent(ANALYTICS_EVENTS.ctaClicked, {
+      cta: CTA_IDS.hourReminder,
+      activity,
+      hour: selectedWeather.hour,
+      score: scores[selectedIndex]?.score ?? 0,
+      isTomorrow: isTomorrowIndex(selectedIndex, nowHour),
+    });
+    setReminderHour(selectedWeather.hour);
   };
 
   /** 출발을 히스토리에 기록하고 토스트를 띄운다. */
@@ -316,6 +333,13 @@ export default function HomeReady({
             feelsLike={calcPersonalFeelsLike(upcomingHourly[selectedIndex], sensitivity)}
             deltas={hourDeltas}
             isTomorrow={isTomorrowIndex(selectedIndex, nowHour)}
+          />
+        )}
+        {selectedWeather && (
+          <ReminderInterestButton
+            hourLabel={`${isTomorrowIndex(selectedIndex, nowHour) ? '내일 ' : ''}${formatHourLabel(selectedWeather.hour)}`}
+            isRequested={reminderHour === selectedWeather.hour}
+            onRequest={handleRequestReminder}
           />
         )}
       </div>

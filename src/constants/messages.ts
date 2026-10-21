@@ -28,6 +28,12 @@ export const MESSAGES = {
     '기기의 위치 서비스도 확인해 주세요. iPhone은 설정 → 개인정보 보호 및 보안 → 위치 서비스 → Safari 웹사이트에서 "앱을 사용하는 동안"으로, Android는 설정의 위치 기능과 브라우저 앱의 위치 권한을 확인해 주세요.',
 } as const;
 
+/** 시간대 러닝 알림 수요 확인 문구 */
+export const REMINDER_MESSAGES = {
+  button: (hourLabel: string) => `${hourLabel} 러닝 알림 받기`,
+  requested: '알림 기능은 아직 준비 중이에요. 관심 남겨 주셔서 고마워요!',
+} as const;
+
 /** 기록 화면 문구 */
 export const HISTORY_MESSAGES = {
   running: '진행 중',

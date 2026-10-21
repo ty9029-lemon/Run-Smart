@@ -4,6 +4,7 @@ export const CTA_IDS = {
   locationAllow: 'location_allow',
   locationSettings: 'location_settings',
   settingsSave: 'settings_save',
+  hourReminder: 'hour_reminder',
 } as const;
 
 export type CtaId = (typeof CTA_IDS)[keyof typeof CTA_IDS];
