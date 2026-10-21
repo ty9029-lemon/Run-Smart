@@ -1,3 +1,4 @@
+import { Info } from 'lucide-react';
 import { HISTORY_MESSAGES } from '../constants/messages';
 import { MS_PER_SECOND } from '../constants/thresholds';
 import { formatDistanceKm } from '../lib/distance';
@@ -42,7 +43,7 @@ export function needsDistanceHint(entry: HistoryEntry): boolean {
 
 /**
  * 거리·페이스·시간을 큰 숫자로 나란히 보여준다. 보여줄 값이 없으면 그리지 않는다.
- * 거리가 없는 기록에는 거리를 추가하는 방법을 한 줄로 안내한다.
+ * 거리가 없는 기록에는 거리를 추가하는 방법을 눈에 띄는 안내 배너(i 아이콘)로 알린다.
  */
 export default function HistoryStats({ entry }: { entry: HistoryEntry }) {
   const stats = buildStats(entry);
@@ -59,7 +60,10 @@ export default function HistoryStats({ entry }: { entry: HistoryEntry }) {
         ))}
       </dl>
       {needsDistanceHint(entry) && (
-        <p className="mt-3 text-sm text-muted-foreground">{HISTORY_MESSAGES.distanceHint}</p>
+        <div role="note" className="mt-4 flex items-start gap-2 rounded-[12px] bg-secondary p-3 text-sm">
+          <Info aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <p>{HISTORY_MESSAGES.distanceHint}</p>
+        </div>
       )}
     </>
   );
