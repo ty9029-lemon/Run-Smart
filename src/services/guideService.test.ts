@@ -31,3 +31,24 @@ describe('buildGuideRequest 복장 목록', () => {
     expect(expected.length).toBeGreaterThan(0);
   });
 });
+
+describe('buildGuideRequest 러닝 저녁 구간', () => {
+  const input = (activity: 'running' | 'cycling', weather: Weather) => ({
+    activity,
+    sensitivity: SENSITIVITY,
+    constraints: [],
+    weather,
+    location: '서울 강남구',
+  });
+  const EVENING: Weather = { ...WEATHER, isDay: false, hour: 19 };
+
+  it('해 진 뒤 21시 전 러닝이면 eveningRun을 true로 보낸다', () => {
+    expect(buildGuideRequest(input('running', EVENING)).eveningRun).toBe(true);
+  });
+
+  it('22시 이후, 낮, 다른 활동에는 보내지 않는다', () => {
+    expect(buildGuideRequest(input('running', { ...EVENING, hour: 22 })).eveningRun).toBeUndefined();
+    expect(buildGuideRequest(input('running', WEATHER)).eveningRun).toBeUndefined();
+    expect(buildGuideRequest(input('cycling', EVENING)).eveningRun).toBeUndefined();
+  });
+});

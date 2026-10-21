@@ -31,6 +31,7 @@ import {
   humidityQuality,
   isColdAir,
   isDryAir,
+  isEveningDaylightExempt,
   rainQuality,
   tempQuality,
   uvQuality,
@@ -40,6 +41,7 @@ import {
 /**
  * 항목별 점수. 합이 총점이다. 각 값은 0 ~ 해당 항목 배점이다.
  * 다만 러닝·산책의 일조 항목은 밤에 추가 감점이 들어가 음수일 수 있다. (ACTIVITY_NIGHT_EXTRA_PENALTY)
+ * 러닝은 해 진 뒤에도 21시까지는 일조 감점이 없다. (ACTIVITY_EVENING_DAYLIGHT_EXEMPT)
  */
 export type ScoreBreakdown = { [K in keyof typeof SCORE_WEIGHTS]: number };
 
@@ -61,11 +63,9 @@ export function calcScoreBreakdown(
   const dustSensitive =
     constraints.includes('dustSensitive') || constraints.includes('asthma') || rhinitis;
   const w = ACTIVITY_SCORE_WEIGHTS[activity];
-  const daylightQ = daylightQuality(
-    weather.isDay,
-    weather.hoursUntilSunset,
-    ACTIVITY_DAYLIGHT_BUFFER_HOURS[activity],
-  );
+  const daylightQ = isEveningDaylightExempt(weather, activity)
+    ? 1
+    : daylightQuality(weather.isDay, weather.hoursUntilSunset, ACTIVITY_DAYLIGHT_BUFFER_HOURS[activity]);
   return {
     feelsLike: w.feelsLike * feelsLikeQuality(felt, ACTIVITY_COMFORT[activity]),
     // 비염은 찬 공기에서만 기온 감점을 키운다

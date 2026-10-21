@@ -143,6 +143,52 @@ describe('밤 규칙', () => {
   });
 });
 
+describe('러닝 저녁 구간(evening_run)', () => {
+  const EVENING_REQUEST = {
+    ...VALID_REQUEST,
+    weather: { ...VALID_REQUEST.weather, isDay: false },
+    eveningRun: true,
+  };
+
+  it('boolean이면 통과하고 프롬프트에 evening_run으로 담긴다', () => {
+    const req = parseGuideRequest(EVENING_REQUEST);
+    expect(req).not.toBeNull();
+    expect(JSON.parse(buildUserPrompt(req!)).evening_run).toBe(true);
+  });
+
+  it('없으면 프롬프트에 담기지 않고, boolean이 아니면 거절한다', () => {
+    const req = parseGuideRequest(VALID_REQUEST);
+    expect(JSON.parse(buildUserPrompt(req!))).not.toHaveProperty('evening_run');
+    expect(parseGuideRequest({ ...EVENING_REQUEST, eveningRun: 'yes' })).toBeNull();
+  });
+
+  it('시스템 프롬프트가 저녁 구간에는 밝은 시간대를 권하지 않고 긍정 총평을 허용하게 한다', () => {
+    expect(SYSTEM_PROMPT).toContain('evening_run이 true이면');
+    expect(SYSTEM_PROMPT).toContain('밝은 시간대를 권하는');
+    expect(SYSTEM_PROMPT).toContain('햇빛·자외선·선글라스·자외선 차단제는 여전히 말하지 않습니다');
+  });
+
+  it('저녁 구간에서는 "쾌적" 같은 긍정 총평을 거르지 않는다', () => {
+    const comfy = { ...VALID_OUTPUT, guideMessage: '러닝하기 좋은 쾌적한 날씨네요.' };
+    expect(parseGuideResponse(JSON.stringify(comfy), 'good', true, false, true)).not.toBeNull();
+    expect(findGuideProblem(JSON.stringify(comfy), true, false, true)).toBeNull();
+  });
+
+  it('저녁 구간이어도 햇빛·선글라스·자외선 차단 문구는 거른다', () => {
+    const sun = { ...VALID_OUTPUT, detailedReason: '햇빛이 나올 때를 대비해 외출하세요.' };
+    const tip = { ...VALID_OUTPUT, activityTips: ['선글라스 챙기기'] };
+    for (const body of [sun, tip]) {
+      expect(parseGuideResponse(JSON.stringify(body), 'good', true, false, true)).toBeNull();
+      expect(findGuideProblem(JSON.stringify(body), true, false, true)).toBe('night_phrase');
+    }
+  });
+
+  it('저녁 구간이 아니면 밤에 "쾌적"을 계속 거른다', () => {
+    const comfy = { ...VALID_OUTPUT, guideMessage: '러닝하기 좋은 쾌적한 날씨네요.' };
+    expect(parseGuideResponse(JSON.stringify(comfy), 'good', true, false, false)).toBeNull();
+  });
+});
+
 describe('러닝 점수 단계(scoreTier)', () => {
   it('올바른 단계는 통과하고 프롬프트에 담긴다', () => {
     const req = parseGuideRequest({ ...VALID_REQUEST, scoreTier: 'good' });

@@ -53,6 +53,17 @@ export const ACTIVITY_NIGHT_EXTRA_PENALTY: Record<Activity, number> = {
   cycling: 0,
 };
 
+/**
+ * 해가 진 뒤에도 저녁(정오 이후 ~ 추천 마감 시각 전)에는 일조 감점을 하지 않는 활동.
+ * 러닝은 일몰 전후로 일조량이 줄어들 때가 가장 뛰기 좋아 21시까지 낮과 같은 점수로 본다.
+ */
+export const ACTIVITY_EVENING_DAYLIGHT_EXEMPT: Record<Activity, boolean> = {
+  running: true,
+  walking: false,
+  hiking: false,
+  cycling: false,
+};
+
 /** 활동별 배점표 */
 export const ACTIVITY_SCORE_WEIGHTS: Record<Activity, ScoreWeights> = {
   running: SCORE_WEIGHTS,

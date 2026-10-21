@@ -48,7 +48,7 @@ import { recommendOutfit } from '../lib/outfit';
 import { formatGuideParagraph } from '../lib/guideTips';
 import { buildOutfitReason } from '../lib/outfitReasons';
 import { calcRunScore, scoreToHeadline, scoreToLevel } from '../lib/runScore';
-import { getSunsetStatus } from '../lib/scoreFactors';
+import { getSunsetStatus, hasDaylightScore } from '../lib/scoreFactors';
 import { useActiveSessionStore } from '../store/activeSessionStore';
 import { useHistoryStore } from '../store/historyStore';
 import { useProfileStore } from '../store/profileStore';
@@ -268,7 +268,7 @@ export default function HomeReady({
       <HomeSummary
         activity={activity}
         score={score}
-        headline={scoreToHeadline(score, activity, current.isDay)}
+        headline={scoreToHeadline(score, activity, hasDaylightScore(current, activity))}
         weather={current}
         feelsLike={feelsLike}
         reasons={scoreReasons.reasons}

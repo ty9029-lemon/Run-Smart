@@ -16,8 +16,12 @@ import {
   UV_ZERO,
   WIND_IDEAL_MAX,
   WIND_ZERO,
+  ACTIVITY_EVENING_DAYLIGHT_EXEMPT,
   type ComfortRange,
 } from '../constants/scoring';
+import { RECOMMEND_CUTOFF_HOUR } from '../constants/thresholds';
+import { NOON_HOUR } from '../constants/timeSlotRanges';
+import type { Activity, Weather } from '../types';
 
 /** 곡선을 이루는 점 [x, 품질]. x는 오름차순이다. */
 type Curve = readonly (readonly [number, number])[];
@@ -134,6 +138,27 @@ export function daylightQuality(
   if (isDay === false) return 0;
   if (hoursUntilSunset !== undefined && hoursUntilSunset < bufferHours) return 0;
   return 1;
+}
+
+/**
+ * 해가 진 저녁이어도 일조 감점을 하지 않는 시간인지 판단한다. (러닝은 일몰 뒤 21시까지)
+ * 정오 전의 어두운 시간(새벽)과 시각을 모르는 경우는 해당하지 않는다.
+ * @param weather 날씨 (hour가 있어야 한다)
+ * @param activity 활동
+ */
+export function isEveningDaylightExempt(weather: Weather, activity: Activity): boolean {
+  const { isDay, hour } = weather;
+  if (!ACTIVITY_EVENING_DAYLIGHT_EXEMPT[activity] || isDay || hour === undefined) return false;
+  return hour >= NOON_HOUR && hour < RECOMMEND_CUTOFF_HOUR;
+}
+
+/**
+ * 일조 감점을 받지 않는 시간인지 판단한다. (해가 떠 있거나, 저녁 예외 구간)
+ * @param weather 날씨
+ * @param activity 활동
+ */
+export function hasDaylightScore(weather: Weather, activity: Activity): boolean {
+  return weather.isDay || isEveningDaylightExempt(weather, activity);
 }
 
 /** 일몰 상태: 여유 시간 안으로 다가옴 / 이미 지남 / 해당 없음 */

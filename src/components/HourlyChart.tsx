@@ -238,7 +238,7 @@ export default function HourlyChart({
               label={barLabel(h.hour, i, firstHour)}
               score={scores[i]?.score ?? 0}
               isSelected={h.hour === selectedHour}
-              isExcluded={!isRecommendableHour(h.hour, h.isDay) || (i > 0 && h.hour < firstHour)}
+              isExcluded={!isRecommendableHour(h.hour, scores[i]?.isDay) || (i > 0 && h.hour < firstHour)}
               onSelect={() => onSelectHour(h.hour)}
             />
           </li>
