@@ -311,7 +311,8 @@ export default function HomeReady({
         className="fixed inset-x-0 z-30 bg-linear-to-t from-background from-70% to-transparent px-4 pt-6"
         style={{ bottom: TAB_BAR_OFFSET, paddingBottom: CTA_GAP }}
       >
-        <div className="relative mx-auto max-w-md">
+        {/* 본문(main: max-w-md + px-4)과 같은 폭이 되도록 max-w-md에서 좌우 여백(px-4)을 뺀 max-w-104를 쓴다 */}
+        <div className="relative mx-auto max-w-104">
           <DecisionButtons
             status={status}
             activityLabel={getActivityMeta(activity).label}
