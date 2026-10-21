@@ -83,9 +83,18 @@ describe('recommendOutfit - 러닝', () => {
     expect(labels(25, 'running')).toContain('러닝 민소매');
   });
 
-  it('선선한 날에는 러닝 7부 타이츠 대신 긴바지 또는 레깅스를 추천한다', () => {
-    expect(labels(16, 'running')).toContain('긴바지 또는 레깅스');
+  it('선선한 날에는 러닝 7부 타이츠 대신 긴바지/러닝 레깅스를 추천한다', () => {
+    expect(labels(16, 'running')).toContain('긴바지/러닝 레깅스');
     expect(labels(16, 'running')).not.toContain('러닝 7부 타이츠');
+  });
+
+  it('러닝은 선선이 체감 14~16°C까지 이어지고 온화 구간을 따로 두지 않는다', () => {
+    [14, 15, 16].forEach((feelsLike) => {
+      expect(labels(feelsLike, 'running')).toEqual(
+        expect.arrayContaining(['기능성 긴팔 티셔츠', '긴바지/러닝 레깅스']),
+      );
+      expect(labels(feelsLike, 'running')).not.toContain('긴바지 또는 레깅스');
+    });
   });
 
   it('신발은 러닝화다', () => {
@@ -469,7 +478,7 @@ describe('recommendOutfit - 반바지가 처음 나오는 체감온도', () => {
   });
 
   it('러닝은 체감 17°C부터 러닝 쇼츠로 바뀐다', () => {
-    expect(bottomLabel(16, 'running')).toBe('긴바지 또는 레깅스');
+    expect(bottomLabel(16, 'running')).toBe('긴바지/러닝 레깅스');
     expect(bottomLabel(17, 'running')).toBe('러닝 쇼츠');
   });
 
