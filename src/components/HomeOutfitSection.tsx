@@ -4,7 +4,7 @@ import SkeletonLines from './SkeletonLines';
 import { MESSAGES } from '../constants/messages';
 import { OUTFIT_SOURCES } from '../constants/analytics';
 import { FADE_IN_CLASS } from '../constants/motion';
-import { filterTipsNotInOutfit } from '../lib/guideTips';
+import { filterTipsNotInOutfit, formatGuideParagraph } from '../lib/guideTips';
 import type { OutfitReason } from '../lib/outfitReasons';
 import type { Activity, GuideState, OutfitItem } from '../types';
 
@@ -31,8 +31,7 @@ function GuideParagraph({ guide, rawWeather }: Pick<HomeOutfitSectionProps, 'gui
       </div>
     );
   }
-  const text =
-    guide.state === 'ready' ? `${guide.data.guideMessage} ${guide.data.detailedReason}` : rawWeather;
+  const text = guide.state === 'ready' ? formatGuideParagraph(guide.data) : rawWeather;
   return <p className={`text-base ${FADE_IN_CLASS}`}>{text}</p>;
 }
 
