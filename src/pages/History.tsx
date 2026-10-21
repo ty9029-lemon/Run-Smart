@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import FeedbackSavedToast from '../components/FeedbackSavedToast';
 import HistoryCalendar from '../components/HistoryCalendar';
 import HistoryEntryMenu from '../components/HistoryEntryMenu';
 import HistoryEntryStatus from '../components/HistoryEntryStatus';
@@ -7,6 +8,7 @@ import { chipVariants } from '@/components/ui/chip';
 import { HISTORY_MESSAGES, MESSAGES } from '../constants/messages';
 import { MS_PER_DAY } from '../constants/thresholds';
 import { useActiveSession } from '../hooks/useActiveSession';
+import { useFeedbackSavedToast } from '../hooks/useFeedbackSavedToast';
 import { useNow } from '../hooks/useNow';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { isFeedbackAskable } from '../lib/feedback';
@@ -106,6 +108,7 @@ function DayPanel({ date, entries }: { date: Date; entries: HistoryEntry[] }) {
 /** 활동 히스토리 (월 단위 달력 + 선택한 날의 기록) */
 export default function History() {
   const entries = useHistoryStore((s) => s.entries);
+  const savedToast = useFeedbackSavedToast();
   const [today] = useState(() => new Date());
   const [selected, setSelected] = useState(today);
   const [viewMonth, setViewMonth] = useState<YearMonth>({
@@ -137,6 +140,7 @@ export default function History() {
         onChangeMonth={setViewMonth}
       />
       <DayPanel date={selected} entries={entriesByDay.get(dayKey(selected)) ?? []} />
+      <FeedbackSavedToast open={savedToast.open} onOpenChange={savedToast.setOpen} />
     </main>
   );
 }

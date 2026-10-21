@@ -36,5 +36,8 @@ export const CTA_CLEARANCE = '8rem';
 /** 하단 탭바 높이 + 기기 하단 safe-area. 콘텐츠 하단 여백 계산에 쓴다. */
 export const TAB_BAR_OFFSET = `calc(${TAB_BAR_HEIGHT} + env(safe-area-inset-bottom))`;
 
+/** 체감 시트에서 기록을 저장하고 기록 탭으로 이동할 때 라우터 state에 실어 보내는 값 (기록 탭이 저장 안내 토스트를 띄운다) */
+export const FEEDBACK_SAVED_STATE = { feedbackSaved: true } as const;
+
 /** 설정을 저장하고 홈으로 이동할 때 라우터 state에 실어 보내는 값 (홈이 저장 안내 토스트를 띄운다) */
 export const SETTINGS_SAVED_STATE = { settingsSaved: true } as const;
