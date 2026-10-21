@@ -42,11 +42,13 @@ describe('HistoryEntryStatus', () => {
     expect(html).toContain('27:24');
   });
 
-  it('거리가 없으면 거리와 페이스는 빼고 시간만 보여준다', () => {
+  it('거리가 없으면 거리와 페이스 칸은 빼고 시간만 보여주며 거리 추가를 안내한다', () => {
     const html = render(makeEntry({ durationSec: 21 * 60 + 5 }));
     expect(html).toContain('21:05');
-    expect(html).not.toContain('페이스');
-    expect(html).not.toContain('거리');
+    // 안내 문구에도 "거리"·"페이스"가 들어가므로 칸 이름(dt)만 확인한다
+    expect(html).not.toContain('>페이스</dt>');
+    expect(html).not.toContain('>거리</dt>');
+    expect(html).toContain('거리를 추가하면');
   });
 
   it('종료하지 않은 기록은 숫자 칸을 보여주지 않는다', () => {
