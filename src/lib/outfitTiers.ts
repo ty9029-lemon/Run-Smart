@@ -2,10 +2,19 @@ import type { Activity, OutfitCategory, OutfitIconKey, OutfitItem } from '../typ
 
 /** 복장 구간별 체감온도 상한(°C, 이하) */
 const COLD_MAX = 4;
-const COOL_MAX = 11;
-const CHILLY_MAX = 16;
+const COOL_MAX = 13;
+const CHILLY_MAX = 18;
 const MILD_MAX = 22;
 const WARM_MAX = 27;
+
+/** 운동 중 체온 상승을 반영해 더하는 체감온도 보정(°C). 러닝·자전거 구간 비교에 쓴다 */
+export const EXERCISE_WARMUP_OFFSET = 6;
+/** 러닝·자전거의 쌀쌀·선선 상한(보정 전 체감온도, °C). 체감 13°C에서도 긴 하의를 추천하려고 따로 둔다 */
+const EXERCISE_COOL_FELT_MAX = 13;
+const EXERCISE_CHILLY_FELT_MAX = 15;
+/** 러닝·자전거 구간 상한 (보정이 더해진 체감온도 기준) */
+const EXERCISE_COOL_MAX = EXERCISE_COOL_FELT_MAX + EXERCISE_WARMUP_OFFSET;
+const EXERCISE_CHILLY_MAX = EXERCISE_CHILLY_FELT_MAX + EXERCISE_WARMUP_OFFSET;
 
 /** 체감온도 구간별 복장 (상한 오름차순, 마지막은 상한 없음) */
 export interface OutfitTier {
@@ -71,7 +80,7 @@ const RUNNING_TIERS: OutfitTier[] = [
     ],
   },
   {
-    max: COOL_MAX,
+    max: EXERCISE_COOL_MAX,
     items: [
       outfitItem('top', 'longSleeve', '기능성 긴팔 티셔츠'),
       outfitItem('outer', 'jacket', '경량 바람막이'),
@@ -79,14 +88,14 @@ const RUNNING_TIERS: OutfitTier[] = [
     ],
   },
   {
-    max: CHILLY_MAX,
+    max: EXERCISE_CHILLY_MAX,
     items: [outfitItem('top', 'longSleeve', '기능성 긴팔 티셔츠'), outfitItem('bottom', 'pants', '긴바지/러닝 레깅스')],
   },
   {
     max: MILD_MAX,
     items: [
       outfitItem('top', 'longSleeve', '기능성 얇은 긴팔'),
-      outfitItem('bottom', 'shorts', '반바지 또는 레깅스'),
+      outfitItem('bottom', 'pants', '긴바지 또는 레깅스'),
     ],
   },
   {
@@ -116,7 +125,7 @@ const CYCLING_TIERS: OutfitTier[] = [
     ],
   },
   {
-    max: COOL_MAX,
+    max: EXERCISE_COOL_MAX,
     items: [
       outfitItem('top', 'cyclingJersey', '긴팔 사이클 져지'),
       outfitItem('outer', 'vest', '윈드 베스트'),
@@ -125,7 +134,7 @@ const CYCLING_TIERS: OutfitTier[] = [
     ],
   },
   {
-    max: CHILLY_MAX,
+    max: EXERCISE_CHILLY_MAX,
     items: [
       outfitItem('top', 'cyclingJersey', '긴팔 사이클 져지'),
       outfitItem('bottom', 'shorts', '빕숏'),
