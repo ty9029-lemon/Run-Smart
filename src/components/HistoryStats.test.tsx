@@ -46,6 +46,12 @@ describe('HistoryStats', () => {
     expect(html).toContain(HISTORY_MESSAGES.distanceHint);
   });
 
+  it('거리 추가 안내는 i 아이콘이 붙은 배너(note)로 보여준다', () => {
+    const html = renderToStaticMarkup(<HistoryStats entry={entryWith({ durationSec: 600 })} />);
+    expect(html).toContain('role="note"');
+    expect(html).toMatch(/role="note"[\s\S]*<svg[\s\S]*lucide-info[\s\S]*거리를 추가하면/);
+  });
+
   it('거리가 있는 기록은 거리·페이스·시간을 보여주고 안내는 없다', () => {
     const html = renderToStaticMarkup(
       <HistoryStats entry={entryWith({ durationSec: 1800, distanceKm: 5 })} />,
