@@ -31,19 +31,36 @@ export function buildStats(entry: HistoryEntry): Stat[] {
   return stats;
 }
 
-/** 거리·페이스·시간을 큰 숫자로 나란히 보여준다. 보여줄 값이 없으면 그리지 않는다. */
+/**
+ * 거리를 넣으면 페이스를 볼 수 있다는 안내가 필요한지 확인한다.
+ * 활동을 마쳐 시간은 있는데 거리가 없는 기록에만 보여 준다.
+ * @param entry 활동 기록
+ */
+export function needsDistanceHint(entry: HistoryEntry): boolean {
+  return entry.distanceKm === undefined && entry.durationSec !== undefined;
+}
+
+/**
+ * 거리·페이스·시간을 큰 숫자로 나란히 보여준다. 보여줄 값이 없으면 그리지 않는다.
+ * 거리가 없는 기록에는 거리를 추가하는 방법을 한 줄로 안내한다.
+ */
 export default function HistoryStats({ entry }: { entry: HistoryEntry }) {
   const stats = buildStats(entry);
   if (stats.length === 0) return null;
   return (
-    <dl className="mt-5 grid auto-cols-fr grid-flow-col gap-3">
-      {stats.map(({ label, value }) => (
-        // 화면에는 숫자가 위, 이름이 아래에 오지만 읽을 때는 이름이 먼저 오도록 DOM 순서는 dt가 앞이다
-        <div key={label} className="flex flex-col-reverse">
-          <dt className="text-sm text-muted-foreground">{label}</dt>
-          <dd className="text-2xl font-bold leading-tight tabular-nums">{value}</dd>
-        </div>
-      ))}
-    </dl>
+    <>
+      <dl className="mt-5 grid auto-cols-fr grid-flow-col gap-3">
+        {stats.map(({ label, value }) => (
+          // 화면에는 숫자가 위, 이름이 아래에 오지만 읽을 때는 이름이 먼저 오도록 DOM 순서는 dt가 앞이다
+          <div key={label} className="flex flex-col-reverse">
+            <dt className="text-sm text-muted-foreground">{label}</dt>
+            <dd className="text-2xl font-bold leading-tight tabular-nums">{value}</dd>
+          </div>
+        ))}
+      </dl>
+      {needsDistanceHint(entry) && (
+        <p className="mt-3 text-sm text-muted-foreground">{HISTORY_MESSAGES.distanceHint}</p>
+      )}
+    </>
   );
 }
