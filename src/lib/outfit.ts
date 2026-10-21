@@ -1,10 +1,8 @@
 import { OUTFIT_CATEGORY_ORDER } from '../constants/outfitCategories';
 import type { Activity, Constraint, OutfitCategory, OutfitItem, Weather } from '../types';
 import { applyConstraintGear, applyOutfitConditions } from './outfitConditions';
-import { BASE_ITEMS_BY_ACTIVITY, TIERS_BY_ACTIVITY } from './outfitTiers';
+import { BASE_ITEMS_BY_ACTIVITY, EXERCISE_WARMUP_OFFSET, TIERS_BY_ACTIVITY } from './outfitTiers';
 
-/** 운동 중 체온 상승을 반영해 더하는 체감온도 보정(°C) */
-const EXERCISE_WARMUP_OFFSET = 6;
 /** 체온이 많이 오르는 활동 (더 가볍게 입는다) */
 const WARMUP_ACTIVITIES: Activity[] = ['running', 'cycling'];
 

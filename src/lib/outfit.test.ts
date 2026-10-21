@@ -38,10 +38,10 @@ describe('recommendOutfit - 산책(일상복)', () => {
   it('체감온도 구간 경계에서 바뀐다', () => {
     expect(labels(4, 'walking')).toContain('패딩/두꺼운 겉옷');
     expect(labels(5, 'walking')).toContain('바람막이/재킷');
-    expect(labels(11, 'walking')).toContain('바람막이/재킷');
-    expect(labels(12, 'walking')).toContain('가디건/얇은 겉옷');
-    expect(labels(16, 'walking')).toContain('가디건/얇은 겉옷');
-    expect(labels(17, 'walking')).toContain('얇은 긴팔 상의');
+    expect(labels(13, 'walking')).toContain('바람막이/재킷');
+    expect(labels(14, 'walking')).toContain('가디건/얇은 겉옷');
+    expect(labels(18, 'walking')).toContain('가디건/얇은 겉옷');
+    expect(labels(19, 'walking')).toContain('얇은 긴팔 상의');
     expect(labels(22, 'walking')).toContain('얇은 긴팔 상의');
     expect(labels(23, 'walking')).toContain('반팔 상의');
     expect(labels(27, 'walking')).toContain('반팔 상의');
@@ -83,9 +83,9 @@ describe('recommendOutfit - 러닝', () => {
     expect(labels(25, 'running')).toContain('러닝 민소매');
   });
 
-  it('선선한 날에는 러닝 7부 타이츠 대신 반바지 또는 레깅스를 추천한다', () => {
-    expect(labels(15, 'running')).toContain('반바지 또는 레깅스');
-    expect(labels(15, 'running')).not.toContain('러닝 7부 타이츠');
+  it('선선한 날에는 러닝 7부 타이츠 대신 긴바지 또는 레깅스를 추천한다', () => {
+    expect(labels(16, 'running')).toContain('긴바지 또는 레깅스');
+    expect(labels(16, 'running')).not.toContain('러닝 7부 타이츠');
   });
 
   it('신발은 러닝화다', () => {
@@ -162,7 +162,7 @@ describe('recommendOutfit - 자전거', () => {
   });
 
   it('반팔·민소매 구간에서는 팔 보호 장비(암워머·쿨 팔토시)를 함께 추천한다', () => {
-    expect(labels(13, 'cycling')).toContain('암워머');
+    expect(labels(16, 'cycling')).toContain('암워머');
     expect(labels(18, 'cycling')).toContain('쿨 팔토시');
     expect(labels(28, 'cycling')).toContain('쿨 팔토시');
   });
@@ -449,7 +449,7 @@ function bottomLabel(feelsLike: number, activity: Activity): string | undefined 
  * UT 응답("추운 것 같았는데 반바지를 추천해줌") 재현용 특성화 테스트.
  * 현재 규칙에서 하의가 반바지로 바뀌는 체감온도 경계를 고정해 두어,
  * 규칙을 조정할 때 어느 값이 바뀌는지 바로 드러나게 한다.
- * (러닝 하의 규칙은 #59에서 한파 구간 기모 바지, 선선한 날 반바지 또는 레깅스로 조정되었다)
+ * (러닝 하의 규칙은 #59에서 한파 구간 기모 바지, 선선한 날 긴바지 또는 레깅스로 조정되었다)
  */
 describe('recommendOutfit - 반바지가 처음 나오는 체감온도', () => {
   it('산책은 체감 23°C부터 반바지다', () => {
@@ -457,15 +457,19 @@ describe('recommendOutfit - 반바지가 처음 나오는 체감온도', () => {
     expect(hasShorts(23, 'walking')).toBe(true);
   });
 
-  it('러닝은 체온 상승 보정 때문에 체감 11°C부터 반바지 또는 레깅스(짧은 하의)다', () => {
-    expect(hasShorts(10, 'running')).toBe(false);
-    expect(bottomLabel(10, 'running')).toBe('긴바지/러닝 레깅스');
-    expect(hasShorts(11, 'running')).toBe(true);
-    expect(bottomLabel(11, 'running')).toBe('반바지 또는 레깅스');
+  it('러닝은 체감 13°C까지 쌀쌀 구간이라 긴바지/러닝 레깅스를 추천한다', () => {
+    expect(bottomLabel(13, 'running')).toBe('긴바지/러닝 레깅스');
+    expect(labels(13, 'running')).toContain('경량 바람막이');
+  });
+
+  it('러닝은 체감 16°C까지 긴바지 계열이고 17°C부터 반바지(러닝 쇼츠)다', () => {
+    expect(bottomLabel(15, 'running')).toBe('긴바지/러닝 레깅스');
+    expect(hasShorts(16, 'running')).toBe(false);
+    expect(hasShorts(17, 'running')).toBe(true);
   });
 
   it('러닝은 체감 17°C부터 러닝 쇼츠로 바뀐다', () => {
-    expect(bottomLabel(16, 'running')).toBe('반바지 또는 레깅스');
+    expect(bottomLabel(16, 'running')).toBe('긴바지 또는 레깅스');
     expect(bottomLabel(17, 'running')).toBe('러닝 쇼츠');
   });
 
@@ -474,9 +478,9 @@ describe('recommendOutfit - 반바지가 처음 나오는 체감온도', () => {
     expect(bottomLabel(-1, 'running')).toBe('긴바지/러닝 레깅스');
   });
 
-  it('자전거는 체감 6°C부터 짧은 하의(빕숏)다', () => {
-    expect(hasShorts(5, 'cycling')).toBe(false);
-    expect(hasShorts(6, 'cycling')).toBe(true);
+  it('자전거는 체감 14°C부터 짧은 하의(빕숏)다', () => {
+    expect(hasShorts(13, 'cycling')).toBe(false);
+    expect(hasShorts(14, 'cycling')).toBe(true);
   });
 
   it('등산은 체감 28°C부터 반바지다 (22°C 이하에서는 반바지가 아니다)', () => {

@@ -5,10 +5,10 @@ const OUTFIT_ALIASES: Record<string, string[]> = {
   선크림: ['자외선 차단제'],
 };
 
-/** 한 복장 이름에 두 가지 물건이 함께 적힌 경우의 구분자 (예: 반바지/러닝, 반바지 또는 레깅스) */
+/** 한 복장 이름에 두 가지 물건이 함께 적힌 경우의 구분자 (예: 반바지/러닝, 긴바지 또는 레깅스) */
 const LABEL_SEPARATOR = /\/| 또는 /;
 
-/** 복장 이름에서 핵심 단어를 뽑는다. 슬래시나 "또는"으로 나뉜 각 이름의 마지막 단어다. (예: "반바지 또는 레깅스" → 반바지, 레깅스) */
+/** 복장 이름에서 핵심 단어를 뽑는다. 슬래시나 "또는"으로 나뉜 각 이름의 마지막 단어다. (예: "긴바지 또는 레깅스" → 긴바지, 레깅스) */
 function outfitKeywords(items: OutfitItem[]): string[] {
   return items
     .flatMap((item) => item.label.split(LABEL_SEPARATOR))
