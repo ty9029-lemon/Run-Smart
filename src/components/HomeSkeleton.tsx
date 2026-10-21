@@ -142,7 +142,7 @@ export default function HomeSkeleton() {
         className="fixed inset-x-0 z-30 bg-linear-to-t from-background from-70% to-transparent px-4 pt-6"
         style={{ bottom: TAB_BAR_OFFSET, paddingBottom: CTA_GAP }}
       >
-        <div className="mx-auto max-w-md">
+        <div className="mx-auto max-w-104">
           <Skeleton className="h-12 w-full rounded-full" />
         </div>
       </div>
