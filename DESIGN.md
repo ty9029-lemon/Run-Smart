@@ -378,7 +378,7 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
 ## 스플래시 화면 구성
 앱을 처음 열 때 한 번 보이는 전체 화면입니다. 가운데에 위에서 아래로: 로고 심볼(80px) → 8px 간격 → "Run Smart"(Plus Jakarta Sans Bold Italic 24px, 자간 0, 줄 높이 120%). 슬로건은 두지 않습니다. 구현은 `SplashScreen`이고, 값은 `src/constants/splash.ts`에 있습니다.
 
-- **색:** 다크는 Midnight Canvas(#111111) 바탕에 라임, 라이트는 Lime Pulse(#b7ff2c) 바탕에 검정(`--primary-foreground`)입니다. 로고는 `logo-mark.svg`를 마스크로 써서 글자와 같은 색(`currentColor`)을 따릅니다.
+- **색:** 다크는 Midnight Canvas(#111111) 바탕에 라임, 라이트는 Lime Pulse(#b7ff2c) 바탕에 검정(`--primary-foreground`)입니다. 로고는 `logo-mark.svg`를 마스크로 써서 글자와 같은 색(`currentColor`)을 따릅니다. 로고 SVG는 파일 URL이 아니라 번들에 데이터 URI로 포함합니다(`?inline`, 파일은 `src/assets`). URL로 요청하면 스플래시가 뜬 뒤에야 받아 오기 때문에 응답이 늦을 때 문구만 먼저 보이고 로고가 나중에 나타났습니다.
 - **시간:** 로고 등장 800ms → 완성된 로고를 보여주며 총 1600ms 유지(`SPLASH_HOLD_MS`) → 400ms 페이드아웃(`SPLASH_FADE_MS`). 합쳐서 약 2.0초에 완전히 사라집니다. 모션 값은 위 "토큰 — 모션"의 스플래시 예외를 따릅니다.
 - **표시 규칙:** 같은 탭(세션)에서 한 번만 보이고(`sessionStorage`의 `run-smart-splash-shown`), 다른 화면으로 이동해도 다시 뜨지 않습니다. 모션 줄이기 설정에서는 로고·글자의 등장 애니메이션 없이 바로 보여줍니다(페이드아웃은 그대로).
 - **첫 화면 이음새:** 자바스크립트가 로드되기 전의 빈 흰 화면을 없애려고, 첫 방문이면 `index.html`이 `<html>` 배경색을 스플래시 바탕색(다크 #111111, 라이트 #b7ff2c)으로 미리 칠하고 스플래시가 끝나면 지웁니다(`clearBootBackground`).
@@ -390,7 +390,7 @@ R과 S를 맞물린 각진 모노그램입니다. 위쪽 R(고리와 사선 다�
 
 | 파일 (`public/`) | 용도 |
 |---|---|
-| `logo-mark.svg` | 배경 없는 심볼. 스플래시와 이후 헤더·워드마크에 씁니다. |
+| `src/assets/logo-mark.svg` | 배경 없는 심볼. 스플래시(번들 인라인)와 이후 헤더·워드마크에 씁니다. |
 | `favicon.svg` | 브라우저 탭 아이콘. 검정(#111111) 둥근 사각형 안에 라임 심볼입니다. |
 | `logo-icon-light.svg` | 라이트용. 라임 둥근 사각형 안에 검정 심볼입니다. |
 | `icon-192.png`, `icon-512.png` | PWA 아이콘(`manifest.webmanifest`). 모서리를 둥글리지 않은 정사각형이라 OS가 마스크를 씌울 수 있고, 심볼은 안쪽 약 80%(safe zone)에 둡니다. |
