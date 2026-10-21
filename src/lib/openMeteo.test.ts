@@ -75,6 +75,7 @@ describe('parseWeather', () => {
       pm10: 28,
       uvIndex: 14,
       isDay: true,
+      hour: 14,
     });
   });
 

@@ -51,6 +51,15 @@ const DUST_GEAR_PHRASES = ['마스크', '넥게이터'];
 /** 해가 진 뒤(isDay가 false)에 응답에 들어가면 안 되는 표현. 밤인데 햇빛을 말하거나 "쾌적하다"고 하는 모순을 막는다 */
 const NIGHT_BANNED_PHRASES = ['햇빛', '햇볕', '선글라스', '자외선 차단', '쾌적'];
 
+/** 러닝 저녁 구간(해는 졌지만 일조 감점이 없는 시간)에는 써도 되는 밤 금지 표현. 점수가 높아 긍정 총평이 어긋나지 않는다 */
+const EVENING_RUN_ALLOWED_PHRASES = ['쾌적'];
+
+/** 밤에 금지하는 표현 목록. 러닝 저녁 구간이면 긍정 총평 표현은 허용한다. */
+function nightBannedPhrases(eveningRun?: boolean): string[] {
+  if (!eveningRun) return NIGHT_BANNED_PHRASES;
+  return NIGHT_BANNED_PHRASES.filter((p) => !EVENING_RUN_ALLOWED_PHRASES.includes(p));
+}
+
 /** 시스템 프롬프트 (PRD 6장 프롬프트 방향) */
 export const SYSTEM_PROMPT = `당신은 사용자의 활동 능력과 기후 민감도를 잘 이해하는 날씨 코치입니다.
 입력으로 활동, 사용자 체감 보정값, 제약사항, 현재 날씨, 앱이 계산한 개인 체감온도와 활동 지수가 주어집니다.
@@ -69,6 +78,7 @@ export const SYSTEM_PROMPT = `당신은 사용자의 활동 능력과 기후 민
 - uv_grade가 "높음"이 아니면 자외선이 강하다고 쓰지 않고, guideMessage와 detailedReason에서 자외선 차단을 권하지 않습니다. 등급은 수치로만 말합니다. "높음"일 때만 이 두 문장의 행동 권유에 자외선 차단을 넣습니다.
 - is_day가 true(낮)이면 uv_grade와 관계없이 activityTips에 "자외선 차단제 바르기"를 한 줄 넣습니다. (recommended_outfit에 선크림이 있으면 넣지 않습니다.)
 - is_day가 false(밤)이면 해가 진 뒤라는 점을 먼저 밝히고 어두운 환경의 안전을 중심으로 씁니다. 반사 장비·조명, 밝고 사람이 다니는 길, 이어폰 볼륨처럼 밤에 필요한 준비물과 주의점을 쓰고, 가능하면 밝은 시간대를 권합니다. 햇빛·자외선·선글라스·자외선 차단제는 말하지 않습니다. 제약사항에 자외선 민감이 있어도 밤에는 쓰지 않습니다. "쾌적하다", "활동하기 좋다" 같은 긍정 총평은 밤에는 쓰지 않으며, score_tier 어조 규칙은 그대로 따릅니다.
+- evening_run이 true이면 해는 졌지만 러닝하기 좋은 저녁 시간대라 점수에 일조 감점이 없습니다. 이때는 "밝은 시간대를 권하는" 문장을 쓰지 않고, 반사 장비·조명·밝은 길·이어폰 볼륨 같은 어두운 환경의 안전만 짧게 씁니다. "쾌적하다", "활동하기 좋다" 같은 긍정 총평은 score_tier 어조에 맞게 쓸 수 있습니다. 햇빛·자외선·선글라스·자외선 차단제는 여전히 말하지 않습니다.
 - 활동이 산책이면 무릎 보호대 팁을 쓰지 않습니다.
 - 제약사항에 발 문제가 있으면 신발은 복장 카드가 안내하므로 쓰지 않고, "러닝 전후 발 스트레칭하기"처럼 활동 전후 발 관리 팁을 하나 넣습니다.
 - 각 팁은 20자 이내의 짧은 구절로 씁니다. 괄호 설명과 부연은 붙이지 않습니다. 예: "수분 챙기기", "자외선 차단제 바르기", "러닝 전후 발 스트레칭하기"
@@ -103,6 +113,7 @@ export function parseGuideRequest(body: unknown): GuideRequest | null {
   }
   if (body.uvGrade !== undefined && !UV_GRADES.includes(body.uvGrade as UvGrade)) return null;
   if (body.maskAllowed !== undefined && typeof body.maskAllowed !== 'boolean') return null;
+  if (body.eveningRun !== undefined && typeof body.eveningRun !== 'boolean') return null;
   const outfit = body.outfitLabels;
   if (outfit !== undefined) {
     if (!Array.isArray(outfit) || outfit.length > REQUEST_OUTFIT_MAX || !outfit.every(isText)) {
@@ -127,6 +138,7 @@ export function buildUserPrompt(req: GuideRequest): string {
     constraints: req.constraintLabels,
     mask_allowed: req.maskAllowed,
     recommended_outfit: req.outfitLabels,
+    evening_run: req.eveningRun,
     current_weather: {
       temp: w.temp,
       humidity: w.humidity,
@@ -150,7 +162,12 @@ export function buildUserPrompt(req: GuideRequest): string {
 type GuideCheck = { problem: string } | { json: Record<string, unknown> };
 
 /** 모델 응답 텍스트를 검사한다. 문제 이유는 필드 이름만 담는다. (응답 내용은 담지 않는다) */
-function checkGuide(text: string, maskAllowed?: boolean, isDay?: boolean): GuideCheck {
+function checkGuide(
+  text: string,
+  maskAllowed?: boolean,
+  isDay?: boolean,
+  eveningRun?: boolean,
+): GuideCheck {
   const json = extractJsonObject(text);
   if (!json) return { problem: 'not_json' };
   const { guideMessage, activityTips, detailedReason } = json;
@@ -165,7 +182,7 @@ function checkGuide(text: string, maskAllowed?: boolean, isDay?: boolean): Guide
   if (maskAllowed === false && DUST_GEAR_PHRASES.some((p) => all.includes(p))) {
     return { problem: 'mask_not_allowed' };
   }
-  if (isDay === false && NIGHT_BANNED_PHRASES.some((p) => all.includes(p))) {
+  if (isDay === false && nightBannedPhrases(eveningRun).some((p) => all.includes(p))) {
     return { problem: 'night_phrase' };
   }
   return { json };
@@ -176,13 +193,15 @@ function checkGuide(text: string, maskAllowed?: boolean, isDay?: boolean): Guide
  * @param text 모델 응답 텍스트
  * @param maskAllowed 마스크를 언급해도 되는지 (false인데 마스크 문구가 있으면 문제로 본다)
  * @param isDay 해가 떠 있는지 (false인데 햇빛·쾌적 같은 문구가 있으면 문제로 본다)
+ * @param eveningRun 러닝 저녁 구간인지 (true면 "쾌적" 같은 긍정 총평은 허용한다)
  */
 export function findGuideProblem(
   text: string,
   maskAllowed?: boolean,
   isDay?: boolean,
+  eveningRun?: boolean,
 ): string | null {
-  const checked = checkGuide(text, maskAllowed, isDay);
+  const checked = checkGuide(text, maskAllowed, isDay, eveningRun);
   return 'problem' in checked ? checked.problem : null;
 }
 
@@ -193,6 +212,7 @@ export function findGuideProblem(
  * @param level 앱이 계산한 경고 단계
  * @param maskAllowed 마스크를 언급해도 되는지
  * @param isDay 해가 떠 있는지 (밤이면 햇빛·쾌적 같은 문구를 거른다)
+ * @param eveningRun 러닝 저녁 구간인지 (true면 "쾌적" 같은 긍정 총평은 거르지 않는다)
  * @returns 올바르면 AiGuide, 형식이 어긋나면 null
  */
 export function parseGuideResponse(
@@ -200,8 +220,9 @@ export function parseGuideResponse(
   level: WarningLevel,
   maskAllowed?: boolean,
   isDay?: boolean,
+  eveningRun?: boolean,
 ): AiGuide | null {
-  const checked = checkGuide(text, maskAllowed, isDay);
+  const checked = checkGuide(text, maskAllowed, isDay, eveningRun);
   if ('problem' in checked) return null;
   const { guideMessage, activityTips, detailedReason } = checked.json;
   return {

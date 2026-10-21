@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import type { HourScore } from './bestHour';
+import type { Activity, HourlyWeather } from '../types';
+import { scoreHours, type HourScore } from './bestHour';
 import { buildBestTimeCards } from './bestTimes';
+import { NEUTRAL_SENSITIVITY } from './feelsLike';
 
 /** 2026-10-19(월), 2026-10-23(금), 2026-10-24(토)의 지정 시각 */
 const monday = (hour: number) => new Date(2026, 9, 19, hour, 30);
@@ -160,5 +162,51 @@ describe('buildBestTimeCards 시간대 카드와 채우기', () => {
     const scores = makeScores(5, peaks({ 7: 80, 19: 85, 15: 99 }));
     const cards = buildBestTimeCards(scores, monday(5), ['beforeWork', 'afterWork']);
     expect(cards.map((c) => c.label)).toEqual(['오늘 출근 전', '오늘 퇴근 후']);
+  });
+});
+
+describe('buildBestTimeCards 해 진 뒤 저녁 (10월 말, 일몰 17시대)', () => {
+  const FIRST_DAY_HOUR = 6;
+  const SUNSET_HOUR = 18;
+
+  /** 현재 시(nowHour)부터 24시간. 날씨는 모두 이상적이고 6~17시만 낮이다. */
+  function idealHourly(nowHour: number): HourlyWeather[] {
+    return Array.from({ length: 24 }, (_, i) => {
+      const hour = (nowHour + i) % 24;
+      return {
+        hour,
+        temp: 12,
+        humidity: 45,
+        windSpeed: 2,
+        precipitation: 0,
+        condition: '맑음',
+        pm10: 20,
+        uvIndex: 2,
+        isDay: hour >= FIRST_DAY_HOUR && hour < SUNSET_HOUR,
+      };
+    });
+  }
+
+  const cardsFor = (activity: Activity) => {
+    const scores = scoreHours(idealHourly(14), NEUTRAL_SENSITIVITY, [], activity);
+    return buildBestTimeCards(scores, monday(14), ['beforeWork', 'afterWork']);
+  };
+
+  it('러닝은 해가 진 18~21시에도 "오늘 퇴근 후" 카드가 나온다', () => {
+    const card = cardsFor('running').find((c) => c.label === '오늘 퇴근 후');
+    expect(card).toBeDefined();
+    expect(card?.hour).toBeGreaterThanOrEqual(18);
+    expect(card?.hour).toBeLessThanOrEqual(21);
+    expect(card?.score).toBe(100);
+  });
+
+  it('러닝도 22시 이후는 추천하지 않는다', () => {
+    const scores = scoreHours(idealHourly(22), NEUTRAL_SENSITIVITY, [], 'running');
+    const cards = buildBestTimeCards(scores, monday(22), ['afterWork']);
+    expect(cards.some((c) => c.label === '오늘 퇴근 후')).toBe(false);
+  });
+
+  it('자전거는 해가 진 뒤 시간대로 "오늘 퇴근 후" 카드를 만들지 않는다', () => {
+    expect(cardsFor('cycling').some((c) => c.label === '오늘 퇴근 후')).toBe(false);
   });
 });

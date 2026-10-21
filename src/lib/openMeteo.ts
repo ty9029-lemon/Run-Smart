@@ -242,6 +242,7 @@ export function parseWeather(forecast: ForecastResponse, air: AirResponse): Weat
     uvIndex: slot?.uvIndex ?? 0,
     isDay: toIsDay(c.is_day),
     hoursUntilSunset: hoursUntilSunset(c.time, daily),
+    hour: hourOf(c.time),
   };
   return { current, hourly };
 }

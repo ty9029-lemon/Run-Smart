@@ -21,6 +21,7 @@ import {
   scoreToLevel,
   scoreToTier,
 } from './runScore';
+import { hasDaylightScore } from './scoreFactors';
 
 /** 러닝 기준 모든 항목이 이상적인 낮 날씨 (체감 11°C) */
 const IDEAL: Weather = {
@@ -609,5 +610,66 @@ describe('밤 시간대는 추천에서 제외한다', () => {
     const scores = scoreHours(IDEAL_DAY_AND_NIGHT, NEUTRAL_SENSITIVITY, [], 'running');
     expect(scores[23].score).toBe(65);
     expect(findBestHourToday(scores.slice(23), 23)).toBeNull();
+  });
+});
+
+describe('러닝은 해 진 뒤 21시까지 일조 감점이 없다', () => {
+  /** 해가 진 저녁의 이상적인 날씨 (시각을 정해 준다) */
+  const eveningAt = (hour: number): Weather => ({ ...IDEAL, isDay: false, hour });
+
+  it.each([18, 19, 21])('러닝 %s시(해 진 뒤)는 낮과 같은 100점이다', (hour) => {
+    expect(calcRunScore(eveningAt(hour), NEUTRAL_SENSITIVITY, [], 'running')).toBe(SCORE_MAX);
+  });
+
+  it('22시부터는 기존처럼 밤 65점이다', () => {
+    expect(calcRunScore(eveningAt(22), NEUTRAL_SENSITIVITY, [], 'running')).toBe(65);
+    expect(calcRunScore(eveningAt(23), NEUTRAL_SENSITIVITY, [], 'running')).toBe(65);
+  });
+
+  it('새벽의 어두운 시간(정오 전)은 면제하지 않는다', () => {
+    expect(calcRunScore(eveningAt(5), NEUTRAL_SENSITIVITY, [], 'running')).toBe(65);
+  });
+
+  it('시각을 모르면 면제하지 않는다', () => {
+    expect(calcRunScore({ ...IDEAL, isDay: false }, NEUTRAL_SENSITIVITY, [], 'running')).toBe(65);
+  });
+
+  it('산책·등산·자전거는 저녁에도 기존 밤 점수를 쓴다', () => {
+    const night = eveningAt(19);
+    const noHour = { ...IDEAL, isDay: false };
+    (['walking', 'hiking', 'cycling'] as Activity[]).forEach((activity) => {
+      expect(calcRunScore(night, NEUTRAL_SENSITIVITY, [], activity)).toBe(
+        calcRunScore(noHour, NEUTRAL_SENSITIVITY, [], activity),
+      );
+    });
+  });
+
+  it('저녁 구간의 일조 항목은 감점 없이 만점이다', () => {
+    const breakdown = calcScoreBreakdown(eveningAt(20), NEUTRAL_SENSITIVITY, [], 'running');
+    expect(breakdown.daylight).toBe(SCORE_WEIGHTS.daylight);
+  });
+
+  it('scoreHours는 러닝 저녁 구간을 추천 가능한 시간대로 담고 22시부터는 뺀다', () => {
+    const hourly = IDEAL_DAY_AND_NIGHT.map((h) => ({ ...h, hour: h.hour }));
+    const running = scoreHours(hourly, NEUTRAL_SENSITIVITY, [], 'running');
+    expect(running[20].isDay).toBe(true);
+    expect(running[21].isDay).toBe(true);
+    expect(running[22].isDay).toBe(false);
+    expect(running[3].isDay).toBe(false);
+    const cycling = scoreHours(hourly, NEUTRAL_SENSITIVITY, [], 'cycling');
+    expect(cycling[20].isDay).toBe(false);
+  });
+
+  it('러닝 저녁 구간은 오늘의 추천 시간 후보가 된다', () => {
+    const running = scoreHours(IDEAL_DAY_AND_NIGHT, NEUTRAL_SENSITIVITY, [], 'running');
+    const evening = running.slice(20);
+    expect(findBestHourToday(evening, 20)?.hour).toBe(20);
+  });
+
+  it('저녁 구간에서는 점수 단계 헤드라인을 쓰고, 그 밖의 밤에는 야간 헤드라인을 쓴다', () => {
+    const evening = hasDaylightScore(eveningAt(19), 'running');
+    const lateNight = hasDaylightScore(eveningAt(23), 'running');
+    expect(scoreToHeadline(95, 'running', evening)).toBe('지금 러닝하기 딱 좋아요');
+    expect(scoreToHeadline(65, 'running', lateNight)).toBe(NIGHT_HEADLINE);
   });
 });

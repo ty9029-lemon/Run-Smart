@@ -8,6 +8,7 @@ import {
 import type { Activity, Constraint, HourlyWeather, Sensitivity } from '../types';
 import { calcPersonalFeelsLike } from './feelsLike';
 import { calcRunScore } from './runScore';
+import { hasDaylightScore } from './scoreFactors';
 
 /** 시간대별 점수. 동점일 때 우열을 가리는 값(미세먼지, 자외선, 쾌적 구간 거리)을 함께 담는다. */
 export interface HourScore {
@@ -17,7 +18,7 @@ export interface HourScore {
   pm10?: number;
   /** 자외선 지수 */
   uvIndex?: number;
-  /** 해가 떠 있는 시간대인지. false면 추천 후보에서 제외한다 */
+  /** 일조 감점을 받지 않는 시간대인지 (해가 떠 있거나 러닝의 저녁 구간). false면 추천 후보에서 제외한다 */
   isDay?: boolean;
   /** 개인 체감온도가 활동의 쾌적(만점) 구간에서 벗어난 정도(°C). 구간 안이면 0 */
   comfortGap?: number;
@@ -57,7 +58,7 @@ export function scoreHours(
     score: calcRunScore(h, sensitivity, constraints, activity),
     pm10: h.pm10,
     uvIndex: h.uvIndex,
-    isDay: h.isDay,
+    isDay: hasDaylightScore(h, activity),
     comfortGap: calcComfortGap(h, sensitivity, activity),
   }));
 }

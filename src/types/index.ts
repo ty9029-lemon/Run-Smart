@@ -66,6 +66,8 @@ export interface Weather {
   isDay: boolean;
   /** 이 시각부터 일몰까지 남은 시간(h). 일몰 이후면 음수, 정보가 없으면 undefined */
   hoursUntilSunset?: number;
+  /** 이 날씨의 시각(0~23시). 해 진 뒤 저녁인지 가릴 때 쓰며, 없으면 저녁 예외를 적용하지 않는다 */
+  hour?: number;
 }
 
 /** 시간대별 날씨 (1시간 단위) */
@@ -117,6 +119,8 @@ export interface GuideRequest {
   maskAllowed?: boolean;
   /** 앱이 화면에 추천한 복장 이름 목록. 가이드의 복장 팁이 화면과 어긋나지 않게 알려 준다 (없으면 기존 클라이언트) */
   outfitLabels?: string[];
+  /** 해는 졌지만 러닝 저녁 구간(일조 감점이 없는 시간)인지. true면 가이드가 "밝은 시간대"를 권하지 않는다 (없으면 기존 클라이언트) */
+  eveningRun?: boolean;
 }
 
 /** 복장 추천 항목 분류 (화면에서 그룹 소제목으로 쓴다) */
