@@ -81,6 +81,20 @@ https://runners-fit.vercel.app/?utm_source=instagram&utm_campaign=ut1
 - 채널 값은 소문자로 통일하세요 (`x`, `threads`, `instagram`, `kakao`, `community`).
 - 2026-10-12 이후 발생한 이벤트부터 붙습니다.
 
+### 분석 데이터 버전 (`appVersion`)
+
+1차 UT와 2차 UT 데이터를 나눠 보기 위한 속성입니다. 이벤트 이름과 기존 속성은 바꾸지 않았습니다.
+
+| 값 | 의미 |
+|---|---|
+| (속성 없음) | 1차 UT 이전·기간의 이벤트 (`1.0`에 해당) |
+| `1.1` | 2차 UT 준비 배포(2026-10-22 이후) 이벤트 |
+
+- Mixpanel에서는 모든 이벤트의 속성, Amplitude에서는 사용자 속성(`gp:appVersion`)으로 저장됩니다.
+- 2차만 보려면 `appVersion` **is** `1.1`, 1차를 보려면 `appVersion` **is not set**(또는 기간)으로 거릅니다.
+- 이 속성이 배포되기 전의 이벤트에는 값이 없고, 나중에 채울 수 없습니다.
+- 값은 배포마다 바뀌지 않습니다. 비교 기준이 달라지는 개선을 낼 때만 `ANALYTICS_APP_VERSION`(`src/constants/analytics.ts`)을 올립니다.
+
 ### 접속 호스트 속성 (`hostname`)
 
 개발(`localhost`)·미리보기·운영 트래픽을 구분하기 위한 속성입니다.

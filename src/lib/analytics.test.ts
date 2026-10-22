@@ -37,6 +37,7 @@ vi.mock('mixpanel-browser', () => ({ default: mixpanelMock }));
 vi.mock('./logger', () => ({ logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
 
 const PRODUCTION_HOST = 'runners-fit.vercel.app';
+const APP_VERSION = '1.1';
 
 const SAFARI_UA =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
@@ -110,6 +111,7 @@ describe('analytics', () => {
     const expected = {
       participantId: 'P01',
       hostname: PRODUCTION_HOST,
+      appVersion: APP_VERSION,
       isInAppBrowser: false,
       inAppBrowserName: 'none',
     };
@@ -126,6 +128,7 @@ describe('analytics', () => {
     const { initAnalytics } = await loadAnalytics();
     const expected = {
       hostname: PRODUCTION_HOST,
+      appVersion: APP_VERSION,
       isInAppBrowser: true,
       inAppBrowserName: 'instagram',
     };
@@ -145,6 +148,7 @@ describe('analytics', () => {
 
     expect(amplitudeMock.identify.mock.calls[0][0].props).toEqual({
       hostname: PRODUCTION_HOST,
+      appVersion: APP_VERSION,
       isInAppBrowser: false,
       inAppBrowserName: 'none',
     });
@@ -180,6 +184,7 @@ describe('analytics', () => {
     const { initAnalytics } = await loadAnalytics();
     const expected = {
       hostname: PRODUCTION_HOST,
+      appVersion: APP_VERSION,
       isInAppBrowser: false,
       inAppBrowserName: 'none',
     };
@@ -230,6 +235,7 @@ describe('analytics', () => {
     expect(mixpanelMock.register).toHaveBeenCalledWith({
       participantId: 'P02',
       hostname: PRODUCTION_HOST,
+      appVersion: APP_VERSION,
       isInAppBrowser: false,
       inAppBrowserName: 'none',
     });

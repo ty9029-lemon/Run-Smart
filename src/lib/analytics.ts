@@ -1,6 +1,8 @@
 import * as amplitude from '@amplitude/analytics-browser';
 import mixpanel from 'mixpanel-browser';
 import {
+  ANALYTICS_APP_VERSION,
+  APP_VERSION_PROPERTY,
   HOSTNAME_PROPERTY,
   IN_APP_BROWSER_NAME_PROPERTY,
   IN_APP_BROWSER_PROPERTY,
@@ -163,7 +165,7 @@ function getHostname(): string {
 
 /**
  * 이벤트에 붙일 사용자 속성을 만든다.
- * 인앱 브라우저 여부는 항상 포함하고, 참가자 코드와 접속 호스트는 값이 있을 때만 포함한다.
+ * 분석 데이터 버전과 인앱 브라우저 여부는 항상 포함하고, 참가자 코드와 접속 호스트는 값이 있을 때만 포함한다.
  */
 function buildUserProps(search: string, userAgent: string, hostname: string): UserProps {
   const { isInAppBrowser, inAppBrowserName } = detectInAppBrowser(userAgent);
@@ -171,6 +173,7 @@ function buildUserProps(search: string, userAgent: string, hostname: string): Us
   return {
     ...(participantId ? { [PARTICIPANT_ID_PROPERTY]: participantId } : {}),
     ...(hostname ? { [HOSTNAME_PROPERTY]: hostname } : {}),
+    [APP_VERSION_PROPERTY]: ANALYTICS_APP_VERSION,
     [IN_APP_BROWSER_PROPERTY]: isInAppBrowser,
     [IN_APP_BROWSER_NAME_PROPERTY]: inAppBrowserName,
   };
@@ -179,7 +182,7 @@ function buildUserProps(search: string, userAgent: string, hostname: string): Us
 /**
  * 분석 도구(Amplitude, Mixpanel)를 초기화하고 사용자 속성을 등록한다.
  * 운영 호스트가 아니면(로컬·Preview) 개발 이벤트가 실제 데이터에 섞이지 않도록 초기화하지 않는다.
- * 속성: 참가자 코드(URL ?pid=, 유효할 때만), 접속 호스트, 인앱 브라우저 여부와 앱 이름,
+ * 속성: 분석 데이터 버전, 참가자 코드(URL ?pid=, 유효할 때만), 접속 호스트, 인앱 브라우저 여부와 앱 이름,
  * 첫 접속의 유입 채널(utm_source·utm_medium·utm_campaign, 처음 값만 유지)
  * @param search 참가자 코드를 읽을 쿼리 문자열 (기본: 현재 URL)
  * @param userAgent 인앱 브라우저를 판별할 User-Agent (기본: 현재 브라우저)

@@ -71,3 +71,12 @@ export const HOSTNAME_PROPERTY = 'hostname';
 
 /** 분석 데이터를 전송하는 운영 호스트. 이 호스트가 아니면(로컬·Preview) 분석 도구를 초기화하지 않는다. */
 export const PRODUCTION_HOSTNAME = 'runners-fit.vercel.app';
+
+/** 분석 데이터의 버전(1차·2차 UT 구분)을 분석 도구에 저장할 때 쓰는 속성 이름 */
+export const APP_VERSION_PROPERTY = 'appVersion';
+
+/**
+ * 분석 데이터 버전. 1차 UT(속성 없음)와 2차 UT(1.1)를 나눠 보기 위한 값이며, 배포마다 바꾸지 않고
+ * 비교 기준이 달라지는 개선을 낼 때만 직접 올린다.
+ */
+export const ANALYTICS_APP_VERSION = '1.1';
