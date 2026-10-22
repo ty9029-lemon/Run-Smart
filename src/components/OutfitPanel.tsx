@@ -75,7 +75,7 @@ export default function OutfitPanel({
           </li>
         ))}
       </ul>
-      {reason && <OutfitReasonLine reason={reason} />}
+      {reason && <OutfitReasonLine reason={reason} source={source} />}
       {isTipsLoading && <SkeletonLines widths={TIPS_SKELETON_WIDTHS} className="mt-4 space-y-0.5 pl-6" />}
       {tips.length > 0 && (
         <ul className={`mt-4 list-disc space-y-0.5 pl-6 text-base ${FADE_IN_CLASS}`}>

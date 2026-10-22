@@ -1,4 +1,7 @@
 import { Info } from 'lucide-react';
+import { useRef } from 'react';
+import { OUTFIT_SOURCES, SECTION_IDS } from '../constants/analytics';
+import { useSectionViewed } from '../hooks/useSectionViewed';
 import { HISTORY_MESSAGES } from '../constants/messages';
 import { MS_PER_SECOND } from '../constants/thresholds';
 import { formatDistanceKm } from '../lib/distance';
@@ -41,6 +44,22 @@ export function needsDistanceHint(entry: HistoryEntry): boolean {
   return entry.distanceKm === undefined && entry.durationSec !== undefined;
 }
 
+/** 거리를 추가하는 방법을 알리는 안내 배너. 일정 비율·시간 이상 보이면 노출 이벤트를 한 번 보낸다. */
+function DistanceHint() {
+  const hintRef = useRef<HTMLDivElement>(null);
+  useSectionViewed(hintRef, SECTION_IDS.distanceHint, { screen: OUTFIT_SOURCES.history });
+  return (
+    <div
+      ref={hintRef}
+      role="note"
+      className="mt-4 flex items-start gap-2 rounded-[12px] bg-info p-3 text-sm"
+    >
+      <Info aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-info-foreground" />
+      <p>{HISTORY_MESSAGES.distanceHint}</p>
+    </div>
+  );
+}
+
 /**
  * 거리·페이스·시간을 큰 숫자로 나란히 보여준다. 보여줄 값이 없으면 그리지 않는다.
  * 거리가 없는 기록에는 거리를 추가하는 방법을 눈에 띄는 안내 배너(i 아이콘)로 알린다.
@@ -59,12 +78,7 @@ export default function HistoryStats({ entry }: { entry: HistoryEntry }) {
           </div>
         ))}
       </dl>
-      {needsDistanceHint(entry) && (
-        <div role="note" className="mt-4 flex items-start gap-2 rounded-[12px] bg-info p-3 text-sm">
-          <Info aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-info-foreground" />
-          <p>{HISTORY_MESSAGES.distanceHint}</p>
-        </div>
-      )}
+      {needsDistanceHint(entry) && <DistanceHint />}
     </>
   );
 }

@@ -39,6 +39,23 @@ Mixpanel 화면에서 직접 만들며, 별도 코드 변경은 필요하지 않
 | `app_review_submitted` | 별점(과 메시지)을 제출해 저장에 성공했을 때 | `rating`(1~5), `hasMessage`(메시지 작성 여부), `entryCount`. **메시지 본문은 분석 도구로 보내지 않음** |
 | `app_review_dismissed` | 팝업을 응답 없이 닫았을 때 | `dismissCount`(누적 닫은 횟수) |
 | `data_load_failed` | 날씨·가이드 로딩 실패 | `reason` 등 |
+| `section_viewed` | 개선 요소가 50% 이상 1초 이상 화면에 보였을 때 (마운트당 1회, 2026-10-23 추가) | `section`: `best_time`(베스트 시간 카드) / `ai_guide`(홈 AI 가이드 문단, 불러오기에 성공했을 때만) / `score_reason`(점수 카드의 감점 이유 줄) / `score_delta`(선택한 시각의 점수 차이 줄) / `outfit_reason`(복장 근거 줄) / `distance_hint`(기록의 거리 추가 안내 배너). `screen`: `home` / `history`. `ai_guide`에는 `activity`도 붙음 |
+| `theme_changed` | 설정에서 테마 칩을 눌러 미리보기를 바꿀 때 (2026-10-23 추가) | `theme`(`system`/`light`/`dark`), `screen`(`settings`) |
+| `theme_saved` | 설정 저장 때 확정되는 테마 (2026-10-23 추가) | `theme`, `changed`(이번 저장에서 테마를 바꿨는지) |
+| `constraint_toggled` | 제약사항 체크박스를 눌렀을 때 (2026-10-23 추가) | `constraint`, `checked`(토글 후 상태), `screen`(`onboarding`/`settings`) |
+| `time_slot_toggled` | 활동 시간대 칩을 눌렀을 때 (2026-10-23 추가) | `slot`, `checked`(토글 후 상태), `screen`(`onboarding`/`settings`) |
+| `feedback_sheet_opened` | 종료 직후 피드백 바텀 시트가 열렸을 때. `feedback_submitted`(`source=sheet`)·`feedback_sheet_dismissed`·`feedback_skipped`의 분모 (2026-10-23 추가) | `activity` |
+| `onboarding_step_viewed` | 온보딩 단계가 보일 때 (2026-10-23 추가) | `step`(`activity`/`offset`/`constraint`/`location`), `stepIndex`(0부터), `direction`(`forward`/`back`) |
+| `onboarding_step_completed` | 온보딩에서 [다음]/[시작하기]로 단계를 마칠 때 (2026-10-23 추가) | `step`, `stepIndex`, `durationSec`(그 단계에 머문 시간) |
+| `activity_disabled_clicked` | 준비 중인 활동 칩을 눌렀을 때 | `activity`, `screen`(`home`/`settings`/`onboarding`) |
+| `score_reason_sheet_opened` | 점수 카드의 "왜 이 점수예요?"로 근거 시트를 열었을 때 | `activity`, `score`, `topFactor` |
+| `tab_clicked` | 하단 탭을 눌렀을 때 | `tab` |
+| `history_recommendation_opened` | 기록에서 그날의 AI 가이드·복장을 펼쳤을 때 | `activity`, `daysAgo` |
+| `history_entry_edited` | 기록 ⋮ 메뉴에서 거리·복장을 고쳐 저장했을 때 | `activity`, `hasDistance`, `hasActualOutfit` |
+| `history_entry_deleted` | 기록 ⋮ 메뉴에서 기록을 지웠을 때 | `activity`, `daysAgo` |
+| `feedback_skipped` | 피드백 시트·카드에서 '저장 안 할래요'로 기록을 지웠을 때 | `activity`, `source` |
+
+> 2차 UT(`appVersion=1.1`)의 개선 확인용 이벤트는 위 `section_viewed`~`onboarding_step_completed` 8종입니다. 노출(`section_viewed`)은 클릭이 없는 요소의 분모로 쓰고, 사용률은 기존 이벤트와 비교합니다. 예: `score_reason` 노출 대비 `score_reason_sheet_opened`, `feedback_sheet_opened` 대비 `feedback_submitted`(`source=sheet`). 베스트 시간 카드와 거리 안내 배너는 누르는 UI가 아니라 클릭 이벤트가 없습니다.
 
 속성 이름은 camelCase이며, 위치·좌표 같은 개인정보는 수집하지 않습니다.
 `useCurrentLocation`은 "현재 위치로 날씨 보기" 선호(true/false)일 뿐 좌표가 아닙니다.

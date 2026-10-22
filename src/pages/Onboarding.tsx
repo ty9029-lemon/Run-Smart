@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import ActivityTimePicker from '../components/ActivityTimePicker';
 import OnboardingStep from '../components/OnboardingStep';
 import StepIndicator from '../components/StepIndicator';
-import { CTA_IDS } from '../constants/analytics';
+import { ACTIVITY_SCREENS, CTA_IDS } from '../constants/analytics';
 import { MOTION_DURATION_MS } from '../constants/motion';
 import { ONBOARDING_STEPS } from '../constants/onboarding';
 import { useAppRevealed } from '../hooks/useAppRevealed';
+import { useOnboardingStepTracking } from '../hooks/useOnboardingStepTracking';
 import { useProfileDraft } from '../hooks/useProfileDraft';
 import { useRestoreFocus } from '../hooks/useRestoreFocus';
 import { requestLocationPermission, useLocationPermission } from '../hooks/useLocationPermission';
@@ -134,6 +135,7 @@ export default function Onboarding() {
   const isLast = stepIndex === LAST_STEP;
   // 눌렀던 버튼이 사라지는 전환(2단계의 [이전])에서 포커스를 잃지 않게 한다.
   useRestoreFocus(buttonsRef, stepIndex);
+  const trackStepCompleted = useOnboardingStepTracking(step.id, stepIndex, direction);
 
   /** 순차 등장: 요소 순서만큼 --motion-stagger 지연을 준다. */
   const getMotion = (index: number): StepMotion => ({
@@ -159,6 +161,7 @@ export default function Onboarding() {
       setIsStarting(false);
       return;
     }
+    trackStepCompleted();
     setIsLeaving(true);
     await new Promise((resolve) => setTimeout(resolve, MOTION_DURATION_MS.fast));
     submit();
@@ -179,6 +182,7 @@ export default function Onboarding() {
   /** 다음 단계로. 활동 선택 단계는 1개 이상 골라야 넘어간다. */
   const handleNext = () => {
     if (step.id === 'activity' && !validate()) return;
+    trackStepCompleted();
     goToStep(stepIndex + 1);
   };
 
@@ -212,6 +216,7 @@ export default function Onboarding() {
             <ActivityTimePicker
               selected={draft.activityTimeSlots}
               onToggle={(id) => onChange(toggleActivityTimeSlot(draft, id))}
+              screen={ACTIVITY_SCREENS.onboarding}
             />
           </StepSection>
         )}
