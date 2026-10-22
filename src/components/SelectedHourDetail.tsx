@@ -1,4 +1,5 @@
-import { Droplet, Grip, Sun, ThermometerSun, Umbrella, Wind, type LucideIcon } from 'lucide-react';
+import { Droplet, Sun, ThermometerSun, Umbrella, Wind } from 'lucide-react';
+import type { ComponentType, SVGProps } from 'react';
 import {
   GRADE_TEXT_CLASS,
   SCORE_LEVEL_NAME,
@@ -10,6 +11,7 @@ import { formatHourLabel } from '../lib/formatTime';
 import { scoreToLevel } from '../lib/runScore';
 import type { ScoreDelta } from '../lib/scoreReasons';
 import type { HourlyWeather } from '../types';
+import DustIcon from './icons/DustIcon';
 import ScoreDeltaLine from './ScoreDeltaLine';
 
 /** 내일 시각 앞에 붙이는 말 */
@@ -31,7 +33,7 @@ interface SelectedHourDetailProps {
 interface Tile {
   label: string;
   value: string;
-  icon: LucideIcon;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
   valueClass?: string;
 }
 
@@ -47,7 +49,7 @@ function buildTiles(weather: HourlyWeather, feelsLike: number): Tile[] {
     {
       label: '미세먼지',
       value: `${dust} (${weather.pm10})`,
-      icon: Grip,
+      icon: DustIcon,
       valueClass: GRADE_TEXT_CLASS[dust],
     },
     {
