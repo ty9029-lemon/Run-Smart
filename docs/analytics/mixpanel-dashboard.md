@@ -20,7 +20,7 @@ Mixpanel 화면에서 직접 만들며, 별도 코드 변경은 필요하지 않
 | 이벤트 | 발생 시점 | 속성 |
 |---|---|---|
 | `[Auto] Page View` (`$mp_web_page_view`) | 페이지 경로가 바뀔 때 (자동 수집) | Mixpanel 기본 속성 (`$current_url` 등) |
-| `cta_clicked` | 핵심 버튼 클릭 | `cta`: `onboarding_start` / `location_allow` / `location_settings` / `settings_save` (`location_allow`는 아래 주석 참고) |
+| `cta_clicked` | 핵심 버튼 클릭 | `cta`: `onboarding_start` / `location_allow` / `location_settings` / `settings_save` / `hour_reminder` (`location_allow`는 아래 주석, `hour_reminder`는 10장 참고). `hour_reminder`에는 `activity`, `hour`(선택한 시각 0~23), `score`, `isTomorrow`가 함께 붙음 (2026-10-22 추가) |
 | `onboarding_completed` | 온보딩 완료 | `activityCount`, `timeSlotCount`, `constraintCount`, `useCurrentLocation` |
 | `settings_saved` | 설정 저장 성공 | `coldLevel`, `heatLevel`, `activityCount`, `timeSlotCount`, `constraintCount`, `useCurrentLocation` |
 | `decision_made` | 가기 선택 (홈의 '안 가기' 버튼 제거 후 `skip`은 새로 발생하지 않고 Mixpanel의 과거 데이터에만 남음) | `decision`(`go`), `activity`, `score`, `isChange`(오늘 같은 활동으로 이미 결정한 적이 있으면 `true`), `timeToDecisionMs`(결과 화면이 준비된 뒤 결정까지 걸린 시간(ms). 재결정(`isChange=true`)에는 붙지 않으며 2026-10-12 추가) |
@@ -230,6 +230,8 @@ Mixpanel 자동 페이지뷰 수집은 초기화 시점에 발생해 사용자 �
 | 페이지별 조회수 | Insights | `[Auto] Page View`, **Total Events**, Breakdown `$current_url`, 차트 Bar |
 | 민감도 분포 | Insights | `settings_saved`, **Total Events**, Breakdown `coldLevel` 또는 `heatLevel` |
 | 참가자 개별 흐름 | Insights | 필터 `participantId` is `P01`, 이벤트 전체 |
+| 알림 수요 클릭률 | Insights (Formula) | `A = cta_clicked`(필터 `cta` is `hour_reminder`) Uniques, `B = run_score_viewed` Uniques, 수식 `A / B` (10장 참고) |
+| 알림 수요 시간대·점수 | Insights | `cta_clicked`(필터 `cta` is `hour_reminder`), **Total Events**, Breakdown `hour` 또는 `score`(숫자 구간) |
 
 ---
 
@@ -328,4 +330,27 @@ Preview 배포에서 발생한 이벤트도 같은 프로젝트에 쌓입니다.
 - **낮은 응답률**: 닫을 수 있어 표본이 작을 수 있습니다. 평균보다 분포와 메시지를 중심으로 보고, 최소 20건 이상일 때 판단합니다.
 - **인앱 브라우저**: 저장소가 분리되면 재방문으로 인식되지 않아 팝업이 안 뜰 수 있습니다. `inAppBrowserName`별로 응답률을 비교하세요.
 - **메시지 개인정보**: 자유 입력이라 연락처 등이 적힐 수 있습니다. 외부로 공유할 때는 마스킹하세요.
+
+---
+
+## 10. 시간대 러닝 알림 수요 확인 (2026-10-22 배포)
+
+홈의 시간대 차트에서 막대를 고르면 상세 타일 아래에 "○○ 러닝 알림 받기" 버튼이 뜹니다.
+알림 기능은 아직 없고, 버튼을 누르면 "알림 기능은 아직 준비 중이에요" 안내로 바뀝니다.
+알림을 만들 만큼 수요가 있는지 확인하기 위한 수요 확인용 버튼입니다.
+
+| 항목 | 내용 |
+|---|---|
+| 이벤트 | `cta_clicked`, `cta` = `hour_reminder` |
+| 속성 | `activity`, `hour`(선택한 시각 0~23), `score`(그 시각 점수), `isTomorrow` |
+| 노출 | 시간대 차트가 보이는 홈 화면이면 항상 (선택한 시각이 있을 때). 전용 노출 이벤트는 없음 |
+| 클릭률 | `hour_reminder` 클릭 사용자 ÷ `run_score_viewed` 사용자 (3장의 "알림 수요 클릭률") |
+
+### 해석 주의
+
+- **클릭은 관심이지 사용 의사가 아닙니다.** 알림이 실제로 오지 않는 상태의 클릭이라, 실제 알림이 생겼을 때의 사용률보다 높게 나올 수 있습니다.
+  UT에서는 클릭한 참가자에게 "알림이 오면 쓰시겠어요? 어느 시간대에 받고 싶으세요?"를 함께 물어 보완하세요.
+- **분모가 넓습니다.** 홈 화면을 본 사용자 전체가 분모라서, 스크롤하지 않아 버튼을 못 본 사용자도 포함됩니다. 클릭률이 낮게 나올 수 있습니다.
+- **한 사용자가 여러 번 누를 수 있습니다.** 누른 뒤에는 버튼이 안내로 바뀌지만, 다른 시각을 고르거나 화면을 새로고침하면 다시 누를 수 있습니다. 이벤트 수(Total Events)가 아니라 사용자 수(Uniques)로 보세요.
+- **판단 기준은 UT 전에 정하세요.** 어느 정도 클릭률이면 .ics 내보내기나 웹 푸시를 만들지 미리 합의해 두어야 결과를 편향 없이 읽을 수 있습니다.
 
