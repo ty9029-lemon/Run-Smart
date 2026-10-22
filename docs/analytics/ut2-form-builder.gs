@@ -8,11 +8,22 @@
 
 const FORM_TITLE = 'Run-Smart 2차 사용성 테스트 설문';
 const APP_LINK = 'https://runners-fit.vercel.app/?utm_source=pickply&utm_campaign=ut2';
+const REWARD_NAME = '커피 쿠폰';
+const REWARD_WINNER_COUNT = 5;
+const PHONE_RETENTION_DAYS = 30;
 const FORM_DESCRIPTION = '앱을 직접 써 보신 뒤 느낀 점을 알려 주세요. 응답은 서비스 개선에만 사용됩니다.\n\n'
   + '[참여 방법]\n'
   + '1. 아래 주소로 앱을 열어 점수, 복장 추천, 시간대별 날씨, 기록 화면을 둘러봐 주세요.\n'
   + APP_LINK + '\n'
-  + '2. 둘러본 뒤 이 설문에 답해 주세요.';
+  + '2. 둘러본 뒤 이 설문에 답해 주세요.\n\n'
+  + '[참여 혜택]\n'
+  + '동의하고 성실히 응답해 주신 분 중 추첨으로 ' + REWARD_WINNER_COUNT + '분께 ' + REWARD_NAME + '을 드립니다. '
+  + '받으시려면 마지막에 휴대폰 번호를 남겨 주세요.';
+const CONSENT_NOTICE = '[수집 항목] 연령대, 러닝 습관, 설문 응답, 앱 이용 기록(익명), 휴대폰 번호(선택)\n'
+  + '[수집 목적] 서비스 개선을 위한 분석, 경품 추첨 및 발송 안내\n'
+  + '[보유 기간] 휴대폰 번호는 경품 발송 후 즉시, 늦어도 설문 종료 후 ' + PHONE_RETENTION_DAYS + '일 이내에 파기합니다. '
+  + '나머지 응답은 서비스 개선 분석이 끝날 때까지 보관합니다.\n'
+  + '동의를 거부할 수 있으며, 거부하시면 설문에 참여하실 수 없습니다.';
 const SCALE_MIN = 1;
 const SCALE_MAX = 5;
 const NPS_MIN = 0;
@@ -22,6 +33,9 @@ const SCALE_HIGH_LABEL = '매우 그렇다';
 const NPS_LOW_LABEL = '전혀 추천하지 않음';
 const NPS_HIGH_LABEL = '적극 추천';
 const OPTIONAL_PREFIX = '(해당하는 경우만) ';
+const PHONE_PATTERN = '^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$';
+const PHONE_ERROR_TEXT = '휴대폰 번호 형식으로 입력해 주세요. (예: 010-1234-5678)';
+const PHONE_HELP_TEXT = '경품 추첨 및 발송 안내에만 사용하며, 경품 발송 후 즉시 파기합니다. 원하지 않으시면 비워 두셔도 됩니다.';
 
 const METRICS = [
   '날씨 점수', '기온', '체감 온도', '습도', '강수', '풍속',
@@ -44,6 +58,7 @@ function createUt2Form() {
   addImprovementSection(form);
   addSummarySection(form);
   addRunnerSection(form);
+  addContactSection(form);
   Logger.log('편집 주소: ' + form.getEditUrl());
   Logger.log('응답 주소: ' + form.getPublishedUrl());
 }
@@ -72,7 +87,8 @@ function addLong(form, title, required) {
 
 /** 동의 문항: 동의하지 않으면 폼을 바로 제출 처리한다. */
 function addConsentSection(form) {
-  const consent = form.addMultipleChoiceItem().setTitle('개인정보 수집·이용에 동의하시나요?').setRequired(true);
+  const consent = form.addMultipleChoiceItem().setTitle('개인정보 수집·이용에 동의하시나요?')
+    .setHelpText(CONSENT_NOTICE).setRequired(true);
   const nextPage = form.addPageBreakItem().setTitle('기본 정보');
   consent.setChoices([
     consent.createChoice('동의', nextPage),
@@ -176,4 +192,12 @@ function addRunnerSection(form) {
   addChoice(form, OPTIONAL_PREFIX + '주로 러닝하러 가는 시간대가 비슷하거나 정해져 있나요?', ['네', '아니오'], false);
   addChoice(form, OPTIONAL_PREFIX + '주로 언제 러닝하시나요?',
     ['평일 출근 전', '평일 퇴근 후', '주말 아침', '주말 저녁~밤'], false).showOtherOption(true);
+}
+
+/** I1: 경품 안내용 휴대폰 번호 (선택 응답, 형식 검증) */
+function addContactSection(form) {
+  form.addPageBreakItem().setTitle('경품 안내');
+  const phone = addShort(form, '휴대폰 번호를 입력해 주세요.', false).setHelpText(PHONE_HELP_TEXT);
+  phone.setValidation(FormApp.createTextValidation()
+    .setHelpText(PHONE_ERROR_TEXT).requireTextMatchesPattern(PHONE_PATTERN).build());
 }
