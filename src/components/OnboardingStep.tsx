@@ -41,6 +41,7 @@ export default function OnboardingStep({
       return (
         <ConstraintList
           selected={draft.constraints}
+          screen={ACTIVITY_SCREENS.onboarding}
           onToggle={(id) => onChange(toggleConstraint(draft, id))}
         />
       );

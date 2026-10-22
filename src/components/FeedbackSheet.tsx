@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -12,6 +13,7 @@ import {
   FEEDBACK_SOURCES,
   formatFeedbackTitle,
 } from '../constants/feedback';
+import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { useSubmitFeedback } from '../hooks/useSubmitFeedback';
 import { formatDayPrefix, formatTime } from '../lib/formatTime';
 import type { Feedback, FeedbackDetail, HistoryEntry } from '../types';
@@ -31,6 +33,15 @@ interface FeedbackSheetProps {
 /** 활동을 마친 직후 체감·거리·복장을 묻는 바텀 시트. 답하지 않고 넘어가면 앱 재방문 때 상단 카드가 이어서 묻는다. */
 export default function FeedbackSheet({ entry, onDismiss, onSkip, onSaved }: FeedbackSheetProps) {
   const submitFeedback = useSubmitFeedback();
+  const entryId = entry?.id;
+  const entryActivity = entry?.activity;
+
+  // 시트가 새 기록으로 열릴 때마다 한 번 기록한다 (제출·닫기·건너뛰기 전환율의 분모)
+  useEffect(() => {
+    if (entryId === undefined || entryActivity === undefined) return;
+    trackEvent(ANALYTICS_EVENTS.feedbackSheetOpened, { activity: entryActivity });
+  }, [entryId, entryActivity]);
+
   if (!entry) return null;
 
   /** 닫기: 답하지 않고 닫으면 '나중에'로 알린다. */

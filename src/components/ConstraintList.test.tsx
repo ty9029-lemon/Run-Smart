@@ -4,7 +4,7 @@ import { CONSTRAINTS } from '../constants/activities';
 import ConstraintList from './ConstraintList';
 
 describe('ConstraintList', () => {
-  const html = renderToStaticMarkup(<ConstraintList selected={[]} onToggle={() => {}} />);
+  const html = renderToStaticMarkup(<ConstraintList selected={[]} onToggle={() => {}} screen="settings" />);
 
   it('항목마다 체크박스와 글자를 함께 감싼 줄 전체 라벨이 있다', () => {
     const labels = html.match(/<label[^>]*>[\s\S]*?<\/label>/g) ?? [];

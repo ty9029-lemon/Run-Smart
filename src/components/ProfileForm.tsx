@@ -30,6 +30,7 @@ export default function ProfileForm({ draft, error, onChange }: ProfileFormProps
       <section className={SECTION}>
         <ActivityTimePicker
           selected={draft.activityTimeSlots}
+          screen={ACTIVITY_SCREENS.settings}
           onToggle={(id) => onChange(toggleActivityTimeSlot(draft, id))}
         />
       </section>
@@ -42,6 +43,7 @@ export default function ProfileForm({ draft, error, onChange }: ProfileFormProps
         <h2 className="mb-3 text-base font-bold">제약사항</h2>
         <ConstraintList
           selected={draft.constraints}
+          screen={ACTIVITY_SCREENS.settings}
           onToggle={(id) => onChange(toggleConstraint(draft, id))}
         />
       </section>

@@ -1,9 +1,11 @@
+import { useRef } from 'react';
 import { LocationNotice, type LocationNoticeProps } from './GuideBox';
 import OutfitPanel from './OutfitPanel';
 import SkeletonLines from './SkeletonLines';
 import { MESSAGES } from '../constants/messages';
-import { OUTFIT_SOURCES } from '../constants/analytics';
+import { ACTIVITY_SCREENS, OUTFIT_SOURCES, SECTION_IDS } from '../constants/analytics';
 import { FADE_IN_CLASS } from '../constants/motion';
+import { useSectionViewed } from '../hooks/useSectionViewed';
 import { filterTipsNotInOutfit, formatGuideParagraph } from '../lib/guideTips';
 import type { OutfitReason } from '../lib/outfitReasons';
 import type { Activity, GuideState, OutfitItem } from '../types';
@@ -21,8 +23,23 @@ interface HomeOutfitSectionProps {
   location?: LocationNoticeProps;
 }
 
+/** AI 가이드가 완성돼 화면에 보인 문단. 일정 비율·시간 이상 보이면 노출 이벤트를 한 번 보낸다. */
+function ReadyGuideText({ text, activity }: { text: string; activity: Activity }) {
+  const textRef = useRef<HTMLParagraphElement>(null);
+  useSectionViewed(textRef, SECTION_IDS.aiGuide, { screen: ACTIVITY_SCREENS.home, activity });
+  return (
+    <p ref={textRef} className={`text-base ${FADE_IN_CLASS}`}>
+      {text}
+    </p>
+  );
+}
+
 /** 가이드 상태에 맞는 설명 문단 (완료면 요약 + 상세 이유) */
-function GuideParagraph({ guide, rawWeather }: Pick<HomeOutfitSectionProps, 'guide' | 'rawWeather'>) {
+function GuideParagraph({
+  guide,
+  rawWeather,
+  activity,
+}: Pick<HomeOutfitSectionProps, 'guide' | 'rawWeather' | 'activity'>) {
   if (guide.state === 'loading') {
     return (
       <div role="status" aria-busy="true">
@@ -31,7 +48,10 @@ function GuideParagraph({ guide, rawWeather }: Pick<HomeOutfitSectionProps, 'gui
       </div>
     );
   }
-  const text = guide.state === 'ready' ? formatGuideParagraph(guide.data) : rawWeather;
+  if (guide.state === 'ready') {
+    return <ReadyGuideText text={formatGuideParagraph(guide.data)} activity={activity} />;
+  }
+  const text = rawWeather;
   return <p className={`text-base ${FADE_IN_CLASS}`}>{text}</p>;
 }
 
@@ -50,7 +70,7 @@ export default function HomeOutfitSection({
     <section className="space-y-3">
       <div className="space-y-3">
         <h2 className="text-xl font-bold">현재 날씨 추천 복장</h2>
-        <GuideParagraph guide={guide} rawWeather={rawWeather} />
+        <GuideParagraph guide={guide} rawWeather={rawWeather} activity={activity} />
       </div>
       {location && <LocationNotice {...location} />}
       <OutfitPanel

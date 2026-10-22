@@ -26,6 +26,24 @@ export const OUTFIT_SOURCES = {
 
 export type OutfitSource = (typeof OUTFIT_SOURCES)[keyof typeof OUTFIT_SOURCES];
 
+/** section_viewed 이벤트의 section 속성값 (2차 UT에서 확인할 개선 요소 구분) */
+export const SECTION_IDS = {
+  bestTime: 'best_time',
+  aiGuide: 'ai_guide',
+  scoreReason: 'score_reason',
+  scoreDelta: 'score_delta',
+  outfitReason: 'outfit_reason',
+  distanceHint: 'distance_hint',
+} as const;
+
+export type SectionId = (typeof SECTION_IDS)[keyof typeof SECTION_IDS];
+
+/** 개선 요소를 "봤다"고 인정하는 최소 가시 비율 */
+export const SECTION_VIEW_RATIO = 0.5;
+
+/** 개선 요소를 "봤다"고 인정하는 최소 노출 시간(ms) */
+export const SECTION_VIEW_DWELL_MS = 1000;
+
 /** 점수 근거 시트를 열었을 때 상위 감점 항목이 없으면 넣는 값 */
 export const SCORE_TOP_FACTOR_NONE = 'none';
 

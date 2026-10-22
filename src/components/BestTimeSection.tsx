@@ -1,4 +1,7 @@
+import { useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { ACTIVITY_SCREENS, SECTION_IDS } from '../constants/analytics';
+import { useSectionViewed } from '../hooks/useSectionViewed';
 import { SCORE_LEVEL_NAME, SCORE_LEVEL_TEXT_CLASS } from '../constants/levelStyles';
 import type { BestTimeCard as BestTimeCardData } from '../lib/bestTimes';
 import { scoreToLevel } from '../lib/runScore';
@@ -57,8 +60,15 @@ function BestTimeCard({ card, isWide }: { card: BestTimeCardData; isWide: boolea
 /** 점수 카드 아래 "베스트 시간" 영역. 온보딩에서 고른 시간대의 카드가 먼저 나온다. */
 export default function BestTimeSection({ cards }: BestTimeSectionProps) {
   if (cards.length === 0) return null;
+  return <BestTimeContent cards={cards} />;
+}
+
+/** 베스트 시간 영역 본문. 카드가 있을 때만 그려져, 노출 이벤트는 실제로 보인 경우에만 보낸다. */
+function BestTimeContent({ cards }: BestTimeSectionProps) {
+  const sectionRef = useRef<HTMLElement>(null);
+  useSectionViewed(sectionRef, SECTION_IDS.bestTime, { screen: ACTIVITY_SCREENS.home });
   return (
-    <section className="space-y-3">
+    <section ref={sectionRef} className="space-y-3">
       <h2 className="text-xl font-bold">베스트 시간</h2>
       <div className="flex gap-3">
         {cards.map((card) => (

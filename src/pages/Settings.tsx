@@ -11,6 +11,15 @@ import { useProfileDraft } from '../hooks/useProfileDraft';
 import { useProfileStore } from '../store/profileStore';
 import { useThemeStore } from '../store/themeStore';
 
+/** 저장할 때 확정되는 테마와, 이번에 테마를 바꿨는지 기록한다. */
+function trackThemeSaved(): void {
+  const { mode, previewMode } = useThemeStore.getState();
+  trackEvent(ANALYTICS_EVENTS.themeSaved, {
+    theme: previewMode ?? mode,
+    changed: previewMode !== null && previewMode !== mode,
+  });
+}
+
 /** 설정 (프로필 맞춤) */
 export default function Settings() {
   const navigate = useNavigate();
@@ -28,6 +37,7 @@ export default function Settings() {
       useCurrentLocation: next.useCurrentLocation,
     });
     // 화면을 떠나면 미리보기가 사라지므로 이동 전에 테마를 확정한다
+    trackThemeSaved();
     commitThemePreview();
     navigate('/', { state: SETTINGS_SAVED_STATE });
   });
