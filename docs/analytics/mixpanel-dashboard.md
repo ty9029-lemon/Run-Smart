@@ -39,7 +39,7 @@ Mixpanel 화면에서 직접 만들며, 별도 코드 변경은 필요하지 않
 | `app_review_submitted` | 별점(과 메시지)을 제출해 저장에 성공했을 때 | `rating`(1~5), `hasMessage`(메시지 작성 여부), `entryCount`. **메시지 본문은 분석 도구로 보내지 않음** |
 | `app_review_dismissed` | 팝업을 응답 없이 닫았을 때 | `dismissCount`(누적 닫은 횟수) |
 | `data_load_failed` | 날씨·가이드 로딩 실패 | `reason` 등 |
-| `section_viewed` | 개선 요소가 50% 이상 1초 이상 화면에 보였을 때 (마운트당 1회, 2026-10-23 추가) | `section`: `best_time`(베스트 시간 카드) / `ai_guide`(홈 AI 가이드 문단, 불러오기에 성공했을 때만) / `score_reason`(점수 카드의 감점 이유 줄) / `score_delta`(선택한 시각의 점수 차이 줄) / `outfit_reason`(복장 근거 줄) / `distance_hint`(기록의 거리 추가 안내 배너). `screen`: `home` / `history`. `ai_guide`에는 `activity`도 붙음 |
+| `section_viewed` | 개선 요소가 50% 이상 1초 이상 화면에 보였을 때 (마운트당 1회, 2026-10-23 추가) | `section`: `best_time`(베스트 시간 카드) / `ai_guide`(홈 AI 가이드 문단, 불러오기에 성공했을 때만) / `score_reason`(점수 카드의 감점 이유 줄) / `score_delta`(선택한 시각의 점수 차이 줄) / `outfit_reason`(복장 근거 줄) / `distance_hint`(기록의 거리 추가 안내 배너) / `hour_reminder`("N시 러닝 알림 받기" 버튼, 아직 누르지 않은 상태에서만. `cta_clicked`(`cta=hour_reminder`)의 분모). `screen`: `home` / `history`. `ai_guide`에는 `activity`도 붙음 |
 | `theme_changed` | 설정에서 테마 칩을 눌러 미리보기를 바꿀 때 (2026-10-23 추가) | `theme`(`system`/`light`/`dark`), `screen`(`settings`) |
 | `theme_saved` | 설정 저장 때 확정되는 테마 (2026-10-23 추가) | `theme`, `changed`(이번 저장에서 테마를 바꿨는지) |
 | `constraint_toggled` | 제약사항 체크박스를 눌렀을 때 (2026-10-23 추가) | `constraint`, `checked`(토글 후 상태), `screen`(`onboarding`/`settings`) |

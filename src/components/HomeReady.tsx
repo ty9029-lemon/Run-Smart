@@ -340,6 +340,7 @@ export default function HomeReady({
             hourLabel={`${isTomorrowIndex(selectedIndex, nowHour) ? '내일 ' : ''}${formatHourLabel(selectedWeather.hour)}`}
             isRequested={reminderHour === selectedWeather.hour}
             onRequest={handleRequestReminder}
+            activity={activity}
           />
         )}
       </div>
