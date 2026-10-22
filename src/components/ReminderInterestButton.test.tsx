@@ -5,7 +5,7 @@ import ReminderInterestButton from './ReminderInterestButton';
 /** 지정한 상태로 버튼 영역을 HTML 문자열로 그린다. */
 function render(isRequested: boolean): string {
   return renderToStaticMarkup(
-    <ReminderInterestButton hourLabel="오후 6시" isRequested={isRequested} onRequest={() => {}} />,
+    <ReminderInterestButton hourLabel="오후 6시" isRequested={isRequested} onRequest={() => {}} activity="running" />,
   );
 }
 

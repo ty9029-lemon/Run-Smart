@@ -34,6 +34,7 @@ export const SECTION_IDS = {
   scoreDelta: 'score_delta',
   outfitReason: 'outfit_reason',
   distanceHint: 'distance_hint',
+  hourReminder: 'hour_reminder',
 } as const;
 
 export type SectionId = (typeof SECTION_IDS)[keyof typeof SECTION_IDS];
