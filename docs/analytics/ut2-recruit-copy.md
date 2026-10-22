@@ -21,7 +21,7 @@
 ## 픽플리 게시
 - 픽플리에는 앱 주소가 아니라 **2차 설문(구글 폼) 링크 1개**를 올린다. 응답자별 링크는 만들 수 없다.
 - 폼 설명에 앱 링크(`https://runners-fit.vercel.app/?utm_source=pickply&utm_campaign=ut2`)를 적어 둔다(`ut2-form-builder.gs`가 자동으로 넣는다).
-- 참여자 코드(`pid`)는 쓰지 않는다. Amplitude·Mixpanel의 익명 ID 기준 Unique Users를 `utmCampaign = ut2`로 필터해 본다.
+- 참여자 코드(`pid`)는 쓰지 않는다. Amplitude·Mixpanel의 익명 ID 기준 Unique Users를 `utmCampaign = ut2` 또는 `appVersion = 1.1`로 필터해 본다. 1차는 `appVersion`이 없는 데이터다(`mixpanel-dashboard.md` 참고).
 - 한계: 브라우저를 바꾸거나 사이트 데이터를 지우면 다른 사용자로 집계되고, 설문 응답과 앱 행동은 개인 단위로 잇지 못한다.
 
 ## 운영 체크리스트
