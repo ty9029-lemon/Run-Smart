@@ -2,13 +2,28 @@
 
 `[ ]`로 표시한 곳은 게시 전에 채운다. 앱 주소는 운영 호스트(`runners-fit.vercel.app`) 기준이다.
 
+## 채널별 앱 링크
+`utm_source`는 채널마다 다르게 붙이고 소문자로 통일한다. 아래 모집 글의 `[앱 링크]`에는 게시하는 채널의 링크를 넣는다.
+
+| 채널 | 링크 |
+|---|---|
+| X | `https://runners-fit.vercel.app/?utm_source=x&utm_campaign=ut2` |
+| 스레드 | `https://runners-fit.vercel.app/?utm_source=threads&utm_campaign=ut2` |
+| 인스타그램 | `https://runners-fit.vercel.app/?utm_source=instagram&utm_campaign=ut2` |
+| 카카오톡 | `https://runners-fit.vercel.app/?utm_source=kakao&utm_medium=chat&utm_campaign=ut2` |
+| 픽플리 | 설문(구글 폼) 링크 1개. 폼 설명에 `?utm_source=pickply&utm_campaign=ut2` 앱 링크가 들어간다 |
+
+- 카카오톡·DM으로 개별 전달할 때는 `&pid=[참여자코드]`를 덧붙인다(예: `...&utm_campaign=ut2&pid=P101`). 픽플리는 `pid`를 쓰지 않는다.
+- 카카오톡의 `utm_medium=chat`은 1차 링크 규칙을 따른 것이다. 2차에 필요 없으면 뺀다.
+- 테스트·미리보기 확인용으로 공유할 때는 실제 채널 링크 대신 `?utm_source=test&utm_campaign=ut0&pid=P00`을 쓴다(대시보드에서 제외된다).
+
 ## SNS 모집 글 (X·스레드·인스타그램 공용)
 > 러닝 나가기 전에 "오늘 나가도 될까, 뭘 입을까" 고민되시나요?
 > 날씨 점수와 복장을 한 번에 알려 주는 Run-Smart를 써 보시고 설문에 답해 주실 분을 찾습니다.
 >
 > - 대상: 러닝을 하시는 분 (1차 테스트 참여자는 제외)
 > - 방법: 아래 링크로 앱을 열어 둘러본 뒤 설문 작성 (약 [ ]분)
-> - 앱: [앱 링크]
+> - 앱: [앱 링크] (위 "채널별 앱 링크" 참고)
 >
 > 솔직한 의견이 서비스에 큰 도움이 됩니다.
 
