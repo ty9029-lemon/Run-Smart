@@ -43,22 +43,18 @@ function RequestButton({
   onRequest,
   activity,
 }: Pick<ReminderInterestButtonProps, 'hourLabel' | 'onRequest' | 'activity'>) {
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  useSectionViewed(buttonRef, SECTION_IDS.hourReminder, {
+  // Button은 ref를 전달하지 않으므로(React 18) 감싼 div로 노출을 관찰한다
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  useSectionViewed(wrapperRef, SECTION_IDS.hourReminder, {
     screen: ACTIVITY_SCREENS.home,
     activity,
   });
   return (
-    <Button
-      ref={buttonRef}
-      type="button"
-      variant="outline"
-      size="lg"
-      className="w-full"
-      onClick={onRequest}
-    >
-      <BellRing aria-hidden="true" />
-      {REMINDER_MESSAGES.button(hourLabel)}
-    </Button>
+    <div ref={wrapperRef}>
+      <Button type="button" variant="outline" size="lg" className="w-full" onClick={onRequest}>
+        <BellRing aria-hidden="true" />
+        {REMINDER_MESSAGES.button(hourLabel)}
+      </Button>
+    </div>
   );
 }
