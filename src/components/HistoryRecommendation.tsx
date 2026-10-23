@@ -1,16 +1,58 @@
 import { ChevronDown } from 'lucide-react';
-import { useState } from 'react';
-import { OUTFIT_SOURCES } from '../constants/analytics';
+import { useRef, useState } from 'react';
+import {
+  OUTFIT_SOURCES,
+  OUTFIT_VIEW_DWELL_MS,
+  OUTFIT_VIEW_RATIO,
+} from '../constants/analytics';
 import { HISTORY_MESSAGES } from '../constants/messages';
+import { useViewedOnce } from '../hooks/useViewedOnce';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
+import { groupOutfitByCategory } from '../lib/outfit';
 import type { HistoryEntry } from '../types';
 import GuideBox from './GuideBox';
-import OutfitPanel from './OutfitPanel';
+import OutfitIcon from './outfit/OutfitIcon';
 
 interface HistoryRecommendationProps {
   entry: HistoryEntry;
   /** 기록 날짜가 오늘로부터 며칠 전인지 (열람 이벤트 속성) */
   daysAgo: number;
+}
+
+interface HistoryOutfitIconsProps {
+  items: NonNullable<HistoryEntry['outfit']>;
+  activity: HistoryEntry['activity'];
+}
+
+/**
+ * 그날의 추천 복장을 이름 없이 작은 일러스트 한 줄로 보여준다.
+ * 이름은 화면 읽기 프로그램용으로만 남기고, 보였을 때 한 번 노출 이벤트를 보낸다.
+ */
+function HistoryOutfitIcons({ items, activity }: HistoryOutfitIconsProps) {
+  const listRef = useRef<HTMLUListElement>(null);
+  const orderedItems = groupOutfitByCategory(items).flatMap((group) => group.items);
+
+  useViewedOnce(
+    listRef,
+    () =>
+      trackEvent(ANALYTICS_EVENTS.outfitViewed, {
+        source: OUTFIT_SOURCES.history,
+        activity,
+        itemCount: orderedItems.length,
+      }),
+    { ratio: OUTFIT_VIEW_RATIO, dwellMs: OUTFIT_VIEW_DWELL_MS },
+  );
+
+  return (
+    <ul ref={listRef} aria-label="추천 복장" className="flex gap-4 pt-1">
+      {orderedItems.map((item) => (
+        <li key={item.label}>
+          <OutfitIcon icon={item.icon} className="size-10" />
+          <span className="sr-only">{item.label}</span>
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 /** 그날의 AI 가이드와 추천 복장. 처음에는 접어 두고, 열 때 한 번씩 열람 이벤트를 보낸다. */
@@ -39,19 +81,15 @@ export default function HistoryRecommendation({ entry, daysAgo }: HistoryRecomme
         />
       </summary>
       {open && (
-        <div className="space-y-2 pt-1">
+        <div className="pt-1">
           <GuideBox
             guide={{ state: 'ready', data: entry.guide }}
             rawWeather={entry.weatherSummary}
-          />
-          {entry.outfit && entry.outfit.length > 0 && (
-            <OutfitPanel
-              items={entry.outfit}
-              title="추천 복장"
-              source={OUTFIT_SOURCES.history}
-              activity={entry.activity}
-            />
-          )}
+          >
+            {entry.outfit && entry.outfit.length > 0 && (
+              <HistoryOutfitIcons items={entry.outfit} activity={entry.activity} />
+            )}
+          </GuideBox>
         </div>
       )}
     </details>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { MESSAGES } from '../constants/messages';
 import { FADE_IN_CLASS } from '../constants/motion';
@@ -24,6 +24,8 @@ interface GuideBoxProps {
   rawWeather: string;
   /** 위치 권한이 없어 서울 기준일 때만 전달한다 (없으면 안내 없음) */
   location?: LocationNoticeProps;
+  /** 가이드 아래, 같은 카드 안에 이어 붙일 내용 (예: 기록 화면의 복장 아이콘 줄) */
+  children?: ReactNode;
 }
 
 /** 위치 거부(1)나 확인 불가(2)는 기기 설정 때문일 수 있어 기기 설정 안내를 함께 보여준다. */
@@ -90,11 +92,12 @@ function GuideBody({ guide, rawWeather }: Pick<GuideBoxProps, 'guide' | 'rawWeat
 }
 
 /** AI 가이드 메시지 박스. 불러오는 동안은 안내를, 실패하면 원시 날씨 문구를 보여준다. */
-export default function GuideBox({ guide, rawWeather, location }: GuideBoxProps) {
+export default function GuideBox({ guide, rawWeather, location, children }: GuideBoxProps) {
   return (
     <section className="space-y-3 rounded-panel bg-card p-6">
       <GuideBody guide={guide} rawWeather={rawWeather} />
       {location && <LocationNotice {...location} />}
+      {children}
     </section>
   );
 }

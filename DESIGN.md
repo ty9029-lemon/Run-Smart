@@ -373,7 +373,7 @@ Midnight Canvas 배경, 1px Footer Rule(#39393b) 상단 테두리, 14px / 1.50�
 
 **더보기(⋮) 메뉴:** 카드 오른쪽 위(오른쪽·위 12px)에 32px 고스트 아이콘 버튼(세로 점 3개)을 두고, 누르면 Card Border Ink(#28282a) 면의 12px radius 메뉴가 열립니다(항목에 마우스를 올리거나 키보드로 고르면 Card Charcoal 면에 같은 12px radius로 강조). 항목은 "거리·복장 수정"과 "삭제"(나쁨 레벨 색)입니다. 진행 중인 기록에는 메뉴를 두지 않습니다. "거리·복장 수정"은 피드백 시트와 같은 바텀 시트(제목 "기록 수정", 거리·실제 복장 입력, 저장 / 취소)로 열리며 현재 값에서 시작하고 둘 다 비우면 둘 다 지웁니다. 체감은 여기서 고치지 않습니다. "삭제"는 확인 팝업("이 기록을 삭제할까요?" / "삭제한 기록은 되돌릴 수 없어요." / 취소 outline·삭제 destructive — 종료 확인 팝업과 같은 모양)을 거친 뒤에만 지웁니다. 이벤트는 `history_entry_edited`, `history_entry_deleted`입니다. 구현은 `HistoryEntryMenu`, `HistoryEditSheet`, `DeleteEntryDialog`입니다.
 
-**그날의 추천 보기:** 카드 아래에 접힌 줄(14px Subtle Text + 화살표, 열면 화살표가 뒤집힘)로 두고, 열면 그날의 AI 가이드와 추천 복장 카드가 나옵니다. "추천 복장 ↔ 실제 복장"을 비교할 수 있게 유지하되 기본은 접어 기록 카드를 깔끔하게 보여줍니다. 열 때 `history_recommendation_opened` 이벤트를 보냅니다. 구현은 `HistoryEntryStatus`, `HistoryStats`, `HistoryRecommendation`입니다.
+**그날의 추천 보기:** 카드 아래에 접힌 줄(14px Subtle Text + 화살표, 열면 화살표가 뒤집힘)로 두고, 열면 카드 한 장이 나옵니다. 위에서 아래로 AI 가이드(요약·팁·상세 이유) → 16px 간격 → 추천 복장 아이콘 줄(40px 일러스트, 간격 16px, 왼쪽 정렬, 이름 글자 없음 — 화면 읽기용 이름만 둠)입니다. "추천 복장 ↔ 실제 복장"을 비교할 수 있게 유지하되 기본은 접어 기록 카드를 깔끔하게 보여줍니다. 열 때 `history_recommendation_opened` 이벤트를 보냅니다. 구현은 `HistoryEntryStatus`, `HistoryStats`, `HistoryRecommendation`입니다.
 
 ## 스플래시 화면 구성
 앱을 처음 열 때 한 번 보이는 전체 화면입니다. 가운데에 위에서 아래로: 로고 심볼(80px) → 8px 간격 → "Run Smart"(Plus Jakarta Sans Bold Italic 24px, 자간 0, 줄 높이 120%). 슬로건은 두지 않습니다. 구현은 `SplashScreen`이고, 값은 `src/constants/splash.ts`에 있습니다.
