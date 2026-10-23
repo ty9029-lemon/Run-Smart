@@ -14,7 +14,7 @@ const amplitudeMock = vi.hoisted(() => {
       return this;
     }
   }
-  return { init: vi.fn(), track: vi.fn(), identify: vi.fn(), Identify };
+  return { init: vi.fn(), add: vi.fn(), track: vi.fn(), identify: vi.fn(), Identify };
 });
 const mixpanelMock = vi.hoisted(() => {
   const mock = {
@@ -33,6 +33,8 @@ const mixpanelMock = vi.hoisted(() => {
 });
 
 vi.mock('@amplitude/analytics-browser', () => amplitudeMock);
+const sessionReplayMock = vi.hoisted(() => ({ sessionReplayPlugin: vi.fn(() => ({ name: 'replay' })) }));
+vi.mock('@amplitude/plugin-session-replay-browser', () => sessionReplayMock);
 vi.mock('mixpanel-browser', () => ({ default: mixpanelMock }));
 vi.mock('./logger', () => ({ logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
 
@@ -84,6 +86,32 @@ describe('analytics', () => {
     );
     expect(amplitudeMock.track).toHaveBeenCalledWith('cta_clicked', { cta: 'settings_save' });
     expect(mixpanelMock.track).toHaveBeenCalledWith('cta_clicked', { cta: 'settings_save' });
+  });
+
+  it('Amplitude를 초기화하기 전에 화면 녹화 플러그인을 전체 세션·입력창 마스킹으로 등록한다', async () => {
+    vi.stubEnv('VITE_AMPLITUDE_API_KEY', 'amp-key');
+    vi.stubEnv('VITE_MIXPANEL_TOKEN', '');
+    const { initAnalytics } = await loadAnalytics();
+
+    initAnalytics('', '', PRODUCTION_HOST);
+
+    expect(sessionReplayMock.sessionReplayPlugin).toHaveBeenCalledWith({
+      sampleRate: 1,
+      privacyConfig: { defaultMaskLevel: 'medium' },
+    });
+    expect(amplitudeMock.add.mock.invocationCallOrder[0]).toBeLessThan(
+      amplitudeMock.init.mock.invocationCallOrder[0],
+    );
+  });
+
+  it('Amplitude 키가 없으면 화면 녹화도 켜지 않는다', async () => {
+    vi.stubEnv('VITE_AMPLITUDE_API_KEY', '');
+    vi.stubEnv('VITE_MIXPANEL_TOKEN', 'mp-token');
+    const { initAnalytics } = await loadAnalytics();
+
+    initAnalytics('', '', PRODUCTION_HOST);
+
+    expect(amplitudeMock.add).not.toHaveBeenCalled();
   });
 
   it('Mixpanel만 준비되면 Mixpanel로만 보낸다', async () => {

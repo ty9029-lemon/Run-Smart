@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@amplitude/analytics-browser": "^2.47.2",
+    "@amplitude/plugin-session-replay-browser": "^1.36.4",
     "@anthropic-ai/sdk": "^0.131.0",
     "@supabase/supabase-js": "^2.117.3",
     "class-variance-authority": "^0.7.1",

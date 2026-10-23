@@ -11,18 +11,23 @@ const APP_LINK = 'https://runners-fit.vercel.app/?utm_source=pickply&utm_campaig
 const REWARD_NAME = '커피 쿠폰';
 const REWARD_WINNER_COUNT = 5;
 const PHONE_RETENTION_DAYS = 30;
+const RECORDING_NOTICE = '서비스 개선 분석을 위해 앱을 사용하는 동안의 화면이 녹화됩니다. '
+  + '입력창에 적은 글자는 가려져 기록되며, 녹화 내용은 분석 목적으로만 사용합니다. '
+  + '녹화를 원하지 않으시면 앱을 열지 말고 참여를 중단해 주세요.';
 const FORM_DESCRIPTION = '앱을 직접 써 보신 뒤 느낀 점을 알려 주세요. 응답은 서비스 개선에만 사용됩니다.\n\n'
   + '[참여 방법]\n'
   + '1. 아래 주소로 앱을 열어 점수, 복장 추천, 시간대별 날씨, 기록 화면을 둘러봐 주세요.\n'
   + APP_LINK + '\n'
   + '2. 둘러본 뒤 이 설문에 답해 주세요.\n\n'
+  + '[화면 녹화 안내]\n'
+  + RECORDING_NOTICE + '\n\n'
   + '[참여 혜택]\n'
   + '동의하고 성실히 응답해 주신 분 중 추첨으로 ' + REWARD_WINNER_COUNT + '분께 ' + REWARD_NAME + '을 드립니다. '
   + '받으시려면 마지막에 휴대폰 번호를 남겨 주세요.';
-const CONSENT_NOTICE = '[수집 항목] 연령대, 러닝 습관, 설문 응답, 앱 이용 기록(익명), 휴대폰 번호(선택)\n'
-  + '[수집 목적] 서비스 개선을 위한 분석, 경품 추첨 및 발송 안내\n'
+const CONSENT_NOTICE = '[수집 항목] 연령대, 러닝 습관, 설문 응답, 앱 이용 기록(익명), 휴대폰 번호(선택), 앱 사용 화면 녹화(입력창 글자는 가려짐)\n'
+  + '[수집 목적] 서비스 개선을 위한 분석(앱 사용 화면 녹화 포함), 경품 추첨 및 발송 안내\n'
   + '[보유 기간] 휴대폰 번호는 경품 발송 후 즉시, 늦어도 설문 종료 후 ' + PHONE_RETENTION_DAYS + '일 이내에 파기합니다. '
-  + '나머지 응답은 서비스 개선 분석이 끝날 때까지 보관합니다.\n'
+  + '나머지 응답과 화면 녹화는 서비스 개선 분석이 끝날 때까지 보관합니다.\n'
   + '동의를 거부할 수 있으며, 거부하시면 설문에 참여하실 수 없습니다.';
 const SCALE_MIN = 1;
 const SCALE_MAX = 5;

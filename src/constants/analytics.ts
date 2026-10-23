@@ -91,6 +91,15 @@ export const HOSTNAME_PROPERTY = 'hostname';
 /** 분석 데이터를 전송하는 운영 호스트. 이 호스트가 아니면(로컬·Preview) 분석 도구를 초기화하지 않는다. */
 export const PRODUCTION_HOSTNAME = 'runners-fit.vercel.app';
 
+/**
+ * Amplitude Session Replay에서 녹화할 세션 비율(0~1). UT 참가자가 적어 모든 세션을 녹화한다.
+ * SDK 기본값이 0이라 지정하지 않으면 아무것도 녹화되지 않는다.
+ */
+export const SESSION_REPLAY_SAMPLE_RATE = 1;
+
+/** Session Replay 마스킹 수준. medium은 입력창의 글자를 가리고, 화면에 보이는 글자는 그대로 둔다. */
+export const SESSION_REPLAY_MASK_LEVEL = 'medium';
+
 /** 분석 데이터의 버전(1차·2차 UT 구분)을 분석 도구에 저장할 때 쓰는 속성 이름 */
 export const APP_VERSION_PROPERTY = 'appVersion';
 

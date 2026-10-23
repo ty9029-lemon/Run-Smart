@@ -1,4 +1,5 @@
 import * as amplitude from '@amplitude/analytics-browser';
+import { sessionReplayPlugin } from '@amplitude/plugin-session-replay-browser';
 import mixpanel from 'mixpanel-browser';
 import {
   ANALYTICS_APP_VERSION,
@@ -8,6 +9,8 @@ import {
   IN_APP_BROWSER_PROPERTY,
   PARTICIPANT_ID_PROPERTY,
   PRODUCTION_HOSTNAME,
+  SESSION_REPLAY_MASK_LEVEL,
+  SESSION_REPLAY_SAMPLE_RATE,
 } from '../constants/analytics';
 import { parseAcquisition } from './acquisition';
 import { detectInAppBrowser } from './inAppBrowser';
@@ -81,7 +84,8 @@ export function trackEvent(name: AnalyticsEventName, props?: AnalyticsProps): vo
 }
 
 /**
- * Amplitude를 초기화하고 페이지뷰·클릭·폼 입력 자동 수집을 켠다.
+ * Amplitude를 초기화하고 페이지뷰·클릭·폼 입력 자동 수집과 화면 녹화(Session Replay)를 켠다.
+ * 플러그인은 초기화보다 먼저 추가해야 첫 세션부터 녹화된다. 입력창의 글자는 가린다.
  * API 키가 없으면 경고만 남기고 건너뛴다.
  */
 function initAmplitude(): void {
@@ -93,6 +97,12 @@ function initAmplitude(): void {
     return;
   }
 
+  amplitude.add(
+    sessionReplayPlugin({
+      sampleRate: SESSION_REPLAY_SAMPLE_RATE,
+      privacyConfig: { defaultMaskLevel: SESSION_REPLAY_MASK_LEVEL },
+    }),
+  );
   amplitude.init(apiKey, {
     autocapture: {
       pageViews: true,
