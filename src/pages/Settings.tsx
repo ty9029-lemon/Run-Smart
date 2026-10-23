@@ -8,6 +8,7 @@ import { SETTINGS_SAVED_STATE } from '../constants/navigation';
 import { useLocationPermission } from '../hooks/useLocationPermission';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { useProfileDraft } from '../hooks/useProfileDraft';
+import { isProfileChanged } from '../lib/profileDraft';
 import { useProfileStore } from '../store/profileStore';
 import { useThemeStore } from '../store/themeStore';
 
@@ -18,6 +19,13 @@ function trackThemeSaved(): void {
     theme: previewMode ?? mode,
     changed: previewMode !== null && previewMode !== mode,
   });
+}
+
+/** 저장하지 않은 테마 미리보기가 저장된 테마와 다른지 확인한다. */
+function useIsThemeChanged(): boolean {
+  const mode = useThemeStore((s) => s.mode);
+  const previewMode = useThemeStore((s) => s.previewMode);
+  return previewMode !== null && previewMode !== mode;
 }
 
 /** 설정 (프로필 맞춤) */
@@ -42,6 +50,10 @@ export default function Settings() {
     navigate('/', { state: SETTINGS_SAVED_STATE });
   });
 
+  // 바뀐 것이 없으면 저장 버튼을 막는다. (프로필 초안과 테마 미리보기 모두 확인)
+  const isThemeChanged = useIsThemeChanged();
+  const hasChanges = isThemeChanged || isProfileChanged(saved, draft);
+
   /** [저장] 클릭을 기록하고 프로필을 저장한다. */
   const handleSave = () => {
     trackEvent(ANALYTICS_EVENTS.ctaClicked, { cta: CTA_IDS.settingsSave });
@@ -63,7 +75,13 @@ export default function Settings() {
           requestOnEnable
         />
       </section>
-      <Button type="button" size="lg" onClick={handleSave} className="w-full">
+      <Button
+        type="button"
+        size="lg"
+        onClick={handleSave}
+        disabled={!hasChanges}
+        className="w-full"
+      >
         저장
       </Button>
     </main>

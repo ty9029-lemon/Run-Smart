@@ -52,3 +52,27 @@ export function normalizeLastActivity(profile: Profile): Profile {
 export function setSensitivity(profile: Profile, kind: 'cold' | 'heat', level: number): Profile {
   return kind === 'cold' ? { ...profile, coldLevel: level } : { ...profile, heatLevel: level };
 }
+
+/** 순서와 관계없이 두 목록이 같은 항목을 담고 있는지 확인한다. */
+function hasSameItems<T>(a: T[], b: T[]): boolean {
+  return a.length === b.length && a.every((item) => b.includes(item));
+}
+
+/**
+ * 초안이 저장된 프로필과 달라졌는지 확인한다. (설정 화면의 저장 버튼 활성화 기준)
+ * 피드백 보정(feedbackOffset)은 설정에서 바로 저장소에 반영되고 저장할 때도 유지되므로 비교하지 않는다.
+ * 마지막 활동(lastActivity)은 선택한 활동에 맞춰 저장할 때 정해지므로 비교하지 않는다.
+ * 목록은 순서가 달라도 같은 항목이면 같은 값으로 본다. (고른 뒤 해제하고 다시 고르면 순서만 바뀐다)
+ * @param saved 저장된 프로필
+ * @param draft 화면에서 편집 중인 초안
+ */
+export function isProfileChanged(saved: Profile, draft: Profile): boolean {
+  return (
+    saved.coldLevel !== draft.coldLevel ||
+    saved.heatLevel !== draft.heatLevel ||
+    saved.useCurrentLocation !== draft.useCurrentLocation ||
+    !hasSameItems(saved.selectedActivities, draft.selectedActivities) ||
+    !hasSameItems(saved.constraints, draft.constraints) ||
+    !hasSameItems(saved.activityTimeSlots, draft.activityTimeSlots)
+  );
+}
