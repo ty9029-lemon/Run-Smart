@@ -17,6 +17,11 @@ export const AIR_NOW_API_PATH = '/api/air-now';
 /** 에어코리아 실측 요청 제한 시간(ms). 날씨 표시를 오래 막지 않도록 짧게 둔다 */
 export const AIR_NOW_TIMEOUT_MS = 6000;
 
+/** 에어코리아 PM10 예보통보(오늘·내일 등급) 서버리스 함수 경로 */
+export const AIR_FORECAST_API_PATH = '/api/air-forecast';
+/** 에어코리아 예보통보 요청 제한 시간(ms) */
+export const AIR_FORECAST_TIMEOUT_MS = 6000;
+
 /** 현재 위치의 행정동 이름 서버리스 함수 경로 */
 export const PLACE_API_PATH = '/api/place';
 /** 주소 요청 제한 시간(ms) */
@@ -40,7 +45,7 @@ export const GUIDE_CACHE_TTL_MS = ONE_HOUR_MS;
 /** AI 가이드 캐시 LocalStorage 키 접두어 */
 export const GUIDE_CACHE_PREFIX = 'runsmart:guide:';
 /** 날씨 캐시 LocalStorage 키 접두어 */
-export const WEATHER_CACHE_PREFIX = 'runsmart:weather:v7:';
+export const WEATHER_CACHE_PREFIX = 'runsmart:weather:v8:';
 /** 캐시 키에 쓰는 좌표 소수점 자릿수 (약 1km) */
 export const COORD_CACHE_DIGITS = 2;
 

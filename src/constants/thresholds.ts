@@ -83,6 +83,12 @@ export const RECOMMEND_SCORE_MARGIN = 3;
 /** 미세먼지 등급 기준(㎍/㎥) */
 export const PM10_GOOD = 30;
 export const PM10_NORMAL = 80;
+/** PM10 '나쁨'의 끝(㎍/㎥). 이보다 높으면 '매우나쁨' */
+export const PM10_BAD_MAX = 150;
+/** 예보 등급을 맞출 때 그날 남은 시간대가 이 개수보다 적으면 보정하지 않는다 */
+export const DUST_FORECAST_MIN_HOURS = 3;
+/** 예보 등급을 맞출 때 평균 반영 비율의 하한. 반영 비율이 작은 날에 이동량이 지나치게 커지는 것을 막는다 */
+export const DUST_FORECAST_MIN_WEIGHT = 0.5;
 /** 실측과 모델 PM10의 차이를 앞 시간대에 반영하는 정도가 줄어드는 속도. 이 시간(h) 뒤에는 차이의 약 37%(1/e)만 남는다 */
 export const DUST_ADJUST_DECAY_HOURS = 6;
 
