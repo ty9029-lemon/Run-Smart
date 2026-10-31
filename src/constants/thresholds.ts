@@ -77,6 +77,8 @@ export const RECOMMEND_SCORE_MARGIN = 3;
 /** 미세먼지 등급 기준(㎍/㎥) */
 export const PM10_GOOD = 30;
 export const PM10_NORMAL = 80;
+/** 실측과 모델 PM10의 차이를 앞 시간대에 반영하는 정도가 줄어드는 속도. 이 시간(h) 뒤에는 차이의 약 37%(1/e)만 남는다 */
+export const DUST_ADJUST_DECAY_HOURS = 6;
 
 /** '가기' 기록 후 체감 피드백을 묻기까지의 대기 시간(분) */
 export const FEEDBACK_ASK_DELAY_MINUTES = 30;

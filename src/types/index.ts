@@ -65,9 +65,10 @@ export interface Weather {
   pm25?: number;
   /**
    * pm10의 출처. 'observed'는 측정소 실측, 'model'은 예측 모델 값,
+   * 'adjusted'는 모델 값을 현재 실측과의 차이로 보정한 값(시간대별 예보),
    * 'none'은 값을 구하지 못한 것(pm10의 0은 자리 채움일 뿐이라 실제 농도로 쓰면 안 된다)
    */
-  pm10Source?: 'observed' | 'model' | 'none';
+  pm10Source?: 'observed' | 'model' | 'adjusted' | 'none';
   uvIndex: number;
   /** 낮이면 true, 밤이면 false */
   isDay: boolean;
