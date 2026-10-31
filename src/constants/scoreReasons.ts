@@ -44,6 +44,7 @@ export const SCORE_REASON_MESSAGES = {
   sheetDescription:
     '8개 항목을 합쳐 100점 만점으로 계산해요. 활동과 내 설정(추위·더위, 질환)에 따라 항목별 비중이 달라져요.',
   sensitiveNote: '내 설정을 반영해 더 엄격하게 봤어요',
+  dustCapNote: '미세먼지 때문에 점수를 제한했어요',
   good: '좋아요',
   normal: '보통이에요',
   bad: '점수를 많이 깎았어요',

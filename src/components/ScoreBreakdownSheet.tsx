@@ -34,7 +34,7 @@ interface ScoreBreakdownSheetProps {
 
 /** 항목 한 줄: 이름·현재 값·해석, 깎인 점수와 받은 점수(깎인 점수가 왼쪽), 받은 점수 막대 */
 export function ReasonRow({ reason, value }: { reason: ScoreReason; value: string }) {
-  const { label, points, max, penalty, ratio, sensitive } = reason;
+  const { label, points, max, penalty, ratio, sensitive, capPenalty } = reason;
   const earnedPercent = (1 - ratio) * PERCENT;
   return (
     <li className="space-y-1.5">
@@ -55,6 +55,11 @@ export function ReasonRow({ reason, value }: { reason: ScoreReason; value: strin
         <span className={REASON_LEVEL_TEXT_CLASS[ratioToLevel(ratio)]}>{describeRatio(ratio)}</span>
         {sensitive && ` · ${SCORE_REASON_MESSAGES.sensitiveNote}`}
       </p>
+      {capPenalty > 0 && (
+        <p className="text-sm text-level-bad">
+          {SCORE_REASON_MESSAGES.dustCapNote} · 추가 −{capPenalty}점
+        </p>
+      )}
     </li>
   );
 }

@@ -4,6 +4,7 @@ import { NIGHT_HEADLINE, RUNNING_TIER_LABEL } from '../constants/messages';
 import {
   DUST_BAD_SCORE_CAP,
   DUST_BAD_SENSITIVE_SCORE_CAP,
+  DUST_NORMAL_SENSITIVE_SCORE_CAP,
   RECOMMEND_MIN_SCORE,
   SCORE_MAX,
 } from '../constants/thresholds';
@@ -744,5 +745,39 @@ describe("미세먼지 '나쁨' 점수 상한", () => {
     const result = score(BAD_DUST, ['dustSensitive']);
     expect(result).toBeLessThan(RECOMMEND_MIN_SCORE);
     expect(scoreToHeadline(result, 'running')).not.toBe(RUNNING_TIER_LABEL.excellent);
+  });
+});
+
+describe("미세먼지 '보통' 민감군 점수 상한", () => {
+  const score = (pm10: number, constraints: Constraint[]) =>
+    calcRunScore({ ...IDEAL, pm10 }, NEUTRAL_SENSITIVITY, constraints, 'running');
+
+  it.each<Constraint>(['dustSensitive', 'asthma', 'rhinitis'])(
+    '%s 사용자는 보통(31~80) 어디서도 79점을 넘지 않는다',
+    (constraint) => {
+      for (const pm10 of [31, 55, 80]) {
+        expect(score(pm10, [constraint])).toBeLessThanOrEqual(DUST_NORMAL_SENSITIVE_SCORE_CAP);
+      }
+      expect(DUST_NORMAL_SENSITIVE_SCORE_CAP).toBeLessThan(RECOMMEND_MIN_SCORE);
+    },
+  );
+
+  it('민감군이라도 좋음(30 이하)이면 상한이 없다', () => {
+    expect(score(30, ['dustSensitive'])).toBe(SCORE_MAX);
+  });
+
+  it('민감하지 않으면 보통에서도 상한이 없다', () => {
+    expect(score(55, [])).toBeGreaterThan(DUST_NORMAL_SENSITIVE_SCORE_CAP);
+  });
+
+  it('보통(80) 민감군은 79점, 나쁨(81)은 44점으로 단계가 내려간다', () => {
+    expect(score(80, ['dustSensitive'])).toBe(DUST_NORMAL_SENSITIVE_SCORE_CAP);
+    expect(score(81, ['dustSensitive'])).toBeLessThanOrEqual(DUST_BAD_SENSITIVE_SCORE_CAP);
+  });
+
+  it('값이 없으면 보통으로 보지 않아 상한이 걸리지 않는다', () => {
+    const none: Weather = { ...IDEAL, pm10: 0, pm10Source: 'none' };
+    const result = calcRunScore(none, NEUTRAL_SENSITIVITY, ['dustSensitive'], 'running');
+    expect(result).toBeGreaterThan(DUST_BAD_SENSITIVE_SCORE_CAP);
   });
 });

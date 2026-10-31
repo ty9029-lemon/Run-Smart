@@ -10,7 +10,7 @@ import {
 import { ACTIVITY_DAYLIGHT_BUFFER_HOURS, ACTIVITY_SCORE_WEIGHTS } from '../constants/scoring';
 import type { Activity, Constraint, WarningLevel, Weather } from '../types';
 import { DUST_UNAVAILABLE_LABEL, hasDustData } from './airGrade';
-import type { ScoreBreakdown } from './runScore';
+import { calcDustPoints, type ScoreBreakdown } from './runScore';
 import { isColdAir, isDryAir } from './scoreFactors';
 
 /** 단계별 해석 문구 */
@@ -32,6 +32,8 @@ export interface ScoreReason {
   penalty: number;
   /** 깎인 비율 (0~1, 반올림 전 값 기준) */
   ratio: number;
+  /** 미세먼지 때문에 총점 상한을 걸면서 항목 점수 밖에서 더 깎인 점수 (반올림, 미세먼지 항목만 0보다 크다) */
+  capPenalty: number;
   /** 내 설정(질환) 때문에 더 엄격하게 본 항목인지 */
   sensitive: boolean;
 }
@@ -74,24 +76,36 @@ export function buildScoreReasons(
   const keys = Object.keys(breakdown) as (keyof ScoreBreakdown)[];
   return keys
     .map((key) => {
-      // 일조 항목은 밤에, 미세먼지 항목은 '나쁨' 상한이 걸리면 음수(추가 감점)가 된다.
-      // 그만큼을 만점에 더해 "일조 시간 −35점"처럼 보여 준다.
-      const nightExtra = key === 'daylight' || key === 'dust' ? Math.max(0, -breakdown[key]) : 0;
+      // 러닝·산책의 일조 항목은 밤에 음수(추가 감점)가 된다. 그만큼을 만점에 더해 "일조 시간 −35점"으로 보여 준다.
+      const nightExtra = key === 'daylight' ? Math.max(0, -breakdown[key]) : 0;
+      // 미세먼지 항목은 상한이 걸리면 음수가 된다. 상한 이전의 실제 점수는 그대로 보여 주고,
+      // 상한 때문에 더 깎인 점수는 따로 알린다.
+      const dustPoints = key === 'dust' ? calcDustPoints(weather, constraints, activity) : 0;
+      const capExtra = key === 'dust' ? Math.max(0, dustPoints - breakdown[key]) : 0;
       const rawMax = weights[key] + nightExtra;
-      const earned = Math.max(0, breakdown[key]);
+      const earned = key === 'dust' ? dustPoints : Math.max(0, breakdown[key]);
       const rawPenalty = Math.max(0, rawMax - earned);
       return {
         key,
         label: SCORE_FACTOR_LABEL[key],
         points: Math.round(earned),
-        // 추가 감점이 소수라 화면에 길게 나오지 않도록 정수로 보여 준다
+        // 야간 추가 감점이 소수라 화면에 길게 나오지 않도록 정수로 보여 준다
         max: Math.round(rawMax),
         penalty: Math.round(rawPenalty),
         ratio: rawMax > 0 ? rawPenalty / rawMax : 0,
+        capPenalty: Math.round(capExtra),
         sensitive: isSensitiveFactor(key, constraints, weather),
       };
     })
-    .sort((a, b) => b.ratio * b.max - a.ratio * a.max);
+    .sort((a, b) => totalPenalty(b) - totalPenalty(a));
+}
+
+/**
+ * 항목 때문에 총점에서 실제로 빠진 점수. 상한으로 더 깎인 점수까지 더한다.
+ * @param reason 항목 근거
+ */
+export function totalPenalty(reason: Pick<ScoreReason, 'penalty' | 'capPenalty' | 'ratio' | 'max'>): number {
+  return reason.ratio * reason.max + reason.capPenalty;
 }
 
 /**
@@ -99,7 +113,9 @@ export function buildScoreReasons(
  * @param reasons buildScoreReasons 결과
  */
 export function pickTopReasons(reasons: ScoreReason[]): ScoreReason[] {
-  return reasons.filter((r) => r.penalty >= MIN_REASON_PENALTY).slice(0, MAX_REASON_ITEMS);
+  return reasons
+    .filter((r) => r.penalty + r.capPenalty >= MIN_REASON_PENALTY)
+    .slice(0, MAX_REASON_ITEMS);
 }
 
 /**

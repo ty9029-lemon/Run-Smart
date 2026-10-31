@@ -12,6 +12,7 @@ function makeReason(overrides: Partial<ScoreReason>): ScoreReason {
     max: 15,
     penalty: 9,
     ratio: 0.6,
+    capPenalty: 0,
     sensitive: false,
     ...overrides,
   };

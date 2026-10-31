@@ -73,6 +73,8 @@ export const DUST_BAD_SCORE_CAP = SCORE_GOOD - 1;
 export const DUST_BAD_SENSITIVE_SCORE_CAP = SCORE_CAUTION - 1;
 /** 추천 시간대를 구간으로 묶을 때의 최소 점수 */
 export const RECOMMEND_MIN_SCORE = 80;
+/** 미세먼지가 '보통'일 때 민감한 사용자의 상한. 추천(80점) 아래로 두어 '딱 좋아요'를 막는다 */
+export const DUST_NORMAL_SENSITIVE_SCORE_CAP = RECOMMEND_MIN_SCORE - 1;
 /** 이 시각(시) 이후는 추천 시간대에서 제외한다 (22시 정각 포함) */
 export const RECOMMEND_CUTOFF_HOUR = 22;
 /** 최고점과 이 점수 이내로 차이 나는 시간대를 함께 추천한다 */

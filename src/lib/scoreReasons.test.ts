@@ -58,7 +58,10 @@ describe('buildScoreReasons', () => {
   it('민감 설정이 감점을 키운다', () => {
     const normal = reasonsOf(DUSTY).find((r) => r.key === 'dust');
     const sensitive = reasonsOf(DUSTY, ['asthma']).find((r) => r.key === 'dust');
-    expect(sensitive!.penalty).toBeGreaterThan(normal!.penalty);
+    // 미세먼지 '나쁨'은 배점(15점)을 모두 깎고 상한 때문에 더 깎인 점수(capPenalty)가 민감군에서 더 크다
+    expect(sensitive!.penalty + sensitive!.capPenalty).toBeGreaterThan(
+      normal!.penalty + normal!.capPenalty,
+    );
   });
 
   it('비염은 찬 공기일 때만 기온 항목이 sensitive다', () => {
@@ -186,10 +189,9 @@ describe("buildScoreReasons: 미세먼지 '나쁨' 상한", () => {
     const breakdown = calcScoreBreakdown(BAD, NEUTRAL_SENSITIVITY, constraints, 'running');
     const reasons = buildScoreReasons(breakdown, 'running', constraints, BAD);
     const total = Math.round(Object.values(breakdown).reduce((a, b) => a + b, 0));
-    const penaltySum = reasons.reduce((sum, r) => sum + r.penalty, 0);
+    const penaltySum = reasons.reduce((sum, r) => sum + r.penalty + r.capPenalty, 0);
     expect(Math.abs(100 - total - penaltySum)).toBeLessThanOrEqual(1);
     expect(reasons[0].key).toBe('dust');
-    expect(reasons[0].ratio).toBe(1);
   });
 
   it('표시용 만점·감점·점수는 모두 정수다', () => {
@@ -200,5 +202,45 @@ describe("buildScoreReasons: 미세먼지 '나쁨' 상한", () => {
     expect(Number.isInteger(dust?.max)).toBe(true);
     expect(Number.isInteger(dust?.points)).toBe(true);
     expect(Number.isInteger(dust?.penalty)).toBe(true);
+    expect(Number.isInteger(dust?.capPenalty)).toBe(true);
+  });
+
+  it('미세먼지 행은 상한 이전의 실제 점수를 보여주고, 상한 때문에 더 깎인 점수는 capPenalty로 따로 담는다', () => {
+    const breakdown = calcScoreBreakdown(BAD, NEUTRAL_SENSITIVITY, constraints, 'running');
+    const reasons = buildScoreReasons(breakdown, 'running', constraints, BAD);
+    const dust = reasons.find((r) => r.key === 'dust');
+    expect(dust?.max).toBe(15);
+    expect(dust!.points + dust!.penalty).toBe(15);
+    expect(dust!.points).toBeGreaterThan(0);
+    expect(dust?.capPenalty).toBeGreaterThan(0);
+    expect(reasons.filter((r) => r.key !== 'dust').every((r) => r.capPenalty === 0)).toBe(true);
+  });
+
+  it('상한이 걸리지 않으면 capPenalty는 0이다', () => {
+    const breakdown = calcScoreBreakdown({ ...IDEAL, pm10: 80 }, NEUTRAL_SENSITIVITY, [], 'running');
+    const reasons = buildScoreReasons(breakdown, 'running', [], { ...IDEAL, pm10: 80 });
+    expect(reasons.every((r) => r.capPenalty === 0)).toBe(true);
+  });
+});
+
+describe("buildScoreReasons: 미세먼지 '보통' 민감군 상한", () => {
+  const NORMAL: Weather = { ...IDEAL, pm10: 35 };
+  const constraints: Constraint[] = ['dustSensitive'];
+
+  it('미세먼지는 거의 만점이지만 상한 때문에 깎인 점수가 이유로 나온다', () => {
+    const breakdown = calcScoreBreakdown(NORMAL, NEUTRAL_SENSITIVITY, constraints, 'running');
+    const reasons = buildScoreReasons(breakdown, 'running', constraints, NORMAL);
+    const dust = reasons.find((r) => r.key === 'dust');
+    expect(dust!.points).toBeGreaterThanOrEqual(14);
+    expect(dust!.capPenalty).toBeGreaterThan(0);
+    expect(pickTopReasons(reasons).map((r) => r.key)).toEqual(['dust']);
+  });
+
+  it('감점 합계가 100점에서 총점을 뺀 값과 맞는다', () => {
+    const breakdown = calcScoreBreakdown(NORMAL, NEUTRAL_SENSITIVITY, constraints, 'running');
+    const reasons = buildScoreReasons(breakdown, 'running', constraints, NORMAL);
+    const total = Math.round(Object.values(breakdown).reduce((a, b) => a + b, 0));
+    const penaltySum = reasons.reduce((sum, r) => sum + r.penalty + r.capPenalty, 0);
+    expect(Math.abs(100 - total - penaltySum)).toBeLessThanOrEqual(1);
   });
 });

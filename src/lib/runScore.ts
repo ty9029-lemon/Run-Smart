@@ -9,6 +9,7 @@ import {
 import {
   DUST_BAD_SCORE_CAP,
   DUST_BAD_SENSITIVE_SCORE_CAP,
+  DUST_NORMAL_SENSITIVE_SCORE_CAP,
   RECOMMEND_MIN_SCORE,
   SCORE_CAUTION,
   SCORE_FAIR,
@@ -59,21 +60,57 @@ function sumBreakdown(breakdown: ScoreBreakdown): number {
   return Object.values(breakdown).reduce((sum, points) => sum + points, 0);
 }
 
+/** 미세먼지에 민감한 제약(미세먼지 민감·천식·비염)이 있는지 */
+export function isDustSensitive(constraints: Constraint[]): boolean {
+  return (
+    constraints.includes('dustSensitive') ||
+    constraints.includes('asthma') ||
+    constraints.includes('rhinitis')
+  );
+}
+
 /**
- * 미세먼지가 '나쁨'이면 총점이 상한을 넘지 않도록 미세먼지 항목에서 초과분을 더 뺀다.
+ * 미세먼지 항목의 점수(상한을 걸기 전)를 구한다.
+ * @param weather 날씨 정보
+ * @param constraints 제약사항
+ * @param activity 활동 (배점표가 다르다)
+ */
+export function calcDustPoints(
+  weather: Weather,
+  constraints: Constraint[],
+  activity: Activity,
+): number {
+  const quality = dustQuality(dustPm10For(weather));
+  return ACTIVITY_SCORE_WEIGHTS[activity].dust * applySensitivity(quality, isDustSensitive(constraints));
+}
+
+/**
+ * 미세먼지 등급에 따른 총점 상한을 구한다. 상한이 없으면 null.
+ * 나쁨은 모두(민감군은 더 낮게), 보통은 민감군만 둔다. 값이 없으면 두지 않는다.
+ */
+function dustScoreCap(weather: Weather, dustSensitive: boolean): number | null {
+  if (!hasDustData(weather)) return null;
+  const grade = getDustGrade(weather.pm10);
+  if (grade === '나쁨') return dustSensitive ? DUST_BAD_SENSITIVE_SCORE_CAP : DUST_BAD_SCORE_CAP;
+  if (grade === '보통' && dustSensitive) return DUST_NORMAL_SENSITIVE_SCORE_CAP;
+  return null;
+}
+
+/**
+ * 총점이 미세먼지 상한을 넘지 않도록 미세먼지 항목에서 초과분을 더 뺀다.
  * 배점이 작은 미세먼지 감점만으로는 다른 항목이 좋을 때 '딱 좋아요'가 나오기 때문이다.
- * 항목 합이 곧 총점이라 '왜 이 점수예요?'의 감점 합계도 어긋나지 않는다.
+ * 항목 합이 곧 총점이라 시간대 비교와 감점 합계도 어긋나지 않는다.
  * @param breakdown 항목별 점수
- * @param weather 날씨 (미세먼지 값이 없으면 상한을 두지 않는다)
+ * @param weather 날씨
  * @param dustSensitive 미세먼지에 민감한 제약이 있는지
  */
-function capForBadDust(
+function capForDust(
   breakdown: ScoreBreakdown,
   weather: Weather,
   dustSensitive: boolean,
 ): ScoreBreakdown {
-  if (!hasDustData(weather) || getDustGrade(weather.pm10) !== '나쁨') return breakdown;
-  const cap = dustSensitive ? DUST_BAD_SENSITIVE_SCORE_CAP : DUST_BAD_SCORE_CAP;
+  const cap = dustScoreCap(weather, dustSensitive);
+  if (cap === null) return breakdown;
   const excess = sumBreakdown(breakdown) - cap;
   return excess > 0 ? { ...breakdown, dust: breakdown.dust - excess } : breakdown;
 }
@@ -93,8 +130,7 @@ export function calcScoreBreakdown(
 ): ScoreBreakdown {
   const felt = calcPersonalFeelsLike(weather, sensitivity);
   const rhinitis = constraints.includes('rhinitis');
-  const dustSensitive =
-    constraints.includes('dustSensitive') || constraints.includes('asthma') || rhinitis;
+  const dustSensitive = isDustSensitive(constraints);
   const w = ACTIVITY_SCORE_WEIGHTS[activity];
   const daylightQ = isEveningDaylightExempt(weather, activity)
     ? 1
@@ -109,12 +145,12 @@ export function calcScoreBreakdown(
     humidity:
       w.humidity *
       applySensitivity(humidityQuality(weather.humidity), rhinitis && isDryAir(weather.humidity)),
-    dust: w.dust * applySensitivity(dustQuality(dustPm10For(weather)), dustSensitive),
+    dust: calcDustPoints(weather, constraints, activity),
     daylight:
       w.daylight * daylightQ - ACTIVITY_NIGHT_EXTRA_PENALTY[activity] * (1 - daylightQ),
     uv: w.uv * applySensitivity(uvQuality(weather.uvIndex), constraints.includes('uvSensitive')),
   };
-  return capForBadDust(breakdown, weather, dustSensitive);
+  return capForDust(breakdown, weather, dustSensitive);
 }
 
 /**
