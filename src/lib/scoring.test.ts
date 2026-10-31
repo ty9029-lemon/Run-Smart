@@ -710,12 +710,11 @@ describe("미세먼지 '나쁨' 점수 상한", () => {
   });
 
   it.each<Constraint>(['dustSensitive', 'asthma', 'rhinitis'])(
-    '%s 사용자는 나쁨에서 더 낮은 상한(59점)이 걸린다',
+    '%s 사용자는 나쁨에서 더 낮은 상한(44점)이 걸린다',
     (constraint) => {
       const result = score(BAD_DUST, [constraint]);
       expect(result).toBeLessThanOrEqual(DUST_BAD_SENSITIVE_SCORE_CAP);
-      expect(scoreToTier(result, 'running')).not.toBe('excellent');
-      expect(scoreToTier(result, 'running')).not.toBe('good');
+      expect(scoreToTier(result, 'running')).toBe('careful');
     },
   );
 
