@@ -178,7 +178,38 @@ describe('applyAirObservation', () => {
     expect(merged.current.pm25).toBe(35);
     expect(merged.current.pm10Source).toBe('observed');
     expect(merged.current.temp).toBe(base.current.temp);
-    expect(merged.hourly).toBe(base.hourly);
+    expect(merged.hourly.map((h) => h.temp)).toEqual(base.hourly.map((h) => h.temp));
+  });
+
+  it('지금 이후의 시간대별 PM10을 실측과 모델의 차이로 보정하고, 차이는 점점 줄어든다', () => {
+    // 모델 PM10은 14시 28, 15시 30. 실측 94이면 차이는 +66
+    const merged = applyAirObservation(base, { pm10: 94, pm25: null });
+    expect(merged.hourly[14]).toMatchObject({ pm10: 94, pm10Source: 'adjusted' });
+    expect(merged.hourly[15].pm10).toBeCloseTo(30 + 66 * Math.exp(-1 / 6), -0.5);
+    const gapAt = (i: number) => merged.hourly[i].pm10 - base.hourly[i].pm10;
+    expect(gapAt(15)).toBeGreaterThan(gapAt(20));
+    expect(gapAt(20)).toBeGreaterThan(gapAt(30));
+    expect(gapAt(40)).toBeLessThan(2);
+  });
+
+  it('이미 지난 시간대는 보정하지 않는다', () => {
+    const merged = applyAirObservation(base, { pm10: 94, pm25: null });
+    expect(merged.hourly[13]).toBe(base.hourly[13]);
+    expect(merged.hourly[0]).toBe(base.hourly[0]);
+  });
+
+  it('실측이 모델보다 낮아도 PM10은 0 아래로 내려가지 않는다', () => {
+    const spike: AirResponse = { hourly: { time: TIMES, pm10: TIMES.map((_, i) => (i === 14 ? 100 : 5)) } };
+    const spikeBase = parseWeather(makeForecast('2026-10-06T14:15'), spike);
+    const merged = applyAirObservation(spikeBase, { pm10: 0, pm25: null });
+    expect(merged.hourly[15].pm10).toBe(0);
+    expect(merged.hourly.every((h) => h.pm10 >= 0)).toBe(true);
+  });
+
+  it('모델 값이 없는 시간대는 보정하지 않고 값 없음으로 둔다', () => {
+    const empty = parseWeather(makeForecast('2026-10-06T14:15'), { hourly: { time: [], pm10: [] } });
+    const merged = applyAirObservation(empty, { pm10: 94, pm25: null });
+    expect(merged.hourly[15].pm10Source).toBe('none');
   });
 
   it('PM2.5가 없으면 값을 비워 둔다', () => {

@@ -1,4 +1,5 @@
 import {
+  DUST_ADJUST_DECAY_HOURS,
   FORECAST_DAYS,
   HOURS_IN_DAY,
   MINUTES_PER_HOUR,
@@ -228,8 +229,33 @@ export interface AirObservation {
 }
 
 /**
+ * 현재 시각 이후의 시간대별 PM10을 현재 실측과 모델의 차이로 보정한다.
+ * 차이는 시간이 갈수록 지수적으로 줄어(DUST_ADJUST_DECAY_HOURS) 먼 시간대는 모델 값에 수렴한다.
+ * 이미 지난 시간대와 모델 값이 없는 시간대는 그대로 둔다.
+ * @param hourly 시간대별 날씨 (모델 값)
+ * @param currentHour 지금 시각(0~23시)
+ * @param observedPm10 지금의 실측 PM10
+ */
+function adjustHourlyDust(
+  hourly: HourlyWeather[],
+  currentHour: number,
+  observedPm10: number,
+): HourlyWeather[] {
+  const nowIndex = hourly.findIndex((slot) => slot.hour === currentHour);
+  const nowSlot = hourly[nowIndex];
+  if (!nowSlot || nowSlot.pm10Source !== 'model') return hourly;
+  const gap = observedPm10 - nowSlot.pm10;
+  return hourly.map((slot, i) => {
+    if (i < nowIndex || slot.pm10Source !== 'model') return slot;
+    const weight = Math.exp(-(i - nowIndex) / DUST_ADJUST_DECAY_HOURS);
+    const pm10 = Math.max(0, Math.round(slot.pm10 + gap * weight));
+    return { ...slot, pm10, pm10Source: 'adjusted' };
+  });
+}
+
+/**
  * 현재 날씨의 미세먼지를 측정소 실측값으로 바꾼다. (예측 모델은 한국 미세먼지를 크게 낮게 추정할 수 있다)
- * 시간대별 예보는 모델 값 그대로 둔다.
+ * 시간대별 예보는 지금의 실측과 모델의 차이로 보정한다. (adjustHourlyDust)
  * @param result 예보 기반 날씨
  * @param air 에어코리아 실측. 없으면 원본(모델 값 또는 값 없음 표시)을 그대로 돌려준다.
  */
@@ -238,12 +264,14 @@ export function applyAirObservation(
   air: AirObservation | null,
 ): WeatherResult {
   if (!air) return result;
-  const { current } = result;
+  const { current, hourly } = result;
+  const observed = Math.round(air.pm10);
   return {
     ...result,
+    hourly: current.hour === undefined ? hourly : adjustHourlyDust(hourly, current.hour, observed),
     current: {
       ...current,
-      pm10: Math.round(air.pm10),
+      pm10: observed,
       pm25: air.pm25 === null ? undefined : Math.round(air.pm25),
       pm10Source: 'observed',
     },
