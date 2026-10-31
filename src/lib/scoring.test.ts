@@ -673,3 +673,23 @@ describe('러닝은 해 진 뒤 21시까지 일조 감점이 없다', () => {
     expect(scoreToHeadline(65, 'running', lateNight)).toBe(NIGHT_HEADLINE);
   });
 });
+
+describe('미세먼지 값 없음', () => {
+  const NO_DUST: Weather = { ...IDEAL, pm10: 0, pm10Source: 'none' };
+
+  it('값이 없으면 미세먼지 만점을 주지 않아 100점이 나오지 않는다', () => {
+    expect(calcRunScore(IDEAL, NEUTRAL_SENSITIVITY, [], 'running')).toBe(SCORE_MAX);
+    expect(calcRunScore(NO_DUST, NEUTRAL_SENSITIVITY, [], 'running')).toBeLessThan(SCORE_MAX);
+  });
+
+  it('값이 없을 때는 PM10 80(보통의 끝)으로 계산한 것과 같다', () => {
+    const unknown = calcScoreBreakdown(NO_DUST, NEUTRAL_SENSITIVITY, [], 'running').dust;
+    const at80 = calcScoreBreakdown({ ...IDEAL, pm10: 80 }, NEUTRAL_SENSITIVITY, [], 'running').dust;
+    expect(unknown).toBe(at80);
+  });
+
+  it('값이 없는 시간대의 0은 베스트 시간 동점 비교에서 제외된다', () => {
+    const [scored] = scoreHours([{ ...NO_DUST, hour: 12 }], NEUTRAL_SENSITIVITY, [], 'running');
+    expect(scored.pm10).toBeUndefined();
+  });
+});

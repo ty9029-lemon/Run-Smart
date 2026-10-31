@@ -178,6 +178,7 @@ function toHourly(
       precipitation: round1(h.precipitation[i]),
       condition: weatherCodeToCondition(h.weather_code[i]),
       pm10: Math.round(pm10ByTime.get(t) ?? 0),
+      pm10Source: pm10ByTime.has(t) ? 'model' : 'none',
       uvIndex: round1(h.uv_index[i]),
       isDay: toIsDay(h.is_day?.[i]),
       hoursUntilSunset: hoursUntilSunset(t, daily),
@@ -230,14 +231,14 @@ export interface AirObservation {
  * 현재 날씨의 미세먼지를 측정소 실측값으로 바꾼다. (예측 모델은 한국 미세먼지를 크게 낮게 추정할 수 있다)
  * 시간대별 예보는 모델 값 그대로 둔다.
  * @param result 예보 기반 날씨
- * @param air 에어코리아 실측. 없으면 원본에 모델 값임을 표시해 돌려준다.
+ * @param air 에어코리아 실측. 없으면 원본(모델 값 또는 값 없음 표시)을 그대로 돌려준다.
  */
 export function applyAirObservation(
   result: WeatherResult,
   air: AirObservation | null,
 ): WeatherResult {
+  if (!air) return result;
   const { current } = result;
-  if (!air) return { ...result, current: { ...current, pm10Source: 'model' } };
   return {
     ...result,
     current: {
@@ -268,6 +269,7 @@ export function parseWeather(forecast: ForecastResponse, air: AirResponse): Weat
     precipitation: round1(c.precipitation),
     condition: weatherCodeToCondition(c.weather_code),
     pm10: slot?.pm10 ?? 0,
+    pm10Source: slot?.pm10Source ?? 'none',
     uvIndex: slot?.uvIndex ?? 0,
     isDay: toIsDay(c.is_day),
     hoursUntilSunset: hoursUntilSunset(c.time, daily),

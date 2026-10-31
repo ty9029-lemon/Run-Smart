@@ -121,6 +121,9 @@ export const DUST_CURVE: readonly (readonly [number, number])[] = [
   [300, 0],
 ];
 
+/** 미세먼지 값을 구하지 못했을 때 점수에 쓰는 PM10(㎍/㎥). 만점을 주지 않도록 '보통'의 끝 값으로 본다 */
+export const DUST_UNKNOWN_PM10 = PM10_NORMAL;
+
 /** 자외선 지수: 이 값 이하는 만점, ZERO 이상은 품질 0 */
 export const UV_IDEAL_MAX = 5;
 export const UV_ZERO = 11;

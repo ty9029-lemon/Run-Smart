@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
+  DUST_UNAVAILABLE_LABEL,
+  formatDust,
   getDustGrade,
   getUvGrade,
   getUvLevel,
+  hasDustData,
   isMaskNeededFor,
   shouldRecommendMask,
 } from './airGrade';
@@ -67,5 +70,18 @@ describe('getUvLevel', () => {
     for (const uv of [0, 3, 5, 6, 9]) {
       expect(getUvLevel(uv) === '높음').toBe(getUvGrade(uv) === '높음');
     }
+  });
+});
+
+describe('값 없음 처리', () => {
+  it('출처가 none이면 값이 없는 것으로 본다', () => {
+    expect(hasDustData({ pm10Source: 'none' })).toBe(false);
+    expect(hasDustData({ pm10Source: 'model' })).toBe(true);
+    expect(hasDustData({})).toBe(true);
+  });
+
+  it('값이 없으면 "확인 불가", 있으면 등급과 값을 보여준다', () => {
+    expect(formatDust({ pm10: 0, pm10Source: 'none' })).toBe(DUST_UNAVAILABLE_LABEL);
+    expect(formatDust({ pm10: 94, pm10Source: 'observed' })).toBe('나쁨 (94)');
   });
 });

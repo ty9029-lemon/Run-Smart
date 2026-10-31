@@ -74,6 +74,7 @@ describe('parseWeather', () => {
       precipitation: 0,
       condition: '흐림',
       pm10: 28,
+      pm10Source: 'model',
       uvIndex: 14,
       isDay: true,
       hour: 14,
@@ -87,16 +88,19 @@ describe('parseWeather', () => {
     expect(hourly[29]).toMatchObject({ hour: 5, pm10: 58 });
   });
 
-  it('대기질 응답이 비어 있어도 날씨는 변환하고 PM10은 0으로 둔다', () => {
+  it('대기질 응답이 비어 있어도 날씨는 변환하고, PM10은 0으로 두되 값 없음으로 표시한다', () => {
     const empty: AirResponse = { hourly: { time: [], pm10: [] } };
     const { current, hourly } = parseWeather(makeForecast('2026-10-06T09:00'), empty);
     expect(current.pm10).toBe(0);
-    expect(hourly.every((h) => h.pm10 === 0)).toBe(true);
+    expect(current.pm10Source).toBe('none');
+    expect(hourly.every((h) => h.pm10 === 0 && h.pm10Source === 'none')).toBe(true);
   });
 
-  it('PM10 값이 null인 시간은 0으로 둔다', () => {
+  it('PM10 값이 null인 시간은 값 없음으로 표시한다', () => {
     const air: AirResponse = { hourly: { time: TIMES, pm10: TIMES.map(() => null) } };
-    expect(parseWeather(makeForecast('2026-10-06T09:00'), air).current.pm10).toBe(0);
+    const { current } = parseWeather(makeForecast('2026-10-06T09:00'), air);
+    expect(current.pm10).toBe(0);
+    expect(current.pm10Source).toBe('none');
   });
 
   it('is_day를 낮/밤 boolean으로 변환하고, 값이 없으면 낮으로 본다', () => {
@@ -183,9 +187,15 @@ describe('applyAirObservation', () => {
     expect(merged.current.pm25).toBeUndefined();
   });
 
-  it('실측이 없으면 모델 값을 유지하고 출처를 model로 표시한다', () => {
+  it('실측이 없으면 모델 값과 출처를 그대로 둔다', () => {
     const merged = applyAirObservation(base, null);
     expect(merged.current.pm10).toBe(base.current.pm10);
     expect(merged.current.pm10Source).toBe('model');
+  });
+
+  it('실측도 모델 값도 없으면 값 없음 표시를 유지한다', () => {
+    const empty = parseWeather(makeForecast('2026-10-06T14:15'), { hourly: { time: [], pm10: [] } });
+    expect(applyAirObservation(empty, null).current.pm10Source).toBe('none');
+    expect(applyAirObservation(empty, { pm10: 94, pm25: null }).current.pm10Source).toBe('observed');
   });
 });

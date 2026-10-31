@@ -1,5 +1,5 @@
 import { getActivityMeta } from '../constants/activities';
-import { getDustGrade, shouldRecommendMask } from '../lib/airGrade';
+import { DUST_UNAVAILABLE_LABEL, getDustGrade, hasDustData, shouldRecommendMask } from '../lib/airGrade';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
 import { isKneeBraceNeeded } from '../lib/outfitConditions';
 import { calcRunScore, scoreToLevel } from '../lib/runScore';
@@ -74,6 +74,12 @@ function isConstraintTipNeeded(constraint: Constraint, activity: Activity): bool
   return constraint !== 'kneeIssue' || isKneeBraceNeeded(activity);
 }
 
+/** 가이드 설명에 넣을 미세먼지 문구. 값이 없으면 확인되지 않았다고 쓴다. */
+function dustSummary(weather: Weather): string {
+  if (!hasDustData(weather)) return `미세먼지(${DUST_UNAVAILABLE_LABEL})`;
+  return `미세먼지 ${getDustGrade(weather.pm10)}(${weather.pm10}㎍/㎥)`;
+}
+
 /** 가이드 본문 구성 */
 function buildMessage(weather: Weather, felt: number, level: WarningLevel): string {
   const base = `오늘 기온 ${weather.temp}°C는 당신 기준 ${felt}°C처럼 느껴질 거예요.`;
@@ -116,6 +122,6 @@ export function buildDummyGuide(
     ],
     warningLevel: level,
     goOrNotEmoji: LEVEL_EMOJI[level],
-    detailedReason: `${getActivityMeta(activity).label} 기준 활동 지수는 ${score}점이에요. ${weather.condition}, 풍속 ${weather.windSpeed}m/s, 미세먼지 ${getDustGrade(weather.pm10)}(${weather.pm10}㎍/㎥)를 종합했어요.`,
+    detailedReason: `${getActivityMeta(activity).label} 기준 활동 지수는 ${score}점이에요. ${weather.condition}, 풍속 ${weather.windSpeed}m/s, ${dustSummary(weather)}를 종합했어요.`,
   };
 }

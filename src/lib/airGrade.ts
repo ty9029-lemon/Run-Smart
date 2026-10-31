@@ -1,5 +1,25 @@
 import { OUTFIT_UV_HIGH_MIN, PM10_GOOD, PM10_NORMAL, UV_LOW_MAX } from '../constants/thresholds';
-import type { Constraint, DustGrade, UvGrade, UvLevel } from '../types';
+import type { Constraint, DustGrade, UvGrade, UvLevel, Weather } from '../types';
+
+/** 미세먼지 값을 구하지 못했을 때 화면에 보이는 문구 */
+export const DUST_UNAVAILABLE_LABEL = '확인 불가';
+
+/**
+ * 미세먼지 값이 있는지 확인한다. 없으면 pm10의 0은 실제 농도가 아니다.
+ * @param weather 날씨
+ */
+export function hasDustData(weather: Pick<Weather, 'pm10Source'>): boolean {
+  return weather.pm10Source !== 'none';
+}
+
+/**
+ * 화면에 보일 미세먼지 문구를 만든다. 값이 없으면 "확인 불가".
+ * @param weather 날씨
+ */
+export function formatDust(weather: Pick<Weather, 'pm10' | 'pm10Source'>): string {
+  if (!hasDustData(weather)) return DUST_UNAVAILABLE_LABEL;
+  return `${getDustGrade(weather.pm10)} (${weather.pm10})`;
+}
 
 /**
  * 미세먼지(PM10) 농도를 등급으로 바꾼다. 날씨 카드·복장·AI 가이드가 같은 기준을 쓴다.
