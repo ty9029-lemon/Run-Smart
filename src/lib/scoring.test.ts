@@ -1,9 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { ACTIVITY_SCORE_WEIGHTS, NIGHT_EXTRA_PENALTY, SCORE_WEIGHTS } from '../constants/scoring';
-import { NIGHT_HEADLINE } from '../constants/messages';
-import { RECOMMEND_MIN_SCORE, SCORE_MAX } from '../constants/thresholds';
+import { NIGHT_HEADLINE, RUNNING_TIER_LABEL } from '../constants/messages';
+import {
+  DUST_BAD_SCORE_CAP,
+  DUST_BAD_SENSITIVE_SCORE_CAP,
+  RECOMMEND_MIN_SCORE,
+  SCORE_MAX,
+} from '../constants/thresholds';
 import { DUMMY_HOURLY } from '../data/dummyWeather';
-import type { Activity, HourlyWeather, Weather } from '../types';
+import type { Activity, Constraint, HourlyWeather, Weather } from '../types';
 import {
   findBestHour,
   findBestHourToday,
@@ -691,5 +696,54 @@ describe('미세먼지 값 없음', () => {
   it('값이 없는 시간대의 0은 베스트 시간 동점 비교에서 제외된다', () => {
     const [scored] = scoreHours([{ ...NO_DUST, hour: 12 }], NEUTRAL_SENSITIVITY, [], 'running');
     expect(scored.pm10).toBeUndefined();
+  });
+});
+
+describe("미세먼지 '나쁨' 점수 상한", () => {
+  const BAD_DUST: Weather = { ...IDEAL, pm10: 85 };
+  const score = (weather: Weather, constraints: Constraint[]) =>
+    calcRunScore(weather, NEUTRAL_SENSITIVITY, constraints, 'running');
+
+  it('나쁨이면 다른 항목이 완벽해도 좋음 단계(70점) 아래다', () => {
+    expect(score(BAD_DUST, [])).toBeLessThanOrEqual(DUST_BAD_SCORE_CAP);
+    expect(scoreToHeadline(score(BAD_DUST, []), 'running')).not.toBe(RUNNING_TIER_LABEL.excellent);
+  });
+
+  it.each<Constraint>(['dustSensitive', 'asthma', 'rhinitis'])(
+    '%s 사용자는 나쁨에서 더 낮은 상한(59점)이 걸린다',
+    (constraint) => {
+      const result = score(BAD_DUST, [constraint]);
+      expect(result).toBeLessThanOrEqual(DUST_BAD_SENSITIVE_SCORE_CAP);
+      expect(scoreToTier(result, 'running')).not.toBe('excellent');
+      expect(scoreToTier(result, 'running')).not.toBe('good');
+    },
+  );
+
+  it('보통(80 이하)이면 상한이 없다', () => {
+    expect(score({ ...IDEAL, pm10: 80 }, [])).toBeGreaterThan(DUST_BAD_SCORE_CAP);
+  });
+
+  it('값이 없으면 나쁨으로 보지 않아 상한이 걸리지 않는다', () => {
+    expect(score({ ...IDEAL, pm10: 0, pm10Source: 'none' }, [])).toBeGreaterThan(DUST_BAD_SCORE_CAP);
+  });
+
+  it('이미 점수가 상한보다 낮으면 그대로 둔다', () => {
+    const rainy: Weather = { ...BAD_DUST, precipitation: 20 };
+    const uncapped = Object.values(
+      calcScoreBreakdown({ ...rainy, pm10: 81 }, NEUTRAL_SENSITIVITY, [], 'running'),
+    ).reduce((a, b) => a + b, 0);
+    expect(score(rainy, [])).toBe(Math.round(Math.max(0, uncapped)));
+  });
+
+  it('항목별 점수의 합이 총점과 같다 (감점 이유 합계가 어긋나지 않는다)', () => {
+    const breakdown = calcScoreBreakdown(BAD_DUST, NEUTRAL_SENSITIVITY, ['dustSensitive'], 'running');
+    const total = Object.values(breakdown).reduce((a, b) => a + b, 0);
+    expect(Math.round(total)).toBe(score(BAD_DUST, ['dustSensitive']));
+  });
+
+  it('사용자가 본 사례: PM10 85 + 민감은 더 이상 "딱 좋아요"가 아니다', () => {
+    const result = score(BAD_DUST, ['dustSensitive']);
+    expect(result).toBeLessThan(RECOMMEND_MIN_SCORE);
+    expect(scoreToHeadline(result, 'running')).not.toBe(RUNNING_TIER_LABEL.excellent);
   });
 });

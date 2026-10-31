@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { MIN_REASON_PENALTY } from '../constants/scoreReasons';
-import type { Weather } from '../types';
+import type { Constraint, Weather } from '../types';
 import { NEUTRAL_SENSITIVITY } from './feelsLike';
 import { calcScoreBreakdown } from './runScore';
 import {
@@ -175,5 +175,30 @@ describe('buildScoreReasons: 밤', () => {
     const top = pickTopReasons(reasonsOf(NIGHT));
     expect(top[0].label).toBe('일조 시간');
     expect(top[0].penalty).toBe(35);
+  });
+});
+
+describe("buildScoreReasons: 미세먼지 '나쁨' 상한", () => {
+  const BAD: Weather = { ...IDEAL, pm10: 85 };
+  const constraints: Constraint[] = ['dustSensitive'];
+
+  it('감점 합계가 100점에서 총점을 뺀 값과 같고, 가장 큰 이유는 미세먼지다', () => {
+    const breakdown = calcScoreBreakdown(BAD, NEUTRAL_SENSITIVITY, constraints, 'running');
+    const reasons = buildScoreReasons(breakdown, 'running', constraints, BAD);
+    const total = Math.round(Object.values(breakdown).reduce((a, b) => a + b, 0));
+    const penaltySum = reasons.reduce((sum, r) => sum + r.penalty, 0);
+    expect(Math.abs(100 - total - penaltySum)).toBeLessThanOrEqual(1);
+    expect(reasons[0].key).toBe('dust');
+    expect(reasons[0].ratio).toBe(1);
+  });
+
+  it('표시용 만점·감점·점수는 모두 정수다', () => {
+    const breakdown = calcScoreBreakdown(BAD, NEUTRAL_SENSITIVITY, constraints, 'running');
+    const dust = buildScoreReasons(breakdown, 'running', constraints, BAD).find(
+      (r) => r.key === 'dust',
+    );
+    expect(Number.isInteger(dust?.max)).toBe(true);
+    expect(Number.isInteger(dust?.points)).toBe(true);
+    expect(Number.isInteger(dust?.penalty)).toBe(true);
   });
 });
