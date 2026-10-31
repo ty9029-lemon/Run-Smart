@@ -220,6 +220,35 @@ export function applyObservation(
   };
 }
 
+/** 에어코리아 실측값 (/api/air-now 응답) */
+export interface AirObservation {
+  pm10: number;
+  pm25: number | null;
+}
+
+/**
+ * 현재 날씨의 미세먼지를 측정소 실측값으로 바꾼다. (예측 모델은 한국 미세먼지를 크게 낮게 추정할 수 있다)
+ * 시간대별 예보는 모델 값 그대로 둔다.
+ * @param result 예보 기반 날씨
+ * @param air 에어코리아 실측. 없으면 원본에 모델 값임을 표시해 돌려준다.
+ */
+export function applyAirObservation(
+  result: WeatherResult,
+  air: AirObservation | null,
+): WeatherResult {
+  const { current } = result;
+  if (!air) return { ...result, current: { ...current, pm10Source: 'model' } };
+  return {
+    ...result,
+    current: {
+      ...current,
+      pm10: Math.round(air.pm10),
+      pm25: air.pm25 === null ? undefined : Math.round(air.pm25),
+      pm10Source: 'observed',
+    },
+  };
+}
+
 /**
  * 예보·대기질 응답을 앱의 날씨 형태로 변환한다.
  * 현재 날씨의 자외선·미세먼지는 현재 시각이 속한 시간대 값을 쓴다.
