@@ -34,7 +34,7 @@ describe('ReasonRow', () => {
       />,
     );
     expect(html).toContain('0/15점');
-    expect(html).toContain('미세먼지가 나빠 점수를 제한했어요');
+    expect(html).toContain('미세먼지 때문에 점수를 제한했어요');
     expect(html).toContain('추가 −39점');
   });
 

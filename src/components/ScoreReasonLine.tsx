@@ -13,7 +13,7 @@ interface ScoreReasonLineProps {
 /** 깎인 이유를 한 줄로 만든다. (예: "미세먼지 −9점 · 강수 −5점") */
 function formatReasonText(top: ScoreReason[]): string {
   if (top.length === 0) return SCORE_REASON_MESSAGES.noPenalty;
-  return top.map((r) => `${r.label} −${r.penalty}점`).join(' · ');
+  return top.map((r) => `${r.label} −${r.penalty + r.capPenalty}점`).join(' · ');
 }
 
 /** 점수 카드 안에서 점수가 깎인 이유를 한 줄로 알리고, 항목별 근거 시트를 여는 버튼을 둔다. */
