@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  applyAirObservation,
   applyObservation,
   buildForecastQuery,
   parseWeather,
@@ -161,5 +162,30 @@ describe('applyObservation', () => {
 
   it('실황이 없으면 원본을 그대로 돌려준다', () => {
     expect(applyObservation(base, null)).toBe(base);
+  });
+});
+
+describe('applyAirObservation', () => {
+  const base = parseWeather(makeForecast('2026-10-06T14:15'), AIR);
+
+  it('현재 미세먼지를 측정소 실측으로 바꾸고 출처를 표시한다', () => {
+    const merged = applyAirObservation(base, { pm10: 94.4, pm25: 35.2 });
+    expect(merged.current.pm10).toBe(94);
+    expect(merged.current.pm25).toBe(35);
+    expect(merged.current.pm10Source).toBe('observed');
+    expect(merged.current.temp).toBe(base.current.temp);
+    expect(merged.hourly).toBe(base.hourly);
+  });
+
+  it('PM2.5가 없으면 값을 비워 둔다', () => {
+    const merged = applyAirObservation(base, { pm10: 101, pm25: null });
+    expect(merged.current.pm10).toBe(101);
+    expect(merged.current.pm25).toBeUndefined();
+  });
+
+  it('실측이 없으면 모델 값을 유지하고 출처를 model로 표시한다', () => {
+    const merged = applyAirObservation(base, null);
+    expect(merged.current.pm10).toBe(base.current.pm10);
+    expect(merged.current.pm10Source).toBe('model');
   });
 });

@@ -61,6 +61,10 @@ export interface Weather {
   precipitation: number;
   condition: string;
   pm10: number;
+  /** PM2.5 농도(㎍/㎥). 실측을 받았을 때만 있다 */
+  pm25?: number;
+  /** pm10의 출처. 'observed'는 측정소 실측, 없거나 'model'은 예측 모델 값 */
+  pm10Source?: 'observed' | 'model';
   uvIndex: number;
   /** 낮이면 true, 밤이면 false */
   isDay: boolean;
