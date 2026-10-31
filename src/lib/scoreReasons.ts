@@ -77,16 +77,17 @@ export function buildScoreReasons(
       // 일조 항목은 밤에, 미세먼지 항목은 '나쁨' 상한이 걸리면 음수(추가 감점)가 된다.
       // 그만큼을 만점에 더해 "일조 시간 −35점"처럼 보여 준다.
       const nightExtra = key === 'daylight' || key === 'dust' ? Math.max(0, -breakdown[key]) : 0;
-      const max = weights[key] + nightExtra;
+      const rawMax = weights[key] + nightExtra;
       const earned = Math.max(0, breakdown[key]);
-      const rawPenalty = Math.max(0, max - earned);
+      const rawPenalty = Math.max(0, rawMax - earned);
       return {
         key,
         label: SCORE_FACTOR_LABEL[key],
         points: Math.round(earned),
-        max,
+        // 추가 감점이 소수라 화면에 길게 나오지 않도록 정수로 보여 준다
+        max: Math.round(rawMax),
         penalty: Math.round(rawPenalty),
-        ratio: max > 0 ? rawPenalty / max : 0,
+        ratio: rawMax > 0 ? rawPenalty / rawMax : 0,
         sensitive: isSensitiveFactor(key, constraints, weather),
       };
     })
