@@ -10,6 +10,7 @@ import {
   DUST_BAD_SCORE_CAP,
   DUST_BAD_SENSITIVE_SCORE_CAP,
   DUST_NORMAL_SENSITIVE_SCORE_CAP,
+  DUST_VERY_BAD_SCORE_CAP,
   RECOMMEND_MIN_SCORE,
   SCORE_CAUTION,
   SCORE_FAIR,
@@ -86,11 +87,12 @@ export function calcDustPoints(
 
 /**
  * 미세먼지 등급에 따른 총점 상한을 구한다. 상한이 없으면 null.
- * 나쁨은 모두(민감군은 더 낮게), 보통은 민감군만 둔다. 값이 없으면 두지 않는다.
+ * 매우나쁨은 모두, 나쁨은 모두(민감군은 더 낮게), 보통은 민감군만 둔다. 값이 없으면 두지 않는다.
  */
 function dustScoreCap(weather: Weather, dustSensitive: boolean): number | null {
   if (!hasDustData(weather)) return null;
   const grade = getDustGrade(weather.pm10);
+  if (grade === '매우나쁨') return DUST_VERY_BAD_SCORE_CAP;
   if (grade === '나쁨') return dustSensitive ? DUST_BAD_SENSITIVE_SCORE_CAP : DUST_BAD_SCORE_CAP;
   if (grade === '보통' && dustSensitive) return DUST_NORMAL_SENSITIVE_SCORE_CAP;
   return null;

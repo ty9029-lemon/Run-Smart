@@ -1,11 +1,12 @@
 import type { DustGrade, UvLevel, WarningLevel } from '../types';
 
-/** 등급 글자 → 레벨 색 글자 클래스 (좋음·낮음은 파랑, 보통은 주황, 나쁨·높음은 빨강) */
+/** 등급 글자 → 레벨 색 글자 클래스 (좋음·낮음은 파랑, 보통은 주황, 나쁨·매우나쁨·높음은 빨강) */
 export const GRADE_TEXT_CLASS: Record<DustGrade | UvLevel, string> = {
   좋음: 'text-level-good',
   낮음: 'text-level-good',
   보통: 'text-level-normal',
   나쁨: 'text-level-bad',
+  매우나쁨: 'text-level-bad',
   높음: 'text-level-bad',
 };
 

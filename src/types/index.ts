@@ -99,7 +99,7 @@ export type GuideState =
   | { state: 'ready'; data: AiGuide };
 
 /** 미세먼지 등급 (날씨 카드·복장·AI 가이드 공통) */
-export type DustGrade = '좋음' | '보통' | '나쁨';
+export type DustGrade = '좋음' | '보통' | '나쁨' | '매우나쁨';
 
 /** 자외선 표시 등급 (낮음·보통·높음) */
 export type UvLevel = '낮음' | '보통' | '높음';

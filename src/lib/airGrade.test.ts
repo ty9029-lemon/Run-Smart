@@ -18,6 +18,12 @@ describe('getDustGrade', () => {
     expect(getDustGrade(80)).toBe('보통');
     expect(getDustGrade(81)).toBe('나쁨');
   });
+
+  it('150 이하는 나쁨, 151 이상은 매우나쁨이다', () => {
+    expect(getDustGrade(150)).toBe('나쁨');
+    expect(getDustGrade(151)).toBe('매우나쁨');
+    expect(getDustGrade(300)).toBe('매우나쁨');
+  });
 });
 
 describe('getUvGrade', () => {
@@ -41,6 +47,12 @@ describe('마스크 규칙', () => {
   it('미세먼지가 나쁨이면 제약사항이 없어도 마스크를 추천한다', () => {
     expect(shouldRecommendMask([], 81)).toBe(true);
     expect(shouldRecommendMask([], 80)).toBe(false);
+  });
+
+  it('매우나쁨에서도 마스크를 추천하고, 미세먼지 민감도 마스크가 필요하다', () => {
+    expect(shouldRecommendMask([], 151)).toBe(true);
+    expect(isMaskNeededFor('dustSensitive', 151)).toBe(true);
+    expect(isMaskNeededFor('asthma', 151)).toBe(true);
   });
 
   it('천식은 보통에서도, 미세먼지 민감은 나쁨에서만 마스크를 추천한다', () => {

@@ -5,6 +5,7 @@ import {
   DUST_BAD_SCORE_CAP,
   DUST_BAD_SENSITIVE_SCORE_CAP,
   DUST_NORMAL_SENSITIVE_SCORE_CAP,
+  DUST_VERY_BAD_SCORE_CAP,
   RECOMMEND_MIN_SCORE,
   SCORE_MAX,
 } from '../constants/thresholds';
@@ -779,5 +780,26 @@ describe("미세먼지 '보통' 민감군 점수 상한", () => {
     const none: Weather = { ...IDEAL, pm10: 0, pm10Source: 'none' };
     const result = calcRunScore(none, NEUTRAL_SENSITIVITY, ['dustSensitive'], 'running');
     expect(result).toBeGreaterThan(DUST_BAD_SENSITIVE_SCORE_CAP);
+  });
+});
+
+describe("미세먼지 '매우나쁨' 점수 상한", () => {
+  const score = (pm10: number, constraints: Constraint[]) =>
+    calcRunScore({ ...IDEAL, pm10 }, NEUTRAL_SENSITIVITY, constraints, 'running');
+
+  it('매우나쁨이면 일반 사용자도 쉬어가기 단계(44점 이하)다', () => {
+    const result = score(151, []);
+    expect(result).toBeLessThanOrEqual(DUST_VERY_BAD_SCORE_CAP);
+    expect(scoreToTier(result, 'running')).toBe('careful');
+  });
+
+  it('민감군은 매우나쁨에서도 44점 이하다', () => {
+    expect(score(200, ['dustSensitive'])).toBeLessThanOrEqual(DUST_VERY_BAD_SCORE_CAP);
+  });
+
+  it('나쁨(150)과 매우나쁨(151) 사이에서 일반 사용자의 상한이 69점에서 44점으로 내려간다', () => {
+    expect(score(150, [])).toBeLessThanOrEqual(DUST_BAD_SCORE_CAP);
+    expect(score(150, [])).toBeGreaterThan(DUST_VERY_BAD_SCORE_CAP);
+    expect(score(151, [])).toBeLessThanOrEqual(DUST_VERY_BAD_SCORE_CAP);
   });
 });
