@@ -74,8 +74,9 @@ export function buildScoreReasons(
   const keys = Object.keys(breakdown) as (keyof ScoreBreakdown)[];
   return keys
     .map((key) => {
-      // 러닝·산책의 일조 항목은 밤에 음수(추가 감점)가 된다. 그만큼을 만점에 더해 "일조 시간 −35점"으로 보여 준다.
-      const nightExtra = key === 'daylight' ? Math.max(0, -breakdown[key]) : 0;
+      // 일조 항목은 밤에, 미세먼지 항목은 '나쁨' 상한이 걸리면 음수(추가 감점)가 된다.
+      // 그만큼을 만점에 더해 "일조 시간 −35점"처럼 보여 준다.
+      const nightExtra = key === 'daylight' || key === 'dust' ? Math.max(0, -breakdown[key]) : 0;
       const max = weights[key] + nightExtra;
       const earned = Math.max(0, breakdown[key]);
       const rawPenalty = Math.max(0, max - earned);

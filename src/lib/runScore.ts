@@ -7,6 +7,8 @@ import {
   type SCORE_WEIGHTS,
 } from '../constants/scoring';
 import {
+  DUST_BAD_SCORE_CAP,
+  DUST_BAD_SENSITIVE_SCORE_CAP,
   RECOMMEND_MIN_SCORE,
   SCORE_CAUTION,
   SCORE_FAIR,
@@ -23,7 +25,7 @@ import type {
   Weather,
   WarningLevel,
 } from '../types';
-import { hasDustData } from './airGrade';
+import { getDustGrade, hasDustData } from './airGrade';
 import { calcPersonalFeelsLike } from './feelsLike';
 import {
   applySensitivity,
@@ -52,6 +54,30 @@ function dustPm10For(weather: Weather): number {
   return hasDustData(weather) ? weather.pm10 : DUST_UNKNOWN_PM10;
 }
 
+/** 항목별 점수의 합 */
+function sumBreakdown(breakdown: ScoreBreakdown): number {
+  return Object.values(breakdown).reduce((sum, points) => sum + points, 0);
+}
+
+/**
+ * 미세먼지가 '나쁨'이면 총점이 상한을 넘지 않도록 미세먼지 항목에서 초과분을 더 뺀다.
+ * 배점이 작은 미세먼지 감점만으로는 다른 항목이 좋을 때 '딱 좋아요'가 나오기 때문이다.
+ * 항목 합이 곧 총점이라 '왜 이 점수예요?'의 감점 합계도 어긋나지 않는다.
+ * @param breakdown 항목별 점수
+ * @param weather 날씨 (미세먼지 값이 없으면 상한을 두지 않는다)
+ * @param dustSensitive 미세먼지에 민감한 제약이 있는지
+ */
+function capForBadDust(
+  breakdown: ScoreBreakdown,
+  weather: Weather,
+  dustSensitive: boolean,
+): ScoreBreakdown {
+  if (!hasDustData(weather) || getDustGrade(weather.pm10) !== '나쁨') return breakdown;
+  const cap = dustSensitive ? DUST_BAD_SENSITIVE_SCORE_CAP : DUST_BAD_SCORE_CAP;
+  const excess = sumBreakdown(breakdown) - cap;
+  return excess > 0 ? { ...breakdown, dust: breakdown.dust - excess } : breakdown;
+}
+
 /**
  * 항목별 점수를 계산한다. (배점 × 품질)
  * @param weather 날씨 정보
@@ -73,7 +99,7 @@ export function calcScoreBreakdown(
   const daylightQ = isEveningDaylightExempt(weather, activity)
     ? 1
     : daylightQuality(weather.isDay, weather.hoursUntilSunset, ACTIVITY_DAYLIGHT_BUFFER_HOURS[activity]);
-  return {
+  const breakdown: ScoreBreakdown = {
     feelsLike: w.feelsLike * feelsLikeQuality(felt, ACTIVITY_COMFORT[activity]),
     // 비염은 찬 공기에서만 기온 감점을 키운다
     temp: w.temp * applySensitivity(tempQuality(weather.temp), rhinitis && isColdAir(weather.temp)),
@@ -88,6 +114,7 @@ export function calcScoreBreakdown(
       w.daylight * daylightQ - ACTIVITY_NIGHT_EXTRA_PENALTY[activity] * (1 - daylightQ),
     uv: w.uv * applySensitivity(uvQuality(weather.uvIndex), constraints.includes('uvSensitive')),
   };
+  return capForBadDust(breakdown, weather, dustSensitive);
 }
 
 /**
@@ -104,7 +131,7 @@ export function calcRunScore(
   activity: Activity,
 ): number {
   const breakdown = calcScoreBreakdown(weather, sensitivity, constraints, activity);
-  const total = Object.values(breakdown).reduce((sum, points) => sum + points, 0);
+  const total = sumBreakdown(breakdown);
   return Math.round(Math.min(SCORE_MAX, Math.max(SCORE_MIN, total)));
 }
 

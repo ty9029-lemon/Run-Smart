@@ -67,6 +67,10 @@ export const SCORE_GOOD = 70;
 export const SCORE_CAUTION = 45;
 /** 러닝 5단계 중 '가볍게 뛰기 괜찮은' 단계의 최소 점수 */
 export const SCORE_FAIR = 60;
+/** 미세먼지가 '나쁨'일 때 점수의 상한. 다른 항목이 좋아도 '좋음' 단계(70점) 이상은 주지 않는다 */
+export const DUST_BAD_SCORE_CAP = SCORE_GOOD - 1;
+/** 미세먼지에 민감한 사용자(미세먼지 민감·천식·비염)의 상한. '가볍게 뛰기 괜찮은' 단계(60점) 아래로 둔다 */
+export const DUST_BAD_SENSITIVE_SCORE_CAP = SCORE_FAIR - 1;
 /** 추천 시간대를 구간으로 묶을 때의 최소 점수 */
 export const RECOMMEND_MIN_SCORE = 80;
 /** 이 시각(시) 이후는 추천 시간대에서 제외한다 (22시 정각 포함) */
