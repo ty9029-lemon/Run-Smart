@@ -6,7 +6,7 @@ import {
   SCORE_LEVEL_TEXT_CLASS,
 } from '../constants/levelStyles';
 import { getWeatherEmoji } from '../constants/weatherEmoji';
-import { getDustGrade, getUvLevel } from '../lib/airGrade';
+import { formatDust, getDustGrade, getUvLevel, hasDustData } from '../lib/airGrade';
 import { formatHourLabel } from '../lib/formatTime';
 import { scoreToLevel } from '../lib/runScore';
 import type { ScoreDelta } from '../lib/scoreReasons';
@@ -48,9 +48,9 @@ function buildTiles(weather: HourlyWeather, feelsLike: number): Tile[] {
     { label: '습도', value: `${weather.humidity}%`, icon: Droplet },
     {
       label: '미세먼지',
-      value: `${dust} (${weather.pm10})`,
+      value: formatDust(weather),
       icon: DustIcon,
-      valueClass: GRADE_TEXT_CLASS[dust],
+      valueClass: hasDustData(weather) ? GRADE_TEXT_CLASS[dust] : undefined,
     },
     {
       label: '자외선',

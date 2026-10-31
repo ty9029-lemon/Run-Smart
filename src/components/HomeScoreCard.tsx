@@ -3,7 +3,7 @@ import ScoreRing from './ScoreRing';
 import type { ScoreReason } from '../lib/scoreReasons';
 import { GRADE_TEXT_CLASS } from '../constants/levelStyles';
 import { getWeatherEmoji } from '../constants/weatherEmoji';
-import { getDustGrade, getUvLevel } from '../lib/airGrade';
+import { formatDust, getDustGrade, getUvLevel, hasDustData } from '../lib/airGrade';
 import type { Weather } from '../types';
 
 interface HomeScoreCardProps {
@@ -32,7 +32,11 @@ function buildMetrics(weather: Weather, feelsLike: number): Metric[] {
     { label: '습도', value: `${weather.humidity}%` },
     { label: '강수', value: `${weather.precipitation}mm` },
     { label: '풍속', value: `${weather.windSpeed}m/s` },
-    { label: '미세먼지', value: `${dust} (${weather.pm10})`, valueClass: GRADE_TEXT_CLASS[dust] },
+    {
+      label: '미세먼지',
+      value: formatDust(weather),
+      valueClass: hasDustData(weather) ? GRADE_TEXT_CLASS[dust] : undefined,
+    },
     { label: '자외선', value: `${uv} (${weather.uvIndex})`, valueClass: GRADE_TEXT_CLASS[uv] },
   ];
 }

@@ -3,6 +3,7 @@ import {
   ACTIVITY_DAYLIGHT_BUFFER_HOURS,
   ACTIVITY_NIGHT_EXTRA_PENALTY,
   ACTIVITY_SCORE_WEIGHTS,
+  DUST_UNKNOWN_PM10,
   type SCORE_WEIGHTS,
 } from '../constants/scoring';
 import {
@@ -22,6 +23,7 @@ import type {
   Weather,
   WarningLevel,
 } from '../types';
+import { hasDustData } from './airGrade';
 import { calcPersonalFeelsLike } from './feelsLike';
 import {
   applySensitivity,
@@ -44,6 +46,11 @@ import {
  * 러닝은 해 진 뒤에도 21시까지는 일조 감점이 없다. (ACTIVITY_EVENING_DAYLIGHT_EXEMPT)
  */
 export type ScoreBreakdown = { [K in keyof typeof SCORE_WEIGHTS]: number };
+
+/** 점수에 쓸 PM10을 고른다. 값이 없으면 만점이 되지 않도록 보수적인 값을 쓴다. */
+function dustPm10For(weather: Weather): number {
+  return hasDustData(weather) ? weather.pm10 : DUST_UNKNOWN_PM10;
+}
 
 /**
  * 항목별 점수를 계산한다. (배점 × 품질)
@@ -76,7 +83,7 @@ export function calcScoreBreakdown(
     humidity:
       w.humidity *
       applySensitivity(humidityQuality(weather.humidity), rhinitis && isDryAir(weather.humidity)),
-    dust: w.dust * applySensitivity(dustQuality(weather.pm10), dustSensitive),
+    dust: w.dust * applySensitivity(dustQuality(dustPm10For(weather)), dustSensitive),
     daylight:
       w.daylight * daylightQ - ACTIVITY_NIGHT_EXTRA_PENALTY[activity] * (1 - daylightQ),
     uv: w.uv * applySensitivity(uvQuality(weather.uvIndex), constraints.includes('uvSensitive')),

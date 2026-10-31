@@ -9,6 +9,7 @@ import {
 } from '../constants/scoreReasons';
 import { ACTIVITY_DAYLIGHT_BUFFER_HOURS, ACTIVITY_SCORE_WEIGHTS } from '../constants/scoring';
 import type { Activity, Constraint, WarningLevel, Weather } from '../types';
+import { DUST_UNAVAILABLE_LABEL, hasDustData } from './airGrade';
 import type { ScoreBreakdown } from './runScore';
 import { isColdAir, isDryAir } from './scoreFactors';
 
@@ -151,7 +152,7 @@ export function formatFactorValue(
     precipitation: `${weather.precipitation}mm`,
     wind: `${weather.windSpeed}m/s`,
     humidity: `${weather.humidity}%`,
-    dust: `${weather.pm10}㎍/㎥`,
+    dust: hasDustData(weather) ? `${weather.pm10}㎍/㎥` : DUST_UNAVAILABLE_LABEL,
     daylight: formatDaylightValue(weather, activity),
     uv: `UV ${weather.uvIndex}`,
   };

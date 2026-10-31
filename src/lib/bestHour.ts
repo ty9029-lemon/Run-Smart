@@ -6,6 +6,7 @@ import {
   RECOMMEND_SCORE_MARGIN,
 } from '../constants/thresholds';
 import type { Activity, Constraint, HourlyWeather, Sensitivity } from '../types';
+import { hasDustData } from './airGrade';
 import { calcPersonalFeelsLike } from './feelsLike';
 import { calcRunScore } from './runScore';
 import { hasDaylightScore } from './scoreFactors';
@@ -56,7 +57,8 @@ export function scoreHours(
   return hourly.map((h) => ({
     hour: h.hour,
     score: calcRunScore(h, sensitivity, constraints, activity),
-    pm10: h.pm10,
+    // 값이 없는 시간대의 0을 '가장 깨끗함'으로 비교하지 않는다
+    pm10: hasDustData(h) ? h.pm10 : undefined,
     uvIndex: h.uvIndex,
     isDay: hasDaylightScore(h, activity),
     comfortGap: calcComfortGap(h, sensitivity, activity),
