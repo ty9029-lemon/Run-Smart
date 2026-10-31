@@ -63,12 +63,24 @@ describe('parseGuideRequest', () => {
     expect(parseGuideRequest(bad)).toBeNull();
   });
 
+  it('초미세먼지 값이 있으면 사용자 프롬프트에 pm25로 담는다', () => {
+    const req = parseGuideRequest({
+      ...VALID_REQUEST,
+      weather: { ...VALID_REQUEST.weather, pm25: 40 },
+    });
+    expect(JSON.parse(buildUserPrompt(req!)).current_weather.pm25).toBe(40);
+  });
+
   it('등급 필드가 올바르면 통과하고, 없으면(기존 클라이언트) 통과하며, 알 수 없는 값은 거부한다', () => {
     const graded = { ...VALID_REQUEST, dustGrade: '좋음', uvGrade: '높음' };
     expect(parseGuideRequest(graded)).not.toBeNull();
     expect(parseGuideRequest(VALID_REQUEST)).not.toBeNull();
     expect(parseGuideRequest({ ...VALID_REQUEST, dustGrade: '매우나쁨' })).not.toBeNull();
     expect(parseGuideRequest({ ...VALID_REQUEST, dustGrade: '양호' })).toBeNull();
+    const withPm25 = { ...VALID_REQUEST, weather: { ...VALID_REQUEST.weather, pm25: 40 } };
+    expect(parseGuideRequest(withPm25)).not.toBeNull();
+    const badPm25 = { ...VALID_REQUEST, weather: { ...VALID_REQUEST.weather, pm25: 'x' } };
+    expect(parseGuideRequest(badPm25)).toBeNull();
     expect(parseGuideRequest({ ...VALID_REQUEST, uvGrade: '강함' })).toBeNull();
     expect(parseGuideRequest({ ...VALID_REQUEST, maskAllowed: false })).not.toBeNull();
     expect(parseGuideRequest({ ...VALID_REQUEST, maskAllowed: 'no' })).toBeNull();

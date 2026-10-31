@@ -6,7 +6,7 @@ import {
   SCORE_LEVEL_TEXT_CLASS,
 } from '../constants/levelStyles';
 import { getWeatherEmoji } from '../constants/weatherEmoji';
-import { formatDust, getDustGrade, getUvLevel, hasDustData } from '../lib/airGrade';
+import { formatDust, getOverallDustGrade, getUvLevel, hasDustData } from '../lib/airGrade';
 import { formatHourLabel } from '../lib/formatTime';
 import { scoreToLevel } from '../lib/runScore';
 import type { ScoreDelta } from '../lib/scoreReasons';
@@ -39,7 +39,7 @@ interface Tile {
 
 /** 선택한 시각의 지표 6칸 */
 function buildTiles(weather: HourlyWeather, feelsLike: number): Tile[] {
-  const dust = getDustGrade(weather.pm10);
+  const dust = getOverallDustGrade(weather.pm10, weather.pm25);
   const uv = getUvLevel(weather.uvIndex);
   return [
     { label: '체감온도', value: `${feelsLike}°C`, icon: ThermometerSun },

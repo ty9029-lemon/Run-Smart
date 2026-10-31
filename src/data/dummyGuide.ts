@@ -1,5 +1,5 @@
 import { getActivityMeta } from '../constants/activities';
-import { DUST_UNAVAILABLE_LABEL, getDustGrade, hasDustData, shouldRecommendMask } from '../lib/airGrade';
+import { DUST_UNAVAILABLE_LABEL, getOverallDustGrade, hasDustData, shouldRecommendMask } from '../lib/airGrade';
 import { calcPersonalFeelsLike } from '../lib/feelsLike';
 import { isKneeBraceNeeded } from '../lib/outfitConditions';
 import { calcRunScore, scoreToLevel } from '../lib/runScore';
@@ -77,7 +77,9 @@ function isConstraintTipNeeded(constraint: Constraint, activity: Activity): bool
 /** 가이드 설명에 넣을 미세먼지 문구. 값이 없으면 확인되지 않았다고 쓴다. */
 function dustSummary(weather: Weather): string {
   if (!hasDustData(weather)) return `미세먼지(${DUST_UNAVAILABLE_LABEL})`;
-  return `미세먼지 ${getDustGrade(weather.pm10)}(${weather.pm10}㎍/㎥)`;
+  const grade = getOverallDustGrade(weather.pm10, weather.pm25);
+  const pm25 = weather.pm25 === undefined ? '' : `, 초미세먼지 ${weather.pm25}㎍/㎥`;
+  return `미세먼지 ${grade}(${weather.pm10}㎍/㎥${pm25})`;
 }
 
 /** 가이드 본문 구성 */
@@ -110,7 +112,7 @@ export function buildDummyGuide(
     .filter((c) => !(isNight && c === 'uvSensitive'))
     .map((c) => CONSTRAINT_TIPS[c])
     .filter((tip): tip is string => Boolean(tip));
-  const maskTips = shouldRecommendMask(constraints, weather.pm10) ? [MASK_TIP] : [];
+  const maskTips = shouldRecommendMask(constraints, weather.pm10, weather.pm25) ? [MASK_TIP] : [];
   return {
     guideMessage: buildMessage(weather, felt, level),
     activityTips: [

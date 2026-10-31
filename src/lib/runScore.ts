@@ -27,7 +27,7 @@ import type {
   Weather,
   WarningLevel,
 } from '../types';
-import { getDustGrade, hasDustData } from './airGrade';
+import { getOverallDustGrade, hasDustData } from './airGrade';
 import { calcPersonalFeelsLike } from './feelsLike';
 import {
   applySensitivity,
@@ -38,6 +38,7 @@ import {
   isColdAir,
   isDryAir,
   isEveningDaylightExempt,
+  pm25Quality,
   rainQuality,
   tempQuality,
   uvQuality,
@@ -81,7 +82,12 @@ export function calcDustPoints(
   constraints: Constraint[],
   activity: Activity,
 ): number {
-  const quality = dustQuality(dustPm10For(weather));
+  // 초미세먼지 값이 있으면 미세먼지와 초미세먼지 중 나쁜 쪽 품질을 쓴다
+  const quality10 = dustQuality(dustPm10For(weather));
+  const quality =
+    hasDustData(weather) && weather.pm25 !== undefined
+      ? Math.min(quality10, pm25Quality(weather.pm25))
+      : quality10;
   return ACTIVITY_SCORE_WEIGHTS[activity].dust * applySensitivity(quality, isDustSensitive(constraints));
 }
 
@@ -91,7 +97,7 @@ export function calcDustPoints(
  */
 function dustScoreCap(weather: Weather, dustSensitive: boolean): number | null {
   if (!hasDustData(weather)) return null;
-  const grade = getDustGrade(weather.pm10);
+  const grade = getOverallDustGrade(weather.pm10, weather.pm25);
   if (grade === '매우나쁨') return DUST_VERY_BAD_SCORE_CAP;
   if (grade === '나쁨') return dustSensitive ? DUST_BAD_SENSITIVE_SCORE_CAP : DUST_BAD_SCORE_CAP;
   if (grade === '보통' && dustSensitive) return DUST_NORMAL_SENSITIVE_SCORE_CAP;

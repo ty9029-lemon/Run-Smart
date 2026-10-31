@@ -803,3 +803,42 @@ describe("미세먼지 '매우나쁨' 점수 상한", () => {
     expect(score(151, [])).toBeLessThanOrEqual(DUST_VERY_BAD_SCORE_CAP);
   });
 });
+
+describe('초미세먼지(PM2.5) 점수', () => {
+  const score = (weather: Partial<Weather>, constraints: Constraint[] = []) =>
+    calcRunScore({ ...IDEAL, ...weather }, NEUTRAL_SENSITIVITY, constraints, 'running');
+
+  it('PM10이 좋아도 PM2.5가 나쁘면 나쁨 상한이 걸린다', () => {
+    expect(score({ pm10: 20 })).toBe(SCORE_MAX);
+    expect(score({ pm10: 20, pm25: 40 })).toBeLessThanOrEqual(DUST_BAD_SCORE_CAP);
+  });
+
+  it('PM2.5가 매우나쁨이면 모든 사용자 44점 이하다', () => {
+    expect(score({ pm10: 20, pm25: 80 })).toBeLessThanOrEqual(DUST_VERY_BAD_SCORE_CAP);
+  });
+
+  it('PM2.5가 보통이면 민감군은 79점 이하, 일반 사용자는 상한이 없다', () => {
+    expect(score({ pm10: 20, pm25: 20 }, ['dustSensitive'])).toBeLessThanOrEqual(
+      DUST_NORMAL_SENSITIVE_SCORE_CAP,
+    );
+    expect(score({ pm10: 20, pm25: 20 })).toBeGreaterThan(DUST_NORMAL_SENSITIVE_SCORE_CAP);
+  });
+
+  it('PM2.5 값이 없으면 PM10만 본다', () => {
+    expect(score({ pm10: 20, pm25: undefined })).toBe(SCORE_MAX);
+  });
+
+  it('미세먼지 값이 없으면(none) PM2.5가 있어도 무시한다', () => {
+    const noData = score({ pm10: 0, pm10Source: 'none', pm25: 200 });
+    expect(noData).toBeGreaterThan(DUST_BAD_SENSITIVE_SCORE_CAP);
+  });
+
+  it('두 값 중 나쁜 쪽 품질로 미세먼지 항목을 계산한다', () => {
+    const dustOf = (weather: Partial<Weather>) =>
+      calcScoreBreakdown({ ...IDEAL, ...weather }, NEUTRAL_SENSITIVITY, [], 'running').dust;
+    // PM2.5 30은 15(좋음 끝)~35(보통 끝) 사이라 품질 0.7, PM10 20은 만점
+    expect(dustOf({ pm10: 20, pm25: 30 })).toBeCloseTo(15 * 0.7, 1);
+    // PM10이 더 나쁘면 PM10 기준: 55는 30~80 사이라 품질 0.8
+    expect(dustOf({ pm10: 55, pm25: 10 })).toBeCloseTo(15 * 0.8, 1);
+  });
+});

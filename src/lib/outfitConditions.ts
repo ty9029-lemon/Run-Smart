@@ -120,7 +120,7 @@ export function applyConstraintGear(
 ): OutfitItem[] {
   const gear: OutfitItem[] = [];
   if (constraints.includes('kneeIssue') && isKneeBraceNeeded(activity)) gear.push(KNEE_BRACE);
-  if (shouldRecommendMask(constraints, weather.pm10)) gear.push(MASK);
+  if (shouldRecommendMask(constraints, weather.pm10, weather.pm25)) gear.push(MASK);
   if (constraints.includes('rhinitis') && isColdAir(weather.temp)) gear.push(TISSUE);
   return dedupeByLabel([...items, ...gear]);
 }

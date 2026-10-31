@@ -3,7 +3,13 @@ import ScoreRing from './ScoreRing';
 import type { ScoreReason } from '../lib/scoreReasons';
 import { GRADE_TEXT_CLASS } from '../constants/levelStyles';
 import { getWeatherEmoji } from '../constants/weatherEmoji';
-import { formatDust, getDustGrade, getUvLevel, hasDustData } from '../lib/airGrade';
+import {
+  formatDust,
+  formatDustDetail,
+  getOverallDustGrade,
+  getUvLevel,
+  hasDustData,
+} from '../lib/airGrade';
 import type { Weather } from '../types';
 
 interface HomeScoreCardProps {
@@ -21,11 +27,13 @@ interface Metric {
   label: string;
   value: string;
   valueClass?: string;
+  /** 값 아래에 작게 보이는 부가 문구 */
+  detail?: string;
 }
 
 /** 지금 날씨의 지표 6칸 (체감온도, 습도, 강수, 풍속, 미세먼지, 자외선) */
 function buildMetrics(weather: Weather, feelsLike: number): Metric[] {
-  const dust = getDustGrade(weather.pm10);
+  const dust = getOverallDustGrade(weather.pm10, weather.pm25);
   const uv = getUvLevel(weather.uvIndex);
   return [
     { label: '체감온도', value: `${feelsLike}°C` },
@@ -36,6 +44,7 @@ function buildMetrics(weather: Weather, feelsLike: number): Metric[] {
       label: '미세먼지',
       value: formatDust(weather),
       valueClass: hasDustData(weather) ? GRADE_TEXT_CLASS[dust] : undefined,
+      detail: formatDustDetail(weather) ?? undefined,
     },
     { label: '자외선', value: `${uv} (${weather.uvIndex})`, valueClass: GRADE_TEXT_CLASS[uv] },
   ];
@@ -66,10 +75,11 @@ export default function HomeScoreCard({
         </div>
       </div>
       <dl className="grid grid-cols-3 gap-x-5 gap-y-3 pl-2">
-        {buildMetrics(weather, feelsLike).map(({ label, value, valueClass }) => (
+        {buildMetrics(weather, feelsLike).map(({ label, value, valueClass, detail }) => (
           <div key={label}>
             <dt className="text-sm text-muted-foreground">{label}</dt>
             <dd className={`text-base font-bold ${valueClass ?? ''}`}>{value}</dd>
+            {detail && <dd className="text-xs text-muted-foreground">{detail}</dd>}
           </div>
         ))}
       </dl>

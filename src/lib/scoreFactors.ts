@@ -1,6 +1,7 @@
 import {
   COMFORT_EDGE_QUALITY,
   DUST_CURVE,
+  PM25_CURVE,
   FEELS_LIKE_FALLOFF,
   HUMIDITY_IDEAL_MAX,
   HUMIDITY_IDEAL_MIN,
@@ -116,6 +117,11 @@ export function isDryAir(humidity: number): boolean {
 /** 미세먼지(PM10)의 품질(0~1) */
 export function dustQuality(pm10: number): number {
   return interpolate(DUST_CURVE, pm10);
+}
+
+/** 초미세먼지(PM2.5)의 품질(0~1) */
+export function pm25Quality(pm25: number): number {
+  return interpolate(PM25_CURVE, pm25);
 }
 
 /** 자외선 지수의 품질(0~1) */

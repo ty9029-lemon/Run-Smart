@@ -1,5 +1,13 @@
 import type { Activity } from '../types';
-import { DAYLIGHT_BUFFER_HOURS, PM10_BAD_MAX, PM10_GOOD, PM10_NORMAL } from './thresholds';
+import {
+  DAYLIGHT_BUFFER_HOURS,
+  PM10_BAD_MAX,
+  PM10_GOOD,
+  PM10_NORMAL,
+  PM25_BAD_MAX,
+  PM25_GOOD,
+  PM25_NORMAL,
+} from './thresholds';
 
 /** 항목별 배점(러닝·산책 기본표). 합계가 100점이다. */
 export const SCORE_WEIGHTS = {
@@ -119,6 +127,15 @@ export const DUST_CURVE: readonly (readonly [number, number])[] = [
   [PM10_NORMAL, 0.6],
   [PM10_BAD_MAX, 0.2],
   [300, 0],
+];
+
+/** 초미세먼지(PM2.5 ㎍/㎥) 구간별 품질 곡선 [농도, 품질]. PM10 곡선과 같은 모양을 등급 경계에 맞춘 것이다 */
+export const PM25_CURVE: readonly (readonly [number, number])[] = [
+  [0, 1],
+  [PM25_GOOD, 1],
+  [PM25_NORMAL, 0.6],
+  [PM25_BAD_MAX, 0.2],
+  [150, 0],
 ];
 
 /** 미세먼지 값을 구하지 못했을 때 점수에 쓰는 PM10(㎍/㎥). 만점을 주지 않도록 '보통'의 끝 값으로 본다 */

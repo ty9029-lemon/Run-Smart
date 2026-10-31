@@ -1,6 +1,6 @@
 import { CONSTRAINTS, getActivityMeta } from '../constants/activities';
 import { GUIDE_API_PATH, GUIDE_RETRY_COUNT, GUIDE_TIMEOUT_MS } from '../constants/api';
-import { getDustGrade, getUvGrade, hasDustData, shouldRecommendMask } from '../lib/airGrade';
+import { getOverallDustGrade, getUvGrade, hasDustData, shouldRecommendMask } from '../lib/airGrade';
 import { calcAppliedOffset, calcPersonalFeelsLike } from '../lib/feelsLike';
 import { readGuideCache, writeGuideCache } from '../lib/guideCache';
 import { recommendOutfit } from '../lib/outfit';
@@ -35,9 +35,9 @@ export function buildGuideRequest(input: GuideInput): GuideRequest {
     level: scoreToLevel(score),
     scoreTier: scoreToTier(score, activity) ?? undefined,
     location,
-    dustGrade: hasDustData(weather) ? getDustGrade(weather.pm10) : undefined,
+    dustGrade: hasDustData(weather) ? getOverallDustGrade(weather.pm10, weather.pm25) : undefined,
     uvGrade: getUvGrade(weather.uvIndex),
-    maskAllowed: shouldRecommendMask(constraints, weather.pm10),
+    maskAllowed: shouldRecommendMask(constraints, weather.pm10, weather.pm25),
     // 화면의 복장 카드와 같은 계산이라 가이드가 다른 옷을 권하지 않는다
     outfitLabels: recommendOutfit(feltTemp, weather, activity, constraints).map((item) => item.label),
     // 해 진 뒤 러닝 저녁 구간이면 가이드가 밝은 시간대를 권하지 않게 알린다 (아니면 필드를 보내지 않는다)

@@ -87,6 +87,10 @@ export const PM10_GOOD = 30;
 export const PM10_NORMAL = 80;
 /** PM10 '나쁨'의 끝(㎍/㎥). 이보다 높으면 '매우나쁨' */
 export const PM10_BAD_MAX = 150;
+/** 초미세먼지(PM2.5) 등급 경계(㎍/㎥): 15 이하 좋음, 35 이하 보통, 75 이하 나쁨, 그 위는 매우나쁨 */
+export const PM25_GOOD = 15;
+export const PM25_NORMAL = 35;
+export const PM25_BAD_MAX = 75;
 /** 예보 등급을 맞출 때 그날 남은 시간대가 이 개수보다 적으면 보정하지 않는다 */
 export const DUST_FORECAST_MIN_HOURS = 3;
 /** 예보 등급을 맞출 때 평균 반영 비율의 하한. 반영 비율이 작은 날에 이동량이 지나치게 커지는 것을 막는다 */

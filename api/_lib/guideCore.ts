@@ -72,7 +72,7 @@ export const SYSTEM_PROMPT = `당신은 사용자의 활동 능력과 기후 민
 - recommended_outfit이 주어지면 앱이 화면에 카드로 보여 주는 복장입니다. 이 목록에 있는 항목(옷, 신발, 장비)은 팁에 다시 쓰지 않습니다. 목록에 있는 선글라스·모자 같은 준비물도 팁에서 반복하지 않습니다. guideMessage에서 복장을 말할 때는 이 목록과 일치해야 하고, 목록에 없는 옷(예: 목록에 긴팔이 있는데 반팔)을 권하지 않습니다.
 - 자외선 차단제는 "자외선 차단제 바르기", 선글라스는 "선글라스 챙기기"로 각각 따로 한 줄씩 씁니다. 한 팁에 둘을 묶지 않습니다.
 - guideMessage와 detailedReason은 홈 화면에서 한 단락으로 이어 붙여 보입니다. guideMessage는 오늘의 총평과 날씨 수치(체감온도, 습도, 미세먼지, 자외선 등급)를 한 번만 말하고 행동 권유는 쓰지 않습니다. detailedReason은 제약사항과 활동에 맞춘 구체적인 행동 권유를 쓰고, 날씨 수치와 총평은 다시 쓰지 않습니다. 제약사항이 없으면 날씨에 맞는 행동 한 가지만 씁니다. 같은 소재(자외선 차단, 선글라스, 준비 운동, 수분, "쾌적하다" 같은 결론 등)를 두 곳 이상에서 말하지 않습니다.
-- 미세먼지와 자외선 등급은 입력된 dust_grade, uv_grade를 그대로 씁니다. 숫자를 보고 직접 등급을 다시 판단하지 않습니다.
+- 미세먼지와 자외선 등급은 입력된 dust_grade, uv_grade를 그대로 씁니다. 숫자를 보고 직접 등급을 다시 판단하지 않습니다. dust_grade는 pm10(미세먼지)과 pm25(초미세먼지) 중 나쁜 쪽 등급입니다. pm25가 주어지면 수치를 말할 때 두 값을 구분해서 씁니다.
 - mask_allowed가 false이면 미세먼지를 위험 요인으로 말하지 않고, 마스크·넥게이터·호흡기 보호를 언급하지 않습니다. true일 때만 마스크를 권해도 됩니다.
 - 제약사항에 비염이 있으면 기온이 5°C 미만일 때 찬 공기, 습도가 30% 미만일 때 건조함을 팁에 반영합니다. 휴지·티슈는 복장 칩이 따로 안내하므로 팁에 쓰지 않습니다.
 - uv_grade가 "높음"이 아니면 자외선이 강하다고 쓰지 않고, guideMessage와 detailedReason에서 자외선 차단을 권하지 않습니다. 등급은 수치로만 말합니다. "높음"일 때만 이 두 문장의 행동 권유에 자외선 차단을 넣습니다.
@@ -99,6 +99,7 @@ export function parseGuideRequest(body: unknown): GuideRequest | null {
   const w = body.weather;
   const numbers = [w.temp, w.humidity, w.windSpeed, w.precipitation, w.pm10, w.uvIndex];
   if (!numbers.every(isFiniteNumber)) return null;
+  if (w.pm25 !== undefined && !isFiniteNumber(w.pm25)) return null;
   if (!isText(w.condition) || !isText(body.activityLabel) || !isText(body.location)) {
     return null;
   }
@@ -146,6 +147,7 @@ export function buildUserPrompt(req: GuideRequest): string {
       precipitation: w.precipitation,
       condition: w.condition,
       pm10: w.pm10,
+      pm25: w.pm25,
       dust_grade: req.dustGrade,
       uv_index: w.uvIndex,
       uv_grade: req.uvGrade,

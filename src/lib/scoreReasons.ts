@@ -170,11 +170,18 @@ export function formatFactorValue(
     precipitation: `${weather.precipitation}mm`,
     wind: `${weather.windSpeed}m/s`,
     humidity: `${weather.humidity}%`,
-    dust: hasDustData(weather) ? `${weather.pm10}㎍/㎥` : DUST_UNAVAILABLE_LABEL,
+    dust: formatDustValue(weather),
     daylight: formatDaylightValue(weather, activity),
     uv: `UV ${weather.uvIndex}`,
   };
   return values[key];
+}
+
+/** 점수 근거 시트에 보일 미세먼지 값. 초미세먼지 값이 있으면 함께 보여준다. */
+function formatDustValue(weather: Weather): string {
+  if (!hasDustData(weather)) return DUST_UNAVAILABLE_LABEL;
+  const pm25 = weather.pm25 === undefined ? '' : ` · 초미세 ${weather.pm25}㎍/㎥`;
+  return `${weather.pm10}㎍/㎥${pm25}`;
 }
 
 /** 선택한 시각이 지금과 비교해 항목 점수가 달라진 정도 */

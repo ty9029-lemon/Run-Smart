@@ -77,6 +77,20 @@ describe('buildScoreReasons', () => {
   });
 });
 
+describe('formatFactorValue: 미세먼지', () => {
+  it('초미세먼지 값이 있으면 함께 보여준다', () => {
+    const weather: Weather = { ...IDEAL, pm10: 60, pm25: 40 };
+    expect(formatFactorValue('dust', weather, 12, 'running')).toBe('60㎍/㎥ · 초미세 40㎍/㎥');
+  });
+
+  it('초미세먼지 값이 없으면 PM10만 보여주고, 값이 없으면 확인 불가', () => {
+    expect(formatFactorValue('dust', { ...IDEAL, pm10: 60 }, 12, 'running')).toBe('60㎍/㎥');
+    expect(
+      formatFactorValue('dust', { ...IDEAL, pm10: 0, pm10Source: 'none' }, 12, 'running'),
+    ).toBe('확인 불가');
+  });
+});
+
 describe('ratioToLevel', () => {
   it('깎인 비율에 따라 좋음·보통·나쁨으로 나눈다', () => {
     expect(ratioToLevel(0)).toBe('good');

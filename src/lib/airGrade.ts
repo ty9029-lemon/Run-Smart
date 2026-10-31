@@ -1,4 +1,13 @@
-import { OUTFIT_UV_HIGH_MIN, PM10_BAD_MAX, PM10_GOOD, PM10_NORMAL, UV_LOW_MAX } from '../constants/thresholds';
+import {
+  OUTFIT_UV_HIGH_MIN,
+  PM10_BAD_MAX,
+  PM10_GOOD,
+  PM10_NORMAL,
+  PM25_BAD_MAX,
+  PM25_GOOD,
+  PM25_NORMAL,
+  UV_LOW_MAX,
+} from '../constants/thresholds';
 import type { Constraint, DustGrade, UvGrade, UvLevel, Weather } from '../types';
 
 /** 미세먼지 값을 구하지 못했을 때 화면에 보이는 문구 */
@@ -14,11 +23,24 @@ export function hasDustData(weather: Pick<Weather, 'pm10Source'>): boolean {
 
 /**
  * 화면에 보일 미세먼지 문구를 만든다. 값이 없으면 "확인 불가".
+ * 초미세먼지(PM2.5) 값이 있으면 두 값 중 나쁜 쪽 등급만 보이고, 값은 formatDustDetail이 따로 보여 준다.
  * @param weather 날씨
  */
-export function formatDust(weather: Pick<Weather, 'pm10' | 'pm10Source'>): string {
+export function formatDust(weather: Pick<Weather, 'pm10' | 'pm25' | 'pm10Source'>): string {
   if (!hasDustData(weather)) return DUST_UNAVAILABLE_LABEL;
+  if (weather.pm25 !== undefined) return getOverallDustGrade(weather.pm10, weather.pm25);
   return `${getDustGrade(weather.pm10)} (${weather.pm10})`;
+}
+
+/**
+ * 등급 아래에 보일 PM10·PM2.5 값 문구를 만든다. 초미세먼지 값이 없거나 미세먼지 값이 없으면 null.
+ * @param weather 날씨
+ */
+export function formatDustDetail(
+  weather: Pick<Weather, 'pm10' | 'pm25' | 'pm10Source'>,
+): string | null {
+  if (!hasDustData(weather) || weather.pm25 === undefined) return null;
+  return `PM10 ${weather.pm10} · PM2.5 ${weather.pm25}`;
 }
 
 /**
@@ -30,6 +52,32 @@ export function getDustGrade(pm10: number): DustGrade {
   if (pm10 <= PM10_NORMAL) return '보통';
   if (pm10 <= PM10_BAD_MAX) return '나쁨';
   return '매우나쁨';
+}
+
+/**
+ * 초미세먼지(PM2.5) 농도를 등급으로 바꾼다. (15 이하 좋음, 35 이하 보통, 75 이하 나쁨, 그 위는 매우나쁨)
+ * @param pm25 PM2.5 농도(㎍/㎥)
+ */
+export function getPm25Grade(pm25: number): DustGrade {
+  if (pm25 <= PM25_GOOD) return '좋음';
+  if (pm25 <= PM25_NORMAL) return '보통';
+  if (pm25 <= PM25_BAD_MAX) return '나쁨';
+  return '매우나쁨';
+}
+
+/** 등급이 나쁠수록 큰 순서 */
+const DUST_GRADE_ORDER: readonly DustGrade[] = ['좋음', '보통', '나쁨', '매우나쁨'];
+
+/**
+ * 미세먼지와 초미세먼지 중 나쁜 쪽 등급을 구한다. 한국 예보와 같은 방식이다.
+ * @param pm10 PM10 농도(㎍/㎥)
+ * @param pm25 PM2.5 농도(㎍/㎥). 없으면 PM10만 본다.
+ */
+export function getOverallDustGrade(pm10: number, pm25?: number): DustGrade {
+  const grade10 = getDustGrade(pm10);
+  if (pm25 === undefined) return grade10;
+  const grade25 = getPm25Grade(pm25);
+  return DUST_GRADE_ORDER.indexOf(grade25) > DUST_GRADE_ORDER.indexOf(grade10) ? grade25 : grade10;
 }
 
 /**
@@ -62,9 +110,10 @@ export function getUvLevel(uvIndex: number): UvLevel {
  * 천식·비염은 미세먼지가 보통 이상, 미세먼지 민감은 나쁨 이상일 때 추천한다.
  * @param constraint 제약사항
  * @param pm10 PM10 농도(㎍/㎥)
+ * @param pm25 PM2.5 농도(㎍/㎥). 있으면 둘 중 나쁜 쪽 등급을 쓴다.
  */
-export function isMaskNeededFor(constraint: Constraint, pm10: number): boolean {
-  const grade = getDustGrade(pm10);
+export function isMaskNeededFor(constraint: Constraint, pm10: number, pm25?: number): boolean {
+  const grade = getOverallDustGrade(pm10, pm25);
   if (constraint === 'asthma' || constraint === 'rhinitis') return grade !== '좋음';
   if (constraint === 'dustSensitive') return isBadDustGrade(grade);
   return false;
@@ -76,8 +125,13 @@ export function isMaskNeededFor(constraint: Constraint, pm10: number): boolean {
  * 그 밖에는 체크한 제약사항 중 하나라도 조건을 만족할 때 추천한다.
  * @param constraints 사용자가 체크한 제약사항
  * @param pm10 PM10 농도(㎍/㎥)
+ * @param pm25 PM2.5 농도(㎍/㎥). 있으면 둘 중 나쁜 쪽 등급을 쓴다.
  */
-export function shouldRecommendMask(constraints: Constraint[], pm10: number): boolean {
-  if (isBadDustGrade(getDustGrade(pm10))) return true;
-  return constraints.some((constraint) => isMaskNeededFor(constraint, pm10));
+export function shouldRecommendMask(
+  constraints: Constraint[],
+  pm10: number,
+  pm25?: number,
+): boolean {
+  if (isBadDustGrade(getOverallDustGrade(pm10, pm25))) return true;
+  return constraints.some((constraint) => isMaskNeededFor(constraint, pm10, pm25));
 }

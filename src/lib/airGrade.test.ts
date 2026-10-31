@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
   DUST_UNAVAILABLE_LABEL,
   formatDust,
+  formatDustDetail,
   getDustGrade,
+  getOverallDustGrade,
+  getPm25Grade,
   getUvGrade,
   getUvLevel,
   hasDustData,
@@ -95,5 +98,46 @@ describe('값 없음 처리', () => {
   it('값이 없으면 "확인 불가", 있으면 등급과 값을 보여준다', () => {
     expect(formatDust({ pm10: 0, pm10Source: 'none' })).toBe(DUST_UNAVAILABLE_LABEL);
     expect(formatDust({ pm10: 94, pm10Source: 'observed' })).toBe('나쁨 (94)');
+  });
+});
+
+describe('초미세먼지(PM2.5) 등급', () => {
+  it('15 이하 좋음, 35 이하 보통, 75 이하 나쁨, 76 이상 매우나쁨이다', () => {
+    expect(getPm25Grade(15)).toBe('좋음');
+    expect(getPm25Grade(16)).toBe('보통');
+    expect(getPm25Grade(35)).toBe('보통');
+    expect(getPm25Grade(36)).toBe('나쁨');
+    expect(getPm25Grade(75)).toBe('나쁨');
+    expect(getPm25Grade(76)).toBe('매우나쁨');
+  });
+
+  it('미세먼지와 초미세먼지 중 나쁜 쪽 등급을 쓴다', () => {
+    expect(getOverallDustGrade(20, 40)).toBe('나쁨');
+    expect(getOverallDustGrade(90, 10)).toBe('나쁨');
+    expect(getOverallDustGrade(20, 80)).toBe('매우나쁨');
+    expect(getOverallDustGrade(20)).toBe('좋음');
+    expect(getOverallDustGrade(50, 10)).toBe('보통');
+  });
+
+  it('초미세먼지만 나빠도 마스크를 추천한다', () => {
+    expect(shouldRecommendMask([], 20, 40)).toBe(true);
+    expect(shouldRecommendMask([], 20, 10)).toBe(false);
+    expect(isMaskNeededFor('asthma', 20, 20)).toBe(true);
+    expect(isMaskNeededFor('dustSensitive', 20, 40)).toBe(true);
+  });
+
+  it('초미세먼지 값이 있으면 등급과 두 값을 따로 보여준다', () => {
+    const weather = { pm10: 60, pm25: 40, pm10Source: 'observed' as const };
+    expect(formatDust(weather)).toBe('나쁨');
+    expect(formatDustDetail(weather)).toBe('PM10 60 · PM2.5 40');
+  });
+
+  it('초미세먼지 값이 없으면 지금처럼 등급과 PM10만 보여주고 부가 문구는 없다', () => {
+    expect(formatDust({ pm10: 60, pm10Source: 'model' })).toBe('보통 (60)');
+    expect(formatDustDetail({ pm10: 60, pm10Source: 'model' })).toBeNull();
+  });
+
+  it('미세먼지 값이 없으면 부가 문구도 없다', () => {
+    expect(formatDustDetail({ pm10: 0, pm25: 10, pm10Source: 'none' })).toBeNull();
   });
 });
