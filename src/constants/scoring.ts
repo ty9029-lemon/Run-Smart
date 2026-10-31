@@ -1,5 +1,5 @@
 import type { Activity } from '../types';
-import { DAYLIGHT_BUFFER_HOURS, PM10_GOOD, PM10_NORMAL } from './thresholds';
+import { DAYLIGHT_BUFFER_HOURS, PM10_BAD_MAX, PM10_GOOD, PM10_NORMAL } from './thresholds';
 
 /** 항목별 배점(러닝·산책 기본표). 합계가 100점이다. */
 export const SCORE_WEIGHTS = {
@@ -117,7 +117,7 @@ export const DUST_CURVE: readonly (readonly [number, number])[] = [
   [0, 1],
   [PM10_GOOD, 1],
   [PM10_NORMAL, 0.6],
-  [150, 0.2],
+  [PM10_BAD_MAX, 0.2],
   [300, 0],
 ];
 

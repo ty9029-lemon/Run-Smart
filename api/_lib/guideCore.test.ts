@@ -67,6 +67,7 @@ describe('parseGuideRequest', () => {
     const graded = { ...VALID_REQUEST, dustGrade: '좋음', uvGrade: '높음' };
     expect(parseGuideRequest(graded)).not.toBeNull();
     expect(parseGuideRequest(VALID_REQUEST)).not.toBeNull();
+    expect(parseGuideRequest({ ...VALID_REQUEST, dustGrade: '매우나쁨' })).not.toBeNull();
     expect(parseGuideRequest({ ...VALID_REQUEST, dustGrade: '양호' })).toBeNull();
     expect(parseGuideRequest({ ...VALID_REQUEST, uvGrade: '강함' })).toBeNull();
     expect(parseGuideRequest({ ...VALID_REQUEST, maskAllowed: false })).not.toBeNull();

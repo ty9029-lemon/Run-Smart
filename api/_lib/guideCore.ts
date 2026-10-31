@@ -42,7 +42,7 @@ const LEVEL_EMOJI: Record<WarningLevel, string> = {
 const BANNED_PHRASES = ['가면 안', '가지 마', '가지 말', '절대 금지'];
 
 /** 앱이 정하는 등급 값 (src/types의 DustGrade·UvGrade와 같다) */
-const DUST_GRADES: readonly DustGrade[] = ['좋음', '보통', '나쁨'];
+const DUST_GRADES: readonly DustGrade[] = ['좋음', '보통', '나쁨', '매우나쁨'];
 const UV_GRADES: readonly UvGrade[] = ['보통', '높음'];
 
 /** 마스크를 언급하면 안 되는 상황(maskAllowed가 false)에서 응답에 들어가면 안 되는 표현 */
