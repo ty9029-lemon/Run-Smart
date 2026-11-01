@@ -4,7 +4,7 @@ import { getDustGrade, getUvGrade, hasDustData, shouldRecommendMask } from '../l
 import { calcAppliedOffset, calcPersonalFeelsLike } from '../lib/feelsLike';
 import { readGuideCache, writeGuideCache } from '../lib/guideCache';
 import { recommendOutfit } from '../lib/outfit';
-import { calcRunScore, scoreToLevel, scoreToTier } from '../lib/runScore';
+import { calcRunScore, isRainy, scoreToLevel, scoreToTier } from '../lib/runScore';
 import { isEveningDaylightExempt } from '../lib/scoreFactors';
 import type { Activity, AiGuide, Constraint, GuideRequest, Sensitivity, Weather } from '../types';
 
@@ -42,6 +42,8 @@ export function buildGuideRequest(input: GuideInput): GuideRequest {
     outfitLabels: recommendOutfit(feltTemp, weather, activity, constraints).map((item) => item.label),
     // 해 진 뒤 러닝 저녁 구간이면 가이드가 밝은 시간대를 권하지 않게 알린다 (아니면 필드를 보내지 않는다)
     eveningRun: isEveningDaylightExempt(weather, activity) || undefined,
+    // 점수 상한·헤드라인과 같은 판단이라 가이드가 비를 빠뜨리지 않는다 (아니면 필드를 보내지 않는다)
+    rainy: isRainy(weather) || undefined,
   };
 }
 

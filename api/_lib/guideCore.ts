@@ -51,6 +51,13 @@ const DUST_GEAR_PHRASES = ['마스크', '넥게이터'];
 /** 해가 진 뒤(isDay가 false)에 응답에 들어가면 안 되는 표현. 밤인데 햇빛을 말하거나 "쾌적하다"고 하는 모순을 막는다 */
 const NIGHT_BANNED_PHRASES = ['햇빛', '햇볕', '선글라스', '자외선 차단', '쾌적'];
 
+/**
+ * 비·눈이 온다는 말이 들어 있는지 보는 패턴. "준비·대비·비교·비염"처럼 '비'가 들어간 다른 낱말은 거른다.
+ * 앞 글자가 한글이 아닌 '비'·'눈' 뒤에 조사가 오거나 낱말이 끝나는 경우만 본다.
+ */
+const RAIN_MENTION_PATTERN =
+  /(?<![가-힣])(?:비|눈)(?:[이가는은도를을에와의]|길|(?![가-힣]))|이슬비|소나기|빗|강수|우천|폭우|폭설/;
+
 /** 러닝 저녁 구간(해는 졌지만 일조 감점이 없는 시간)에는 써도 되는 밤 금지 표현. 점수가 높아 긍정 총평이 어긋나지 않는다 */
 const EVENING_RUN_ALLOWED_PHRASES = ['쾌적'];
 
@@ -77,6 +84,8 @@ export const SYSTEM_PROMPT = `당신은 사용자의 활동 능력과 기후 민
 - 제약사항에 비염이 있으면 기온이 5°C 미만일 때 찬 공기, 습도가 30% 미만일 때 건조함을 팁에 반영합니다. 휴지·티슈는 복장 칩이 따로 안내하므로 팁에 쓰지 않습니다.
 - uv_grade가 "높음"이 아니면 자외선이 강하다고 쓰지 않고, guideMessage와 detailedReason에서 자외선 차단을 권하지 않습니다. 등급은 수치로만 말합니다. "높음"일 때만 이 두 문장의 행동 권유에 자외선 차단을 넣습니다.
 - is_day가 true(낮)이면 uv_grade와 관계없이 activityTips에 "자외선 차단제 바르기"를 한 줄 넣습니다. (recommended_outfit에 선크림이 있으면 넣지 않습니다.)
+- is_raining이 true이면 지금 비(condition이 눈 계열이면 눈)가 오고 있다는 점을 guideMessage에서 precipitation 수치와 함께 반드시 말합니다. 점수가 높아도 날씨가 좋다는 말만 하지 않고, 비 때문에 점수가 제한됐다는 맥락에서 score_tier 어조를 따릅니다. detailedReason이나 activityTips에는 미끄러운 노면·시야 같은 비 오는 날의 주의점을 한 가지 넣습니다. 우비·방수 장비가 recommended_outfit에 있으면 다시 쓰지 않습니다.
+- is_raining이 false이거나 없으면 비·눈 이야기를 하지 않습니다.
 - is_day가 false(밤)이면 해가 진 뒤라는 점을 먼저 밝히고 어두운 환경의 안전을 중심으로 씁니다. 반사 장비·조명, 밝고 사람이 다니는 길, 이어폰 볼륨처럼 밤에 필요한 준비물과 주의점을 쓰고, 가능하면 밝은 시간대를 권합니다. 햇빛·자외선·선글라스·자외선 차단제는 말하지 않습니다. 제약사항에 자외선 민감이 있어도 밤에는 쓰지 않습니다. "쾌적하다", "활동하기 좋다" 같은 긍정 총평은 밤에는 쓰지 않으며, score_tier 어조 규칙은 그대로 따릅니다.
 - evening_run이 true이면 해는 졌지만 러닝하기 좋은 저녁 시간대라 점수에 일조 감점이 없습니다. 이때는 "밝은 시간대를 권하는" 문장을 쓰지 않고, 반사 장비·조명·밝은 길·이어폰 볼륨 같은 어두운 환경의 안전만 짧게 씁니다. "쾌적하다", "활동하기 좋다" 같은 긍정 총평은 score_tier 어조에 맞게 쓸 수 있습니다. 햇빛·자외선·선글라스·자외선 차단제는 여전히 말하지 않습니다.
 - 활동이 산책이면 무릎 보호대 팁을 쓰지 않습니다.
@@ -114,6 +123,7 @@ export function parseGuideRequest(body: unknown): GuideRequest | null {
   if (body.uvGrade !== undefined && !UV_GRADES.includes(body.uvGrade as UvGrade)) return null;
   if (body.maskAllowed !== undefined && typeof body.maskAllowed !== 'boolean') return null;
   if (body.eveningRun !== undefined && typeof body.eveningRun !== 'boolean') return null;
+  if (body.rainy !== undefined && typeof body.rainy !== 'boolean') return null;
   const outfit = body.outfitLabels;
   if (outfit !== undefined) {
     if (!Array.isArray(outfit) || outfit.length > REQUEST_OUTFIT_MAX || !outfit.every(isText)) {
@@ -139,6 +149,7 @@ export function buildUserPrompt(req: GuideRequest): string {
     mask_allowed: req.maskAllowed,
     recommended_outfit: req.outfitLabels,
     evening_run: req.eveningRun,
+    is_raining: req.rainy,
     current_weather: {
       temp: w.temp,
       humidity: w.humidity,
@@ -156,6 +167,20 @@ export function buildUserPrompt(req: GuideRequest): string {
     run_score: req.score,
     score_tier: req.scoreTier,
   });
+}
+
+/**
+ * 비가 오는데 총평에 비 이야기가 없으면 맨 앞에 한 문장을 붙인다.
+ * 점수가 높으면 모델이 날씨 수치만 나열하고 비를 빠뜨릴 수 있어, 프롬프트 규칙과 별개로 코드가 보장한다.
+ * @param guide 검증을 통과한 가이드
+ * @param req 검증된 요청
+ */
+export function withRainMention(guide: AiGuide, req: GuideRequest): AiGuide {
+  if (!req.rainy || RAIN_MENTION_PATTERN.test(guide.guideMessage)) return guide;
+  const { precipitation, condition } = req.weather;
+  const subject = condition.includes('눈') ? '눈이' : '비가';
+  const amount = precipitation > 0 ? `(${precipitation}mm)` : '';
+  return { ...guide, guideMessage: `지금 ${subject} 오고 있어요${amount}. ${guide.guideMessage}` };
 }
 
 /** 검증 결과: 문제가 있으면 problem, 통과하면 json */

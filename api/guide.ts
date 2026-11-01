@@ -10,6 +10,7 @@ import {
   buildUserPrompt,
   parseGuideRequest,
   parseGuideResponse,
+  withRainMention,
 } from './_lib/guideCore.js';
 import { logServerError } from './_lib/serverLog.js';
 
@@ -45,7 +46,7 @@ async function generateGuide(client: Anthropic, req: GuideRequest): Promise<AiGu
   for (let attempt = 0; attempt <= GUIDE_FORMAT_RETRIES; attempt += 1) {
     const text = await askClaude(client, req);
     const guide = parseGuideResponse(text, req.level, req.maskAllowed, req.weather.isDay, req.eveningRun);
-    if (guide) return guide;
+    if (guide) return withRainMention(guide, req);
     const problem = findGuideProblem(text, req.maskAllowed, req.weather.isDay, req.eveningRun);
     logServerError(`모델 응답 검사 실패 (${attempt + 1}번째): ${problem}`);
   }

@@ -8,7 +8,9 @@ import {
   findGuideProblem,
   parseGuideRequest,
   parseGuideResponse,
+  withRainMention,
 } from './guideCore.js';
+import type { AiGuide, GuideRequest } from '../../src/types/index.js';
 
 /** 올바른 요청 본문 */
 const VALID_REQUEST = {
@@ -310,5 +312,74 @@ describe('복장 목록(outfitLabels)', () => {
   it('시스템 프롬프트가 자외선 등급이 높음일 때만 차단을 권하도록 한다', () => {
     expect(SYSTEM_PROMPT).toContain('"높음"일 때만 이 두 문장의 행동 권유에 자외선 차단을 넣습니다');
     expect(SYSTEM_PROMPT).toContain('uv_grade와 관계없이 activityTips에 "자외선 차단제 바르기"');
+  });
+});
+
+describe('비 언급(rainy)', () => {
+  const RAIN_REQUEST = {
+    ...VALID_REQUEST,
+    weather: { ...VALID_REQUEST.weather, precipitation: 0.5, condition: '비' },
+    rainy: true,
+  };
+  const guideOf = (guideMessage: string): AiGuide => ({
+    guideMessage,
+    activityTips: ['수분 준비'],
+    warningLevel: 'good',
+    goOrNotEmoji: '✅',
+    detailedReason: '천천히 달려요.',
+  });
+  const rainReq = parseGuideRequest(RAIN_REQUEST) as GuideRequest;
+
+  it('boolean이면 통과하고 프롬프트에 is_raining으로 담긴다', () => {
+    expect(JSON.parse(buildUserPrompt(rainReq)).is_raining).toBe(true);
+  });
+
+  it('없으면 프롬프트에 담기지 않고, boolean이 아니면 거절한다', () => {
+    const req = parseGuideRequest(VALID_REQUEST);
+    expect(JSON.parse(buildUserPrompt(req!))).not.toHaveProperty('is_raining');
+    expect(parseGuideRequest({ ...RAIN_REQUEST, rainy: 'yes' })).toBeNull();
+  });
+
+  it('시스템 프롬프트가 비가 올 때 총평에서 비를 말하게 한다', () => {
+    expect(SYSTEM_PROMPT).toContain('is_raining이 true이면');
+    expect(SYSTEM_PROMPT).toContain('guideMessage에서 precipitation 수치와 함께 반드시 말합니다');
+  });
+
+  it('비를 빠뜨린 총평 앞에 비 안내 한 문장을 붙인다', () => {
+    const out = withRainMention(guideOf('체감 8°C, 습도 85%로 달리기 좋은 날이에요.'), rainReq);
+    expect(out.guideMessage).toBe(
+      '지금 비가 오고 있어요(0.5mm). 체감 8°C, 습도 85%로 달리기 좋은 날이에요.',
+    );
+  });
+
+  it('눈이면 눈으로, 강수량이 0이면 수치 없이 붙인다', () => {
+    const snowReq = parseGuideRequest({
+      ...RAIN_REQUEST,
+      weather: { ...RAIN_REQUEST.weather, precipitation: 0, condition: '눈' },
+    }) as GuideRequest;
+    expect(withRainMention(guideOf('차분히 달려요.'), snowReq).guideMessage).toBe(
+      '지금 눈이 오고 있어요. 차분히 달려요.',
+    );
+  });
+
+  it.each(['지금 비가 오고 있어요.', '비 오는 날이라 노면을 조심해요.', '이슬비가 내려요.', '강수 0.5mm예요.'])(
+    '이미 비를 말했으면 그대로 둔다: %s',
+    (message) => {
+      const guide = guideOf(message);
+      expect(withRainMention(guide, rainReq)).toBe(guide);
+    },
+  );
+
+  it.each(['달리기 전 준비 운동을 해요.', '비교적 쾌적해요.', '비염이 있다면 주의해요.', '장비를 챙겨요.'])(
+    "'비'가 들어간 다른 낱말은 비 언급으로 치지 않는다: %s",
+    (message) => {
+      expect(withRainMention(guideOf(message), rainReq).guideMessage).toContain('지금 비가 오고');
+    },
+  );
+
+  it('비가 오지 않으면 건드리지 않는다', () => {
+    const req = parseGuideRequest(VALID_REQUEST) as GuideRequest;
+    const guide = guideOf('달리기 좋은 날이에요.');
+    expect(withRainMention(guide, req)).toBe(guide);
   });
 });
