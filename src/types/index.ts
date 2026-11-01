@@ -129,6 +129,8 @@ export interface GuideRequest {
   outfitLabels?: string[];
   /** 해는 졌지만 러닝 저녁 구간(일조 감점이 없는 시간)인지. true면 가이드가 "밝은 시간대"를 권하지 않는다 (없으면 기존 클라이언트) */
   eveningRun?: boolean;
+  /** 지금 비·눈이 오는 중인지(앱의 점수 상한과 같은 판단). true면 가이드가 총평에서 비를 말한다 (없으면 기존 클라이언트) */
+  rainy?: boolean;
 }
 
 /** 복장 추천 항목 분류 (화면에서 그룹 소제목으로 쓴다) */

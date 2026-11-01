@@ -52,3 +52,22 @@ describe('buildGuideRequest 러닝 저녁 구간', () => {
     expect(buildGuideRequest(input('cycling', EVENING)).eveningRun).toBeUndefined();
   });
 });
+
+describe('buildGuideRequest 비', () => {
+  const input = (weather: Weather) => ({
+    activity: 'running' as const,
+    sensitivity: SENSITIVITY,
+    constraints: [],
+    weather,
+    location: '서울 강남구',
+  });
+
+  it('비가 오면 rainy를 true로 보낸다 (강수량 또는 비 계열 날씨)', () => {
+    expect(buildGuideRequest(input({ ...WEATHER, precipitation: 0.5 })).rainy).toBe(true);
+    expect(buildGuideRequest(input({ ...WEATHER, condition: '소나기' })).rainy).toBe(true);
+  });
+
+  it('비가 오지 않으면 보내지 않는다', () => {
+    expect(buildGuideRequest(input(WEATHER)).rainy).toBeUndefined();
+  });
+});
