@@ -6,7 +6,7 @@ import {
   MS_PER_MINUTE,
   PRECIPITATION_CONDITIONS,
 } from '../constants/thresholds';
-import type { HourlyWeather } from '../types';
+import type { HourlyWeather, Weather } from '../types';
 import type { WeatherResult } from './openMeteo';
 
 /** 강수 형태 (기상청 PTY를 비·눈·소나기로 줄인 것) */
@@ -63,9 +63,19 @@ function applyHour(slot: HourlyWeather, forecast: RainForecastHour): HourlyWeath
 }
 
 /**
+ * 지금 시각 슬롯에 실측을 반영한다. 예보가 0mm로 잡았어도 실측에 비가 있으면 실측을 따른다.
+ * @param slot 예보를 적용한 지금 시각 슬롯
+ * @param current 현재 날씨(실측 반영)
+ */
+function preferObservedRain(slot: HourlyWeather, current: Weather): HourlyWeather {
+  if (current.precipitation <= slot.precipitation) return slot;
+  return { ...slot, precipitation: current.precipitation, condition: current.condition };
+}
+
+/**
  * 시간대별 강수를 기상청 예보로 바꾼다. (예측 모델이 한국의 강수량을 낮게 추정하는 것을 바로잡는다)
  * 지금 시각 이후 시간대 중 예보가 있는 시간만 바꾸고, 이미 지난 시간대와 예보가 없는 시간대는 그대로 둔다.
- * 현재 날씨(실측)는 건드리지 않는다.
+ * 현재 날씨(실측)는 건드리지 않는다. 다만 지금 시각 슬롯은 실측 강수가 예보보다 많으면 실측을 따른다.
  * @param result 날씨
  * @param forecast 기상청 강수 예보. 없으면 원본을 그대로 돌려준다.
  */
@@ -81,7 +91,8 @@ export function applyRainForecast(
     const dayOffset = Math.floor(i / HOURS_IN_DAY);
     if (i < nowIndex || dayOffset >= FORECAST_DAYS) return slot;
     const hit = byKey.get(`${addDays(forecast.today, dayOffset)}#${slot.hour}`);
-    return hit ? applyHour(slot, hit) : slot;
+    const adjusted = hit ? applyHour(slot, hit) : slot;
+    return i === nowIndex ? preferObservedRain(adjusted, result.current) : adjusted;
   });
   return { ...result, hourly };
 }

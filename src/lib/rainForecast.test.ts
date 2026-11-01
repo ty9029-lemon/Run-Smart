@@ -108,4 +108,27 @@ describe('applyRainForecast', () => {
     );
     expect(out.current).toBe(result.current);
   });
+
+  it('지금 시각 슬롯은 예보가 0mm여도 실측에 비가 있으면 실측을 따른다', () => {
+    const result = makeResult();
+    const raining = {
+      ...result,
+      current: { ...result.current, precipitation: 0.5, condition: '비' },
+    };
+    const out = applyRainForecast(
+      raining,
+      forecastOf([{ date: TODAY, hour: 16, precipitation: 0, kind: 'none' }]),
+    );
+    expect(out.hourly[16].precipitation).toBe(0.5);
+    expect(out.hourly[16].condition).toBe('비');
+  });
+
+  it('지금 시각 슬롯은 예보가 실측보다 많으면 예보를 따른다', () => {
+    const out = applyRainForecast(
+      makeResult(),
+      forecastOf([{ date: TODAY, hour: 16, precipitation: 2, kind: 'rain' }]),
+    );
+    expect(out.hourly[16].precipitation).toBe(2);
+    expect(out.hourly[16].condition).toBe('비');
+  });
 });
