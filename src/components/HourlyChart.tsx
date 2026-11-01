@@ -3,6 +3,7 @@ import { SCORE_LEVEL_BAR_CLASS } from '../constants/levelStyles';
 import {
   RECOMMEND_CUTOFF_HOUR,
   RECOMMEND_MIN_SCORE,
+  SCORE_GOOD,
   SCROLLBAR_HIDE_DELAY_MS,
 } from '../constants/thresholds';
 import { useIsScrolling } from '../hooks/useIsScrolling';
@@ -34,8 +35,10 @@ function hourLabel(hour: number): string {
   return `${hour}시`;
 }
 
-/** 최고점이 추천 기준에 못 미치는 날의 안내 문구 */
+/** 최고점이 '좋음' 등급(70점)에도 못 미치는 날의 안내 문구 */
 const CAUTION_NOTICE = '오늘은 전반적으로 조심하세요.';
+/** 최고점이 '좋음'(70점 이상)이지만 추천 기준(80점)에는 못 미치는 날의 안내 문구 */
+const NOT_GREAT_NOTICE = '오늘은 아주 좋은 시간은 없어요.';
 
 /** 일몰 상태별 안내 문구 */
 const SUNSET_NOTICES = {
@@ -78,7 +81,8 @@ function buildFallbackParts(
     { text: '가 가장 좋아요.' },
   ];
   if (sunsetStatus) return [...parts, { text: ` ${SUNSET_NOTICES[sunsetStatus]}` }];
-  return best.score < RECOMMEND_MIN_SCORE ? [...parts, { text: ` ${CAUTION_NOTICE}` }] : parts;
+  if (best.score < SCORE_GOOD) return [...parts, { text: ` ${CAUTION_NOTICE}` }];
+  return best.score < RECOMMEND_MIN_SCORE ? [...parts, { text: ` ${NOT_GREAT_NOTICE}` }] : parts;
 }
 
 /** 차트 제목: 연속 구간이 있으면 구간을, 없으면 추천 시각을 라임색으로 강조한다. */
@@ -238,7 +242,9 @@ export default function HourlyChart({
               label={barLabel(h.hour, i, firstHour)}
               score={scores[i]?.score ?? 0}
               isSelected={h.hour === selectedHour}
-              isExcluded={!isRecommendableHour(h.hour, scores[i]?.isDay) || (i > 0 && h.hour < firstHour)}
+              isExcluded={
+                !isRecommendableHour(h.hour, scores[i]?.isDay) || (i > 0 && h.hour < firstHour)
+              }
               onSelect={() => onSelectHour(h.hour)}
             />
           </li>
