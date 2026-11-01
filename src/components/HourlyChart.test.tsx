@@ -36,6 +36,12 @@ describe('HourlyChart 제목', () => {
     expect(html).toContain('오늘은 전반적으로 조심하세요.');
   });
 
+  it('최고점이 좋음(70점 이상)이면 80점 미만이어도 조심 안내를 붙이지 않는다', () => {
+    const html = renderToStaticMarkup(<HourlyChart {...BASE} best={{ hour: 14, score: 79 }} />);
+    expect(html).toContain('<span class="mark-lime">14시</span>가 가장 좋아요.');
+    expect(html).not.toContain('조심하세요');
+  });
+
   it('다음 추천이 없으면 없다는 안내만 한다', () => {
     const html = renderToStaticMarkup(<HourlyChart {...BASE} />);
     expect(html).toContain('오늘은 추천할 러닝 시간이 없어요.');
