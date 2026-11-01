@@ -40,7 +40,9 @@ function makeForecast(nowTime: string): ForecastResponse {
 }
 
 /** 시간대 번호가 곧 PM10 값인 대기질 응답 */
-const AIR: AirResponse = { hourly: { time: TIMES, pm10: TIMES.map((_, i) => i * 2) } };
+const AIR: AirResponse = {
+  hourly: { time: TIMES, pm10: TIMES.map((_, i) => i * 2) },
+};
 
 describe('weatherCodeToCondition', () => {
   it('WMO 코드를 한글 날씨로 바꾼다', () => {
@@ -97,7 +99,9 @@ describe('parseWeather', () => {
   });
 
   it('PM10 값이 null인 시간은 값 없음으로 표시한다', () => {
-    const air: AirResponse = { hourly: { time: TIMES, pm10: TIMES.map(() => null) } };
+    const air: AirResponse = {
+      hourly: { time: TIMES, pm10: TIMES.map(() => null) },
+    };
     const { current } = parseWeather(makeForecast('2026-10-06T09:00'), air);
     expect(current.pm10).toBe(0);
     expect(current.pm10Source).toBe('none');
@@ -116,7 +120,10 @@ describe('parseWeather', () => {
 
   it('daily.sunset으로 시간대별·현재의 일몰까지 남은 시간을 계산한다', () => {
     const forecast = makeForecast('2026-10-06T16:30');
-    forecast.daily = { time: ['2026-10-06', '2026-10-07'], sunset: ['2026-10-06T18:12', '2026-10-07T18:10'] };
+    forecast.daily = {
+      time: ['2026-10-06', '2026-10-07'],
+      sunset: ['2026-10-06T18:12', '2026-10-07T18:10'],
+    };
     const { current, hourly } = parseWeather(forecast, AIR);
     expect(current.hoursUntilSunset).toBeCloseTo(1.7);
     expect(hourly[15].hoursUntilSunset).toBeCloseTo(3.2);
@@ -139,7 +146,10 @@ describe('parseWeather', () => {
   });
 
   it('예보 응답 형식이 올바르지 않으면 에러를 던진다', () => {
-    const broken = { current: undefined, hourly: undefined } as unknown as ForecastResponse;
+    const broken = {
+      current: undefined,
+      hourly: undefined,
+    } as unknown as ForecastResponse;
     expect(() => parseWeather(broken, AIR)).toThrow();
   });
 });
@@ -148,7 +158,12 @@ describe('applyObservation', () => {
   const base = parseWeather(makeForecast('2026-10-06T14:15'), AIR);
 
   it('기온·습도·풍속을 실측값으로 바꾸고 나머지는 유지한다', () => {
-    const merged = applyObservation(base, { temp: 19.44, humidity: 72.4, windSpeed: 1.84 });
+    const merged = applyObservation(base, {
+      temp: 19.44,
+      humidity: 72.4,
+      windSpeed: 1.84,
+      precipitation: null,
+    });
     expect(merged.current.temp).toBe(19.4);
     expect(merged.current.humidity).toBe(72);
     expect(merged.current.windSpeed).toBe(1.8);
@@ -158,7 +173,12 @@ describe('applyObservation', () => {
   });
 
   it('습도·풍속이 없으면 예보 값을 유지한다', () => {
-    const merged = applyObservation(base, { temp: 15, humidity: null, windSpeed: null });
+    const merged = applyObservation(base, {
+      temp: 15,
+      humidity: null,
+      windSpeed: null,
+      precipitation: null,
+    });
     expect(merged.current.temp).toBe(15);
     expect(merged.current.humidity).toBe(base.current.humidity);
     expect(merged.current.windSpeed).toBe(base.current.windSpeed);
@@ -166,6 +186,70 @@ describe('applyObservation', () => {
 
   it('실황이 없으면 원본을 그대로 돌려준다', () => {
     expect(applyObservation(base, null)).toBe(base);
+  });
+
+  it('강수 실측이 없으면(null) 모델 강수와 날씨를 유지한다', () => {
+    const merged = applyObservation(base, {
+      temp: 10,
+      humidity: 80,
+      windSpeed: 1,
+      precipitation: null,
+    });
+    expect(merged.current.precipitation).toBe(base.current.precipitation);
+    expect(merged.current.condition).toBe(base.current.condition);
+  });
+
+  it('실측 강수로 덮어쓰고, 모델이 강수 없음이면 날씨를 비로 바로잡는다', () => {
+    const merged = applyObservation(base, {
+      temp: 10,
+      humidity: 90,
+      windSpeed: 1,
+      precipitation: 0.5,
+    });
+    expect(merged.current.precipitation).toBe(0.5);
+    expect(merged.current.condition).toBe('비');
+  });
+
+  it('영하에서 실측 강수가 있으면 눈으로 바로잡는다', () => {
+    const merged = applyObservation(base, {
+      temp: -1,
+      humidity: 90,
+      windSpeed: 1,
+      precipitation: 0.3,
+    });
+    expect(merged.current.condition).toBe('눈');
+  });
+
+  it('모델이 이미 강수 상태(소나기)면 그대로 둔다', () => {
+    const showers = parseWeather(
+      {
+        ...makeForecast('2026-10-06T14:15'),
+        current: {
+          ...makeForecast('x').current,
+          time: '2026-10-06T14:15',
+          weather_code: 80,
+        },
+      },
+      AIR,
+    );
+    const merged = applyObservation(showers, {
+      temp: 10,
+      humidity: 90,
+      windSpeed: 1,
+      precipitation: 1,
+    });
+    expect(merged.current.condition).toBe('소나기');
+  });
+
+  it('실측 강수가 0.1mm 미만이면 날씨를 바꾸지 않되 강수는 실측으로 덮어쓴다', () => {
+    const merged = applyObservation(base, {
+      temp: 10,
+      humidity: 90,
+      windSpeed: 1,
+      precipitation: 0,
+    });
+    expect(merged.current.precipitation).toBe(0);
+    expect(merged.current.condition).toBe(base.current.condition);
   });
 });
 
@@ -184,7 +268,10 @@ describe('applyAirObservation', () => {
   it('지금 이후의 시간대별 PM10을 실측과 모델의 차이로 보정하고, 차이는 점점 줄어든다', () => {
     // 모델 PM10은 14시 28, 15시 30. 실측 94이면 차이는 +66
     const merged = applyAirObservation(base, { pm10: 94, pm25: null });
-    expect(merged.hourly[14]).toMatchObject({ pm10: 94, pm10Source: 'adjusted' });
+    expect(merged.hourly[14]).toMatchObject({
+      pm10: 94,
+      pm10Source: 'adjusted',
+    });
     expect(merged.hourly[15].pm10).toBeCloseTo(30 + 66 * Math.exp(-1 / 6), -0.5);
     const gapAt = (i: number) => merged.hourly[i].pm10 - base.hourly[i].pm10;
     expect(gapAt(15)).toBeGreaterThan(gapAt(20));
@@ -199,7 +286,9 @@ describe('applyAirObservation', () => {
   });
 
   it('실측이 모델보다 낮아도 PM10은 0 아래로 내려가지 않는다', () => {
-    const spike: AirResponse = { hourly: { time: TIMES, pm10: TIMES.map((_, i) => (i === 14 ? 100 : 5)) } };
+    const spike: AirResponse = {
+      hourly: { time: TIMES, pm10: TIMES.map((_, i) => (i === 14 ? 100 : 5)) },
+    };
     const spikeBase = parseWeather(makeForecast('2026-10-06T14:15'), spike);
     const merged = applyAirObservation(spikeBase, { pm10: 0, pm25: null });
     expect(merged.hourly[15].pm10).toBe(0);
@@ -207,7 +296,9 @@ describe('applyAirObservation', () => {
   });
 
   it('모델 값이 없는 시간대는 보정하지 않고 값 없음으로 둔다', () => {
-    const empty = parseWeather(makeForecast('2026-10-06T14:15'), { hourly: { time: [], pm10: [] } });
+    const empty = parseWeather(makeForecast('2026-10-06T14:15'), {
+      hourly: { time: [], pm10: [] },
+    });
     const merged = applyAirObservation(empty, { pm10: 94, pm25: null });
     expect(merged.hourly[15].pm10Source).toBe('none');
   });
@@ -225,8 +316,12 @@ describe('applyAirObservation', () => {
   });
 
   it('실측도 모델 값도 없으면 값 없음 표시를 유지한다', () => {
-    const empty = parseWeather(makeForecast('2026-10-06T14:15'), { hourly: { time: [], pm10: [] } });
+    const empty = parseWeather(makeForecast('2026-10-06T14:15'), {
+      hourly: { time: [], pm10: [] },
+    });
     expect(applyAirObservation(empty, null).current.pm10Source).toBe('none');
-    expect(applyAirObservation(empty, { pm10: 94, pm25: null }).current.pm10Source).toBe('observed');
+    expect(applyAirObservation(empty, { pm10: 94, pm25: null }).current.pm10Source).toBe(
+      'observed',
+    );
   });
 });

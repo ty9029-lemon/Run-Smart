@@ -4,6 +4,8 @@ import {
   HOURS_IN_DAY,
   MINUTES_PER_HOUR,
   MS_PER_MINUTE,
+  OBSERVED_RAIN_MIN,
+  OBSERVED_SNOW_MAX_TEMP,
 } from '../constants/thresholds';
 import type { Coords } from '../constants/api';
 import type { HourlyWeather, Weather } from '../types';
@@ -133,10 +135,7 @@ function toMinutes(isoLocal: string): number {
  * @param isoLocal 현지 시각 ("2026-10-06T14:15")
  * @param daily 날짜별 일몰 시각. 없으면 undefined를 돌려준다.
  */
-function hoursUntilSunset(
-  isoLocal: string,
-  daily: ForecastResponse['daily'],
-): number | undefined {
+function hoursUntilSunset(isoLocal: string, daily: ForecastResponse['daily']): number | undefined {
   const index = daily?.time?.indexOf(isoLocal.slice(0, ISO_DATE_LENGTH)) ?? -1;
   const sunset = index >= 0 ? daily?.sunset?.[index] : undefined;
   if (!sunset) return undefined;
@@ -195,11 +194,28 @@ export interface Observation {
   temp: number;
   humidity: number | null;
   windSpeed: number | null;
+  /** 최근 1시간 강수량(mm). 관측되지 않았으면 null */
+  precipitation: number | null;
+}
+
+/** 강수를 동반하는 날씨 상태 */
+const PRECIPITATION_CONDITIONS = new Set(['이슬비', '비', '눈', '소나기', '눈 소나기', '뇌우']);
+
+/**
+ * 실측 강수를 반영한 날씨 상태를 구한다. 실측에 비가 있는데 모델이 강수 없음이라 했으면 비(영하면 눈)로 바로잡는다.
+ * @param condition 모델의 날씨 상태
+ * @param precipitation 실측 강수량(mm)
+ * @param temp 현재 기온(°C)
+ */
+function conditionWithObservedRain(condition: string, precipitation: number, temp: number): string {
+  if (precipitation < OBSERVED_RAIN_MIN || PRECIPITATION_CONDITIONS.has(condition))
+    return condition;
+  return temp <= OBSERVED_SNOW_MAX_TEMP ? '눈' : '비';
 }
 
 /**
- * 현재 날씨의 기온·습도·풍속을 실제 관측값으로 바꾼다. (예측 모델은 기온이 실측과 다를 수 있다)
- * 날씨 상태·강수·자외선·미세먼지와 시간대별 예보는 그대로 둔다.
+ * 현재 날씨의 기온·습도·풍속·강수를 실제 관측값으로 바꾼다. (예측 모델은 실측과 다를 수 있다)
+ * 실측 강수가 있으면 날씨 상태도 맞춘다. 자외선·미세먼지와 시간대별 예보는 그대로 둔다.
  * @param result 예보 기반 날씨
  * @param observation 기상청 실황. 없으면 원본을 그대로 돌려준다.
  */
@@ -209,15 +225,21 @@ export function applyObservation(
 ): WeatherResult {
   if (!observation) return result;
   const { current } = result;
+  const temp = round1(observation.temp);
+  const rain = observation.precipitation;
   return {
     ...result,
     current: {
       ...current,
-      temp: round1(observation.temp),
-      humidity:
-        observation.humidity === null ? current.humidity : Math.round(observation.humidity),
-      windSpeed:
-        observation.windSpeed === null ? current.windSpeed : round1(observation.windSpeed),
+      temp,
+      ...(rain === null
+        ? {}
+        : {
+            precipitation: round1(rain),
+            condition: conditionWithObservedRain(current.condition, rain, temp),
+          }),
+      humidity: observation.humidity === null ? current.humidity : Math.round(observation.humidity),
+      windSpeed: observation.windSpeed === null ? current.windSpeed : round1(observation.windSpeed),
     },
   };
 }
