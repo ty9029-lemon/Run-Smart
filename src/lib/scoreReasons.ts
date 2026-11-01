@@ -10,7 +10,7 @@ import {
 import { ACTIVITY_DAYLIGHT_BUFFER_HOURS, ACTIVITY_SCORE_WEIGHTS } from '../constants/scoring';
 import type { Activity, Constraint, WarningLevel, Weather } from '../types';
 import { DUST_UNAVAILABLE_LABEL, hasDustData } from './airGrade';
-import { calcDustPoints, type ScoreBreakdown } from './runScore';
+import { calcDustPoints, calcRainPoints, type ScoreBreakdown } from './runScore';
 import { isColdAir, isDryAir } from './scoreFactors';
 
 /** 단계별 해석 문구 */
@@ -32,7 +32,7 @@ export interface ScoreReason {
   penalty: number;
   /** 깎인 비율 (0~1, 반올림 전 값 기준) */
   ratio: number;
-  /** 미세먼지 때문에 총점 상한을 걸면서 항목 점수 밖에서 더 깎인 점수 (반올림, 미세먼지 항목만 0보다 크다) */
+  /** 미세먼지·비 때문에 총점 상한을 걸면서 항목 점수 밖에서 더 깎인 점수 (반올림, 미세먼지·강수 항목만 0보다 크다) */
   capPenalty: number;
   /** 내 설정(질환) 때문에 더 엄격하게 본 항목인지 */
   sensitive: boolean;
@@ -81,9 +81,13 @@ export function buildScoreReasons(
       // 미세먼지 항목은 상한이 걸리면 음수가 된다. 상한 이전의 실제 점수는 그대로 보여 주고,
       // 상한 때문에 더 깎인 점수는 따로 알린다.
       const dustPoints = key === 'dust' ? calcDustPoints(weather, constraints, activity) : 0;
-      const capExtra = key === 'dust' ? Math.max(0, dustPoints - breakdown[key]) : 0;
+      const rainPoints = key === 'precipitation' ? calcRainPoints(weather, activity) : 0;
+      const capBase = key === 'dust' ? dustPoints : rainPoints;
+      const capExtra =
+        key === 'dust' || key === 'precipitation' ? Math.max(0, capBase - breakdown[key]) : 0;
       const rawMax = weights[key] + nightExtra;
-      const earned = key === 'dust' ? dustPoints : Math.max(0, breakdown[key]);
+      const earned =
+        key === 'dust' || key === 'precipitation' ? capBase : Math.max(0, breakdown[key]);
       const rawPenalty = Math.max(0, rawMax - earned);
       return {
         key,

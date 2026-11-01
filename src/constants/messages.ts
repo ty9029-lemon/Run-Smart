@@ -171,6 +171,9 @@ export const LEVEL_LABEL: Record<WarningLevel, string> = {
 /** 해가 진 뒤의 헤드라인 문구 (점수 단계와 별개로 모든 활동에 쓴다) */
 export const NIGHT_HEADLINE = '지금은 어두워요. 밝은 시간대를 추천해요';
 
+/** 비가 오는 낮의 헤드라인 문구 (점수가 '가볍게 뛰기 괜찮은' 단계 이상일 때) */
+export const RAIN_HEADLINE = '비가 오고 있어요. 우비를 챙겨 나가요';
+
 /** 러닝 점수 5단계별 헤드라인 문구 */
 export const RUNNING_TIER_LABEL: Record<ScoreTier, string> = {
   excellent: '지금 러닝하기 딱 좋아요',

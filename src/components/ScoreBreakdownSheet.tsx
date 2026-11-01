@@ -57,7 +57,10 @@ export function ReasonRow({ reason, value }: { reason: ScoreReason; value: strin
       </p>
       {capPenalty > 0 && (
         <p className="text-sm text-level-bad">
-          {SCORE_REASON_MESSAGES.dustCapNote} · 추가 −{capPenalty}점
+          {reason.key === 'precipitation'
+            ? SCORE_REASON_MESSAGES.rainCapNote
+            : SCORE_REASON_MESSAGES.dustCapNote}{' '}
+          · 추가 −{capPenalty}점
         </p>
       )}
     </li>
