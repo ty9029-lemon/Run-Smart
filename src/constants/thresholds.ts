@@ -77,6 +77,23 @@ export const DUST_BAD_SENSITIVE_SCORE_CAP = SCORE_CAUTION - 1;
 export const RECOMMEND_MIN_SCORE = 80;
 /** 미세먼지가 '보통'일 때 민감한 사용자의 상한. 추천(80점) 아래로 두어 '딱 좋아요'를 막는다 */
 export const DUST_NORMAL_SENSITIVE_SCORE_CAP = RECOMMEND_MIN_SCORE - 1;
+/** 이 강수량(mm) 이상이면 비가 오는 것으로 보고 점수에 상한을 둔다 */
+export const RAIN_SCORE_CAP_MIN = 0.1;
+/** 비가 올 때 점수의 상한. 추천(80점) 아래로 두어 '딱 좋아요'를 막는다 */
+export const RAIN_SCORE_CAP = RECOMMEND_MIN_SCORE - 1;
+/** 이 강수량(mm) 이상이면 강한 비로 본다 */
+export const HEAVY_RAIN_MIN = 1;
+/** 강한 비일 때 점수의 상한. '가볍게 뛰기 괜찮은' 단계(60점) 아래로 둔다 */
+export const HEAVY_RAIN_SCORE_CAP = SCORE_FAIR - 1;
+/** 강수량이 0이어도 비·눈이 오는 것으로 보는 날씨 상태 */
+export const PRECIPITATION_CONDITIONS: ReadonlySet<string> = new Set([
+  '이슬비',
+  '비',
+  '눈',
+  '소나기',
+  '눈 소나기',
+  '뇌우',
+]);
 /** 이 시각(시) 이후는 추천 시간대에서 제외한다 (22시 정각 포함) */
 export const RECOMMEND_CUTOFF_HOUR = 22;
 /** 최고점과 이 점수 이내로 차이 나는 시간대를 함께 추천한다 */

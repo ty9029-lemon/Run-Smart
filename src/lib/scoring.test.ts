@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { ACTIVITY_SCORE_WEIGHTS, NIGHT_EXTRA_PENALTY, SCORE_WEIGHTS } from '../constants/scoring';
-import { NIGHT_HEADLINE, RUNNING_TIER_LABEL } from '../constants/messages';
+import { NIGHT_HEADLINE, RAIN_HEADLINE, RUNNING_TIER_LABEL } from '../constants/messages';
 import {
   DUST_BAD_SCORE_CAP,
   DUST_BAD_SENSITIVE_SCORE_CAP,
   DUST_NORMAL_SENSITIVE_SCORE_CAP,
   DUST_VERY_BAD_SCORE_CAP,
+  HEAVY_RAIN_SCORE_CAP,
+  RAIN_SCORE_CAP,
   RECOMMEND_MIN_SCORE,
   SCORE_MAX,
 } from '../constants/thresholds';
@@ -24,6 +26,7 @@ import { NEUTRAL_SENSITIVITY } from './feelsLike';
 import {
   calcRunScore,
   calcScoreBreakdown,
+  isRainy,
   scoreToHeadline,
   scoreToLevel,
   scoreToTier,
@@ -801,5 +804,72 @@ describe("미세먼지 '매우나쁨' 점수 상한", () => {
     expect(score(150, [])).toBeLessThanOrEqual(DUST_BAD_SCORE_CAP);
     expect(score(150, [])).toBeGreaterThan(DUST_VERY_BAD_SCORE_CAP);
     expect(score(151, [])).toBeLessThanOrEqual(DUST_VERY_BAD_SCORE_CAP);
+  });
+});
+
+describe('비가 올 때 점수 상한', () => {
+  const score = (weather: Partial<Weather>, activity: Activity = 'running') =>
+    calcRunScore({ ...IDEAL, ...weather }, NEUTRAL_SENSITIVITY, [], activity);
+
+  it('이상적인 날씨는 상한 없이 추천(80점) 이상이다', () => {
+    expect(score({})).toBeGreaterThanOrEqual(RECOMMEND_MIN_SCORE);
+  });
+
+  it('가벼운 비(0.2mm)여도 추천 단계(80점)는 막는다', () => {
+    const result = score({ precipitation: 0.2 });
+    expect(result).toBeLessThanOrEqual(RAIN_SCORE_CAP);
+    expect(scoreToTier(result, 'running')).toBe('good');
+  });
+
+  it('강수량이 0이어도 날씨 상태가 비 계열이면 상한이 걸린다', () => {
+    expect(score({ condition: '비' })).toBeLessThanOrEqual(RAIN_SCORE_CAP);
+    expect(score({ condition: '소나기' })).toBeLessThanOrEqual(RAIN_SCORE_CAP);
+  });
+
+  it('강한 비(1mm)는 더 낮은 상한(59점)이 걸린다', () => {
+    expect(score({ precipitation: 1 })).toBeLessThanOrEqual(HEAVY_RAIN_SCORE_CAP);
+  });
+
+  it('0.1mm 미만이고 비 계열이 아니면 상한이 없다', () => {
+    expect(score({ precipitation: 0.05 })).toBeGreaterThan(RAIN_SCORE_CAP);
+  });
+
+  it.each(ALL_ACTIVITIES)('%s도 비가 오면 상한이 걸린다', (activity) => {
+    const sunny = score({}, activity);
+    expect(score({ precipitation: 0.5 }, activity)).toBeLessThan(sunny);
+    expect(score({ precipitation: 0.5 }, activity)).toBeLessThanOrEqual(RAIN_SCORE_CAP);
+  });
+
+  it('미세먼지 상한이 더 낮으면 그 값을 따른다', () => {
+    expect(score({ precipitation: 0.2, pm10: 151 })).toBeLessThanOrEqual(DUST_VERY_BAD_SCORE_CAP);
+  });
+
+  it('시간대별 점수에도 상한이 적용된다', () => {
+    const hourly = IDEAL_DAY_AND_NIGHT.map((h) => ({ ...h, precipitation: 0.5 }));
+    const scores = scoreHours(hourly, NEUTRAL_SENSITIVITY, [], 'running');
+    expect(Math.max(...scores.map((h) => h.score))).toBeLessThanOrEqual(RAIN_SCORE_CAP);
+  });
+});
+
+describe('isRainy와 비 헤드라인', () => {
+  it('강수량이 있거나 비 계열 날씨 상태면 비가 오는 것이다', () => {
+    expect(isRainy({ ...IDEAL, precipitation: 0.1 })).toBe(true);
+    expect(isRainy({ ...IDEAL, condition: '이슬비' })).toBe(true);
+    expect(isRainy(IDEAL)).toBe(false);
+    expect(isRainy({ ...IDEAL, condition: '안개' })).toBe(false);
+  });
+
+  it('비가 오는 낮에 점수가 60점 이상이면 비 안내 문구를 보여준다', () => {
+    expect(scoreToHeadline(79, 'running', true, true)).toBe(RAIN_HEADLINE);
+    expect(scoreToHeadline(60, 'walking', true, true)).toBe(RAIN_HEADLINE);
+  });
+
+  it('60점 미만은 기존 단계 문구, 밤은 야간 문구가 먼저다', () => {
+    expect(scoreToHeadline(59, 'running', true, true)).toBe(RUNNING_TIER_LABEL.caution);
+    expect(scoreToHeadline(79, 'running', false, true)).toBe(NIGHT_HEADLINE);
+  });
+
+  it('비가 오지 않으면 기존 문구 그대로다', () => {
+    expect(scoreToHeadline(90, 'running', true, false)).toBe(RUNNING_TIER_LABEL.excellent);
   });
 });

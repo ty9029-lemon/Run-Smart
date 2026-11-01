@@ -244,3 +244,31 @@ describe("buildScoreReasons: 미세먼지 '보통' 민감군 상한", () => {
     expect(Math.abs(100 - total - penaltySum)).toBeLessThanOrEqual(1);
   });
 });
+
+describe('buildScoreReasons: 비 상한', () => {
+  const RAINY: Weather = { ...IDEAL, precipitation: 0.2 };
+
+  it('강수 행은 상한 이전 점수를 보여주고 상한으로 더 깎인 점수를 capPenalty로 담는다', () => {
+    const breakdown = calcScoreBreakdown(RAINY, NEUTRAL_SENSITIVITY, [], 'running');
+    const rain = buildScoreReasons(breakdown, 'running', [], RAINY).find(
+      (r) => r.key === 'precipitation',
+    );
+    expect(rain?.capPenalty).toBeGreaterThan(0);
+    expect(rain?.penalty).toBeLessThan(MIN_REASON_PENALTY);
+    expect(rain!.penalty + rain!.capPenalty).toBeGreaterThanOrEqual(MIN_REASON_PENALTY);
+  });
+
+  it('가벼운 비도 홈의 깎인 이유 줄에 강수가 보인다', () => {
+    const breakdown = calcScoreBreakdown(RAINY, NEUTRAL_SENSITIVITY, [], 'running');
+    const top = pickTopReasons(buildScoreReasons(breakdown, 'running', [], RAINY));
+    expect(top.map((r) => r.key)).toContain('precipitation');
+  });
+
+  it('비가 없으면 capPenalty는 0이다', () => {
+    const breakdown = calcScoreBreakdown(IDEAL, NEUTRAL_SENSITIVITY, [], 'running');
+    const rain = buildScoreReasons(breakdown, 'running', [], IDEAL).find(
+      (r) => r.key === 'precipitation',
+    );
+    expect(rain?.capPenalty).toBe(0);
+  });
+});

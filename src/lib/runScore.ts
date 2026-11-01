@@ -11,6 +11,11 @@ import {
   DUST_BAD_SENSITIVE_SCORE_CAP,
   DUST_NORMAL_SENSITIVE_SCORE_CAP,
   DUST_VERY_BAD_SCORE_CAP,
+  HEAVY_RAIN_MIN,
+  HEAVY_RAIN_SCORE_CAP,
+  PRECIPITATION_CONDITIONS,
+  RAIN_SCORE_CAP,
+  RAIN_SCORE_CAP_MIN,
   RECOMMEND_MIN_SCORE,
   SCORE_CAUTION,
   SCORE_FAIR,
@@ -18,7 +23,12 @@ import {
   SCORE_MAX,
   SCORE_MIN,
 } from '../constants/thresholds';
-import { LEVEL_LABEL, NIGHT_HEADLINE, RUNNING_TIER_LABEL } from '../constants/messages';
+import {
+  LEVEL_LABEL,
+  NIGHT_HEADLINE,
+  RAIN_HEADLINE,
+  RUNNING_TIER_LABEL,
+} from '../constants/messages';
 import type {
   Activity,
   Constraint,
@@ -118,6 +128,47 @@ function capForDust(
 }
 
 /**
+ * 비·눈이 오는 중인지 본다. 강수량이 있거나 날씨 상태가 강수 계열이면 그렇다.
+ * @param weather 날씨
+ */
+export function isRainy(weather: Weather): boolean {
+  return (
+    weather.precipitation >= RAIN_SCORE_CAP_MIN || PRECIPITATION_CONDITIONS.has(weather.condition)
+  );
+}
+
+/**
+ * 강수에 따른 총점 상한을 구한다. 비가 오지 않으면 null.
+ * 비가 오면 '딱 좋아요'를 막고, 강한 비는 더 낮춘다.
+ */
+function rainScoreCap(weather: Weather): number | null {
+  if (weather.precipitation >= HEAVY_RAIN_MIN) return HEAVY_RAIN_SCORE_CAP;
+  return isRainy(weather) ? RAIN_SCORE_CAP : null;
+}
+
+/**
+ * 총점이 강수 상한을 넘지 않도록 강수 항목에서 초과분을 더 뺀다. (capForDust와 같은 방식)
+ * 강수 배점만으로는 가벼운 비에 다른 항목이 좋을 때 '딱 좋아요'가 나오기 때문이다.
+ * @param breakdown 항목별 점수
+ * @param weather 날씨
+ */
+function capForRain(breakdown: ScoreBreakdown, weather: Weather): ScoreBreakdown {
+  const cap = rainScoreCap(weather);
+  if (cap === null) return breakdown;
+  const excess = sumBreakdown(breakdown) - cap;
+  return excess > 0 ? { ...breakdown, precipitation: breakdown.precipitation - excess } : breakdown;
+}
+
+/**
+ * 상한을 걸기 전 강수 항목 점수 (배점 × 품질)
+ * @param weather 날씨
+ * @param activity 활동
+ */
+export function calcRainPoints(weather: Weather, activity: Activity): number {
+  return ACTIVITY_SCORE_WEIGHTS[activity].precipitation * rainQuality(weather.precipitation);
+}
+
+/**
  * 항목별 점수를 계산한다. (배점 × 품질)
  * @param weather 날씨 정보
  * @param sensitivity 추위·더위 민감도
@@ -141,7 +192,7 @@ export function calcScoreBreakdown(
     feelsLike: w.feelsLike * feelsLikeQuality(felt, ACTIVITY_COMFORT[activity]),
     // 비염은 찬 공기에서만 기온 감점을 키운다
     temp: w.temp * applySensitivity(tempQuality(weather.temp), rhinitis && isColdAir(weather.temp)),
-    precipitation: w.precipitation * rainQuality(weather.precipitation),
+    precipitation: calcRainPoints(weather, activity),
     wind: w.wind * windQuality(weather.windSpeed),
     // 비염은 건조한 공기에서만 습도 감점을 키운다 (습한 쪽은 제외)
     humidity:
@@ -152,7 +203,7 @@ export function calcScoreBreakdown(
       w.daylight * daylightQ - ACTIVITY_NIGHT_EXTRA_PENALTY[activity] * (1 - daylightQ),
     uv: w.uv * applySensitivity(uvQuality(weather.uvIndex), constraints.includes('uvSensitive')),
   };
-  return capForDust(breakdown, weather, dustSensitive);
+  return capForRain(capForDust(breakdown, weather, dustSensitive), weather);
 }
 
 /**
@@ -201,9 +252,16 @@ export function scoreToTier(score: number, activity: Activity): ScoreTier | null
  * @param score 활동 지수
  * @param activity 활동
  * @param isDay 해가 떠 있는지. 모르면 낮으로 본다.
+ * @param isRaining 비·눈이 오는 중인지. 점수가 높아도 '딱 좋아요' 대신 비 안내 문구를 보여준다.
  */
-export function scoreToHeadline(score: number, activity: Activity, isDay: boolean = true): string {
+export function scoreToHeadline(
+  score: number,
+  activity: Activity,
+  isDay: boolean = true,
+  isRaining: boolean = false,
+): string {
   if (!isDay) return NIGHT_HEADLINE;
+  if (isRaining && score >= SCORE_FAIR) return RAIN_HEADLINE;
   const tier = scoreToTier(score, activity);
   return tier ? RUNNING_TIER_LABEL[tier] : LEVEL_LABEL[scoreToLevel(score)];
 }
