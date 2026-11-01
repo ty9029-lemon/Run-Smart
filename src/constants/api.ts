@@ -21,6 +21,10 @@ export const AIR_NOW_TIMEOUT_MS = 6000;
 export const AIR_FORECAST_API_PATH = '/api/air-forecast';
 /** 에어코리아 예보통보 요청 제한 시간(ms) */
 export const AIR_FORECAST_TIMEOUT_MS = 6000;
+/** 기상청 강수 예보 API 경로 (시간대별 강수 보정) */
+export const RAIN_FORECAST_API_PATH = '/api/rain-forecast';
+/** 기상청 강수 예보 요청 제한 시간(ms) */
+export const RAIN_FORECAST_TIMEOUT_MS = 6000;
 
 /** 현재 위치의 행정동 이름 서버리스 함수 경로 */
 export const PLACE_API_PATH = '/api/place';
