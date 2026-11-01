@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { isRainy } from './runScore';
 import {
   applyAirObservation,
   applyObservation,
@@ -241,7 +242,44 @@ describe('applyObservation', () => {
     expect(merged.current.condition).toBe('소나기');
   });
 
-  it('실측 강수가 0.1mm 미만이면 날씨를 바꾸지 않되 강수는 실측으로 덮어쓴다', () => {
+  describe('모델은 비라고 했는데 실측이 강수 없음일 때', () => {
+    /** 모델 날씨 코드로 현재 날씨를 만든다 */
+    const withCode = (code: number) =>
+      parseWeather(
+        {
+          ...makeForecast('2026-10-06T14:15'),
+          current: {
+            ...makeForecast('x').current,
+            time: '2026-10-06T14:15',
+            weather_code: code,
+          },
+        },
+        AIR,
+      );
+    const dry = { temp: 10, humidity: 89, windSpeed: 1, precipitation: 0 };
+
+    it('이슬비를 거두고 비로 보지 않는다', () => {
+      const merged = applyObservation(withCode(51), dry);
+      expect(merged.current.condition).toBe('흐림');
+      expect(merged.current.precipitation).toBe(0);
+      expect(isRainy(merged.current)).toBe(false);
+    });
+
+    it('비·눈도 마찬가지로 거둔다', () => {
+      expect(applyObservation(withCode(61), dry).current.condition).toBe('흐림');
+      expect(applyObservation(withCode(71), dry).current.condition).toBe('흐림');
+    });
+
+    it('강수 실측이 없으면(null) 모델의 이슬비를 유지한다', () => {
+      const merged = applyObservation(withCode(51), {
+        ...dry,
+        precipitation: null,
+      });
+      expect(merged.current.condition).toBe('이슬비');
+    });
+  });
+
+  it('실측 강수가 0.1mm 미만이고 모델도 마른 상태면 날씨를 바꾸지 않고 강수는 실측으로 덮어쓴다', () => {
     const merged = applyObservation(base, {
       temp: 10,
       humidity: 90,
