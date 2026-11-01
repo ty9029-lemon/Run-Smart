@@ -2,10 +2,12 @@ import {
   COORD_CACHE_DIGITS,
   WEATHER_CACHE_PREFIX,
   WEATHER_CACHE_TTL_MS,
+  WEATHER_RAIN_CACHE_TTL_MS,
   type Coords,
 } from '../constants/api';
 import { logger } from './logger';
 import type { WeatherResult } from './openMeteo';
+import { isRainy } from './runScore';
 
 /** 저장되는 캐시 형태 */
 interface CachedWeather {
@@ -21,7 +23,7 @@ function cacheKey(coords: Coords): string {
 }
 
 /**
- * 유효한 날씨 캐시를 읽는다.
+ * 유효한 날씨 캐시를 읽는다. 비·눈이 오는 중이면 유효 시간이 더 짧다.
  * LocalStorage를 쓸 수 없거나 만료·손상된 경우 null.
  * @param coords 좌표
  * @param now 현재 시각(ms), 테스트용
@@ -34,7 +36,8 @@ export function readWeatherCache(
     const raw = localStorage.getItem(cacheKey(coords));
     if (!raw) return null;
     const cached = JSON.parse(raw) as CachedWeather;
-    if (now - cached.savedAt > WEATHER_CACHE_TTL_MS) return null;
+    const ttl = isRainy(cached.data.current) ? WEATHER_RAIN_CACHE_TTL_MS : WEATHER_CACHE_TTL_MS;
+    if (now - cached.savedAt > ttl) return null;
     return cached.data;
   } catch (e) {
     logger.warn('날씨 캐시 읽기 실패', e);

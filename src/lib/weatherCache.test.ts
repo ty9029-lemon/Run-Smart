@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { WEATHER_CACHE_TTL_MS } from '../constants/api';
+import { WEATHER_CACHE_TTL_MS, WEATHER_RAIN_CACHE_TTL_MS } from '../constants/api';
 import { DUMMY_CURRENT_WEATHER, DUMMY_HOURLY } from '../data/dummyWeather';
 import { readWeatherCache, writeWeatherCache } from './weatherCache';
 
@@ -29,6 +29,19 @@ describe('weatherCache', () => {
   it('유효 시간이 지나면 null', () => {
     writeWeatherCache(COORDS, DATA, BASE_TIME);
     expect(readWeatherCache(COORDS, BASE_TIME + WEATHER_CACHE_TTL_MS + 1)).toBeNull();
+  });
+
+  it('비가 오는 날씨는 더 짧은 유효 시간을 쓴다', () => {
+    const rainy = { ...DATA, current: { ...DATA.current, precipitation: 0.5 } };
+    writeWeatherCache(COORDS, rainy, BASE_TIME);
+    expect(readWeatherCache(COORDS, BASE_TIME + WEATHER_RAIN_CACHE_TTL_MS)).toEqual(rainy);
+    expect(readWeatherCache(COORDS, BASE_TIME + WEATHER_RAIN_CACHE_TTL_MS + 1)).toBeNull();
+  });
+
+  it('비가 오지 않으면 1시간 유효 시간을 그대로 쓴다', () => {
+    const dry = { ...DATA, current: { ...DATA.current, precipitation: 0, condition: '맑음' } };
+    writeWeatherCache(COORDS, dry, BASE_TIME);
+    expect(readWeatherCache(COORDS, BASE_TIME + WEATHER_RAIN_CACHE_TTL_MS + 1)).toEqual(dry);
   });
 
   it('가까운 좌표는 같은 캐시를 쓴다', () => {
