@@ -40,6 +40,12 @@ export const GUIDE_RETRY_COUNT = 1;
 const ONE_HOUR_MS = 60 * 60 * 1000;
 /** 날씨 캐시 유효 시간(PRD 8장: 1시간) */
 export const WEATHER_CACHE_TTL_MS = ONE_HOUR_MS;
+/** 1분(ms) */
+const ONE_MINUTE_MS = 60 * 1000;
+/** 비·눈이 올 때의 날씨 캐시 유효 시간. 강수는 빨리 바뀌므로 짧게 둔다 */
+export const WEATHER_RAIN_CACHE_TTL_MS = 15 * ONE_MINUTE_MS;
+/** 홈이 열려 있는 동안 날씨 캐시가 만료됐는지 살피는 간격 */
+export const WEATHER_REFRESH_CHECK_MS = 5 * ONE_MINUTE_MS;
 /** AI 가이드 캐시 유효 시간. 날씨 캐시와 같게 둔다 */
 export const GUIDE_CACHE_TTL_MS = ONE_HOUR_MS;
 /** AI 가이드 캐시 LocalStorage 키 접두어 */

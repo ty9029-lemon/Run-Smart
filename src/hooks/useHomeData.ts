@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { buildGuideRequest, fetchGuide } from '../services/guideService';
+import { WEATHER_REFRESH_CHECK_MS } from '../constants/api';
+import { readWeatherCache } from '../lib/weatherCache';
 import { fetchWeather, type WeatherResult } from '../services/weatherService';
 import { ANALYTICS_EVENTS, trackEvent } from '../lib/analytics';
 import { logger } from '../lib/logger';
@@ -30,9 +32,32 @@ interface Keyed<T> {
   value: T;
 }
 
-/** 날씨를 조회한다. 위치가 정해지기 전이거나 조회 중이면 null, 실패면 'error'. */
+/**
+ * 홈이 열려 있는 동안 날씨 캐시가 만료되면 다시 조회하도록 알리는 숫자를 돌려준다.
+ * 일정 간격과 화면이 다시 보일 때 캐시를 살펴, 만료됐을 때만 숫자를 올린다. (유효하면 화면을 다시 그리지 않는다)
+ */
+function useRefreshTick(lat?: number, lon?: number): number {
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    if (lat === undefined || lon === undefined) return;
+    const refreshIfExpired = () => {
+      if (document.visibilityState !== 'visible') return;
+      if (readWeatherCache({ lat, lon }) === null) setTick((t) => t + 1);
+    };
+    const timer = setInterval(refreshIfExpired, WEATHER_REFRESH_CHECK_MS);
+    document.addEventListener('visibilitychange', refreshIfExpired);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', refreshIfExpired);
+    };
+  }, [lat, lon]);
+  return tick;
+}
+
+/** 날씨를 조회한다. 위치가 정해지기 전이거나 조회 중이면 null, 실패면 'error'. 열어 둔 채로도 캐시가 만료되면 갱신한다. */
 function useWeather(lat?: number, lon?: number): WeatherResult | 'error' | null {
   const [state, setState] = useState<Keyed<WeatherResult | 'error'> | null>(null);
+  const refreshTick = useRefreshTick(lat, lon);
   const key = lat === undefined || lon === undefined ? null : `${lat},${lon}`;
   useEffect(() => {
     if (key === null || lat === undefined || lon === undefined) return;
@@ -45,13 +70,16 @@ function useWeather(lat?: number, lon?: number): WeatherResult | 'error' | null 
         logger.error('날씨 조회 실패', e);
         if (cancelled) return;
         trackEvent(ANALYTICS_EVENTS.dataLoadFailed, { reason: 'weather' });
-        setState({ key, value: 'error' });
+        // 갱신이 실패하면 이미 보여 주던 날씨를 지우지 않는다
+        setState((prev) =>
+          prev?.key === key && prev.value !== 'error' ? prev : { key, value: 'error' },
+        );
       },
     );
     return () => {
       cancelled = true;
     };
-  }, [key, lat, lon]);
+  }, [key, lat, lon, refreshTick]);
   return state && state.key === key ? state.value : null;
 }
 
