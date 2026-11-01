@@ -2,7 +2,7 @@ import { Fragment, useEffect, useRef, type UIEvent } from 'react';
 import { SCORE_LEVEL_BAR_CLASS } from '../constants/levelStyles';
 import {
   RECOMMEND_CUTOFF_HOUR,
-  RECOMMEND_MIN_SCORE,
+  SCORE_GOOD,
   SCROLLBAR_HIDE_DELAY_MS,
 } from '../constants/thresholds';
 import { useIsScrolling } from '../hooks/useIsScrolling';
@@ -34,7 +34,7 @@ function hourLabel(hour: number): string {
   return `${hour}시`;
 }
 
-/** 최고점이 추천 기준에 못 미치는 날의 안내 문구 */
+/** 최고점이 '좋음' 등급(70점)에도 못 미치는 날의 안내 문구 */
 const CAUTION_NOTICE = '오늘은 전반적으로 조심하세요.';
 
 /** 일몰 상태별 안내 문구 */
@@ -78,7 +78,7 @@ function buildFallbackParts(
     { text: '가 가장 좋아요.' },
   ];
   if (sunsetStatus) return [...parts, { text: ` ${SUNSET_NOTICES[sunsetStatus]}` }];
-  return best.score < RECOMMEND_MIN_SCORE ? [...parts, { text: ` ${CAUTION_NOTICE}` }] : parts;
+  return best.score < SCORE_GOOD ? [...parts, { text: ` ${CAUTION_NOTICE}` }] : parts;
 }
 
 /** 차트 제목: 연속 구간이 있으면 구간을, 없으면 추천 시각을 라임색으로 강조한다. */
