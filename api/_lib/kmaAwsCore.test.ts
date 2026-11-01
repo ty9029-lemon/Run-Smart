@@ -7,9 +7,16 @@ import {
   parseAwsMinute,
 } from './kmaAwsCore.js';
 
-/** 매분자료 한 줄을 만든다. (WS10=7번째, TA=8번째, HM=14번째 열) */
-function row(time: string, stn: number, ws10: string, ta: string, hm: string): string {
-  return `${time},${stn},0,1.4,0,2.0,0,${ws10},${ta},-99.9,0.0,0.0,20.0,20.0,${hm},1009.7,1012.4,13.6,=`;
+/** 매분자료 한 줄을 만든다. (WS10=7번째, TA=8번째, RN-60m=11번째, HM=14번째 열) */
+function row(
+  time: string,
+  stn: number,
+  ws10: string,
+  ta: string,
+  hm: string,
+  rain60 = '0.0',
+): string {
+  return `${time},${stn},0,1.4,0,2.0,0,${ws10},${ta},-99.9,0.0,${rain60},20.0,20.0,${hm},1009.7,1012.4,13.6,=`;
 }
 
 const HEADER = '#START7777\n# YYMMDDHHMI STN WD1\n';
@@ -81,7 +88,12 @@ describe('normalizeApiHubKey', () => {
 describe('parseAwsMinute', () => {
   it('가장 최근 분의 기온·습도·풍속을 돌려준다', () => {
     const text = `${HEADER}${row('202610131222', 405, '1.0', '19.0', '71.9')}\n${row('202610131223', 405, '1.1', '19.1', '70.3')}${FOOTER}`;
-    expect(parseAwsMinute(text, 405)).toEqual({ temp: 19.1, humidity: 70.3, windSpeed: 1.1 });
+    expect(parseAwsMinute(text, 405)).toEqual({
+      temp: 19.1,
+      humidity: 70.3,
+      windSpeed: 1.1,
+      precipitation: 0,
+    });
   });
 
   it('최신 분이 결측이면 직전의 유효한 분을 쓴다', () => {
@@ -91,7 +103,22 @@ describe('parseAwsMinute', () => {
 
   it('기온이 유효하고 습도만 결측이면 습도는 null', () => {
     const text = `${HEADER}${row('202610131223', 405, '1.1', '19.1', '-99.9')}${FOOTER}`;
-    expect(parseAwsMinute(text, 405)).toEqual({ temp: 19.1, humidity: null, windSpeed: 1.1 });
+    expect(parseAwsMinute(text, 405)).toEqual({
+      temp: 19.1,
+      humidity: null,
+      windSpeed: 1.1,
+      precipitation: 0,
+    });
+  });
+
+  it('60분 누적 강수량을 돌려준다 (강수감지 열이 결측이어도)', () => {
+    const text = `${HEADER}${row('202610131223', 405, '1.1', '19.1', '70.0', '0.5')}${FOOTER}`;
+    expect(parseAwsMinute(text, 405)?.precipitation).toBe(0.5);
+  });
+
+  it('강수량이 결측이면 null', () => {
+    const text = `${HEADER}${row('202610131223', 405, '1.1', '19.1', '70.0', '-99.9')}${FOOTER}`;
+    expect(parseAwsMinute(text, 405)?.precipitation).toBeNull();
   });
 
   it('모든 분이 결측이면 null', () => {

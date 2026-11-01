@@ -25,6 +25,8 @@ const DEG_TO_RAD = Math.PI / 180;
 const COLUMN_STATION = 1;
 const COLUMN_WIND_SPEED_10M = 7;
 const COLUMN_TEMP = 8;
+/** 60분 누적 강수량(mm). 강수감지(RE) 열은 관측소에 따라 결측이라 쓰지 않는다 */
+const COLUMN_RAIN_60M = 11;
 const COLUMN_HUMIDITY = 14;
 /** 한 줄의 최소 열 수 (습도 열까지) */
 const MIN_COLUMNS = COLUMN_HUMIDITY + 1;
@@ -132,7 +134,7 @@ function toValue(raw: string | undefined): number | null {
 }
 
 /**
- * 매분자료 CSV에서 가장 최근의 유효한 관측값(기온·습도·풍속)을 꺼낸다.
+ * 매분자료 CSV에서 가장 최근의 유효한 관측값(기온·습도·풍속·강수)을 꺼낸다.
  * @param text 응답 본문(disp=1)
  * @param stationId 기대하는 지점번호. 다른 지점 행은 무시한다
  * @returns 기온을 알 수 없으면 null (인증 오류 응답 포함)
@@ -151,6 +153,7 @@ export function parseAwsMinute(text: string, stationId: number): KmaObservation 
       temp,
       humidity: toValue(rows[i][COLUMN_HUMIDITY]),
       windSpeed: toValue(rows[i][COLUMN_WIND_SPEED_10M]),
+      precipitation: toValue(rows[i][COLUMN_RAIN_60M]),
     };
   }
   return null;

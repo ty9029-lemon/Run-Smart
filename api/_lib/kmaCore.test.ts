@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  getKmaBaseTime,
-  normalizeServiceKey,
-  parseKmaObservation,
-  toKmaGrid,
-} from './kmaCore.js';
+import { getKmaBaseTime, normalizeServiceKey, parseKmaObservation, toKmaGrid } from './kmaCore.js';
 
 /** KST 시각을 epoch ms로 만든다. */
 function kst(iso: string): number {
@@ -13,7 +8,12 @@ function kst(iso: string): number {
 
 /** 기상청 응답 모양을 만든다. */
 function kmaBody(items: { category: string; obsrValue: string }[]) {
-  return { response: { header: { resultCode: '00' }, body: { items: { item: items } } } };
+  return {
+    response: {
+      header: { resultCode: '00' },
+      body: { items: { item: items } },
+    },
+  };
 }
 
 describe('toKmaGrid', () => {
@@ -68,12 +68,30 @@ describe('parseKmaObservation', () => {
       { category: 'REH', obsrValue: '72' },
       { category: 'WSD', obsrValue: '1.8' },
     ]);
-    expect(parseKmaObservation(body)).toEqual({ temp: 19.4, humidity: 72, windSpeed: 1.8 });
+    expect(parseKmaObservation(body)).toEqual({
+      temp: 19.4,
+      humidity: 72,
+      windSpeed: 1.8,
+      precipitation: null,
+    });
   });
 
   it('습도·풍속이 없어도 기온이 있으면 돌려준다', () => {
     const body = kmaBody([{ category: 'T1H', obsrValue: '-3.2' }]);
-    expect(parseKmaObservation(body)).toEqual({ temp: -3.2, humidity: null, windSpeed: null });
+    expect(parseKmaObservation(body)).toEqual({
+      temp: -3.2,
+      humidity: null,
+      windSpeed: null,
+      precipitation: null,
+    });
+  });
+
+  it('RN1을 1시간 강수량으로 읽는다', () => {
+    const body = kmaBody([
+      { category: 'T1H', obsrValue: '10.0' },
+      { category: 'RN1', obsrValue: '0.5' },
+    ]);
+    expect(parseKmaObservation(body)?.precipitation).toBe(0.5);
   });
 
   it('기온이 결측(-999)이면 null', () => {

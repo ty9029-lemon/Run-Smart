@@ -51,6 +51,8 @@ export interface KmaObservation {
   temp: number;
   humidity: number | null;
   windSpeed: number | null;
+  /** 최근 1시간 강수량(mm). 관측이 없으면 null */
+  precipitation: number | null;
 }
 
 /** 기상청 응답의 항목 중 사용하는 필드 */
@@ -125,7 +127,7 @@ function toValue(raw: string | undefined): number | null {
 }
 
 /**
- * 초단기실황 응답에서 기온·습도·풍속을 꺼낸다.
+ * 초단기실황 응답에서 기온·습도·풍속·1시간 강수량을 꺼낸다.
  * @param body 기상청 JSON 응답
  * @returns 기온을 알 수 없으면 null (오류 응답 포함)
  */
@@ -137,5 +139,10 @@ export function parseKmaObservation(body: unknown): KmaObservation | null {
     toValue(items.find((i) => i.category === category)?.obsrValue);
   const temp = valueOf('T1H');
   if (temp === null) return null;
-  return { temp, humidity: valueOf('REH'), windSpeed: valueOf('WSD') };
+  return {
+    temp,
+    humidity: valueOf('REH'),
+    windSpeed: valueOf('WSD'),
+    precipitation: valueOf('RN1'),
+  };
 }

@@ -103,7 +103,7 @@ async function findObservation(lat: number, lon: number): Promise<KmaObservation
   return serviceKey ? fetchObservation(serviceKey, lat, lon) : null;
 }
 
-/** GET /api/weather-now?lat=&lon= : 기상청 실측(AWS 분자료 우선, 초단기실황 폴백)의 기온·습도·풍속을 돌려준다. */
+/** GET /api/weather-now?lat=&lon= : 기상청 실측(AWS 분자료 우선, 초단기실황 폴백)의 기온·습도·풍속·1시간 강수량을 돌려준다. */
 export async function GET(request: Request): Promise<Response> {
   if (!process.env.KMA_APIHUB_KEY && !process.env.KMA_SERVICE_KEY) {
     return json({ error: 'server_not_configured' }, STATUS_SERVER_ERROR);

@@ -47,6 +47,11 @@ export const HUMIDITY_UNIT = 10;
 
 /** 복장: 비가 올 때 우비/방수 장비를 추천하는 강수량 기준(mm) */
 export const OUTFIT_RAIN_MIN = 0.1;
+
+/** 실측 강수가 이 값(mm) 이상이면 모델이 비로 예보하지 않았어도 날씨를 비로 본다 */
+export const OBSERVED_RAIN_MIN = 0.1;
+/** 실측 강수가 있을 때 이 기온(°C) 이하면 비 대신 눈으로 본다 */
+export const OBSERVED_SNOW_MAX_TEMP = 0;
 /** 복장: 강풍으로 보고 방풍 겉옷을 더하는 풍속 기준(m/s) */
 export const OUTFIT_STRONG_WIND_MIN = 8;
 /** 복장: 일몰까지 이 시간(h) 이하로 남으면 어두워질 것으로 보고 반사·조명 장비를 더한다 */
