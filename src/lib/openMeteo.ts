@@ -6,6 +6,7 @@ import {
   MS_PER_MINUTE,
   OBSERVED_RAIN_MIN,
   OBSERVED_SNOW_MAX_TEMP,
+  PRECIPITATION_CONDITIONS,
 } from '../constants/thresholds';
 import type { Coords } from '../constants/api';
 import type { HourlyWeather, Weather } from '../types';
@@ -197,9 +198,6 @@ export interface Observation {
   /** 최근 1시간 강수량(mm). 관측되지 않았으면 null */
   precipitation: number | null;
 }
-
-/** 강수를 동반하는 날씨 상태 */
-const PRECIPITATION_CONDITIONS = new Set(['이슬비', '비', '눈', '소나기', '눈 소나기', '뇌우']);
 
 /**
  * 실측 강수를 반영한 날씨 상태를 구한다. 실측에 비가 있는데 모델이 강수 없음이라 했으면 비(영하면 눈)로 바로잡는다.
