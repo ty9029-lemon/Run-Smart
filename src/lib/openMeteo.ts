@@ -1,4 +1,5 @@
 import {
+  DRY_FALLBACK_CONDITION,
   DUST_ADJUST_DECAY_HOURS,
   FORECAST_DAYS,
   HOURS_IN_DAY,
@@ -200,14 +201,17 @@ export interface Observation {
 }
 
 /**
- * 실측 강수를 반영한 날씨 상태를 구한다. 실측에 비가 있는데 모델이 강수 없음이라 했으면 비(영하면 눈)로 바로잡는다.
+ * 실측 강수를 반영한 날씨 상태를 구한다.
+ * 실측에 비가 있는데 모델이 강수 없음이라 했으면 비(영하면 눈)로 바로잡고,
+ * 실측이 강수 없음인데 모델이 비·눈이라 했으면 마른 상태로 거둔다.
  * @param condition 모델의 날씨 상태
  * @param precipitation 실측 강수량(mm)
  * @param temp 현재 기온(°C)
  */
 function conditionWithObservedRain(condition: string, precipitation: number, temp: number): string {
-  if (precipitation < OBSERVED_RAIN_MIN || PRECIPITATION_CONDITIONS.has(condition))
-    return condition;
+  const modelRainy = PRECIPITATION_CONDITIONS.has(condition);
+  if (precipitation < OBSERVED_RAIN_MIN) return modelRainy ? DRY_FALLBACK_CONDITION : condition;
+  if (modelRainy) return condition;
   return temp <= OBSERVED_SNOW_MAX_TEMP ? '눈' : '비';
 }
 

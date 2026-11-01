@@ -1,4 +1,5 @@
 import {
+  DRY_FALLBACK_CONDITION,
   FORECAST_DAYS,
   HOURS_IN_DAY,
   MINUTES_PER_HOUR,
@@ -27,8 +28,6 @@ export interface RainForecast {
   hours: RainForecastHour[];
 }
 
-/** 모델이 강수 없음이라 했는데 예보가 강수 없음이면 대신 쓰는 날씨 상태 */
-const DRY_FALLBACK_CONDITION = '흐림';
 /** 예보 강수 형태 → 날씨 상태 */
 const KIND_CONDITION: Record<Exclude<RainKind, 'none'>, string> = {
   rain: '비',
