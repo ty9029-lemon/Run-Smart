@@ -22,11 +22,15 @@ const MIN_VALID_CONCENTRATION = 0;
 const SEMI_MAJOR_AXIS = 6378137;
 /** GRS80 편평률 */
 const FLATTENING = 1 / 298.257222101;
-/** 중부원점(EPSG:5186) 도법 상수 */
+/**
+ * 에어코리아 근접측정소 조회용 중부원점 TM 상수.
+ * 구 측지계 기준(EPSG:5174 계열)이라 가산 북거리가 500000이다.
+ * (5186의 600000을 쓰면 100km 북쪽 측정소가 나온다)
+ */
 const TM_ORIGIN_LAT = 38;
 const TM_ORIGIN_LON = 127;
 const TM_FALSE_EASTING = 200000;
-const TM_FALSE_NORTHING = 600000;
+const TM_FALSE_NORTHING = 500000;
 const DEG_TO_RAD = Math.PI / 180;
 
 /** TM 좌표(m) */
