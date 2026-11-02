@@ -17,16 +17,22 @@ function wrap(items: unknown): unknown {
 }
 
 describe('toTm', () => {
-  it('서울 시청 좌표는 중부원점 TM 약 (198050, 551840)', () => {
+  it('서울 시청 좌표는 에어코리아 기준 중부원점 TM 약 (198050, 451840)', () => {
     const { tmX, tmY } = toTm(37.5665, 126.978);
     expect(tmX).toBeGreaterThan(197500);
     expect(tmX).toBeLessThan(198600);
-    expect(tmY).toBeGreaterThan(551300);
-    expect(tmY).toBeLessThan(552400);
+    expect(tmY).toBeGreaterThan(451300);
+    expect(tmY).toBeLessThan(452400);
   });
 
-  it('원점(38°N, 127°E)은 위양 좌표(200000, 600000)', () => {
-    expect(toTm(38, 127)).toEqual({ tmX: 200000, tmY: 600000 });
+  it('부산 시청 좌표는 서울보다 남쪽(tmY가 훨씬 작다)', () => {
+    const seoul = toTm(37.5665, 126.978);
+    const busan = toTm(35.1796, 129.0756);
+    expect(seoul.tmY - busan.tmY).toBeGreaterThan(250000);
+  });
+
+  it('원점(38°N, 127°E)은 위양 좌표(200000, 500000)', () => {
+    expect(toTm(38, 127)).toEqual({ tmX: 200000, tmY: 500000 });
   });
 });
 
